@@ -1,23 +1,65 @@
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { ActionSidebar } from "@/components/action-sidebar";
+import { CompanySummaryCard } from "@/components/company-summary-card";
+import { RecommendSection } from "@/components/recommend-section";
+import { JobMeta } from "@/components/job-meta";
+import { prisma } from "@/lib/prisma";
 
-function formatSalary(min?: number | null, max?: number | null) {
-  if (!min && !max) return "応相談";
-  if (min && max && min === max) return `${min}万円`;
-  if (min && max) return `${min}万円〜${max}万円`;
-  if (min) return `${min}万円〜`;
-  return `〜${max}万円`;
+type JobDetailPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+const detailParagraphs = {
+  detail: `“地方企業”と
+“可能性”を合流させる。
+これからの日本を、地方から更新していくために、
+ビジネスの根幹を創造する4つの事業で、
+地方企業の力を解き放ち、新しい未来を
+創り出していきます。`,
+  target: `■採用代行事業
+INREVOの主軸ブランド「ヒトトレ採用」。
+採用戦略からスカウト・面接・内定フォローまでを一気通貫で支援するRPO（採用代行）サービス。
+“採用できなければ全額返金”という成果保証型の仕組みで、企業の採用課題を根本から解決します。
+
+■研修事業
+「ヒトトレ研修」シリーズとして、若手〜管理職まで幅広い階層向け研修を展開。
+対話と体験を重視し、「伝わる」だけでなく「できる」までをサポート。
+企業の理念浸透やチームビルディングなど、人材育成の仕組みづくりを支援します。`,
+  work: `■採用代行事業
+INREVOの主軸ブランド「ヒトトレ採用」。
+採用戦略からスカウト・面接・内定フォローまでを一気通貫で支援するRPO（採用代行）サービス。
+“採用できなければ全額返金”という成果保証型の仕組みで、企業の採用課題を根本から解決します。`,
+};
+
+function TextBlock({
+  heading,
+  body,
+}: {
+  heading: string;
+  body: string;
+}) {
+  return (
+    <div className="grid gap-5 border-t border-[#dddddd] py-6 md:grid-cols-[84px_1fr]">
+      <div className="text-[14px] font-bold text-[#333]">{heading}</div>
+      <div className="whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
+        {body}
+      </div>
+    </div>
+  );
 }
 
 export default async function JobDetailPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: JobDetailPageProps) {
   const { id } = await params;
 
-  const job = await prisma.job.findFirst({
+  const job = await prisma.job.findUnique({
     where: { id },
     include: {
       company: true,
@@ -44,111 +86,96 @@ export default async function JobDetailPage({
   });
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7] px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+    <main className="min-h-screen bg-[#f7f7f7]">
+      <Header />
+
+      <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
+        <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
-            <h1 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
+            <h1 className="text-[40px] font-bold leading-[1.5] text-[#333]">
               {job.title}
             </h1>
 
-            <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-              <div className="aspect-[16/9] w-full bg-gray-200" />
-
-              <div className="p-6">
-                <div className="mb-4 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-gray-800 px-3 py-1 text-xs font-medium text-white">
-                    営業
-                  </span>
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                    未経験歓迎
-                  </span>
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                    中途採用
-                  </span>
-                </div>
-
-                <p className="text-lg text-gray-700">{job.company.name}</p>
-
-                <div className="mt-4 space-y-3 border-b border-gray-200 pb-6 text-base text-gray-800">
-                  <p>📍 {job.location ?? "勤務地未設定"}</p>
-                  <p>¥ {formatSalary(job.salaryMin, job.salaryMax)}</p>
-                </div>
-
-                <section className="border-b border-gray-200 py-6">
-                  <h2 className="mb-3 text-lg font-bold text-gray-900">詳細</h2>
-                  <p className="whitespace-pre-line text-sm leading-7 text-gray-700">
-                    {job.description}
-                  </p>
-                </section>
-
-                <section className="border-b border-gray-200 py-6">
-                  <h2 className="mb-3 text-lg font-bold text-gray-900">対象</h2>
-                  <p className="text-sm leading-7 text-gray-700">
-                    未経験者歓迎。主体的に動ける方、コミュニケーションを大切にできる方を歓迎します。
-                  </p>
-                </section>
-
-                <section className="py-6">
-                  <h2 className="mb-3 text-lg font-bold text-gray-900">仕事内容</h2>
-                  <p className="text-sm leading-7 text-gray-700">
-                    人材採用支援に関する提案、顧客対応、採用活動サポートなどを担当していただきます。
-                  </p>
-                </section>
-              </div>
+            <div className="relative mt-8 aspect-[1.95/1] overflow-hidden rounded-[10px] bg-[#ececec]">
+              <Image
+                src="/assets/Resume.png"
+                alt={job.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 800px"
+              />
+              <span className="absolute right-4 top-4 text-[12px] font-bold text-[#2f6cff]">
+                注目
+              </span>
             </div>
 
-            <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">こちらもおすすめ</h2>
-
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {recommendedJobs.map((recommendedJob) => (
-                  <Link
-                    key={recommendedJob.id}
-                    href={`/jobs/${recommendedJob.id}`}
-                    className="rounded-2xl border border-gray-200 p-4 transition hover:shadow-sm"
-                  >
-                    <div className="aspect-[16/9] w-full rounded-xl bg-gray-100" />
-                    <h3 className="mt-3 line-clamp-2 text-lg font-bold text-gray-900">
-                      {recommendedJob.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-gray-700">
-                      {recommendedJob.company.name}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {recommendedJob.location ?? "勤務地未設定"}
-                    </p>
-                  </Link>
-                ))}
-              </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full bg-[#4b4b4b] px-3 py-1 text-[11px] font-bold text-white">
+                営業
+              </span>
+              <span className="rounded-full bg-[#efefef] px-3 py-1 text-[11px] font-bold text-[#666]">
+                未経験歓迎
+              </span>
+              <span className="rounded-full bg-[#efefef] px-3 py-1 text-[11px] font-bold text-[#666]">
+                中途採用
+              </span>
             </div>
-          </div>
 
-          <aside>
-            <div className="sticky top-6 rounded-2xl bg-white p-5 shadow-sm">
+            <div className="mt-4 flex items-start justify-between gap-4">
+              <JobMeta
+                companyName={job.company.name}
+                location={job.location}
+                salaryMin={job.salaryMin}
+                salaryMax={job.salaryMax}
+              />
+
+              <button className="mt-2">
+                <Image
+                  src="/assets/Bookmark_gr.png"
+                  alt="bookmark"
+                  width={16}
+                  height={20}
+                />
+              </button>
+            </div>
+
+            <div className="mt-6">
+              <TextBlock heading="詳細" body={detailParagraphs.detail} />
+              <TextBlock heading="対象" body={detailParagraphs.target} />
+              <TextBlock heading="仕事内容" body={detailParagraphs.work} />
+            </div>
+
+            <div className="mt-2 text-center">
+              <p className="text-[14px] font-bold text-[#2f6cff]">
+                最短でこのくらいで応募完了！
+              </p>
+
               <Link
                 href={`/jobs/${job.id}/apply`}
-                className="block rounded-xl bg-blue-600 px-4 py-4 text-center text-sm font-bold text-white transition hover:bg-blue-700"
+                className="mt-4 block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white transition hover:opacity-90"
               >
-                今すぐ応募する
+                応募する
               </Link>
-
-              <div className="mt-6 space-y-4 border-t border-gray-200 pt-6 text-sm text-gray-700">
-                <Link href="/mypage" className="block">
-                  マイページ
-                </Link>
-                <Link href="/applications" className="block">
-                  応募済み
-                </Link>
-                <button className="block text-left">気になる</button>
-                <Link href="/messages" className="block">
-                  メッセージ
-                </Link>
-              </div>
             </div>
-          </aside>
+
+            <div className="mt-12">
+              <CompanySummaryCard
+                companyName={job.company.name}
+                location={job.location}
+                description={job.company.description}
+              />
+            </div>
+
+            {recommendedJobs.length > 0 && (
+              <RecommendSection jobs={recommendedJobs} />
+            )}
+          </div>
+
+          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} />
         </div>
       </div>
+
+      <Footer />
     </main>
   );
 }

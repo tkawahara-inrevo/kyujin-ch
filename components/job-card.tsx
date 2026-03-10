@@ -28,7 +28,7 @@ export function JobCard({
   salaryMin,
   salaryMax,
   description,
-  imageSrc = "/assets/Online.png",
+  imageSrc = "/assets/Resume.png",
 }: JobCardProps) {
   return (
     <Link

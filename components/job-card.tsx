@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 
 type JobCardProps = {
   id: string;
@@ -31,22 +32,24 @@ export function JobCard({
   imageSrc = "/assets/Resume.png",
 }: JobCardProps) {
   return (
-    <Link
-      href={`/jobs/${id}`}
-      className="group block rounded-[8px] bg-white transition hover:opacity-95"
-    >
-      <div className="relative aspect-[1.38/1] w-full overflow-hidden rounded-[8px] bg-[#f2f2f2]">
-        <Image
-          src={imageSrc}
-          alt={title}
-          fill
-          className="object-cover transition duration-300 group-hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, 33vw"
-        />
-        <span className="absolute right-3 top-3 text-[12px] font-bold text-[#2f6cff]">
-          注目
-        </span>
-      </div>
+    <article className="rounded-[8px] bg-white transition hover:opacity-95">
+      <Link
+        href={`/jobs/${id}`}
+        className="group block"
+      >
+        <div className="relative aspect-[1.38/1] w-full overflow-hidden rounded-[8px] bg-[#f2f2f2]">
+          <Image
+            src={imageSrc}
+            alt={title}
+            fill
+            className="object-cover transition duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
+          <span className="absolute right-3 top-3 text-[12px] font-bold text-[#2f6cff]">
+            注目
+          </span>
+        </div>
+      </Link>
 
       <div className="px-1 pb-2 pt-3">
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -62,20 +65,16 @@ export function JobCard({
         </div>
 
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="line-clamp-2 text-[18px] font-bold leading-[1.45] text-[#333]">
-              {title}
-            </h3>
+          <div className="min-w-0">
+            <Link href={`/jobs/${id}`} className="block">
+              <h3 className="line-clamp-2 text-[18px] font-bold leading-[1.45] text-[#333] hover:underline">
+                {title}
+              </h3>
+            </Link>
             <p className="mt-2 text-[14px] text-[#555]">{companyName}</p>
           </div>
 
-          <Image
-            src="/assets/Bookmark_gr.png"
-            alt="bookmark"
-            width={14}
-            height={18}
-            className="mt-1 shrink-0 object-contain"
-          />
+          <FavoriteToggleButton jobId={id} />
         </div>
 
         <div className="mt-3 space-y-2">
@@ -95,6 +94,6 @@ export function JobCard({
 
         <p className="mt-4 text-right text-[11px] text-[#999]">掲載日 2026/02/20</p>
       </div>
-    </Link>
+    </article>
   );
 }

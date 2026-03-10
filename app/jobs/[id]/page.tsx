@@ -7,6 +7,7 @@ import { ActionSidebar } from "@/components/action-sidebar";
 import { CompanySummaryCard } from "@/components/company-summary-card";
 import { RecommendSection } from "@/components/recommend-section";
 import { JobMeta } from "@/components/job-meta";
+import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 import { prisma } from "@/lib/prisma";
 
 type JobDetailPageProps = {
@@ -129,14 +130,10 @@ export default async function JobDetailPage({
                 salaryMax={job.salaryMax}
               />
 
-              <button className="mt-2">
-                <Image
-                  src="/assets/Bookmark_gr.png"
-                  alt="bookmark"
-                  width={16}
-                  height={20}
-                />
-              </button>
+              <FavoriteToggleButton
+                jobId={job.id}
+                revalidatePaths={[`/jobs/${job.id}`, "/favorites"]}
+              />
             </div>
 
             <div className="mt-6">

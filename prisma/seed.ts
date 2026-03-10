@@ -26,6 +26,17 @@ async function main() {
     },
   });
 
+    await prisma.user.upsert({
+    where: {
+      email: "applicant@test.com",
+    },
+    update: {},
+    create: {
+      name: "山田 太郎",
+      email: "applicant@test.com",
+    },
+  });
+
   await prisma.job.createMany({
     data: [
       {

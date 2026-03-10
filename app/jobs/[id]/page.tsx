@@ -160,9 +160,13 @@ export default async function JobDetailPage({
 
             <div className="mt-12">
               <CompanySummaryCard
+                companyId={job.company.id}
                 companyName={job.company.name}
                 location={job.location}
                 description={job.company.description}
+                websiteUrl={
+                  (job.company as { websiteUrl?: string | null }).websiteUrl ?? null
+                }
               />
             </div>
 

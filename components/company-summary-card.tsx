@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 type CompanySummaryCardProps = {
+  companyId?: string;
   companyName: string;
   location?: string | null;
   description?: string | null;
@@ -10,6 +11,7 @@ type CompanySummaryCardProps = {
 };
 
 export function CompanySummaryCard({
+  companyId,
   companyName,
   location,
   description,
@@ -20,7 +22,15 @@ export function CompanySummaryCard({
     <section className="rounded-[18px] border border-[#dfdfdf] bg-white p-6">
       <div className="grid gap-6 md:grid-cols-[1fr_180px] md:items-start">
         <div>
-          <h3 className="text-[28px] font-bold text-[#333]">{companyName}</h3>
+          {companyId ? (
+            <Link href={`/companies/${companyId}`} className="inline-block">
+              <h3 className="text-[28px] font-bold text-[#333] transition hover:underline">
+                {companyName}
+              </h3>
+            </Link>
+          ) : (
+            <h3 className="text-[28px] font-bold text-[#333]">{companyName}</h3>
+          )}
 
           <div className="mt-3 flex items-center gap-2 text-[14px] text-[#444]">
             <Image src="/assets/Map_Pin.png" alt="" width={16} height={16} />
@@ -32,13 +42,26 @@ export function CompanySummaryCard({
               "企画、開発、制作、販売及び保守（ウェブサイト、ウェブコンテンツの企画、制作、保守及び管理）、人材育成のための教育コンテンツ作成、研修及び指導"}
           </p>
 
-          <div className="mt-4">
-            <Link
-              href={websiteUrl || "#"}
-              className="text-[13px] font-bold text-[#2f6cff] underline underline-offset-2"
-            >
-              公式サイト
-            </Link>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            {websiteUrl ? (
+              <Link
+                href={websiteUrl}
+                className="text-[13px] font-bold text-[#2f6cff] underline underline-offset-2"
+              >
+                公式サイト
+              </Link>
+            ) : (
+              <span className="text-[13px] font-bold text-[#999]">公式サイト</span>
+            )}
+
+            {companyId && (
+              <Link
+                href={`/companies/${companyId}`}
+                className="text-[13px] font-bold text-[#2f6cff] underline underline-offset-2"
+              >
+                会社ページ
+              </Link>
+            )}
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">

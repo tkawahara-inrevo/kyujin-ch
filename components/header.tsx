@@ -1,70 +1,76 @@
 import Image from "next/image";
 import Link from "next/link";
+import { auth } from "@/auth";
+import { HeaderAuthNav } from "./header-auth-nav";
+import { HeaderAuthButtons } from "./header-auth-buttons";
 
 const navItems = [
-  {
-    href: "/applications",
-    label: "応募済み",
-    icon: "/assets/Checkbox_Check.png",
-  },
-  {
-    href: "/favorites",
-    label: "気になる",
-    icon: "/assets/Bookmark.png",
-  },
-  {
-    href: "/messages",
-    label: "メッセージ",
-    icon: "/assets/Chat_Circle.png",
-  },
+  { href: "/applications", label: "応募済み", icon: "/assets/Checkbox_Check.png" },
+  { href: "/favorites",    label: "気になる",   icon: "/assets/Bookmark.png" },
+  { href: "/messages",     label: "メッセージ", icon: "/assets/Chat_Circle.png" },
 ];
 
-export function Header() {
+export async function Header() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <header className="border-b border-[#e9e9e9] bg-white">
-      <div className="mx-auto flex h-[74px] max-w-[1280px] items-center justify-between px-6">
-        <div className="flex items-center gap-8">
+      <div className="mx-auto grid h-[74px] max-w-[1280px] grid-cols-[auto_1fr_auto] items-center gap-4 px-6">
+
+        {/* 左：ロゴ + バッジ */}
+        <div className="flex items-center gap-5">
           <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-[34px] w-[150px]">
+            <div className="relative h-[30px] w-[30px] shrink-0">
               <Image
                 src="/assets/Person.png"
-                alt="求人ちゃんねる"
+                alt=""
                 fill
-                className="object-contain object-left"
-                sizes="150px"
+                className="object-contain"
+                sizes="30px"
               />
             </div>
-            <span className="sr-only">求人ちゃんねる</span>
+            <span className="text-[18px] font-bold text-[#1a1a1a]">求人ちゃんねる</span>
           </Link>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <div className="rounded-md bg-[#ff3158] px-5 py-[6px] text-[13px] font-bold text-white">
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="rounded-[6px] bg-[#ff3158] px-3 py-[5px] text-[12px] font-bold text-white">
               27卒
-            </div>
+            </span>
             <span className="text-[11px] font-medium text-[#ff3158]">
               28卒予定の方はこちら
             </span>
           </div>
         </div>
 
-        <nav className="hidden items-center gap-10 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center gap-2 text-[13px] font-semibold text-[#444]"
-            >
-              <Image
-                src={item.icon}
-                alt=""
-                width={18}
-                height={18}
-                className="object-contain"
-              />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
+        {/* 中央：企業向けリンク */}
+        <div className="hidden justify-center md:flex">
+          <Link
+            href="#"
+            className="text-[13px] font-semibold text-[#444] hover:underline"
+          >
+            求人掲載を検討中の企業様へ
+          </Link>
+        </div>
+
+        {/* 右：ナビ or 認証ボタン */}
+        {isLoggedIn ? (
+          <nav className="hidden items-center gap-8 md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
+              >
+                <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+            <HeaderAuthNav />
+          </nav>
+        ) : (
+          <HeaderAuthButtons />
+        )}
       </div>
     </header>
   );

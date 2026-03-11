@@ -1,16 +1,26 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export const CURRENT_USER_EMAIL = "applicant@test.com";
+export async function getCurrentUserOptional() {
+  const session = await auth();
 
-export async function getCurrentUser() {
+  if (!session?.user?.id) {
+    return null;
+  }
+
   const user = await prisma.user.findUnique({
-    where: {
-      email: CURRENT_USER_EMAIL,
-    },
+    where: { id: session.user.id },
   });
 
+  return user;
+}
+
+export async function getCurrentUser() {
+  const user = await getCurrentUserOptional();
+
   if (!user) {
-    throw new Error("仮ユーザーが見つかりません。seed を実行してください。");
+    redirect("/");
   }
 
   return user;

@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { RecommendSection } from "@/components/recommend-section";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { CompanyHeaderBlock } from "@/components/company-header-block";
 import { CompanyJobStrip } from "@/components/company-job-strip";
 import { CompanyStory } from "@/components/company-story";
@@ -21,15 +22,18 @@ export default async function CompanyPage({
   params,
 }: CompanyPageProps) {
   const { id } = await params;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
 
   const company = await prisma.company.findUnique({
     where: { id },
     include: {
       jobs: {
         take: 5,
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: { createdAt: "desc" },
+      },
+      reviews: {
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -103,8 +107,16 @@ export default async function CompanyPage({
               </section>
             )}
 
-            <CompanyReviews />
-            <CompanyReviewForm />
+            <CompanyReviews reviews={company.reviews} />
+            {isLoggedIn ? (
+              <CompanyReviewForm companyId={company.id} />
+            ) : (
+              <div className="mt-6 rounded-[14px] border border-[#e0e0e0] bg-white p-5 text-center text-[14px] text-[#888]">
+                クチコミを投稿するには
+                <span className="font-bold text-[#2f6cff]">ログイン</span>
+                が必要です
+              </div>
+            )}
 
             {recommendedJobs.length > 0 && (
               <RecommendSection jobs={recommendedJobs} />

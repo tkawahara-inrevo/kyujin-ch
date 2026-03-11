@@ -4,6 +4,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { RecommendSection } from "@/components/recommend-section";
+import { ApplyForm } from "./apply-form";
 import { prisma } from "@/lib/prisma";
 
 type ApplyPageProps = {
@@ -91,23 +92,8 @@ export default async function ApplyPage({
               </div>
             </div>
 
-            <div className="mt-8 rounded-[18px] bg-[#f4f4f4] p-6">
-              <label className="block text-[14px] font-bold text-[#333]">
-                志望動機・自己PR
-              </label>
-
-              <textarea
-                className="mt-3 h-[120px] w-full rounded-[8px] border border-[#d7d7d7] bg-white px-4 py-3 text-[14px] outline-none"
-                placeholder="本文"
-              />
-
-              <div className="mt-5 text-[13px] leading-[1.8] text-[#444]">
-                <p className="font-bold">履歴書・職務経歴書も送付する（任意）</p>
-                <p>
-                  ※ プロフィールにアップロード済みの書類を応募に同封します。
-                  未アップロードの場合はエラーになるので、先にプロフィールからアップしてね
-                </p>
-              </div>
+            <div className="mt-8">
+              <ApplyForm jobId={job.id} />
             </div>
 
             {recommendedJobs.length > 0 && (

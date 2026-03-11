@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/current-user";
+import { auth } from "@/auth";
 import { addFavorite, removeFavorite } from "@/app/actions/favorites";
 
 type FavoriteToggleButtonProps = {
@@ -17,12 +17,26 @@ export async function FavoriteToggleButton({
   activeIcon = "/assets/Bookmark.png",
   inactiveIcon = "/assets/Bookmark_gr.png",
 }: FavoriteToggleButtonProps) {
-  const user = await getCurrentUser();
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return (
+      <button type="button" className="shrink-0 opacity-70" aria-label="favorite-toggle-disabled">
+        <Image
+          src={inactiveIcon}
+          alt=""
+          width={16}
+          height={20}
+          className="object-contain"
+        />
+      </button>
+    );
+  }
 
   const favorite = await prisma.favorite.findUnique({
     where: {
       userId_jobId: {
-        userId: user.id,
+        userId: session.user.id,
         jobId,
       },
     },

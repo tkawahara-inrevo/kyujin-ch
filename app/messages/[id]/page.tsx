@@ -1,30 +1,55 @@
+import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { RecommendSection } from "@/components/recommend-section";
 import { MessageThread } from "@/components/message-thread";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/current-user";
 
 type MessageDetailPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 };
 
-export default async function MessageDetailPage({
-  params,
-}: MessageDetailPageProps) {
-  await params;
+export default async function MessageDetailPage({ params }: MessageDetailPageProps) {
+  const { id } = await params;
+  const currentUser = await getCurrentUser();
 
-  const recommendedJobs = await prisma.job.findMany({
+  const conversation = await prisma.conversation.findUnique({
+    where: { id },
     include: {
-      company: true,
-    },
-    take: 3,
-    orderBy: {
-      createdAt: "desc",
+      application: {
+        include: {
+          job: { include: { company: true } },
+        },
+      },
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
+
+  if (!conversation || conversation.application.userId !== currentUser.id) {
+    notFound();
+  }
+
+  // 企業からの未読メッセージを既読にする
+  await prisma.message.updateMany({
+    where: {
+      conversationId: id,
+      senderType: "COMPANY",
+      isRead: false,
+    },
+    data: { isRead: true },
+  });
+
+  const recommendedJobs = await prisma.job.findMany({
+    include: { company: true },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const job = conversation.application.job;
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -37,17 +62,27 @@ export default async function MessageDetailPage({
               <h1 className="text-[40px] font-bold text-[#333]">メッセージ詳細</h1>
 
               <div className="mt-4">
-                <p className="text-[28px] font-bold text-[#333]">すごくいい株式会社</p>
-                <p className="mt-3 text-[20px] text-[#444]">
-                  マーケター募集！求人タイトルはこんな感じ
+                <p className="text-[28px] font-bold text-[#333]">
+                  {job.company.name}
                 </p>
+                <p className="mt-3 text-[20px] text-[#444]">{job.title}</p>
                 <p className="mt-3 text-[14px] text-[#999]">
-                  応募ID：***************
+                  応募ID：{conversation.applicationId}
                 </p>
               </div>
 
               <div className="mt-4">
-                <MessageThread />
+                <MessageThread
+                  conversationId={id}
+                  messages={conversation.messages.map((m) => ({
+                    id: m.id,
+                    body: m.body,
+                    senderType: m.senderType,
+                    senderId: m.senderId,
+                    createdAt: m.createdAt,
+                  }))}
+                  currentUserId={currentUser.id}
+                />
               </div>
             </section>
 

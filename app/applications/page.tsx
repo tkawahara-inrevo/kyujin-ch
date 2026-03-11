@@ -5,26 +5,24 @@ import { RecommendSection } from "@/components/recommend-section";
 import { ApplicationListSection } from "@/components/application-list-section";
 import { EmptyStateCard } from "@/components/empty-state-card";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/current-user";
 
 export default async function ApplicationsPage() {
-  const applicationJobs = await prisma.job.findMany({
+  const currentUser = await getCurrentUser();
+
+  const applications = await prisma.application.findMany({
+    where: { userId: currentUser.id },
     include: {
-      company: true,
+      job: { include: { company: true } },
+      conversation: true,
     },
-    take: 4,
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   const recommendedJobs = await prisma.job.findMany({
-    include: {
-      company: true,
-    },
+    include: { company: true },
     take: 3,
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   return (
@@ -34,8 +32,8 @@ export default async function ApplicationsPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
-            {applicationJobs.length > 0 ? (
-              <ApplicationListSection jobs={applicationJobs} />
+            {applications.length > 0 ? (
+              <ApplicationListSection applications={applications} />
             ) : (
               <section className="border-b border-[#dddddd] pb-8">
                 <h1 className="text-[40px] font-bold text-[#333]">応募済み一覧</h1>
@@ -56,10 +54,7 @@ export default async function ApplicationsPage() {
             )}
           </div>
 
-          <ActionSidebar
-            applyHref="/jobs"
-            primaryLabel="求人一覧を見る"
-          />
+          <ActionSidebar applyHref="/jobs" primaryLabel="求人一覧を見る" />
         </div>
       </div>
 

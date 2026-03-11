@@ -43,18 +43,22 @@ enum MessageSenderType {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  role      UserRole @default(USER)
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  name                 String
+  email                String   @unique
+  password             String?
+  role                 UserRole @default(USER)
+  phone                String?
+  resumeUrl            String?
+  careerHistoryUrl     String?
+  notificationsEnabled Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   applications Application[]
   bookmarks    Bookmark[]
-  messages     Message[]
   favorites    Favorite[]
+  reviews      Review[]
 }
 
 model Company {
@@ -66,6 +70,7 @@ model Company {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   jobs        Job[]
+  reviews     Review[]
 }
 
 model Job {
@@ -78,6 +83,8 @@ model Job {
   salaryMax      Int?
   employmentType EmploymentType @default(FULL_TIME)
   isPublished    Boolean        @default(true)
+  categoryTag    String?
+  tags           String[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -123,7 +130,22 @@ model Message {
   createdAt      DateTime          @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  companyId String
+  rating    Int
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
 }
 
 model Bookmark {

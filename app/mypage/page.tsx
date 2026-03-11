@@ -6,17 +6,23 @@ import { ProfileSummary } from "@/components/profile-summary";
 import { DocumentUploadCard } from "@/components/document-upload-card";
 import { ReviewCard } from "@/components/review-card";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/current-user";
 
 export default async function MyPage() {
-  const recommendedJobs = await prisma.job.findMany({
-    include: {
-      company: true,
-    },
-    take: 3,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const currentUser = await getCurrentUser();
+
+  const [recommendedJobs, myReviews] = await Promise.all([
+    prisma.job.findMany({
+      include: { company: true },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.review.findMany({
+      where: { userId: currentUser.id },
+      include: { company: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -25,7 +31,13 @@ export default async function MyPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
-            <ProfileSummary />
+            <ProfileSummary
+              name={currentUser.name}
+              email={currentUser.email}
+              phone={currentUser.phone}
+              notificationsEnabled={currentUser.notificationsEnabled}
+              createdAt={currentUser.createdAt}
+            />
 
             <section className="mt-10">
               <h2 className="text-[40px] font-bold text-[#333]">書類アップロード</h2>
@@ -34,22 +46,40 @@ export default async function MyPage() {
               </p>
 
               <div className="mt-6 space-y-4">
-                <DocumentUploadCard title="履歴書" />
+                <DocumentUploadCard
+                  title="履歴書"
+                  docType="resume"
+                  fileUrl={currentUser.resumeUrl}
+                />
                 <DocumentUploadCard
                   title="職務経歴書"
-                  uploaded
-                  fileName="keireki.pdf"
+                  docType="careerHistory"
+                  fileUrl={currentUser.careerHistoryUrl}
                 />
               </div>
             </section>
+
             <section className="mt-12 border-t border-[#dddddd] pt-12">
               <div className="bg-[#ff1744] px-4 py-2 text-[18px] font-bold text-white">
                 投稿したクチコミ
               </div>
 
               <div className="mt-4 space-y-4">
-                <ReviewCard editable />
-                <ReviewCard editable />
+                {myReviews.length === 0 ? (
+                  <p className="text-[13px] text-[#888]">まだクチコミを投稿していません。</p>
+                ) : (
+                  myReviews.map((r) => (
+                    <ReviewCard
+                      key={r.id}
+                      id={r.id}
+                      rating={r.rating}
+                      title={r.title}
+                      body={r.body}
+                      createdAt={r.createdAt}
+                      editable
+                    />
+                  ))
+                )}
               </div>
             </section>
 

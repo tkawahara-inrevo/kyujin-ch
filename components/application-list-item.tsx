@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 type ApplicationListItemProps = {
-  id: string;
   jobId: string;
   title: string;
   companyName: string;
@@ -10,7 +9,7 @@ type ApplicationListItemProps = {
   salaryMin?: number | null;
   salaryMax?: number | null;
   appliedAt?: string;
-  statusLabel?: string;
+  conversationId?: string;
   imageSrc?: string;
 };
 
@@ -23,15 +22,14 @@ function formatSalary(min?: number | null, max?: number | null) {
 }
 
 export function ApplicationListItem({
-  id,
   jobId,
   title,
   companyName,
   location,
   salaryMin,
   salaryMax,
-  appliedAt = "2026/02/20",
-  statusLabel = "応募済み",
+  appliedAt,
+  conversationId,
   imageSrc = "/assets/Resume.png",
 }: ApplicationListItemProps) {
   return (
@@ -55,10 +53,7 @@ export function ApplicationListItem({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-[#2f6cff] px-3 py-1 text-[11px] font-bold text-white">
-                  {statusLabel}
-                </span>
-                <span className="rounded-full bg-[#efefef] px-3 py-1 text-[11px] font-bold text-[#666]">
-                  中途採用
+                  応募済み
                 </span>
               </div>
 
@@ -70,15 +65,6 @@ export function ApplicationListItem({
 
               <p className="mt-2 text-[16px] text-[#555]">{companyName}</p>
             </div>
-
-            <button aria-label={`application-${id}-bookmark`} className="shrink-0">
-              <Image
-                src="/assets/Bookmark_gr.png"
-                alt=""
-                width={16}
-                height={20}
-              />
-            </button>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[14px] text-[#444]">
@@ -94,7 +80,9 @@ export function ApplicationListItem({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[13px] text-[#999]">応募日 {appliedAt}</p>
+            {appliedAt && (
+              <p className="text-[13px] text-[#999]">応募日 {appliedAt}</p>
+            )}
 
             <div className="flex flex-wrap gap-2">
               <Link
@@ -103,12 +91,14 @@ export function ApplicationListItem({
               >
                 求人詳細を見る
               </Link>
-              <Link
-                href="/messages"
-                className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white transition hover:opacity-90"
-              >
-                メッセージを見る
-              </Link>
+              {conversationId && (
+                <Link
+                  href={`/messages/${conversationId}`}
+                  className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white transition hover:opacity-90"
+                >
+                  メッセージを見る
+                </Link>
+              )}
             </div>
           </div>
         </div>

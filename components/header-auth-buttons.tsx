@@ -17,6 +17,7 @@ export function HeaderAuthButtons() {
 
   return (
     <>
+      {/* Desktop */}
       <div className="hidden items-center gap-3 md:flex">
         <button
           onClick={() => openDialog("register")}
@@ -31,6 +32,24 @@ export function HeaderAuthButtons() {
         >
           <Image src="/assets/User_01.png" alt="" width={14} height={14} className="object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
           ログイン
+        </button>
+      </div>
+
+      {/* Mobile */}
+      <div className="flex items-center gap-2 md:hidden">
+        <button
+          onClick={() => openDialog("register")}
+          className="flex flex-col items-center gap-0.5 px-1"
+        >
+          <Image src="/assets/Edit.png" alt="" width={20} height={20} className="object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <span className="text-[10px] font-semibold text-[#2f6cff]">登録する</span>
+        </button>
+        <button
+          onClick={() => openDialog("login")}
+          className="flex flex-col items-center gap-0.5 px-1"
+        >
+          <Image src="/assets/User_01.png" alt="" width={20} height={20} className="object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <span className="text-[10px] font-bold text-[#2f6cff]">ログイン</span>
         </button>
       </div>
 

@@ -129,8 +129,8 @@ export function TopHero({
             </form>
           ) : (
             <form onSubmit={handleSearch}>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                <div className="sm:col-span-2 lg:col-span-2">
                   <label className="mb-1 block text-[11px] font-bold text-white">キーワードから探す</label>
                   <input
                     value={q}

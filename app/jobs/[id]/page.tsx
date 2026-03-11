@@ -90,10 +90,10 @@ export default async function JobDetailPage({
     <main className="min-h-screen bg-[#f7f7f7]">
       <Header />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 md:py-10 md:px-6">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
-            <h1 className="text-[40px] font-bold leading-[1.5] text-[#333]">
+            <h1 className="text-[22px] font-bold leading-[1.5] text-[#333] md:text-[40px]">
               {job.title}
             </h1>
 
@@ -172,9 +172,24 @@ export default async function JobDetailPage({
             )}
           </div>
 
-          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} />
+          <div className="hidden lg:block">
+            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} />
+          </div>
         </div>
       </div>
+
+      {/* モバイル用スティッキー応募ボタン */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#e9e9e9] bg-white px-4 py-3 lg:hidden">
+        <Link
+          href={`/jobs/${job.id}/apply`}
+          className="block w-full rounded-[10px] bg-[#2f6cff] py-3.5 text-center text-[15px] font-bold text-white transition hover:opacity-90"
+        >
+          今すぐ応募する
+        </Link>
+      </div>
+
+      {/* スティッキーボタン分の余白 */}
+      <div className="h-[72px] lg:hidden" />
 
       <Footer />
     </main>

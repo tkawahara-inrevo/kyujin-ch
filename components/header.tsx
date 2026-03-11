@@ -55,19 +55,33 @@ export async function Header() {
 
         {/* 右：ナビ or 認証ボタン */}
         {isLoggedIn ? (
-          <nav className="hidden items-center gap-8 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
-              >
-                <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
-                <span>{item.label}</span>
+          <>
+            {/* Desktop */}
+            <nav className="hidden items-center gap-8 md:flex">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
+                >
+                  <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+              <HeaderAuthNav />
+            </nav>
+            {/* Mobile */}
+            <div className="flex items-center gap-3 md:hidden">
+              <Link href="/mypage" className="flex flex-col items-center gap-0.5 px-1">
+                <Image src="/assets/User_01_bl.png" alt="" width={20} height={20} className="object-contain" />
+                <span className="text-[10px] font-semibold text-[#444]">マイページ</span>
               </Link>
-            ))}
-            <HeaderAuthNav />
-          </nav>
+              <Link href="/messages" className="flex flex-col items-center gap-0.5 px-1">
+                <Image src="/assets/Chat_Circle.png" alt="" width={20} height={20} className="object-contain" />
+                <span className="text-[10px] font-semibold text-[#444]">メッセージ</span>
+              </Link>
+            </div>
+          </>
         ) : (
           <HeaderAuthButtons />
         )}

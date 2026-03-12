@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(1:*)",
+      "Bash(for d:*)",
+      "Bash(do mv:*)",
+      "Bash(done)",
+      "Bash(ls \"app/company/\\(portal\\)/\")"
+    ]
+  }
+}

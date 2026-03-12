@@ -52,6 +52,7 @@ model User {
   resumeUrl            String?
   careerHistoryUrl     String?
   notificationsEnabled Boolean  @default(true)
+  isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -59,18 +60,25 @@ model User {
   bookmarks    Bookmark[]
   favorites    Favorite[]
   reviews      Review[]
+  company      Company?   @relation("CompanyUser")
 }
 
 model Company {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  websiteUrl  String?
-  location    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  jobs        Job[]
-  reviews     Review[]
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  websiteUrl    String?
+  location      String?
+  isActive      Boolean  @default(true)
+  companyUserId String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  companyUser     User?            @relation("CompanyUser", fields: [companyUserId], references: [id])
+  jobs            Job[]
+  reviews         Review[]
+  invalidRequests InvalidRequest[]
+  monthlyBillings MonthlyBilling[]
 }
 
 model Job {
@@ -83,6 +91,8 @@ model Job {
   salaryMax      Int?
   employmentType EmploymentType @default(FULL_TIME)
   isPublished    Boolean        @default(true)
+  isDeleted      Boolean        @default(false)
+  viewCount      Int            @default(0)
   categoryTag    String?
   tags           String[]
   createdAt      DateTime       @default(now())
@@ -92,6 +102,7 @@ model Job {
   applications Application[]
   bookmarks    Bookmark[]
   favorites    Favorite[]
+  jobViews     JobView[]
 }
 
 model Application {
@@ -103,9 +114,11 @@ model Application {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job          Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  conversation Conversation?
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  conversation    Conversation?
+  charge          Charge?
+  invalidRequests InvalidRequest[]
 
   @@unique([userId, jobId])
 }
@@ -169,4 +182,63 @@ model Favorite {
   job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@unique([userId, jobId])
+}
+
+// ---- 課金・請求・分析 ----
+
+enum InvalidRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Charge {
+  id            String   @id @default(cuid())
+  applicationId String   @unique
+  amount        Int
+  isValid       Boolean  @default(true)
+  billingMonth  String   // YYYY-MM
+  createdAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model InvalidRequest {
+  id            String               @id @default(cuid())
+  applicationId String
+  companyId     String
+  reason        String
+  status        InvalidRequestStatus @default(PENDING)
+  deadline      DateTime
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model MonthlyBilling {
+  id           String    @id @default(cuid())
+  companyId    String
+  billingMonth String    // YYYY-MM
+  totalAmount  Int
+  isFinalized  Boolean   @default(false)
+  finalizedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, billingMonth])
+}
+
+model JobView {
+  id        String   @id @default(cuid())
+  jobId     String
+  viewedAt  DateTime @default(now())
+  sessionId String?
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, viewedAt])
 }

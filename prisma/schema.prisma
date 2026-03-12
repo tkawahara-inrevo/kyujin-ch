@@ -184,6 +184,21 @@ model Favorite {
   @@unique([userId, jobId])
 }
 
+// ---- 料金表 ----
+
+model PriceEntry {
+  id                 String  @id @default(cuid())
+  category           String  // 大カテゴリ (営業, IT, etc.)
+  subcategory        String  // 職種名
+  experiencedPrice   Int     // 経験者料金
+  inexperiencedPrice Int?    // 未経験者料金 (nullable)
+  sortOrder          Int     @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([category, sortOrder])
+}
+
 // ---- 課金・請求・分析 ----
 
 enum InvalidRequestStatus {

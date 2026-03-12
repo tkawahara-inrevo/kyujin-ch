@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/company/dashboard", label: "ダッシュボード", icon: "📊" },
   { href: "/company/jobs", label: "求人管理", icon: "📋" },
   { href: "/company/applicants", label: "応募者管理", icon: "👤" },
-  { href: "/company/messages", label: "メッセージ", icon: "💬" },
+  { href: "/company/messages", label: "メッセージ", icon: "💬", badge: true },
   { href: "/company/billing", label: "請求管理", icon: "💰" },
   { href: "/company/analytics", label: "分析", icon: "📈" },
   { href: "/company/settings", label: "設定", icon: "⚙️" },
@@ -16,6 +17,24 @@ const navItems = [
 
 export function CompanySidebar() {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/company/unread-count")
+      .then((r) => r.json())
+      .then((d) => setUnreadCount(d.count))
+      .catch(() => {});
+
+    // Poll every 30 seconds
+    const interval = setInterval(() => {
+      fetch("/api/company/unread-count")
+        .then((r) => r.json())
+        .then((d) => setUnreadCount(d.count))
+        .catch(() => {});
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <aside className="flex w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white">
@@ -41,7 +60,12 @@ export function CompanySidebar() {
                   }`}
                 >
                   <span className="text-[16px]">{item.icon}</span>
-                  <span>{item.label}</span>
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && unreadCount > 0 && (
+                    <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#ef4444] px-1.5 text-[11px] font-bold text-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );

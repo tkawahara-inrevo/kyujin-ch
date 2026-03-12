@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { CompanySidebar } from "./company-sidebar";
+
+export const dynamic = "force-dynamic";
 
 export default async function CompanyLayout({
   children,
@@ -9,11 +9,11 @@ export default async function CompanyLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const isCompany = session?.user?.role === "COMPANY";
 
-  // login page is excluded from layout auth check
   return (
     <div className="flex min-h-screen bg-[#f5f6fa]">
-      {session?.user?.role === "COMPANY" && <CompanySidebar />}
+      {isCompany && <CompanySidebar />}
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );

@@ -9,7 +9,7 @@ const navItems = [
   { href: "/admin/companies", label: "企業一覧", icon: "🏢" },
   { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤" },
   { href: "/admin/jobs", label: "求人一覧", icon: "📋" },
-  { href: "/admin/billing", label: "請求管理", icon: "💰" },
+  { href: "/admin/billing", label: "料金表管理", icon: "💰" },
   { href: "/admin/invalid-requests", label: "無効申請管理", icon: "🔍" },
   { href: "/admin/analytics", label: "分析", icon: "📈" },
 ];

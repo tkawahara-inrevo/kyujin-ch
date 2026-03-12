@@ -43,10 +43,16 @@ export async function Header() {
           </div>
         </div>
 
-        {/* 中央：企業向けリンク */}
-        <div className="hidden justify-center md:flex">
+        {/* 中央：リンク */}
+        <div className="hidden items-center justify-center gap-6 md:flex">
           <Link
-            href="#"
+            href="/prices"
+            className="text-[13px] font-semibold text-[#444] hover:underline"
+          >
+            料金表
+          </Link>
+          <Link
+            href="/company/login"
             className="text-[13px] font-semibold text-[#444] hover:underline"
           >
             求人掲載を検討中の企業様へ

@@ -3,7 +3,14 @@
 import { useState, useTransition } from "react";
 import { updateApplicationStatus, sendCompanyMessage } from "@/app/actions/company/applicants";
 
-const STATUSES = ["APPLIED", "REVIEWING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"];
+const STATUSES: { value: string; label: string }[] = [
+  { value: "APPLIED", label: "応募済" },
+  { value: "REVIEWING", label: "選考中" },
+  { value: "INTERVIEW", label: "面接" },
+  { value: "OFFER", label: "内定" },
+  { value: "HIRED", label: "採用" },
+  { value: "REJECTED", label: "不採用" },
+];
 
 type Message = {
   id: string;
@@ -46,16 +53,16 @@ export function ApplicantActions({
         <div className="mt-2 flex flex-wrap gap-2">
           {STATUSES.map((s) => (
             <button
-              key={s}
-              onClick={() => handleStatusChange(s)}
-              disabled={isPending || s === currentStatus}
+              key={s.value}
+              onClick={() => handleStatusChange(s.value)}
+              disabled={isPending || s.value === currentStatus}
               className={`rounded-full px-3 py-1.5 text-[12px] font-bold transition ${
-                s === currentStatus
+                s.value === currentStatus
                   ? "bg-[#2f6cff] text-white"
                   : "bg-[#f0f0f0] text-[#555] hover:bg-[#e0e0e0]"
               } disabled:opacity-50`}
             >
-              {s}
+              {s.label}
             </button>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -23,8 +24,8 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-16 text-[12px] text-[#666]">
             <div className="space-y-3">
               <p className="font-bold text-[#333]">求人情報</p>
-              <p>求人一覧</p>
-              <p>会社概要</p>
+              <Link href="/jobs" className="block hover:underline">求人一覧</Link>
+              <Link href="/prices" className="block hover:underline">料金表</Link>
             </div>
             <div className="space-y-3">
               <p className="font-bold text-[#333]">サポート</p>

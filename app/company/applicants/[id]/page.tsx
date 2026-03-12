@@ -27,6 +27,18 @@ export default async function CompanyApplicantDetailPage({
   });
   if (!application) return notFound();
 
+  // 求職者からの未読メッセージを既読にする
+  if (application.conversation) {
+    await prisma.message.updateMany({
+      where: {
+        conversationId: application.conversation.id,
+        senderType: "USER",
+        isRead: false,
+      },
+      data: { isRead: true },
+    });
+  }
+
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">応募者詳細</h1>

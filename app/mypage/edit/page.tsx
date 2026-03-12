@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { RecommendSection } from "@/components/recommend-section";
 import { ProfileEditForm } from "./profile-edit-form";
+import { PasswordSection } from "./password-section";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -29,6 +30,8 @@ export default async function MyPageEdit() {
               notificationsEnabled={currentUser.notificationsEnabled}
               createdAt={currentUser.createdAt}
             />
+
+            <PasswordSection />
 
             {recommendedJobs.length > 0 && (
               <RecommendSection jobs={recommendedJobs} />

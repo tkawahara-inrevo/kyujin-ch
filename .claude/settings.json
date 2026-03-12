@@ -5,7 +5,10 @@
       "Bash(for d:*)",
       "Bash(do mv:*)",
       "Bash(done)",
-      "Bash(ls \"app/company/\\(portal\\)/\")"
+      "Bash(ls \"app/company/\\(portal\\)/\")",
+      "Bash(pnpm build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

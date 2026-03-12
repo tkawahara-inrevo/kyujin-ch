@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
+import SettingsEditForm from "./settings-edit-form";
 
 export default async function CompanySettingsPage() {
   const session = await requireCompany();
@@ -27,6 +28,15 @@ export default async function CompanySettingsPage() {
           <Row label="メール" value={company.companyUser?.email || "未設定"} />
           <Row label="電話番号" value={company.companyUser?.phone || "未設定"} />
         </Section>
+
+        <SettingsEditForm
+          companyName={company.name}
+          description={company.description || ""}
+          websiteUrl={company.websiteUrl || ""}
+          location={company.location || ""}
+          contactName={company.companyUser?.name || ""}
+          phone={company.companyUser?.phone || ""}
+        />
 
         <div className="pt-2">
           <Link

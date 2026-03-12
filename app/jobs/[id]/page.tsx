@@ -8,6 +8,7 @@ import { CompanySummaryCard } from "@/components/company-summary-card";
 import { RecommendSection } from "@/components/recommend-section";
 import { JobMeta } from "@/components/job-meta";
 import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
+import { JobViewTracker } from "@/components/job-view-tracker";
 import { prisma } from "@/lib/prisma";
 
 type JobDetailPageProps = {
@@ -88,6 +89,7 @@ export default async function JobDetailPage({
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
+      <JobViewTracker jobId={job.id} />
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-6 md:py-10 md:px-6">

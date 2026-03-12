@@ -14,6 +14,11 @@ export default async function CompanyMessagesPage() {
     include: {
       application: { include: { user: true, job: true } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: {
+        select: {
+          messages: { where: { senderType: "USER", isRead: false } },
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -30,9 +35,7 @@ export default async function CompanyMessagesPage() {
         ) : (
           conversations.map((conv) => {
             const lastMsg = conv.messages[0];
-            const unread = conv.messages.filter(
-              (m) => !m.isRead && m.senderType === "USER"
-            ).length;
+            const unread = conv._count.messages;
             return (
               <Link
                 key={conv.id}

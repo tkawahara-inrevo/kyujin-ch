@@ -39,11 +39,23 @@ export default async function JobsPage({
     }),
   };
 
-  const jobs = await prisma.job.findMany({
-    where,
-    include: { company: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const [jobs, categoryTags] = await Promise.all([
+    prisma.job.findMany({
+      where,
+      include: { company: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.job.findMany({
+      where: { isPublished: true, categoryTag: { not: null } },
+      select: { categoryTag: true },
+      distinct: ["categoryTag"],
+    }),
+  ]);
+
+  const categories = categoryTags
+    .map((j) => j.categoryTag!)
+    .filter(Boolean)
+    .sort();
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -52,7 +64,13 @@ export default async function JobsPage({
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
         <h1 className="mb-6 text-[28px] font-bold text-[#222]">求人一覧</h1>
 
-        <JobSearchBar defaultQ={q} defaultLocation={location} />
+        <JobSearchBar
+          defaultQ={q}
+          defaultLocation={location}
+          defaultCategory={category}
+          defaultEmploymentType={employmentType}
+          categories={categories}
+        />
 
         {(q || location || tag || category || employmentType) && (
           <p className="mt-4 text-[13px] text-[#888]">

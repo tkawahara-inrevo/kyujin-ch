@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 import { UserActiveToggle } from "./user-active-toggle";
 import { requireAdmin } from "@/lib/auth-helpers";
 
@@ -27,7 +28,9 @@ export default async function AdminJobseekersPage() {
           <tbody>
             {users.map((u) => (
               <tr key={u.id} className="border-b border-[#f8f8f8] hover:bg-[#fafafa]">
-                <td className="px-5 py-3 font-medium text-[#333]">{u.name}</td>
+                <td className="px-5 py-3 font-medium text-[#333]">
+                  <Link href={`/admin/jobseekers/${u.id}`} className="hover:text-[#2f6cff] hover:underline">{u.name}</Link>
+                </td>
                 <td className="px-5 py-3 text-[#555]">{u.email}</td>
                 <td className="px-5 py-3 text-[#555]">{u._count.applications}</td>
                 <td className="px-5 py-3">

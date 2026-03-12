@@ -25,7 +25,6 @@ export function Footer() {
             <div className="space-y-3">
               <p className="font-bold text-[#333]">求人情報</p>
               <Link href="/jobs" className="block hover:underline">求人一覧</Link>
-              <Link href="/prices" className="block hover:underline">料金表</Link>
             </div>
             <div className="space-y-3">
               <p className="font-bold text-[#333]">サポート</p>

@@ -46,12 +46,6 @@ export async function Header() {
         {/* 中央：リンク */}
         <div className="hidden items-center justify-center gap-6 md:flex">
           <Link
-            href="/prices"
-            className="text-[13px] font-semibold text-[#444] hover:underline"
-          >
-            料金表
-          </Link>
-          <Link
             href="/company/login"
             className="text-[13px] font-semibold text-[#444] hover:underline"
           >

@@ -8,7 +8,18 @@
       "Bash(ls \"app/company/\\(portal\\)/\")",
       "Bash(pnpm build:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main 2>&1\")",
+      "Read(//c/Users/kawah/.ssh/**)",
+      "Bash(ssh -o ConnectTimeout=10 -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main 2>&1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && npx prisma db push 2>&1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && pnpm build 2>&1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && npx prisma generate 2>&1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && pm2 restart kyujin-ch 2>&1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && cat prisma/seed-prices.sql | head -5\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && grep ''DATABASE_URL'' .env | head -1\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && psql ''postgresql://kyujin_admin:kyujin-admin@ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com:5432/kyujin_ch'' -f prisma/seed-prices.sql 2>&1\")"
     ]
   }
 }

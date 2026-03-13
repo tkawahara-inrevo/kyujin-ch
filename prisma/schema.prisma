@@ -98,6 +98,23 @@ model Job {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
+  // 追加フィールド（WP準拠）
+  imageUrl              String?   // メイン画像
+  requirements          String?   // 応募条件
+  desiredAptitude       String?   // 求む適性
+  recommendedFor        String?   // おすすめしたい方へ
+  monthlySalary         String?   // 給与（税込月給）
+  annualSalary          String?   // 給与（税込年収）
+  access                String?   // アクセス
+  officeName            String?   // 勤務地名称
+  officeDetail          String?   // 勤務地名称詳細
+  benefits              String[]  // 福利厚生
+  selectionProcess      String?   // 選考プロセス
+  workingHours          String?   // 勤務時間
+  closingDate           DateTime? // 掲載終了日
+  employmentPeriodType  String?   // 有期/無期雇用区分
+  region                String?   // 勤務地エリア（北海道・東北等）
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

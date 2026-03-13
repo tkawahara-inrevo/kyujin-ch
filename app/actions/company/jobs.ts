@@ -23,7 +23,7 @@ export async function toggleJobPublish(jobId: string, isPublished: boolean) {
   revalidatePath("/company/jobs");
 }
 
-export async function createJob(data: {
+type JobData = {
   title: string;
   description: string;
   employmentType: string;
@@ -33,53 +33,65 @@ export async function createJob(data: {
   categoryTag?: string;
   tags?: string[];
   isPublished: boolean;
-}) {
+  imageUrl?: string;
+  requirements?: string;
+  desiredAptitude?: string;
+  recommendedFor?: string;
+  monthlySalary?: string;
+  annualSalary?: string;
+  access?: string;
+  officeName?: string;
+  officeDetail?: string;
+  benefits?: string[];
+  selectionProcess?: string;
+  workingHours?: string;
+  closingDate?: string;
+  employmentPeriodType?: string;
+  region?: string;
+};
+
+function toJobPrismaData(data: JobData) {
+  return {
+    title: data.title,
+    description: data.description,
+    employmentType: data.employmentType as any,
+    location: data.location || null,
+    salaryMin: data.salaryMin || null,
+    salaryMax: data.salaryMax || null,
+    categoryTag: data.categoryTag || null,
+    tags: data.tags || [],
+    isPublished: data.isPublished,
+    imageUrl: data.imageUrl || null,
+    requirements: data.requirements || null,
+    desiredAptitude: data.desiredAptitude || null,
+    recommendedFor: data.recommendedFor || null,
+    monthlySalary: data.monthlySalary || null,
+    annualSalary: data.annualSalary || null,
+    access: data.access || null,
+    officeName: data.officeName || null,
+    officeDetail: data.officeDetail || null,
+    benefits: data.benefits || [],
+    selectionProcess: data.selectionProcess || null,
+    workingHours: data.workingHours || null,
+    closingDate: data.closingDate ? new Date(data.closingDate) : null,
+    employmentPeriodType: data.employmentPeriodType || null,
+    region: data.region || null,
+  };
+}
+
+export async function createJob(data: JobData) {
   const companyId = await getCompanyId();
   await prisma.job.create({
-    data: {
-      companyId,
-      title: data.title,
-      description: data.description,
-      employmentType: data.employmentType as any,
-      location: data.location || null,
-      salaryMin: data.salaryMin || null,
-      salaryMax: data.salaryMax || null,
-      categoryTag: data.categoryTag || null,
-      tags: data.tags || [],
-      isPublished: data.isPublished,
-    },
+    data: { companyId, ...toJobPrismaData(data) },
   });
   revalidatePath("/company/jobs");
 }
 
-export async function updateJob(
-  jobId: string,
-  data: {
-    title: string;
-    description: string;
-    employmentType: string;
-    location?: string;
-    salaryMin?: number;
-    salaryMax?: number;
-    categoryTag?: string;
-    tags?: string[];
-    isPublished: boolean;
-  }
-) {
+export async function updateJob(jobId: string, data: JobData) {
   const companyId = await getCompanyId();
   await prisma.job.update({
     where: { id: jobId, companyId },
-    data: {
-      title: data.title,
-      description: data.description,
-      employmentType: data.employmentType as any,
-      location: data.location || null,
-      salaryMin: data.salaryMin || null,
-      salaryMax: data.salaryMax || null,
-      categoryTag: data.categoryTag || null,
-      tags: data.tags || [],
-      isPublished: data.isPublished,
-    },
+    data: toJobPrismaData(data),
   });
   revalidatePath("/company/jobs");
 }

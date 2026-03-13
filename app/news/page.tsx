@@ -13,7 +13,9 @@ export default function NewsPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
         <div className="grid gap-10 lg:grid-cols-[1fr_260px]">
           <NewsContent />
-          <RightSidebar />
+          <div className="hidden lg:block">
+            <RightSidebar />
+          </div>
         </div>
       </div>
 

@@ -18,7 +18,7 @@ export function ActionSidebar({
   primaryLabel = "今すぐ応募する",
 }: ActionSidebarProps) {
   return (
-    <aside className="self-start lg:sticky lg:top-6">
+    <aside className="hidden self-start lg:sticky lg:top-6 lg:block">
       <div className="rounded-[20px] border border-[#e6e6e6] bg-white px-5 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.04)]">
         <Link
           href={applyHref}

@@ -171,7 +171,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="inline-block rounded-full border-2 border-[#222] bg-[#222] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#444]"
+                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#2558d4]"
                     >
                       注目の求人をもっと見る
                     </Link>
@@ -206,7 +206,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="inline-block rounded-full border-2 border-[#222] bg-[#222] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#444]"
+                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#2558d4]"
                     >
                       新着の求人をもっと見る
                     </Link>

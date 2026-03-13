@@ -47,7 +47,8 @@
       "Bash(curl -s http://13.159.236.233:3000/api/debug-auth)",
       "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && ls app/api/debug-auth/ && cat app/api/debug-auth/route.ts | head -5\")",
       "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && git pull && pnpm build && pm2 restart kyujin-ch\")",
-      "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset)"
+      "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset)",
+      "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset-all)"
     ]
   }
 }

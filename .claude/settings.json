@@ -20,7 +20,9 @@
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && cat prisma/seed-prices.sql | head -5\")",
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && grep ''DATABASE_URL'' .env | head -1\")",
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && psql ''postgresql://kyujin_admin:kyujin-admin@ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com:5432/kyujin_ch'' -f prisma/seed-prices.sql 2>&1\")",
-      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && pnpm build && pm2 restart kyujin-ch\")"
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && pnpm build && pm2 restart kyujin-ch\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && npx prisma db push && pnpm build && pm2 restart kyujin-ch\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && npx prisma generate && pnpm build && pm2 restart kyujin-ch\")"
     ]
   }
 }

@@ -48,6 +48,8 @@ type JobData = {
   closingDate?: string;
   employmentPeriodType?: string;
   region?: string;
+  targetType?: string;
+  graduationYear?: number;
 };
 
 function toJobPrismaData(data: JobData) {
@@ -76,6 +78,8 @@ function toJobPrismaData(data: JobData) {
     closingDate: data.closingDate ? new Date(data.closingDate) : null,
     employmentPeriodType: data.employmentPeriodType || null,
     region: data.region || null,
+    targetType: data.targetType || "MID_CAREER",
+    graduationYear: data.targetType === "NEW_GRAD" && data.graduationYear ? data.graduationYear : null,
   };
 }
 

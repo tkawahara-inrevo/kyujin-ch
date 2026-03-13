@@ -115,6 +115,10 @@ model Job {
   employmentPeriodType  String?   // 有期/無期雇用区分
   region                String?   // 勤務地エリア（北海道・東北等）
 
+  // ターゲット（新卒/中途）
+  targetType            String    @default("MID_CAREER") // "NEW_GRAD" | "MID_CAREER"
+  graduationYear        Int?      // 新卒の場合の卒業年度（例: 2027）
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

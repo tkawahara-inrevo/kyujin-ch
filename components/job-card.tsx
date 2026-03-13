@@ -11,7 +11,7 @@ type JobCardProps = {
   salaryMax?: number | null;
   description: string;
   imageSrc?: string;
-  badge?: "注目" | "新着";
+  badge?: string;
   categoryTag?: string;
   tags?: string[];
   createdAt?: Date | string;
@@ -66,13 +66,15 @@ export function JobCard({
             className="object-cover transition duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-          {badge === "新着" ? (
-            <span className="absolute right-3 top-3 rounded-[4px] bg-[#ff3158] px-2 py-[3px] text-[11px] font-bold text-white">
-              新着
-            </span>
-          ) : (
-            <span className="absolute right-3 top-3 text-[12px] font-bold text-[#2f6cff]">
-              注目
+          {badge && (
+            <span className={`absolute right-3 top-3 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
+              badge === "中途"
+                ? "bg-[#2f6cff] text-white"
+                : badge.includes("卒")
+                  ? "bg-[#ff3158] text-white"
+                  : "bg-[#ff3158] text-white"
+            }`}>
+              {badge}
             </span>
           )}
         </div>

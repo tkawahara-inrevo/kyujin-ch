@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createJob } from "@/app/actions/company/jobs";
+import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 
 const EMPLOYMENT_OPTIONS = [
   { value: "FULL_TIME", label: "正社員" },
@@ -86,6 +87,9 @@ export default function CompanyJobNewPage() {
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
+  const gradYears = getActiveGraduationYears();
+  const [targetType, setTargetType] = useState("MID_CAREER");
+  const [graduationYear, setGraduationYear] = useState(gradYears[0]);
 
   function toggleItem(list: string[], setList: (v: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((t) => t !== item) : [...list, item]);
@@ -120,6 +124,8 @@ export default function CompanyJobNewPage() {
       tags: selectedTags,
       benefits: selectedBenefits,
       isPublished: fd.get("isPublished") === "true",
+      targetType,
+      graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
     });
 
     router.push("/company/jobs");
@@ -130,6 +136,29 @@ export default function CompanyJobNewPage() {
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">求人を作成する</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-[720px] space-y-8">
+        {/* === ターゲット === */}
+        <Section title="ターゲット">
+          <Field label="対象" required>
+            <div className="flex flex-wrap gap-3">
+              <TargetButton
+                active={targetType === "MID_CAREER"}
+                onClick={() => setTargetType("MID_CAREER")}
+              >
+                中途
+              </TargetButton>
+              {gradYears.map((y) => (
+                <TargetButton
+                  key={y}
+                  active={targetType === "NEW_GRAD" && graduationYear === y}
+                  onClick={() => { setTargetType("NEW_GRAD"); setGraduationYear(y); }}
+                >
+                  {graduationYearLabel(y)}
+                </TargetButton>
+              ))}
+            </div>
+          </Field>
+        </Section>
+
         {/* === 基本情報 === */}
         <Section title="基本情報">
           <Field label="タイトル" required>
@@ -341,5 +370,21 @@ function Field({ label, required, children }: { label: string; required?: boolea
       </label>
       {children}
     </div>
+  );
+}
+
+function TargetButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-[8px] border px-5 py-3 text-[14px] font-semibold transition ${
+        active
+          ? "border-[#2f6cff] bg-[#2f6cff]/10 text-[#2f6cff]"
+          : "border-[#ddd] text-[#666] hover:border-[#aaa]"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

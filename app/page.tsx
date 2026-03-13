@@ -5,6 +5,8 @@ import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
+import { TargetTabs } from "@/components/target-tabs";
 
 const cardImages = [
   "/assets/Online.png",
@@ -18,6 +20,7 @@ type SearchParams = Promise<{
   category?: string;
   employmentType?: string;
   location?: string;
+  target?: string; // "mid" | "2027" | "2028" etc.
 }>;
 
 export default async function HomePage({
@@ -25,11 +28,29 @@ export default async function HomePage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, category, employmentType, location } = await searchParams;
+  const { q, category, employmentType, location, target } = await searchParams;
+  const gradYears = getActiveGraduationYears();
+
+  // Build target filter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const targetFilter: any = {};
+  if (target && target !== "all") {
+    if (target === "mid") {
+      targetFilter.targetType = "MID_CAREER";
+    } else {
+      const year = Number(target);
+      if (!isNaN(year)) {
+        targetFilter.targetType = "NEW_GRAD";
+        targetFilter.graduationYear = year;
+      }
+    }
+  }
 
   const jobs = await prisma.job.findMany({
     where: {
       isPublished: true,
+      isDeleted: false,
+      ...targetFilter,
       ...(q && {
         OR: [
           { title: { contains: q, mode: "insensitive" } },
@@ -45,6 +66,15 @@ export default async function HomePage({
     orderBy: { createdAt: "desc" },
   });
 
+  // Tab options
+  const tabs = [
+    { value: "all", label: "すべて" },
+    ...gradYears.map((y) => ({ value: String(y), label: graduationYearLabel(y) })),
+    { value: "mid", label: "中途" },
+  ];
+
+  const activeTarget = target || "all";
+
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
       <Header />
@@ -57,17 +87,24 @@ export default async function HomePage({
       />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_260px]">
+        {/* ターゲットタブ */}
+        <TargetTabs tabs={tabs} active={activeTarget} />
+
+        <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_260px]">
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h1 className="text-[22px] font-bold text-[#222]">求人一覧</h1>
-              {(q || category || employmentType || location) && (
-                <p className="text-[13px] text-[#888]">
-                  {jobs.length} 件
-                  {q && <span>（{q}）</span>}
-                  {category && <span>（{category}）</span>}
-                </p>
-              )}
+              <h1 className="text-[22px] font-bold text-[#222]">
+                {activeTarget === "all"
+                  ? "求人一覧"
+                  : activeTarget === "mid"
+                    ? "中途向け求人"
+                    : `${graduationYearLabel(Number(activeTarget))}向け求人`}
+              </h1>
+              <p className="text-[13px] text-[#888]">
+                {jobs.length} 件
+                {q && <span>（{q}）</span>}
+                {category && <span>（{category}）</span>}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
@@ -87,7 +124,11 @@ export default async function HomePage({
                     salaryMax={job.salaryMax}
                     description={job.description}
                     imageSrc={cardImages[index % cardImages.length]}
-                    badge="新着"
+                    badge={
+                      job.targetType === "NEW_GRAD" && job.graduationYear
+                        ? graduationYearLabel(job.graduationYear)
+                        : "中途"
+                    }
                     categoryTag={job.categoryTag ?? undefined}
                     tags={job.tags.length > 0 ? job.tags : undefined}
                     createdAt={job.createdAt}

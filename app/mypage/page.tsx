@@ -76,7 +76,7 @@ export default async function MyPage() {
             </section>
           </div>
 
-          <ActionSidebar />
+          <ActionSidebar isLoggedIn={true} />
         </div>
       </div>
 

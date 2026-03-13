@@ -26,7 +26,7 @@ export default async function MyPageEdit() {
             <PasswordSection />
           </div>
 
-          <ActionSidebar />
+          <ActionSidebar isLoggedIn={true} />
         </div>
       </div>
 

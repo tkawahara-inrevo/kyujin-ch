@@ -43,7 +43,7 @@ export default async function ApplicationsPage() {
             )}
           </div>
 
-          <ActionSidebar applyHref="/jobs" primaryLabel="求人一覧を見る" />
+          <ActionSidebar applyHref="/jobs" primaryLabel="求人一覧を見る" isLoggedIn={true} />
         </div>
       </div>
 

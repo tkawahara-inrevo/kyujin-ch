@@ -80,7 +80,7 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
             </section>
           </div>
 
-          <ActionSidebar />
+          <ActionSidebar isLoggedIn={true} />
         </div>
       </div>
 

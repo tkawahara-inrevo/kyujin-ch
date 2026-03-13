@@ -79,7 +79,7 @@ export default async function MessagesPage() {
             </section>
           </div>
 
-          <ActionSidebar />
+          <ActionSidebar isLoggedIn={true} />
         </div>
       </div>
 

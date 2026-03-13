@@ -53,6 +53,7 @@ export default async function FavoritesPage() {
           <ActionSidebar
             applyHref="/jobs"
             primaryLabel="求人一覧を見る"
+            isLoggedIn={true}
           />
         </div>
       </div>

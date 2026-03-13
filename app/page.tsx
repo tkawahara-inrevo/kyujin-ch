@@ -4,10 +4,12 @@ import { RightSidebar } from "@/components/right-sidebar";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
 import { TargetSelectModal } from "@/components/target-select-modal";
+import { MobileAuthBar } from "@/components/mobile-auth-bar";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import { auth } from "@/auth";
+import Link from "next/link";
 
 const cardImages = [
   "/assets/Online.png",
@@ -21,7 +23,7 @@ type SearchParams = Promise<{
   category?: string;
   employmentType?: string;
   location?: string;
-  target?: string; // "mid" | "2027" | "2028" etc.
+  target?: string;
 }>;
 
 export default async function HomePage({
@@ -33,7 +35,7 @@ export default async function HomePage({
   const isLoggedIn = !!session?.user;
   const [currentYear, nextYear] = getActiveGraduationYears();
   const { q, category, employmentType, location, target } = await searchParams;
-  // Build target filter
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const targetFilter: any = {};
   if (target && target !== "all") {
@@ -48,27 +50,34 @@ export default async function HomePage({
     }
   }
 
+  const where = {
+    isPublished: true,
+    isDeleted: false,
+    ...targetFilter,
+    ...(q && {
+      OR: [
+        { title: { contains: q, mode: "insensitive" as const } },
+        { description: { contains: q, mode: "insensitive" as const } },
+        { company: { name: { contains: q, mode: "insensitive" as const } } },
+      ],
+    }),
+    ...(category && { categoryTag: { contains: category, mode: "insensitive" as const } }),
+    ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
+    ...(location && { location: { contains: location, mode: "insensitive" as const } }),
+  };
+
   const jobs = await prisma.job.findMany({
-    where: {
-      isPublished: true,
-      isDeleted: false,
-      ...targetFilter,
-      ...(q && {
-        OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { description: { contains: q, mode: "insensitive" } },
-          { company: { name: { contains: q, mode: "insensitive" } } },
-        ],
-      }),
-      ...(category && { categoryTag: { contains: category, mode: "insensitive" } }),
-      ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
-      ...(location && { location: { contains: location, mode: "insensitive" } }),
-    },
+    where,
     include: { company: true },
     orderBy: { createdAt: "desc" },
   });
 
+  // 注目の求人（最初の6件）と新着求人（残り）
+  const featuredJobs = jobs.slice(0, 6);
+  const newJobs = jobs.slice(0, 6);
+
   const activeTarget = target || "all";
+  const hasSearchFilter = !!(q || category || employmentType || location);
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -84,59 +93,136 @@ export default async function HomePage({
         defaultLocation={location}
       />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_260px]">
+      <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6 md:py-10">
+        <div className="grid gap-8 lg:grid-cols-[1fr_260px] lg:gap-10">
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h1 className="text-[22px] font-bold text-[#222]">
-                {activeTarget === "all"
-                  ? "求人一覧"
-                  : activeTarget === "mid"
-                    ? "中途向け求人"
-                    : `${graduationYearLabel(Number(activeTarget))}向け求人`}
-              </h1>
-              <p className="text-[13px] text-[#888]">
-                {jobs.length} 件
-                {q && <span>（{q}）</span>}
-                {category && <span>（{category}）</span>}
-              </p>
-            </div>
+            {hasSearchFilter ? (
+              /* 検索結果モード */
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-[20px] font-bold text-[#222] md:text-[22px]">
+                    {activeTarget === "all"
+                      ? "検索結果"
+                      : activeTarget === "mid"
+                        ? "中途向け求人"
+                        : `${graduationYearLabel(Number(activeTarget))}向け求人`}
+                  </h2>
+                  <p className="text-[13px] text-[#888]">
+                    {jobs.length} 件
+                    {q && <span>（{q}）</span>}
+                    {category && <span>（{category}）</span>}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                  {jobs.length === 0 ? (
+                    <p className="col-span-3 py-10 text-center text-[14px] text-[#888]">
+                      条件に合う求人が見つかりませんでした。
+                    </p>
+                  ) : (
+                    jobs.map((job, index) => (
+                      <JobCard
+                        key={job.id}
+                        id={job.id}
+                        title={job.title}
+                        companyName={job.company.name}
+                        location={job.location}
+                        salaryMin={job.salaryMin}
+                        salaryMax={job.salaryMax}
+                        description={job.description}
+                        imageSrc={cardImages[index % cardImages.length]}
+                        badge={
+                          job.targetType === "NEW_GRAD" && job.graduationYear
+                            ? graduationYearLabel(job.graduationYear)
+                            : "中途"
+                        }
+                        categoryTag={job.categoryTag ?? undefined}
+                        tags={job.tags.length > 0 ? job.tags : undefined}
+                        createdAt={job.createdAt}
+                      />
+                    ))
+                  )}
+                </div>
+              </>
+            ) : (
+              /* トップページモード: 注目 + 新着 */
+              <>
+                {/* 注目の求人 */}
+                <section>
+                  <h2 className="mb-5 text-[20px] font-bold text-[#222] md:text-[22px]">注目の求人</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                    {featuredJobs.map((job, index) => (
+                      <JobCard
+                        key={job.id}
+                        id={job.id}
+                        title={job.title}
+                        companyName={job.company.name}
+                        location={job.location}
+                        salaryMin={job.salaryMin}
+                        salaryMax={job.salaryMax}
+                        description={job.description}
+                        imageSrc={cardImages[index % cardImages.length]}
+                        badge="注目"
+                        categoryTag={job.categoryTag ?? undefined}
+                        tags={job.tags.length > 0 ? job.tags : undefined}
+                        createdAt={job.createdAt}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/jobs"
+                      className="rounded-full bg-[#1a1a2e] px-10 py-3 text-[14px] font-bold text-white transition hover:opacity-90"
+                    >
+                      注目の求人をもっと見る
+                    </Link>
+                  </div>
+                </section>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-              {jobs.length === 0 ? (
-                <p className="col-span-3 py-10 text-center text-[14px] text-[#888]">
-                  条件に合う求人が見つかりませんでした。
-                </p>
-              ) : (
-                jobs.map((job, index) => (
-                  <JobCard
-                    key={job.id}
-                    id={job.id}
-                    title={job.title}
-                    companyName={job.company.name}
-                    location={job.location}
-                    salaryMin={job.salaryMin}
-                    salaryMax={job.salaryMax}
-                    description={job.description}
-                    imageSrc={cardImages[index % cardImages.length]}
-                    badge={
-                      job.targetType === "NEW_GRAD" && job.graduationYear
-                        ? graduationYearLabel(job.graduationYear)
-                        : "中途"
-                    }
-                    categoryTag={job.categoryTag ?? undefined}
-                    tags={job.tags.length > 0 ? job.tags : undefined}
-                    createdAt={job.createdAt}
-                  />
-                ))
-              )}
-            </div>
+                {/* 区切り線 */}
+                <hr className="my-10 border-[#e5e5e5]" />
+
+                {/* 新着求人 */}
+                <section>
+                  <h2 className="mb-5 text-[20px] font-bold text-[#222] md:text-[22px]">新着求人</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                    {newJobs.map((job, index) => (
+                      <JobCard
+                        key={`new-${job.id}`}
+                        id={job.id}
+                        title={job.title}
+                        companyName={job.company.name}
+                        location={job.location}
+                        salaryMin={job.salaryMin}
+                        salaryMax={job.salaryMax}
+                        description={job.description}
+                        imageSrc={cardImages[index % cardImages.length]}
+                        badge="新着"
+                        categoryTag={job.categoryTag ?? undefined}
+                        tags={job.tags.length > 0 ? job.tags : undefined}
+                        createdAt={job.createdAt}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/jobs"
+                      className="rounded-full bg-[#1a1a2e] px-10 py-3 text-[14px] font-bold text-white transition hover:opacity-90"
+                    >
+                      新着の求人をもっと見る
+                    </Link>
+                  </div>
+                </section>
+              </>
+            )}
           </div>
           <RightSidebar />
         </div>
       </div>
 
       <Footer />
+
+      {/* モバイル未ログイン時の固定バー */}
+      {!isLoggedIn && <MobileAuthBar />}
     </main>
   );
 }

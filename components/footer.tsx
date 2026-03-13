@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-20 bg-white">
+    <footer className="mt-20 bg-white pb-[120px] md:pb-0">
       <div className="mx-auto max-w-[1280px] border-t border-[#eaeaea] px-6 py-12">
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div>
@@ -25,6 +25,7 @@ export function Footer() {
             <div className="space-y-3">
               <p className="font-bold text-[#333]">求人情報</p>
               <Link href="/jobs" className="block hover:underline">求人一覧</Link>
+              <p>会社概要</p>
             </div>
             <div className="space-y-3">
               <p className="font-bold text-[#333]">サポート</p>

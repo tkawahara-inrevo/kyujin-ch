@@ -70,9 +70,13 @@ export function JobCard({
             <span className={`absolute right-3 top-3 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
               badge === "中途"
                 ? "bg-[#2f6cff] text-white"
-                : badge.includes("卒")
+                : badge === "新着"
                   ? "bg-[#ff3158] text-white"
-                  : "bg-[#ff3158] text-white"
+                  : badge === "注目"
+                    ? "bg-[#ff3158] text-white"
+                    : badge.includes("卒")
+                      ? "bg-[#ff3158] text-white"
+                      : "bg-[#ff3158] text-white"
             }`}>
               {badge}
             </span>

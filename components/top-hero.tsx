@@ -129,44 +129,59 @@ export function TopHero({
             </form>
           ) : (
             <form onSubmit={handleSearch}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-                <div className="sm:col-span-2 lg:col-span-2">
-                  <label className="mb-1 block text-[11px] font-bold text-white">キーワードから探す</label>
-                  <input
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    placeholder="キッチン、エンジニア"
-                    className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
-                  <select value={category} onChange={(e) => setCategory(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                    {CATEGORY_OPTIONS.map((c) => <option key={c} value={c === "すべて" ? "" : c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold text-white">雇用形態</label>
-                  <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                    {EMPLOYMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
-                  <select value={location} onChange={(e) => setLocation(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                    {AREA_OPTIONS.map((a) => <option key={a} value={a === "すべて" ? "" : a}>{a}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
-                  <select className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                    {PREF_OPTIONS.map((p) => <option key={p}>{p}</option>)}
-                  </select>
+              {/* モバイル: キーワードのみ */}
+              <div className="md:hidden">
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="キッチン、エンジニア"
+                  className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
+                />
+                <div className="mt-3 flex justify-center">
+                  <button type="submit" className="w-full rounded-[8px] bg-white py-2.5 text-[13px] font-bold text-[#ff5a78]">検索</button>
                 </div>
               </div>
-              <div className="mt-4 flex justify-center gap-3">
-                <button type="submit" className="rounded-[8px] bg-white px-10 py-2.5 text-[14px] font-bold text-[#ff5a78] hover:opacity-90">検索</button>
-                <button type="button" onClick={handleReset} className="rounded-[8px] border-2 border-white px-10 py-2.5 text-[14px] font-bold text-white hover:bg-white hover:text-[#ff5a78]">リセット</button>
+              {/* デスクトップ: フル検索 */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-6 gap-3">
+                  <div className="col-span-2">
+                    <label className="mb-1 block text-[11px] font-bold text-white">キーワードから探す</label>
+                    <input
+                      value={q}
+                      onChange={(e) => setQ(e.target.value)}
+                      placeholder="キッチン、エンジニア"
+                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
+                    <select value={category} onChange={(e) => setCategory(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                      {CATEGORY_OPTIONS.map((c) => <option key={c} value={c === "すべて" ? "" : c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">雇用形態</label>
+                    <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                      {EMPLOYMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
+                    <select value={location} onChange={(e) => setLocation(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                      {AREA_OPTIONS.map((a) => <option key={a} value={a === "すべて" ? "" : a}>{a}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
+                    <select className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                      {PREF_OPTIONS.map((p) => <option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-center gap-3">
+                  <button type="submit" className="rounded-[8px] bg-white px-10 py-2.5 text-[14px] font-bold text-[#ff5a78] hover:opacity-90">検索</button>
+                  <button type="button" onClick={handleReset} className="rounded-[8px] border-2 border-white px-10 py-2.5 text-[14px] font-bold text-white hover:bg-white hover:text-[#ff5a78]">リセット</button>
+                </div>
               </div>
             </form>
           )}

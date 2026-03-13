@@ -30,7 +30,24 @@
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && psql ''postgresql://kyujin_admin:kyujin-admin@ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com:5432/kyujin_ch'' -c \"\"SELECT email, role FROM \\\\\"\"User\\\\\"\" WHERE role = ''USER'' ORDER BY email LIMIT 5;\"\"\")",
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && psql ''postgresql://kyujin_admin:kyujin-admin@ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com:5432/kyujin_ch'' -c \"\"SELECT email, role FROM \\\\\"\"User\\\\\"\" WHERE role = ''ADMIN'';\"\"\")",
       "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"pm2 status && pm2 logs kyujin-ch --lines 30 --nostream\")",
-      "mcp__claude_ai_Figma__get_screenshot"
+      "mcp__claude_ai_Figma__get_screenshot",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd ~/kyujin-ch && psql ''postgresql://kyujin_admin:kyujin-admin@ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com:5432/kyujin_ch'' -c \"\"SELECT email, role, LEFT\\(password, 20\\) as pw_start FROM \\\\\"\"User\\\\\"\" WHERE role IN \\(''ADMIN'', ''COMPANY''\\) ORDER BY role, email LIMIT 10;\"\"\")",
+      "Bash(node -e \":*)",
+      "Bash(npx dotenv:*)",
+      "Bash(ssh -o StrictHostKeyChecking=no bitnami@13.159.236.233 \"cd /home/bitnami/kyujin-ch && node -e \"\":*)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa bitnami@13.159.236.233 \"echo connected\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem bitnami@13.159.236.233 \"echo connected\")",
+      "Bash(ls ~/.ssh/*.pem)",
+      "Bash(ls ~/.ssh/id_*)",
+      "Read(//c/Users/kawah/Downloads/**)",
+      "Read(//c/Users/kawah/Desktop/**)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"ls /home/ && which node && which pm2 && pm2 list\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch 2>/dev/null && pwd || \\(ls /home/ubuntu/ && find /home/ubuntu -name ''package.json'' -maxdepth 3 2>/dev/null\\)\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && git pull && pnpm install && pnpm build && pm2 restart kyujin-ch\")",
+      "Bash(curl -s http://13.159.236.233:3000/api/debug-auth)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && ls app/api/debug-auth/ && cat app/api/debug-auth/route.ts | head -5\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && git pull && pnpm build && pm2 restart kyujin-ch\")",
+      "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset)"
     ]
   }
 }

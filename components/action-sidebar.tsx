@@ -16,19 +16,28 @@ const menuItems = [
 ];
 
 export function ActionSidebar({
-  applyHref = "#",
-  primaryLabel = "今すぐ応募する",
+  applyHref = "/jobs",
+  primaryLabel = "求人一覧を見る",
   isLoggedIn = false,
 }: ActionSidebarProps) {
   return (
     <aside className="sticky top-6 self-start">
       <div className="rounded-[20px] border border-[#e6e6e6] bg-white px-5 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.04)]">
-        <ApplyButton
-          href={applyHref}
-          isLoggedIn={isLoggedIn}
-          label={primaryLabel}
-          className="block w-full rounded-[12px] bg-[#2f6cff] px-4 py-4 text-center text-[14px] font-bold text-white transition hover:opacity-90"
-        />
+        {primaryLabel.includes("応募") ? (
+          <ApplyButton
+            href={applyHref}
+            isLoggedIn={isLoggedIn}
+            label={primaryLabel}
+            className="block w-full rounded-[12px] bg-[#2f6cff] px-4 py-4 text-center text-[14px] font-bold text-white transition hover:opacity-90"
+          />
+        ) : (
+          <Link
+            href={applyHref}
+            className="block w-full rounded-[12px] bg-[#2f6cff] px-4 py-4 text-center text-[14px] font-bold text-white transition hover:opacity-90"
+          >
+            {primaryLabel}
+          </Link>
+        )}
 
         <p className="mt-4 text-[11px] leading-[1.6] text-[#8a8a8a]">
           会員登録で応募やお気に入り、メッセージ

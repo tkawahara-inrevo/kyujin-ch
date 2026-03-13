@@ -104,7 +104,7 @@ export default async function ApplyPage({
             )}
           </div>
 
-          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} isLoggedIn={isLoggedIn} />
+          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} />
         </div>
       </div>
 

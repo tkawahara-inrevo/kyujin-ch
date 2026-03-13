@@ -178,7 +178,7 @@ export default async function JobDetailPage({
           </div>
 
           <div className="hidden lg:block">
-            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} isLoggedIn={isLoggedIn} />
+            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} />
           </div>
         </div>
       </div>

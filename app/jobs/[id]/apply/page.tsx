@@ -40,6 +40,12 @@ export default async function ApplyPage({
     notFound();
   }
 
+  const hasApplied = isLoggedIn
+    ? !!(await prisma.application.findUnique({
+        where: { userId_jobId: { userId: session!.user!.id!, jobId: job.id } },
+      }))
+    : false;
+
   const recommendedJobs = await prisma.job.findMany({
     where: {
       NOT: {
@@ -104,7 +110,7 @@ export default async function ApplyPage({
             )}
           </div>
 
-          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} />
+          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} hasApplied={hasApplied} />
         </div>
       </div>
 

@@ -6,6 +6,7 @@ type ActionSidebarProps = {
   applyHref?: string;
   primaryLabel?: string;
   isLoggedIn?: boolean;
+  hasApplied?: boolean;
 };
 
 const menuItems = [
@@ -19,6 +20,7 @@ export function ActionSidebar({
   applyHref = "/jobs",
   primaryLabel = "求人一覧を見る",
   isLoggedIn = false,
+  hasApplied = false,
 }: ActionSidebarProps) {
   return (
     <aside className="sticky top-6 self-start">
@@ -27,6 +29,7 @@ export function ActionSidebar({
           <ApplyButton
             href={applyHref}
             isLoggedIn={isLoggedIn}
+            hasApplied={hasApplied}
             label={primaryLabel}
             className="block w-full rounded-[12px] bg-[#2f6cff] px-4 py-4 text-center text-[14px] font-bold text-white transition hover:opacity-90"
           />

@@ -75,6 +75,13 @@ export default async function JobDetailPage({
     notFound();
   }
 
+  // 応募済みチェック
+  const hasApplied = isLoggedIn
+    ? !!(await prisma.application.findUnique({
+        where: { userId_jobId: { userId: session!.user!.id!, jobId: job.id } },
+      }))
+    : false;
+
   const recommendedJobs = await prisma.job.findMany({
     where: {
       NOT: {
@@ -155,6 +162,7 @@ export default async function JobDetailPage({
               <ApplyButton
                 href={`/jobs/${job.id}/apply`}
                 isLoggedIn={isLoggedIn}
+                hasApplied={hasApplied}
                 label="応募する"
                 className="mt-4 block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white transition hover:opacity-90"
               />
@@ -178,7 +186,7 @@ export default async function JobDetailPage({
           </div>
 
           <div className="hidden lg:block">
-            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} />
+            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} hasApplied={hasApplied} />
           </div>
         </div>
       </div>
@@ -188,6 +196,7 @@ export default async function JobDetailPage({
         <ApplyButton
           href={`/jobs/${job.id}/apply`}
           isLoggedIn={isLoggedIn}
+          hasApplied={hasApplied}
           label="今すぐ応募する"
           className="block w-full rounded-[10px] bg-[#2f6cff] py-3.5 text-center text-[15px] font-bold text-white transition hover:opacity-90"
         />

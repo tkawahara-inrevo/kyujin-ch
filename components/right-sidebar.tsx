@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { SidebarSearchForm } from "./sidebar-search-form";
 import { SidebarAuthButtons } from "./sidebar-auth-buttons";
+import { SidebarTargetBanner } from "./sidebar-target-banner";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { getActiveGraduationYears } from "@/lib/graduation-years";
 
 const colorMap: Record<string, string> = {
   エンジニア: "bg-[#2f6cff] text-white",
@@ -27,6 +29,7 @@ export async function RightSidebar() {
   ]);
   const isLoggedIn = !!session?.user;
   const allTags = [...new Set(jobs.flatMap((j) => j.tags))];
+  const graduationYears = getActiveGraduationYears();
 
   return (
     <aside className="space-y-6">
@@ -69,21 +72,8 @@ export async function RightSidebar() {
         <SidebarAuthButtons />
       )}
 
-      {/* 新卒採用バナー */}
-      <div className="rounded-[14px] border border-[#ececec] bg-white p-4">
-        <div className="rounded-[8px] border border-[#ff6a86] px-3 py-3 text-center text-[12px] font-bold leading-[1.6] text-[#ff4d73]">
-          2027年卒業<br />新卒採用専用サイト
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-[8px] bg-[#ff3158] px-3 py-3 text-center text-[11px] font-bold leading-[1.6] text-white">
-            2028年<br />卒業予定の方は<br />こちら
-          </div>
-          <div className="rounded-[8px] bg-[#2f6cff] px-3 py-3 text-center text-[11px] font-bold leading-[1.6] text-white">
-            転職活動中の方は<br />こちら
-          </div>
-        </div>
-      </div>
+      {/* 新卒/中途 切り替えバナー */}
+      <SidebarTargetBanner currentYear={graduationYears[0]} nextYear={graduationYears[1]} />
     </aside>
   );
 }

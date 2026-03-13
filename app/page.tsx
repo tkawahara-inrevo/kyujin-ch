@@ -3,9 +3,11 @@ import { TopHero } from "@/components/top-hero";
 import { RightSidebar } from "@/components/right-sidebar";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
+import { TargetSelectModal } from "@/components/target-select-modal";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { graduationYearLabel } from "@/lib/graduation-years";
+import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
+import { auth } from "@/auth";
 
 const cardImages = [
   "/assets/Online.png",
@@ -27,6 +29,9 @@ export default async function HomePage({
 }: {
   searchParams: SearchParams;
 }) {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+  const [currentYear, nextYear] = getActiveGraduationYears();
   const { q, category, employmentType, location, target } = await searchParams;
   // Build target filter
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,6 +72,9 @@ export default async function HomePage({
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
+      {!isLoggedIn && (
+        <TargetSelectModal currentYear={currentYear} nextYear={nextYear} />
+      )}
       <Header />
       <TopHero
         activeTab="search"

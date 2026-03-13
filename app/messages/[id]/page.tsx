@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
-import { RecommendSection } from "@/components/recommend-section";
 import { MessageThread } from "@/components/message-thread";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
@@ -43,12 +42,6 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
     data: { isRead: true },
   });
 
-  const recommendedJobs = await prisma.job.findMany({
-    include: { company: true },
-    take: 3,
-    orderBy: { createdAt: "desc" },
-  });
-
   const job = conversation.application.job;
 
   return (
@@ -85,10 +78,6 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
                 />
               </div>
             </section>
-
-            {recommendedJobs.length > 0 && (
-              <RecommendSection jobs={recommendedJobs} />
-            )}
           </div>
 
           <ActionSidebar />

@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
-import { RecommendSection } from "@/components/recommend-section";
 import { FavoriteListSection } from "@/components/favorite-list-section";
 import { EmptyStateCard } from "@/components/empty-state-card";
 import { prisma } from "@/lib/prisma";
@@ -21,16 +20,6 @@ export default async function FavoritesPage() {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  const recommendedJobs = await prisma.job.findMany({
-    include: {
-      company: true,
-    },
-    take: 3,
     orderBy: {
       createdAt: "desc",
     },
@@ -58,10 +47,6 @@ export default async function FavoritesPage() {
                   />
                 </div>
               </section>
-            )}
-
-            {recommendedJobs.length > 0 && (
-              <RecommendSection jobs={recommendedJobs} />
             )}
           </div>
 

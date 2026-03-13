@@ -24,17 +24,16 @@ export function HeaderAuthNav() {
         </button>
       </div>
 
-      {/* Mobile: ログアウトアイコンのみ */}
+      {/* Mobile: アイコンのみ */}
       <button
         onClick={() => signOut({ callbackUrl: "/" })}
-        className="flex flex-col items-center gap-0.5 px-1 md:hidden"
+        className="p-1.5 text-[#888] md:hidden"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
           <polyline points="16 17 21 12 16 7" />
           <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
-        <span className="text-[9px] font-semibold text-[#888]">ログアウト</span>
       </button>
     </>
   );

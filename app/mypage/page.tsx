@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
-import { RecommendSection } from "@/components/recommend-section";
 import { ProfileSummary } from "@/components/profile-summary";
 import { DocumentUploadCard } from "@/components/document-upload-card";
 import { ReviewCard } from "@/components/review-card";
@@ -11,18 +10,11 @@ import { getCurrentUser } from "@/lib/current-user";
 export default async function MyPage() {
   const currentUser = await getCurrentUser();
 
-  const [recommendedJobs, myReviews] = await Promise.all([
-    prisma.job.findMany({
-      include: { company: true },
-      take: 3,
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.review.findMany({
-      where: { userId: currentUser.id },
-      include: { company: { select: { name: true } } },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+  const myReviews = await prisma.review.findMany({
+    where: { userId: currentUser.id },
+    include: { company: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -82,10 +74,6 @@ export default async function MyPage() {
                 )}
               </div>
             </section>
-
-            {recommendedJobs.length > 0 && (
-              <RecommendSection jobs={recommendedJobs} />
-            )}
           </div>
 
           <ActionSidebar />

@@ -1,7 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
-import { RecommendSection } from "@/components/recommend-section";
 import { MessageListCard } from "@/components/message-list-card";
 import { EmptyStateCard } from "@/components/empty-state-card";
 import { prisma } from "@/lib/prisma";
@@ -39,12 +38,6 @@ export default async function MessagesPage() {
     _count: true,
   });
   const unreadMap = new Map(unreadCounts.map((u) => [u.conversationId, u._count]));
-
-  const recommendedJobs = await prisma.job.findMany({
-    include: { company: true },
-    take: 3,
-    orderBy: { createdAt: "desc" },
-  });
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -84,10 +77,6 @@ export default async function MessagesPage() {
                 </div>
               )}
             </section>
-
-            {recommendedJobs.length > 0 && (
-              <RecommendSection jobs={recommendedJobs} />
-            )}
           </div>
 
           <ActionSidebar />

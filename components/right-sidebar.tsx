@@ -32,7 +32,7 @@ export async function RightSidebar() {
   const graduationYears = getActiveGraduationYears();
 
   return (
-    <aside className="space-y-6">
+    <aside className="sticky top-6 space-y-6">
       {/* タグから探す */}
       <div>
         <h3 className="mb-3 text-[13px] font-bold text-[#444]">タグから探す</h3>

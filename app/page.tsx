@@ -5,8 +5,7 @@ import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
-import { TargetTabs } from "@/components/target-tabs";
+import { graduationYearLabel } from "@/lib/graduation-years";
 
 const cardImages = [
   "/assets/Online.png",
@@ -29,8 +28,6 @@ export default async function HomePage({
   searchParams: SearchParams;
 }) {
   const { q, category, employmentType, location, target } = await searchParams;
-  const gradYears = getActiveGraduationYears();
-
   // Build target filter
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const targetFilter: any = {};
@@ -66,13 +63,6 @@ export default async function HomePage({
     orderBy: { createdAt: "desc" },
   });
 
-  // Tab options
-  const tabs = [
-    { value: "all", label: "すべて" },
-    ...gradYears.map((y) => ({ value: String(y), label: graduationYearLabel(y) })),
-    { value: "mid", label: "中途" },
-  ];
-
   const activeTarget = target || "all";
 
   return (
@@ -87,10 +77,7 @@ export default async function HomePage({
       />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        {/* ターゲットタブ */}
-        <TargetTabs tabs={tabs} active={activeTarget} />
-
-        <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_260px]">
+        <div className="grid gap-10 lg:grid-cols-[1fr_260px]">
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h1 className="text-[22px] font-bold text-[#222]">

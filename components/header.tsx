@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { HeaderAuthNav } from "./header-auth-nav";
 import { HeaderAuthButtons } from "./header-auth-buttons";
+import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 
 const navItems = [
   { href: "/applications", label: "応募済み", icon: "/assets/Checkbox_Check.png" },
@@ -13,6 +14,7 @@ const navItems = [
 export async function Header() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
+  const [currentYear, nextYear] = getActiveGraduationYears();
 
   return (
     <header className="border-b border-[#e9e9e9] bg-white">
@@ -33,13 +35,25 @@ export async function Header() {
             <span className="text-[18px] font-bold text-[#1a1a1a]">求人ちゃんねる</span>
           </Link>
 
-          <div className="hidden items-center gap-2 md:flex">
-            <span className="rounded-[6px] bg-[#ff3158] px-3 py-[5px] text-[12px] font-bold text-white">
-              27卒
-            </span>
-            <span className="text-[11px] font-medium text-[#ff3158]">
-              28卒予定の方はこちら
-            </span>
+          <div className="hidden items-center gap-3 md:flex">
+            <Link
+              href={`/?target=${currentYear}`}
+              className="rounded-[6px] bg-[#ff3158] px-3 py-[5px] text-[12px] font-bold text-white hover:opacity-80"
+            >
+              {graduationYearLabel(currentYear)}
+            </Link>
+            <Link
+              href={`/?target=${nextYear}`}
+              className="text-[11px] font-medium text-[#ff3158] hover:underline"
+            >
+              {graduationYearLabel(nextYear)}予定の方はこちら
+            </Link>
+            <Link
+              href="/?target=mid"
+              className="text-[11px] font-medium text-[#666] hover:underline"
+            >
+              転職活動中の方はこちら
+            </Link>
           </div>
         </div>
 

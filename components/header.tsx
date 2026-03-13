@@ -74,6 +74,7 @@ export async function Header() {
                 <Image src="/assets/Chat_Circle.png" alt="" width={20} height={20} className="object-contain" />
                 <span className="text-[10px] font-semibold text-[#444]">メッセージ</span>
               </Link>
+              <HeaderAuthNav />
             </div>
           </>
         ) : (

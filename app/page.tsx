@@ -171,7 +171,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="rounded-full bg-[#1a1a2e] px-10 py-3 text-[14px] font-bold text-white transition hover:opacity-90"
+                      className="inline-block rounded-full border-2 border-[#222] bg-[#222] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#444]"
                     >
                       注目の求人をもっと見る
                     </Link>
@@ -206,7 +206,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="rounded-full bg-[#1a1a2e] px-10 py-3 text-[14px] font-bold text-white transition hover:opacity-90"
+                      className="inline-block rounded-full border-2 border-[#222] bg-[#222] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#444]"
                     >
                       新着の求人をもっと見る
                     </Link>
@@ -215,7 +215,9 @@ export default async function HomePage({
               </>
             )}
           </div>
-          <RightSidebar />
+          <div className="hidden lg:block">
+            <RightSidebar />
+          </div>
         </div>
       </div>
 

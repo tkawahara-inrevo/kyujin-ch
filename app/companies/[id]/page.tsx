@@ -123,7 +123,7 @@ export default async function CompanyPage({
             )}
           </div>
 
-          <ActionSidebar applyHref="/jobs" primaryLabel="今すぐ応募する" />
+          <ActionSidebar applyHref="/jobs" primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} />
         </div>
       </div>
 

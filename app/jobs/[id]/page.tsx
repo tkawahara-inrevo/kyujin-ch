@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -9,7 +8,9 @@ import { RecommendSection } from "@/components/recommend-section";
 import { JobMeta } from "@/components/job-meta";
 import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 import { JobViewTracker } from "@/components/job-view-tracker";
+import { ApplyButton } from "@/components/apply-button";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 type JobDetailPageProps = {
   params: Promise<{
@@ -60,6 +61,8 @@ export default async function JobDetailPage({
   params,
 }: JobDetailPageProps) {
   const { id } = await params;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
 
   const job = await prisma.job.findUnique({
     where: { id },
@@ -149,12 +152,12 @@ export default async function JobDetailPage({
                 最短でこのくらいで応募完了！
               </p>
 
-              <Link
+              <ApplyButton
                 href={`/jobs/${job.id}/apply`}
+                isLoggedIn={isLoggedIn}
+                label="応募する"
                 className="mt-4 block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white transition hover:opacity-90"
-              >
-                応募する
-              </Link>
+              />
             </div>
 
             <div className="mt-12">
@@ -175,19 +178,19 @@ export default async function JobDetailPage({
           </div>
 
           <div className="hidden lg:block">
-            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} />
+            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} isLoggedIn={isLoggedIn} />
           </div>
         </div>
       </div>
 
       {/* モバイル用スティッキー応募ボタン */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#e9e9e9] bg-white px-4 py-3 lg:hidden">
-        <Link
+        <ApplyButton
           href={`/jobs/${job.id}/apply`}
+          isLoggedIn={isLoggedIn}
+          label="今すぐ応募する"
           className="block w-full rounded-[10px] bg-[#2f6cff] py-3.5 text-center text-[15px] font-bold text-white transition hover:opacity-90"
-        >
-          今すぐ応募する
-        </Link>
+        />
       </div>
 
       {/* スティッキーボタン分の余白 */}

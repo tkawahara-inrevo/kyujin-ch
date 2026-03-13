@@ -2,17 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { SidebarSearchForm } from "./sidebar-search-form";
 import { SidebarAuthButtons } from "./sidebar-auth-buttons";
-import { SidebarTargetBanner } from "./sidebar-target-banner";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getActiveGraduationYears } from "@/lib/graduation-years";
 
-const colorMap: Record<string, string> = {
-  エンジニア: "bg-[#2f6cff] text-white",
-  デザイナー: "bg-[#2f6cff] text-white",
-  営業:       "bg-[#ff3158] text-white",
-  急募:       "bg-[#ff3158] text-white",
-};
 const defaultTagClass = "bg-[#f1f1f1] text-[#555]";
 
 const menuItems = [
@@ -29,8 +21,6 @@ export async function RightSidebar() {
   ]);
   const isLoggedIn = !!session?.user;
   const allTags = [...new Set(jobs.flatMap((j) => j.tags))];
-  const graduationYears = getActiveGraduationYears();
-
   return (
     <aside className="sticky top-6 space-y-6">
       {/* タグから探す */}
@@ -41,9 +31,7 @@ export async function RightSidebar() {
             <Link
               key={label}
               href={`/jobs?tag=${encodeURIComponent(label)}`}
-              className={`cursor-pointer rounded-full px-3 py-1 text-[11px] font-bold transition hover:opacity-80 ${
-                colorMap[label] ?? defaultTagClass
-              }`}
+              className={`cursor-pointer rounded-full px-3 py-1 text-[11px] font-bold transition hover:opacity-80 ${defaultTagClass}`}
             >
               {label}
             </Link>
@@ -72,8 +60,6 @@ export async function RightSidebar() {
         <SidebarAuthButtons />
       )}
 
-      {/* 新卒/中途 切り替えバナー */}
-      <SidebarTargetBanner currentYear={graduationYears[0]} nextYear={graduationYears[1]} />
     </aside>
   );
 }

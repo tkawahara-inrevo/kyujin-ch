@@ -6,6 +6,7 @@ import { ActionSidebar } from "@/components/action-sidebar";
 import { RecommendSection } from "@/components/recommend-section";
 import { ApplyForm } from "./apply-form";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 type ApplyPageProps = {
   params: Promise<{
@@ -25,6 +26,8 @@ export default async function ApplyPage({
   params,
 }: ApplyPageProps) {
   const { id } = await params;
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
 
   const job = await prisma.job.findUnique({
     where: { id },
@@ -101,7 +104,7 @@ export default async function ApplyPage({
             )}
           </div>
 
-          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} />
+          <ActionSidebar applyHref={`/jobs/${job.id}/apply`} isLoggedIn={isLoggedIn} />
         </div>
       </div>
 

@@ -35,9 +35,7 @@ function formatDate(d?: Date | string) {
   });
 }
 
-function getSubTagClass(tag: string) {
-  if (tag === "急募") return "bg-[#ff3158] text-white";
-  if (tag === "リモート勤務可") return "bg-[#efefef] text-[#555]";
+function getSubTagClass() {
   return "bg-[#efefef] text-[#555]";
 }
 
@@ -93,7 +91,7 @@ export function JobCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className={`rounded-full px-2.5 py-[3px] text-[10px] font-bold ${getSubTagClass(tag)}`}
+              className={`rounded-full px-2.5 py-[3px] text-[10px] font-bold ${getSubTagClass()}`}
             >
               {tag}
             </span>

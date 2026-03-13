@@ -12,6 +12,7 @@ interface Props {
 export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
   const searchParams = useSearchParams();
   const [target, setTarget] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const urlTarget = searchParams.get("target");
@@ -19,59 +20,101 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
     setTarget(t);
   }, [searchParams]);
 
+  // 外側クリックで閉じる
+  useEffect(() => {
+    if (!open) return;
+    const handler = () => setOpen(false);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [open]);
+
   if (!target || target === "all") return null;
 
   const isMid = target === "mid";
   const isCurrentYear = target === String(currentYear);
   const isNextYear = target === String(nextYear);
 
-  // メインバッジのラベルと色
-  const badgeLabel = isMid ? "中途採用" : isNextYear ? `${String(nextYear).slice(-2)}卒` : `${String(currentYear).slice(-2)}卒`;
+  const badgeLabel = isMid
+    ? "中途"
+    : isNextYear
+      ? `${String(nextYear).slice(-2)}卒`
+      : `${String(currentYear).slice(-2)}卒`;
   const badgeBg = isMid ? "bg-[#2f6cff]" : "bg-[#ff3158]";
 
-  // サブリンク（他の2つ）
-  type SubLink = { href: string; label: string };
-  const subLinks: SubLink[] = [];
+  type Option = { href: string; label: string; value: string; color: string };
+  const options: Option[] = [];
 
   if (!isCurrentYear) {
-    subLinks.push({ href: `/?target=${currentYear}`, label: `${String(currentYear).slice(-2)}卒` });
+    options.push({
+      href: `/?target=${currentYear}`,
+      label: `${String(currentYear).slice(-2)}卒`,
+      value: String(currentYear),
+      color: "text-[#ff3158]",
+    });
   }
   if (!isNextYear) {
-    subLinks.push({ href: `/?target=${nextYear}`, label: `${String(nextYear).slice(-2)}卒` });
+    options.push({
+      href: `/?target=${nextYear}`,
+      label: `${String(nextYear).slice(-2)}卒`,
+      value: String(nextYear),
+      color: "text-[#ff3158]",
+    });
   }
   if (!isMid) {
-    subLinks.push({ href: "/?target=mid", label: "転職" });
+    options.push({
+      href: "/?target=mid",
+      label: "中途",
+      value: "mid",
+      color: "text-[#2f6cff]",
+    });
   }
 
-  function handleSubClick(t: string) {
-    const val = t.includes("mid") ? "mid" : t.split("target=")[1];
-    localStorage.setItem("kyujin-target", val);
+  function handleSwitch(value: string) {
+    localStorage.setItem("kyujin-target", value);
+    setOpen(false);
   }
 
   return (
-    <div className="flex flex-col items-start">
-      {/* メインバッジ */}
-      <span className={`${badgeBg} rounded-[6px] px-3 py-[4px] text-[12px] font-bold text-white`}>
+    <div className="relative">
+      {/* メインバッジ（クリックでドロップダウン） */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className={`${badgeBg} flex items-center gap-1 rounded-full px-3 py-[5px] text-[11px] font-bold text-white transition hover:opacity-90 md:px-4 md:text-[12px]`}
+      >
         {badgeLabel}
-      </span>
-      {/* サブリンク */}
-      <div className="mt-0.5 flex items-center gap-2">
-        {subLinks.slice(0, 2).map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => handleSubClick(link.href)}
-            className="flex items-center gap-0.5 text-[10px] font-medium text-[#ff3158] hover:underline md:text-[11px]"
-          >
-            {link.label}
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </Link>
-        ))}
-      </div>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`transition ${open ? "rotate-180" : ""}`}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {/* ドロップダウン */}
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 min-w-[120px] rounded-[10px] border border-[#e8e8e8] bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.10)]">
+          {options.map((opt) => (
+            <Link
+              key={opt.value}
+              href={opt.href}
+              onClick={() => handleSwitch(opt.value)}
+              className={`block px-4 py-2.5 text-[12px] font-bold ${opt.color} transition hover:bg-[#f7f7f7]`}
+            >
+              {opt.label}に切替
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

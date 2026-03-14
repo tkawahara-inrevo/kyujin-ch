@@ -6,7 +6,6 @@ import { RecommendSection } from "@/components/recommend-section";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { CompanyHeaderBlock } from "@/components/company-header-block";
-import { CompanyJobStrip } from "@/components/company-job-strip";
 import { CompanyStory } from "@/components/company-story";
 import { CompanyInfoTable } from "@/components/company-info-table";
 import { CompanyReviews } from "@/components/company-reviews";
@@ -65,15 +64,6 @@ export default async function CompanyPage({
               location={(company as { location?: string | null }).location ?? "福岡県"}
               description={company.description}
             />
-
-            {company.jobs.length > 0 && (
-              <CompanyJobStrip
-                jobs={company.jobs.map((job) => ({
-                  id: job.id,
-                  title: job.title,
-                }))}
-              />
-            )}
 
             <CompanyStory companyName={company.name} />
             <CompanyInfoTable />

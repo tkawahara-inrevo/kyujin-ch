@@ -7,7 +7,7 @@ export default function NotFound() {
       <p className="mt-4 text-[16px] text-[#888]">ページが見つかりませんでした</p>
       <Link
         href="/"
-        className="mt-6 rounded-[10px] bg-[#2f6cff] px-6 py-3 text-[14px] font-bold text-white hover:opacity-90"
+        className="mt-6 rounded-[10px] bg-[#2f6cff] px-6 py-3 text-[14px] font-bold !text-white hover:opacity-90"
       >
         トップページへ
       </Link>

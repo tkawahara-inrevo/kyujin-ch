@@ -7,10 +7,20 @@ export function SidebarSearchForm() {
   const [q, setQ] = useState("");
   const router = useRouter();
 
+  function getTarget(): string | null {
+    if (typeof window === "undefined") return null;
+    const url = new URLSearchParams(window.location.search);
+    return url.get("target") || localStorage.getItem("kyujin-target");
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (q.trim()) {
-      router.push(`/jobs?q=${encodeURIComponent(q.trim())}`);
+      const params = new URLSearchParams();
+      params.set("q", q.trim());
+      const target = getTarget();
+      if (target) params.set("target", target);
+      router.push(`/jobs?${params.toString()}`);
     }
   }
 

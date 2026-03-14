@@ -9,7 +9,7 @@ const navItems = [
   { href: "/company/dashboard", label: "ダッシュボード", icon: "📊" },
   { href: "/company/jobs", label: "求人管理", icon: "📋" },
   { href: "/company/applicants", label: "応募者管理", icon: "👤" },
-  { href: "/company/messages", label: "メッセージ", icon: "💬", badge: true },
+  { href: "/company/messages", label: "メッセージ", icon: "✉️", badge: true },
   { href: "/company/billing", label: "請求管理", icon: "💰" },
   { href: "/company/analytics", label: "分析", icon: "📈" },
   { href: "/company/settings", label: "設定", icon: "⚙️" },
@@ -18,6 +18,7 @@ const navItems = [
 export function CompanySidebar() {
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/company/unread-count")
@@ -25,7 +26,6 @@ export function CompanySidebar() {
       .then((d) => setUnreadCount(d.count))
       .catch(() => {});
 
-    // Poll every 30 seconds
     const interval = setInterval(() => {
       fetch("/api/company/unread-count")
         .then((r) => r.json())
@@ -36,19 +36,23 @@ export function CompanySidebar() {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <aside className="flex w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white">
-      <div className="flex h-[64px] items-center border-b border-[#e5e7eb] px-5">
-        <Link href="/company/dashboard" className="text-[18px] font-bold text-[#1e3a5f]">
-          求人ちゃんねる
-        </Link>
-      </div>
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const navContent = (
+    <>
       <nav className="flex-1 px-3 py-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <li key={item.href}>
                 <Link
@@ -82,6 +86,61 @@ export function CompanySidebar() {
           <span>ログアウト</span>
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <div className="fixed inset-x-0 top-0 z-40 flex h-[64px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 md:hidden">
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#e5e7eb] text-[#1e3a5f]"
+          aria-label="メニューを開く"
+        >
+          <span className="text-[18px]">☰</span>
+        </button>
+        <Link href="/company/dashboard" className="text-[16px] font-bold text-[#1e3a5f]">
+          企業ちゃんねる
+        </Link>
+        <div className="w-10" />
+      </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/30"
+            aria-label="メニューを閉じる"
+            onClick={() => setIsOpen(false)}
+          />
+          <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
+            <div className="flex h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
+              <Link href="/company/dashboard" className="truncate text-[18px] font-bold text-[#1e3a5f]">
+                企業ちゃんねる
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-[#e5e7eb] text-[#666]"
+                aria-label="閉じる"
+              >
+                ✕
+              </button>
+            </div>
+            {navContent}
+          </aside>
+        </div>
+      )}
+
+      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white md:flex">
+        <div className="flex h-[64px] items-center border-b border-[#e5e7eb] px-5">
+          <Link href="/company/dashboard" className="text-[18px] font-bold text-[#1e3a5f]">
+            企業ちゃんねる
+          </Link>
+        </div>
+        {navContent}
+      </aside>
+    </>
   );
 }

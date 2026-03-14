@@ -66,7 +66,7 @@ export function PasswordSection() {
       />
       <div className="flex gap-2">
         <button type="submit" disabled={isPending}
-          className="rounded-[8px] bg-[#2f6cff] px-5 py-2.5 text-[14px] font-bold text-white hover:opacity-90 disabled:opacity-50">
+          className="rounded-[8px] bg-[#2f6cff] px-5 py-2.5 text-[14px] font-bold !text-white hover:opacity-90 disabled:opacity-50">
           {isPending ? "変更中..." : "変更する"}
         </button>
         <button type="button" onClick={() => { setOpen(false); setError(""); }}

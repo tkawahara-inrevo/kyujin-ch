@@ -84,7 +84,7 @@ export function DocumentUploadCard({
       <button
         onClick={() => inputRef.current?.click()}
         disabled={isPending}
-        className="mt-5 w-full rounded-[10px] bg-[#2f6cff] px-5 py-4 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+        className="mt-5 w-full rounded-[10px] bg-[#2f6cff] px-5 py-4 text-[15px] font-bold !text-white transition hover:opacity-90 disabled:opacity-60"
       >
         {uploaded ? "ファイルを選択して差し替える" : "ファイルを選択してアップロードする"}
       </button>

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth-helpers";
+import { JobPublishToggle } from "./job-publish-toggle";
 
 export default async function AdminJobDetailPage({
   params,
@@ -54,7 +55,10 @@ export default async function AdminJobDetailPage({
         ← 求人一覧
       </Link>
 
-      <h1 className="mt-4 text-[24px] font-bold text-[#1e293b]">{job.title}</h1>
+      <div className="mt-4 flex items-center justify-between">
+        <h1 className="text-[24px] font-bold text-[#1e293b]">{job.title}</h1>
+        <JobPublishToggle jobId={job.id} isPublished={job.isPublished} />
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-[12px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">

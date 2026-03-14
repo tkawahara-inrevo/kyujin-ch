@@ -17,10 +17,10 @@ export default async function AdminDashboardPage() {
     ]);
 
   const kpiCards = [
-    { label: "総企業数", value: totalCompanies, color: "#2f6cff" },
-    { label: "総求職者数", value: totalUsers, color: "#10b981" },
-    { label: "当月総応募数", value: monthlyApps, color: "#f59e0b" },
-    { label: "承認待ち無効申請", value: pendingInvalid, color: "#ef4444" },
+    { label: "総企業数", value: totalCompanies, color: "#2f6cff", href: "/admin/companies" },
+    { label: "総求職者数", value: totalUsers, color: "#10b981", href: "/admin/jobseekers" },
+    { label: "当月総応募数", value: monthlyApps, color: "#f59e0b", href: "/admin/jobs" },
+    { label: "承認待ち無効申請", value: pendingInvalid, color: "#ef4444", href: "/admin/invalid-requests" },
   ];
 
   return (
@@ -29,10 +29,10 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <Link key={kpi.label} href={kpi.href} className="block rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:shadow-md">
             <p className="text-[12px] font-semibold text-[#888]">{kpi.label}</p>
             <p className="mt-2 text-[28px] font-bold" style={{ color: kpi.color }}>{kpi.value}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -65,7 +65,11 @@ export default async function AdminDashboardPage() {
             <tbody>
               {recentCompanies.map((c) => (
                 <tr key={c.id} className="border-b border-[#f8f8f8]">
-                  <td className="px-5 py-3 font-medium text-[#333]">{c.name}</td>
+                  <td className="px-5 py-3 font-medium text-[#333]">
+                    <Link href={`/admin/companies/${c.id}`} className="hover:text-[#2f6cff] hover:underline">
+                      {c.name}
+                    </Link>
+                  </td>
                   <td className="px-5 py-3 text-[#888]">{c.createdAt.toLocaleDateString("ja-JP")}</td>
                 </tr>
               ))}

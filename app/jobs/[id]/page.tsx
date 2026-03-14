@@ -164,9 +164,29 @@ export default async function JobDetailPage({
                 isLoggedIn={isLoggedIn}
                 hasApplied={hasApplied}
                 label="応募する"
-                className="mt-4 block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white transition hover:opacity-90"
+                className="mt-4 block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold !text-white transition hover:opacity-90"
               />
             </div>
+
+            {/* Google Maps */}
+            {job.location && (
+              <div className="mt-8">
+                <h3 className="mb-3 text-[15px] font-bold text-[#333]">勤務地</h3>
+                <p className="mb-2 text-[14px] text-[#555]">{job.location}</p>
+                <div className="overflow-hidden rounded-xl">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(job.location)}&output=embed&hl=ja`}
+                    width="100%"
+                    height="280"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="勤務地マップ"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="mt-12">
               <CompanySummaryCard
@@ -198,7 +218,7 @@ export default async function JobDetailPage({
           isLoggedIn={isLoggedIn}
           hasApplied={hasApplied}
           label="今すぐ応募する"
-          className="block w-full rounded-[10px] bg-[#2f6cff] py-3.5 text-center text-[15px] font-bold text-white transition hover:opacity-90"
+          className="block w-full rounded-[10px] bg-[#2f6cff] py-3.5 text-center text-[15px] font-bold !text-white transition hover:opacity-90"
         />
       </div>
 

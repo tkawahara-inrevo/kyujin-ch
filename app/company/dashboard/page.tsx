@@ -44,24 +44,24 @@ export default async function CompanyDashboardPage() {
   });
 
   const kpiCards = [
-    { label: "当月応募数", value: monthlyApps, color: "#2f6cff" },
-    { label: "掲載中求人", value: activeJobs, color: "#10b981" },
-    { label: "概算費用", value: `¥${(charges._sum.amount ?? 0).toLocaleString()}`, color: "#f59e0b" },
-    { label: "未読メッセージ", value: unreadMessages, color: "#ef4444" },
+    { label: "当月応募数", value: monthlyApps, color: "#2f6cff", href: "/company/applicants" },
+    { label: "掲載中求人", value: activeJobs, color: "#10b981", href: "/company/jobs" },
+    { label: "概算費用", value: `¥${(charges._sum.amount ?? 0).toLocaleString()}`, color: "#f59e0b", href: "/company/billing" },
+    { label: "未読メッセージ", value: unreadMessages, color: "#ef4444", href: "/company/messages" },
   ];
 
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">ダッシュボード</h1>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-            <p className="text-[12px] font-semibold text-[#888]">{kpi.label}</p>
-            <p className="mt-2 text-[28px] font-bold" style={{ color: kpi.color }}>
+          <Link key={kpi.label} href={kpi.href} className="block rounded-[12px] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:shadow-md md:p-5">
+            <p className="text-[11px] font-semibold leading-[1.5] text-[#888] md:text-[12px]">{kpi.label}</p>
+            <p className="mt-2 text-[22px] font-bold md:text-[28px]" style={{ color: kpi.color }}>
               {kpi.value}
             </p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -73,12 +73,12 @@ export default async function CompanyDashboardPage() {
           </Link>
         </div>
         <div className="mt-3 overflow-x-auto rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <table className="w-full text-left text-[13px]">
+          <table className="min-w-[520px] w-full text-left text-[13px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
-                <th className="px-5 py-3 font-semibold">氏名</th>
-                <th className="px-5 py-3 font-semibold">求人</th>
-                <th className="px-5 py-3 font-semibold">応募日</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">氏名</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">求人</th>
+                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">応募日</th>
               </tr>
             </thead>
             <tbody>
@@ -96,7 +96,11 @@ export default async function CompanyDashboardPage() {
                         {app.user.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">{app.job.title}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      <Link href={`/company/jobs/${app.job.id}/edit`} className="hover:text-[#2f6cff] hover:underline">
+                        {app.job.title}
+                      </Link>
+                    </td>
                     <td className="px-5 py-3 text-[#888]">{app.createdAt.toLocaleDateString("ja-JP")}</td>
                   </tr>
                 ))

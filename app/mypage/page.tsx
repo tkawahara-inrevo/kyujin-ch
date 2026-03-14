@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { ProfileSummary } from "@/components/profile-summary";
 import { DocumentUploadCard } from "@/components/document-upload-card";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { ReviewCard } from "@/components/review-card";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
@@ -17,7 +18,7 @@ export default async function MyPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -80,6 +81,7 @@ export default async function MyPage() {
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

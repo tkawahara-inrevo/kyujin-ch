@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth-helpers";
-import { UserActiveToggle } from "../user-active-toggle";
+import { UserActiveToggleWithConfirm } from "./user-active-confirm";
 
 const statusLabels: Record<string, string> = {
   APPLIED: "応募済",
@@ -27,7 +27,7 @@ export default async function AdminJobseekerDetailPage({
       applications: {
         include: {
           job: { include: { company: true } },
-          charge: true,
+          conversation: { select: { id: true } },
         },
         orderBy: { createdAt: "desc" },
       },
@@ -36,6 +36,7 @@ export default async function AdminJobseekerDetailPage({
         orderBy: { createdAt: "desc" },
         take: 10,
       },
+      reviews: true,
     },
   });
 
@@ -49,7 +50,7 @@ export default async function AdminJobseekerDetailPage({
 
       <div className="mt-4 flex items-center justify-between">
         <h1 className="text-[24px] font-bold text-[#1e293b]">{user.name}</h1>
-        <UserActiveToggle userId={user.id} isActive={user.isActive} />
+        <UserActiveToggleWithConfirm userId={user.id} isActive={user.isActive} userName={user.name} />
       </div>
 
       {/* User Info */}
@@ -66,19 +67,14 @@ export default async function AdminJobseekerDetailPage({
           </dl>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-            <p className="text-[12px] font-semibold text-[#888]">応募数</p>
-            <p className="mt-2 text-[28px] font-bold text-[#2f6cff]">{user.applications.length}</p>
-          </div>
-          <div className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-            <p className="text-[12px] font-semibold text-[#888]">お気に入り数</p>
-            <p className="mt-2 text-[28px] font-bold text-[#f59e0b]">{user.favorites.length}</p>
-          </div>
+        <div className="grid grid-cols-3 gap-4 self-start">
+          <KpiCard label="応募数" value={user.applications.length} color="#2f6cff" />
+          <KpiCard label="お気に入り" value={user.favorites.length} color="#f59e0b" />
+          <KpiCard label="口コミ数" value={user.reviews.length} color="#10b981" />
         </div>
       </div>
 
-      {/* Applications */}
+      {/* Applications - removed 課金額 column, added メッセージ link */}
       <div className="mt-8">
         <h2 className="text-[16px] font-bold text-[#333]">応募履歴</h2>
         <div className="mt-3 overflow-x-auto rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
@@ -88,8 +84,8 @@ export default async function AdminJobseekerDetailPage({
                 <th className="px-5 py-3 font-semibold">求人</th>
                 <th className="px-5 py-3 font-semibold">企業</th>
                 <th className="px-5 py-3 font-semibold">ステータス</th>
-                <th className="px-5 py-3 font-semibold">課金額</th>
                 <th className="px-5 py-3 font-semibold">応募日</th>
+                <th className="px-5 py-3 font-semibold">メッセージ</th>
               </tr>
             </thead>
             <tbody>
@@ -109,10 +105,16 @@ export default async function AdminJobseekerDetailPage({
                         {statusLabels[app.status] || app.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">
-                      {app.charge ? `¥${app.charge.amount.toLocaleString()}` : "—"}
-                    </td>
                     <td className="px-5 py-3 text-[#888]">{app.createdAt.toLocaleDateString("ja-JP")}</td>
+                    <td className="px-5 py-3">
+                      {app.conversation ? (
+                        <Link href={`/admin/messages/${app.conversation.id}`} className="text-[#2f6cff] hover:underline">
+                          確認
+                        </Link>
+                      ) : (
+                        <span className="text-[#ccc]">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
@@ -129,6 +131,15 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div className="flex gap-4">
       <dt className="w-[100px] shrink-0 font-semibold text-[#888]">{label}</dt>
       <dd className="text-[#333]">{value}</dd>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+      <p className="text-[12px] font-semibold text-[#888]">{label}</p>
+      <p className="mt-2 text-[24px] font-bold" style={{ color }}>{value}</p>
     </div>
   );
 }

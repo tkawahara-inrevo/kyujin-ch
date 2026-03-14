@@ -17,7 +17,7 @@ export function ApplyButton({
   isLoggedIn,
   hasApplied = false,
   label = "応募する",
-  className = "block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white transition hover:opacity-90",
+  className = "block rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold !text-white transition hover:opacity-90",
 }: Props) {
   const [showAuth, setShowAuth] = useState(false);
 

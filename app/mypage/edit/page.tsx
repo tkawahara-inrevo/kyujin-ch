@@ -3,13 +3,14 @@ import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { ProfileEditForm } from "./profile-edit-form";
 import { PasswordSection } from "./password-section";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { getCurrentUser } from "@/lib/current-user";
 
 export default async function MyPageEdit() {
   const currentUser = await getCurrentUser();
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -30,6 +31,7 @@ export default async function MyPageEdit() {
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

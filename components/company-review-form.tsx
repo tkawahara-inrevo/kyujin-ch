@@ -79,7 +79,7 @@ export function CompanyReviewForm({ companyId }: Props) {
           <button
             type="submit"
             disabled={isPending}
-            className="h-[90px] min-w-[86px] rounded-[10px] bg-[#2f6cff] px-4 text-[14px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+            className="h-[90px] min-w-[86px] rounded-[10px] bg-[#2f6cff] px-4 text-[14px] font-bold !text-white transition hover:opacity-90 disabled:opacity-60"
           >
             {isPending ? "送信中" : "送信"}
           </button>

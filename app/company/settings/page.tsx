@@ -41,7 +41,7 @@ export default async function CompanySettingsPage() {
         <div className="pt-2">
           <Link
             href="/company/settings/password"
-            className="text-[14px] font-semibold text-[#2f6cff] hover:underline"
+            className="inline-block rounded-[8px] bg-[#2f6cff] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1d5ae0]"
           >
             パスワードを変更する →
           </Link>

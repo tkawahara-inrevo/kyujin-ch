@@ -12,7 +12,7 @@ export default async function CompanyMessagesPage() {
   const conversations = await prisma.conversation.findMany({
     where: { application: { job: { companyId: company.id } } },
     include: {
-      application: { include: { user: true, job: true } },
+                  application: { include: { user: true, job: true } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
       _count: {
         select: {
@@ -40,25 +40,27 @@ export default async function CompanyMessagesPage() {
               <Link
                 key={conv.id}
                 href={`/company/applicants/${conv.applicationId}`}
-                className="flex items-center justify-between rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:bg-[#fafafa]"
+                className="block rounded-[12px] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:bg-[#fafafa] md:flex md:items-center md:justify-between md:p-5"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[#333]">{conv.application.user.name}</span>
-                    <span className="text-[12px] text-[#aaa]">- {conv.application.job.title}</span>
+                  <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
+                    <span className="truncate font-semibold text-[#333]">{conv.application.user.name}</span>
+                    <span className="truncate text-[12px] text-[#aaa] md:max-w-[320px]">- {conv.application.job.title}</span>
                   </div>
                   {lastMsg && (
-                    <p className="mt-1 truncate text-[13px] text-[#888]">{lastMsg.body}</p>
+                    <p className="mt-2 line-clamp-2 text-[13px] leading-[1.5] text-[#888] md:mt-1 md:truncate">
+                      {lastMsg.body || (lastMsg.attachmentName ? `📎 ${lastMsg.attachmentName}` : "")}
+                    </p>
                   )}
                 </div>
-                <div className="ml-4 flex shrink-0 flex-col items-end gap-1">
+                <div className="mt-3 flex items-center justify-between gap-3 md:ml-4 md:mt-0 md:w-auto md:flex-col md:items-end md:gap-1">
                   {lastMsg && (
                     <span className="text-[11px] text-[#aaa]">
                       {lastMsg.createdAt.toLocaleDateString("ja-JP")}
                     </span>
                   )}
                   {unread > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ef4444] text-[10px] font-bold text-white">
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ef4444] px-1.5 text-[10px] font-bold text-white">
                       {unread}
                     </span>
                   )}

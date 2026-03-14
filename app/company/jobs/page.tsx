@@ -46,13 +46,12 @@ export default async function CompanyJobsPage() {
               <th className="px-5 py-3 font-semibold">公開</th>
               <th className="px-5 py-3 font-semibold">応募数</th>
               <th className="px-5 py-3 font-semibold">作成日</th>
-              <th className="px-5 py-3 font-semibold">操作</th>
             </tr>
           </thead>
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-[#aaa]">
+                <td colSpan={5} className="px-5 py-8 text-center text-[#aaa]">
                   求人がまだありません
                 </td>
               </tr>
@@ -73,14 +72,6 @@ export default async function CompanyJobsPage() {
                   <td className="px-5 py-3 text-[#555]">{job._count.applications}</td>
                   <td className="px-5 py-3 text-[#888]">
                     {job.createdAt.toLocaleDateString("ja-JP")}
-                  </td>
-                  <td className="px-5 py-3">
-                    <Link
-                      href={`/company/jobs/${job.id}/edit`}
-                      className="text-[#2f6cff] hover:underline"
-                    >
-                      編集
-                    </Link>
                   </td>
                 </tr>
               ))

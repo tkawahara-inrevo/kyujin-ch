@@ -114,6 +114,8 @@ model Job {
   closingDate           DateTime? // 掲載終了日
   employmentPeriodType  String?   // 有期/無期雇用区分
   region                String?   // 勤務地エリア（北海道・東北等）
+  categoryTagDetail     String?   // カテゴリ「その他」の詳細
+  employmentTypeDetail  String?   // 雇用形態「その他」の詳細
 
   // ターゲット（新卒/中途）
   targetType            String    @default("MID_CAREER") // "NEW_GRAD" | "MID_CAREER"
@@ -160,6 +162,9 @@ model Message {
   senderId       String
   senderType     MessageSenderType
   body           String
+  attachmentUrl  String?
+  attachmentName String?
+  attachmentType String?
   isRead         Boolean           @default(false)
   createdAt      DateTime          @default(now())
 

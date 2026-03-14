@@ -56,7 +56,7 @@ export function JobSection({ title, jobs, moreHref, moreLabel, badge = "注目" 
       <div className="mt-10 flex justify-center">
         <Link
           href={moreHref}
-          className="rounded-full bg-[#2f6cff] px-14 py-4 text-[14px] font-bold text-white transition hover:opacity-90"
+          className="rounded-full bg-[#2f6cff] px-14 py-4 text-[14px] font-bold !text-white transition hover:opacity-90"
         >
           {moreLabel}
         </Link>

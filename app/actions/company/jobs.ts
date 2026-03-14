@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -48,6 +49,8 @@ type JobData = {
   closingDate?: string;
   employmentPeriodType?: string;
   region?: string;
+  categoryTagDetail?: string;
+  employmentTypeDetail?: string;
   targetType?: string;
   graduationYear?: number;
 };
@@ -78,6 +81,8 @@ function toJobPrismaData(data: JobData) {
     closingDate: data.closingDate ? new Date(data.closingDate) : null,
     employmentPeriodType: data.employmentPeriodType || null,
     region: data.region || null,
+    categoryTagDetail: data.categoryTag === OTHER_CATEGORY_VALUE ? (data.categoryTagDetail || null) : null,
+    employmentTypeDetail: data.employmentType === "OTHER" ? (data.employmentTypeDetail || null) : null,
     targetType: data.targetType || "MID_CAREER",
     graduationYear: data.targetType === "NEW_GRAD" && data.graduationYear ? data.graduationYear : null,
   };

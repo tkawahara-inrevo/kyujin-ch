@@ -1,19 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CATEGORY_OPTIONS, EMPLOYMENT_FILTER_OPTIONS } from "@/lib/job-options";
 
-const CATEGORY_OPTIONS = ["すべて", "エンジニア", "デザイナー", "営業", "マーケター", "その他"];
-const EMPLOYMENT_OPTIONS = [
-  { label: "すべて", value: "" },
-  { label: "正社員", value: "FULL_TIME" },
-  { label: "パート・アルバイト", value: "PART_TIME" },
-  { label: "契約社員", value: "CONTRACT" },
-  { label: "派遣社員", value: "TEMPORARY" },
-  { label: "インターン", value: "INTERN" },
-];
 const AREA_OPTIONS = ["すべて", "北海道・東北", "関東", "中部", "近畿", "中国・四国", "九州・沖縄"];
-const PREF_OPTIONS = ["すべて", "東京都", "大阪府", "愛知県", "神奈川県", "福岡県", "北海道", "京都府", "その他"];
+const PREFECTURES_BY_AREA: Record<string, string[]> = {
+  "北海道・東北": ["北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
+  "関東": ["東京都", "神奈川県", "埼玉県", "千葉県", "茨城県", "栃木県", "群馬県"],
+  "中部": ["新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県"],
+  "近畿": ["大阪府", "京都府", "兵庫県", "滋賀県", "奈良県", "和歌山県", "三重県"],
+  "中国・四国": ["鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県"],
+  "九州・沖縄": ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"],
+};
 
 type Props = {
   activeTab?: "news" | "search";
@@ -33,15 +32,55 @@ export function TopHero({
   const [q, setQ] = useState(defaultQ);
   const [category, setCategory] = useState(defaultCategory);
   const [employmentType, setEmploymentType] = useState(defaultEmploymentType);
-  const [location, setLocation] = useState(defaultLocation);
+  const [area, setArea] = useState("");
+  const [prefecture, setPrefecture] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (!defaultLocation) return;
+
+    const matchedArea = AREA_OPTIONS.find((option) => option !== "すべて" && option === defaultLocation);
+    if (matchedArea) {
+      setArea(matchedArea);
+      setPrefecture("");
+      return;
+    }
+
+    const matchedEntry = Object.entries(PREFECTURES_BY_AREA).find(([, prefectures]) =>
+      prefectures.includes(defaultLocation),
+    );
+    if (matchedEntry) {
+      setArea(matchedEntry[0]);
+      setPrefecture(defaultLocation);
+      return;
+    }
+
+    setArea("");
+    setPrefecture("");
+  }, [defaultLocation]);
+
+  const prefectureOptions = useMemo(
+    () => (area ? PREFECTURES_BY_AREA[area] ?? [] : []),
+    [area],
+  );
+
+  const location = prefecture || area;
 
   const borderColor = activeTab === "news" ? "border-[#3b6ff6]" : "border-[#ff5a78]";
   const bgColor     = activeTab === "news" ? "bg-[#3b6ff6]"     : "bg-[#ff5a78]";
 
+  // 現在のtargetを維持する
+  function getTarget(): string | null {
+    if (typeof window === "undefined") return null;
+    const url = new URLSearchParams(window.location.search);
+    return url.get("target") || localStorage.getItem("kyujin-target");
+  }
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams({ tab: "search" });
+    const target = getTarget();
+    if (target) params.set("target", target);
     if (q.trim()) params.set("q", q.trim());
     if (category) params.set("category", category);
     if (employmentType) params.set("employmentType", employmentType);
@@ -52,14 +91,19 @@ export function TopHero({
   function handleNewsSearch(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams({ tab: "search" });
+    const target = getTarget();
+    if (target) params.set("target", target);
     if (q.trim()) params.set("q", q.trim());
     if (category) params.set("category", category);
     router.push(`/?${params.toString()}`);
   }
 
   function handleReset() {
-    setQ(""); setCategory(""); setEmploymentType(""); setLocation("");
-    router.push("/?tab=search");
+    setQ(""); setCategory(""); setEmploymentType(""); setArea(""); setPrefecture("");
+    const target = getTarget();
+    const params = new URLSearchParams({ tab: "search" });
+    if (target) params.set("target", target);
+    router.push(`/?${params.toString()}`);
   }
 
   return (
@@ -113,11 +157,12 @@ export function TopHero({
                   <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
                   <select
                     value={category}
-                    onChange={(e) => setCategory(e.target.value === "すべて" ? "" : e.target.value)}
+                    onChange={(e) => setCategory(e.target.value)}
                     className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
                   >
+                    <option value="">すべて</option>
                     {CATEGORY_OPTIONS.map((c) => (
-                      <option key={c} value={c === "すべて" ? "" : c}>{c}</option>
+                      <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
                 </div>
@@ -155,26 +200,43 @@ export function TopHero({
                   </div>
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
-                    <select value={category} onChange={(e) => setCategory(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                      {CATEGORY_OPTIONS.map((c) => <option key={c} value={c === "すべて" ? "" : c}>{c}</option>)}
+                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                      <option value="">すべて</option>
+                      {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">雇用形態</label>
                     <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                      {EMPLOYMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {EMPLOYMENT_FILTER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
-                    <select value={location} onChange={(e) => setLocation(e.target.value === "すべて" ? "" : e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
+                    <select
+                      value={area}
+                      onChange={(e) => {
+                        const nextArea = e.target.value === "すべて" ? "" : e.target.value;
+                        setArea(nextArea);
+                        if (!nextArea || !(PREFECTURES_BY_AREA[nextArea] ?? []).includes(prefecture)) {
+                          setPrefecture("");
+                        }
+                      }}
+                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
+                    >
                       {AREA_OPTIONS.map((a) => <option key={a} value={a === "すべて" ? "" : a}>{a}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
-                    <select className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none">
-                      {PREF_OPTIONS.map((p) => <option key={p}>{p}</option>)}
+                    <select
+                      value={prefecture}
+                      onChange={(e) => setPrefecture(e.target.value)}
+                      disabled={!area}
+                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]"
+                    >
+                      <option value="">すべて</option>
+                      {prefectureOptions.map((p) => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                 </div>

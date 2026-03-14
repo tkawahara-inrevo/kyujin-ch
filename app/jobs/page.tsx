@@ -2,6 +2,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
 import { JobSearchBar } from "@/components/job-search-bar";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -12,17 +13,29 @@ const cardImages = [
   "/assets/Paper.png",
 ];
 
-type SearchParams = Promise<{ q?: string; location?: string; tag?: string; category?: string; employmentType?: string }>;
+type SearchParams = Promise<{ q?: string; location?: string; tag?: string; category?: string; employmentType?: string; target?: string }>;
 
 export default async function JobsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, location, tag, category, employmentType } = await searchParams;
+  const { q, location, tag, category, employmentType, target } = await searchParams;
+
+  // targetからDB条件を組み立てる（"mid" or "2027" etc. — localStorage/URLと同じ形式）
+  function buildTargetFilter(t?: string): Prisma.JobWhereInput {
+    if (!t || t === "all") return {};
+    if (t === "mid") return { targetType: "MID_CAREER" };
+    const year = Number(t);
+    if (!isNaN(year)) {
+      return { targetType: "NEW_GRAD", graduationYear: year };
+    }
+    return {};
+  }
 
   const where: Prisma.JobWhereInput = {
     isPublished: true,
+    ...buildTargetFilter(target),
     ...(q && {
       OR: [
         { title: { contains: q, mode: "insensitive" } },
@@ -32,7 +45,7 @@ export default async function JobsPage({
       ],
     }),
     ...(tag && { tags: { hasSome: [tag] } }),
-    ...(category && { categoryTag: { contains: category, mode: "insensitive" } }),
+    ...(category && { categoryTag: { equals: category, mode: "insensitive" } }),
     ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
     ...(location && {
       location: { contains: location, mode: "insensitive" },
@@ -58,7 +71,7 @@ export default async function JobsPage({
     .sort();
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -109,6 +122,7 @@ export default async function JobsPage({
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

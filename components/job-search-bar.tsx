@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { EMPLOYMENT_FILTER_OPTIONS } from "@/lib/job-options";
 
 type Props = {
   defaultQ?: string;
@@ -10,16 +11,6 @@ type Props = {
   defaultEmploymentType?: string;
   categories?: string[];
 };
-
-const employmentTypes = [
-  { value: "", label: "すべて" },
-  { value: "FULL_TIME", label: "正社員" },
-  { value: "PART_TIME", label: "パートタイム" },
-  { value: "CONTRACT", label: "契約社員" },
-  { value: "TEMPORARY", label: "派遣" },
-  { value: "INTERN", label: "インターン" },
-  { value: "OTHER", label: "その他" },
-];
 
 export function JobSearchBar({
   defaultQ = "",
@@ -109,7 +100,7 @@ export function JobSearchBar({
             onChange={(e) => setEmpType(e.target.value)}
             className="w-full rounded-[8px] border border-[#d8d8d8] px-3 py-2 text-[13px] text-[#333] outline-none focus:border-[#2f6cff]"
           >
-            {employmentTypes.map((et) => (
+            {EMPLOYMENT_FILTER_OPTIONS.map((et) => (
               <option key={et.value} value={et.value}>{et.label}</option>
             ))}
           </select>
@@ -119,7 +110,7 @@ export function JobSearchBar({
       <div className="mt-3 flex gap-2">
         <button
           type="submit"
-          className="rounded-[8px] bg-[#2f6cff] px-5 py-2 text-[13px] font-bold text-white hover:opacity-90"
+          className="rounded-[8px] bg-[#2f6cff] px-5 py-2 text-[13px] font-bold !text-white hover:opacity-90"
         >
           検索
         </button>

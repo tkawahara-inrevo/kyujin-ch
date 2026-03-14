@@ -99,7 +99,7 @@ export function ProfileEditForm({
         <button
           type="submit"
           disabled={isPending}
-          className="mt-2 w-full rounded-[10px] bg-[#2f6cff] px-6 py-4 text-[16px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+          className="mt-2 w-full rounded-[10px] bg-[#2f6cff] px-6 py-4 text-[16px] font-bold !text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {isPending ? "保存中..." : "決定する"}
         </button>

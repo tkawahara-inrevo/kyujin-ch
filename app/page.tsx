@@ -4,7 +4,8 @@ import { RightSidebar } from "@/components/right-sidebar";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
 import { TargetSelectModal } from "@/components/target-select-modal";
-import { MobileAuthBar } from "@/components/mobile-auth-bar";
+import { TargetSync } from "@/components/target-sync";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
@@ -61,7 +62,7 @@ export default async function HomePage({
         { company: { name: { contains: q, mode: "insensitive" as const } } },
       ],
     }),
-    ...(category && { categoryTag: { contains: category, mode: "insensitive" as const } }),
+    ...(category && { categoryTag: { equals: category, mode: "insensitive" as const } }),
     ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
     ...(location && { location: { contains: location, mode: "insensitive" as const } }),
   };
@@ -80,10 +81,11 @@ export default async function HomePage({
   const hasSearchFilter = !!(q || category || employmentType || location);
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       {!isLoggedIn && (
         <TargetSelectModal currentYear={currentYear} nextYear={nextYear} />
       )}
+      <TargetSync />
       <Header />
       <TopHero
         activeTab="search"
@@ -171,7 +173,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#2558d4]"
+                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold !text-white shadow-sm transition hover:bg-[#2558d4]"
                     >
                       注目の求人をもっと見る
                     </Link>
@@ -206,7 +208,7 @@ export default async function HomePage({
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/jobs"
-                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#2558d4]"
+                      className="inline-block rounded-full bg-[#2f6cff] px-10 py-3.5 text-[14px] font-bold !text-white shadow-sm transition hover:bg-[#2558d4]"
                     >
                       新着の求人をもっと見る
                     </Link>
@@ -223,8 +225,8 @@ export default async function HomePage({
 
       <Footer />
 
-      {/* モバイル未ログイン時の固定バー */}
-      {!isLoggedIn && <MobileAuthBar />}
+      {/* モバイル固定バー（ログイン済み: ナビ / 未ログイン: 認証バー） */}
+      <MobileBottomBar />
     </main>
   );
 }

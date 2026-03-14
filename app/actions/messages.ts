@@ -4,8 +4,18 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
-export async function sendMessage(conversationId: string, body: string) {
-  if (!body.trim()) return;
+type MessageAttachmentInput = {
+  attachmentUrl: string;
+  attachmentName: string;
+  attachmentType?: string;
+};
+
+export async function sendMessage(
+  conversationId: string,
+  body: string,
+  attachment?: MessageAttachmentInput,
+) {
+  if (!body.trim() && !attachment) return;
 
   const user = await getCurrentUser();
 
@@ -15,6 +25,9 @@ export async function sendMessage(conversationId: string, body: string) {
       senderId: user.id,
       senderType: "USER",
       body: body.trim(),
+      attachmentUrl: attachment?.attachmentUrl,
+      attachmentName: attachment?.attachmentName,
+      attachmentType: attachment?.attachmentType ?? null,
     },
   });
 

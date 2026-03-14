@@ -19,18 +19,9 @@ export async function FavoriteToggleButton({
 }: FavoriteToggleButtonProps) {
   const session = await auth();
 
+  // 未ログインユーザーにはお気に入りボタンを表示しない
   if (!session?.user?.id) {
-    return (
-      <button type="button" className="shrink-0 opacity-70" aria-label="favorite-toggle-disabled">
-        <Image
-          src={inactiveIcon}
-          alt=""
-          width={16}
-          height={20}
-          className="object-contain"
-        />
-      </button>
-    );
+    return null;
   }
 
   const favorite = await prisma.favorite.findUnique({
@@ -60,13 +51,13 @@ export async function FavoriteToggleButton({
 
   return (
     <form action={toggleFavoriteAction}>
-      <button type="submit" className="shrink-0" aria-label="favorite-toggle">
+      <button type="submit" className="shrink-0 p-1" aria-label="favorite-toggle">
         <Image
           src={isFavorited ? activeIcon : inactiveIcon}
           alt=""
-          width={16}
-          height={20}
-          className="object-contain"
+          width={20}
+          height={24}
+          className="object-contain md:h-5 md:w-4"
         />
       </button>
     </form>

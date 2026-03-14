@@ -136,7 +136,7 @@ export function AuthDialog({ initialMode = "register", onClose }: Props) {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-2 w-full rounded-[10px] bg-[#2f6cff] py-4 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+            className="mt-2 w-full rounded-[10px] bg-[#2f6cff] py-4 text-[15px] font-bold !text-white transition hover:opacity-90 disabled:opacity-60"
           >
             {isPending
               ? mode === "register" ? "登録中..." : "ログイン中..."

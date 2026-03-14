@@ -28,7 +28,17 @@ export async function updateApplicationStatus(applicationId: string, status: str
   revalidatePath("/company/applicants");
 }
 
-export async function sendCompanyMessage(applicationId: string, body: string) {
+type MessageAttachmentInput = {
+  attachmentUrl: string;
+  attachmentName: string;
+  attachmentType?: string;
+};
+
+export async function sendCompanyMessage(
+  applicationId: string,
+  body: string,
+  attachment?: MessageAttachmentInput,
+) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
 
@@ -54,6 +64,9 @@ export async function sendCompanyMessage(applicationId: string, body: string) {
       senderId: session.user.id,
       senderType: "COMPANY",
       body,
+      attachmentUrl: attachment?.attachmentUrl,
+      attachmentName: attachment?.attachmentName,
+      attachmentType: attachment?.attachmentType ?? null,
     },
   });
 

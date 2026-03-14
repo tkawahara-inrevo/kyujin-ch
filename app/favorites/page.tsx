@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { FavoriteListSection } from "@/components/favorite-list-section";
 import { EmptyStateCard } from "@/components/empty-state-card";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -26,7 +27,7 @@ export default async function FavoritesPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -58,6 +59,7 @@ export default async function FavoritesPage() {
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

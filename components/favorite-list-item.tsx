@@ -102,7 +102,7 @@ export function FavoriteListItem({
               </Link>
               <Link
                 href={`/jobs/${jobId}/apply`}
-                className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white transition hover:opacity-90"
+                className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold !text-white transition hover:opacity-90"
               >
                 応募する
               </Link>

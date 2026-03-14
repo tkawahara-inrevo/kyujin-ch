@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
 import { MessageThread } from "@/components/message-thread";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -45,45 +46,45 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
   const job = conversation.application.job;
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
-            <section className="border-b border-[#dddddd] pb-8">
-              <h1 className="text-[40px] font-bold text-[#333]">メッセージ詳細</h1>
-
-              <div className="mt-4">
-                <p className="text-[28px] font-bold text-[#333]">
-                  {job.company.name}
-                </p>
-                <p className="mt-3 text-[20px] text-[#444]">{job.title}</p>
-                <p className="mt-3 text-[14px] text-[#999]">
-                  応募ID：{conversation.applicationId}
-                </p>
+            {/* ヘッダー */}
+            <div className="mb-4 flex items-center gap-3">
+              <a href="/messages" className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0f0f0] text-[#666] transition hover:bg-[#e5e5e5]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </a>
+              <div className="flex-1 min-w-0">
+                <h1 className="truncate text-[16px] font-bold text-[#333]">{job.company.name}</h1>
+                <p className="truncate text-[13px] text-[#888]">{job.title}</p>
               </div>
+            </div>
 
-              <div className="mt-4">
-                <MessageThread
-                  conversationId={id}
-                  messages={conversation.messages.map((m) => ({
-                    id: m.id,
-                    body: m.body,
-                    senderType: m.senderType,
-                    senderId: m.senderId,
-                    createdAt: m.createdAt,
-                  }))}
-                  currentUserId={currentUser.id}
-                />
-              </div>
-            </section>
+            {/* メッセージスレッド */}
+            <MessageThread
+              conversationId={id}
+              messages={conversation.messages.map((m) => ({
+                id: m.id,
+                body: m.body,
+                attachmentName: m.attachmentName,
+                senderType: m.senderType,
+                senderId: m.senderId,
+                createdAt: m.createdAt,
+              }))}
+              currentUserId={currentUser.id}
+            />
           </div>
 
           <ActionSidebar isLoggedIn={true} />
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

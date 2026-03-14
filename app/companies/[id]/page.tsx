@@ -11,6 +11,7 @@ import { CompanyStory } from "@/components/company-story";
 import { CompanyInfoTable } from "@/components/company-info-table";
 import { CompanyReviews } from "@/components/company-reviews";
 import { CompanyReviewForm } from "@/components/company-review-form";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 
 type CompanyPageProps = {
   params: Promise<{
@@ -53,7 +54,7 @@ export default async function CompanyPage({
   });
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
+    <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
@@ -127,6 +128,7 @@ export default async function CompanyPage({
         </div>
       </div>
 
+      <MobileBottomBar />
       <Footer />
     </main>
   );

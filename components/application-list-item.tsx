@@ -94,7 +94,7 @@ export function ApplicationListItem({
               {conversationId && (
                 <Link
                   href={`/messages/${conversationId}`}
-                  className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white transition hover:opacity-90"
+                  className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold !text-white transition hover:opacity-90"
                 >
                   メッセージを見る
                 </Link>

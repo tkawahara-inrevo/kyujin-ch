@@ -13,14 +13,14 @@ const cardImages = [
   "/assets/Paper.png",
 ];
 
-type SearchParams = Promise<{ q?: string; location?: string; tag?: string; category?: string; employmentType?: string; target?: string }>;
+type SearchParams = Promise<{ q?: string; location?: string; tag?: string; category?: string; employmentType?: string; target?: string; sort?: string }>;
 
 export default async function JobsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, location, tag, category, employmentType, target } = await searchParams;
+  const { q, location, tag, category, employmentType, target, sort } = await searchParams;
 
   // targetからDB条件を組み立てる（"mid" or "2027" etc. — localStorage/URLと同じ形式）
   function buildTargetFilter(t?: string): Prisma.JobWhereInput {
@@ -52,11 +52,14 @@ export default async function JobsPage({
     }),
   };
 
+  const orderBy: Prisma.JobOrderByWithRelationInput =
+    sort === "popular" ? { viewCount: "desc" } : { createdAt: "desc" };
+
   const [jobs, categoryTags] = await Promise.all([
     prisma.job.findMany({
       where,
       include: { company: true },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
     prisma.job.findMany({
       where: { isPublished: true, categoryTag: { not: null } },
@@ -75,7 +78,9 @@ export default async function JobsPage({
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        <h1 className="mb-6 text-[28px] font-bold text-[#222]">求人一覧</h1>
+        <h1 className="mb-6 text-[28px] font-bold text-[#222]">
+          {sort === "popular" ? "注目の求人" : "求人一覧"}
+        </h1>
 
         <JobSearchBar
           defaultQ={q}
@@ -112,7 +117,7 @@ export default async function JobsPage({
                 salaryMax={job.salaryMax}
                 description={job.description}
                 imageSrc={cardImages[index % cardImages.length]}
-                badge="新着"
+                badge={sort === "popular" ? "注目" : "新着"}
                 categoryTag={job.categoryTag ?? undefined}
                 tags={job.tags.length > 0 ? job.tags : undefined}
                 createdAt={job.createdAt}

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
@@ -74,26 +75,22 @@ export default async function CompanyPage({
                   募集中の求人
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {company.jobs.slice(0, 4).map((job) => (
-                    <div key={job.id} className="text-[11px] text-[#333]">
-                      <p>[Webマーケター] フルリ</p>
-                      <p>モート/フルフレックス</p>
-                      <p className="font-bold text-[#ff3158]">マーケター</p>
-                      <div className="mt-2 h-[74px] rounded-[8px] bg-[#efefef]" />
-                    </div>
+                    <Link
+                      key={job.id}
+                      href={`/jobs/${job.id}`}
+                      className="block rounded-[10px] border border-[#e6e6e6] bg-white p-4 transition hover:border-[#2f6cff] hover:shadow-sm"
+                    >
+                      <p className="text-[13px] font-bold text-[#333] line-clamp-2">{job.title}</p>
+                      {job.location && (
+                        <p className="mt-1 text-[12px] text-[#888]">{job.location}</p>
+                      )}
+                      <p className="mt-1 text-[11px] text-[#aaa]">
+                        {job.createdAt.toLocaleDateString("ja-JP")}
+                      </p>
+                    </Link>
                   ))}
-                </div>
-
-                <p className="mt-4 text-right text-[11px] text-[#999]">掲載日 2026/02/20</p>
-
-                <div className="mt-5 text-center">
-                  <p className="text-[13px] font-bold text-[#2f6cff]">
-                    最短でこのくらいで応募完了！
-                  </p>
-                  <button className="mt-4 w-full rounded-[10px] bg-[#2f6cff] px-6 py-4 text-[15px] font-bold text-white transition hover:opacity-90">
-                    応募する
-                  </button>
                 </div>
               </section>
             )}

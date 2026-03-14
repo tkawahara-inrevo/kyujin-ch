@@ -160,10 +160,6 @@ export default async function JobDetailPage({
             </div>
 
             <div className="mt-2 text-center">
-              <p className="text-[14px] font-bold text-[#2f6cff]">
-                最短でこのくらいで応募完了！
-              </p>
-
               <ApplyButton
                 href={`/jobs/${job.id}/apply`}
                 isLoggedIn={isLoggedIn}

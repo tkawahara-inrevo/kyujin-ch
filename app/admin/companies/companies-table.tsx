@@ -101,7 +101,15 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                       </Link>
                     </td>
                     <td className="px-5 py-3 text-[#555]">{company.email}</td>
-                    <td className="px-5 py-3 text-[#555]">{company.jobsCount}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      {company.jobsCount > 0 ? (
+                        <Link href={`/admin/jobs?q=${encodeURIComponent(company.name)}`} className="text-[#2f6cff] hover:underline">
+                          {company.jobsCount}
+                        </Link>
+                      ) : (
+                        "0"
+                      )}
+                    </td>
                     <td className="px-5 py-3">
                       <CompanyActiveToggle
                         companyId={company.id}

@@ -51,9 +51,13 @@ export default async function AdminJobDetailPage({
 
   return (
     <div className="p-6 lg:p-10">
-      <Link href="/admin/jobs" className="text-[13px] text-[#888] hover:text-[#2f6cff]">
-        ← 求人一覧
-      </Link>
+      <div className="flex items-center gap-2 text-[13px] text-[#888]">
+        <Link href="/admin/jobs" className="hover:text-[#2f6cff]">求人一覧</Link>
+        <span>/</span>
+        <Link href={`/admin/companies/${job.companyId}`} className="hover:text-[#2f6cff]">{job.company.name}</Link>
+        <span>/</span>
+        <span className="text-[#555]">{job.title.length > 30 ? job.title.slice(0, 30) + "…" : job.title}</span>
+      </div>
 
       <div className="mt-4 flex items-center justify-between">
         <h1 className="text-[24px] font-bold text-[#1e293b]">{job.title}</h1>
@@ -64,7 +68,14 @@ export default async function AdminJobDetailPage({
         <div className="rounded-[12px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <h2 className="mb-4 text-[16px] font-bold text-[#333]">求人情報</h2>
           <dl className="space-y-3 text-[14px]">
-            <InfoRow label="企業" value={job.company.name} />
+            <div className="flex gap-4">
+              <dt className="w-[100px] shrink-0 font-semibold text-[#888]">企業</dt>
+              <dd>
+                <Link href={`/admin/companies/${job.companyId}`} className="font-medium text-[#2f6cff] hover:underline">
+                  {job.company.name}
+                </Link>
+              </dd>
+            </div>
             <InfoRow label="雇用形態" value={employmentTypeLabels[job.employmentType] || job.employmentType} />
             <InfoRow label="勤務地" value={job.location || "未設定"} />
             <InfoRow label="給与" value={
@@ -119,7 +130,11 @@ export default async function AdminJobDetailPage({
               ) : (
                 job.applications.map((app) => (
                   <tr key={app.id} className="border-b border-[#f8f8f8] hover:bg-[#fafafa]">
-                    <td className="px-5 py-3 font-medium text-[#333]">{app.user.name}</td>
+                    <td className="px-5 py-3 font-medium text-[#333]">
+                      <Link href={`/admin/jobseekers/${app.userId}`} className="hover:text-[#2f6cff] hover:underline">
+                        {app.user.name}
+                      </Link>
+                    </td>
                     <td className="px-5 py-3">
                       <span className="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-bold text-[#2f6cff]">
                         {statusLabels[app.status] || app.status}

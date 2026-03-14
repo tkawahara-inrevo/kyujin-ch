@@ -99,7 +99,11 @@ export default async function AdminJobseekerDetailPage({
                         {app.job.title}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">{app.job.company.name}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      <Link href={`/admin/companies/${app.job.companyId}`} className="hover:text-[#2f6cff] hover:underline">
+                        {app.job.company.name}
+                      </Link>
+                    </td>
                     <td className="px-5 py-3">
                       <span className="rounded-full bg-[#eef2ff] px-2.5 py-1 text-[11px] font-bold text-[#2f6cff]">
                         {statusLabels[app.status] || app.status}

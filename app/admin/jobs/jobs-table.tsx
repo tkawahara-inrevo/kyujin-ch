@@ -8,6 +8,7 @@ export type AdminJobRow = {
   title: string;
   companyId: string;
   companyName: string;
+  categoryTag?: string;
   applicationsCount: number;
   viewCount: number;
   isPublished: boolean;
@@ -103,7 +104,15 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
                         {job.companyName}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">{job.applicationsCount}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      {job.applicationsCount > 0 ? (
+                        <Link href={`/admin/jobs/${job.id}`} className="text-[#2f6cff] hover:underline">
+                          {job.applicationsCount}
+                        </Link>
+                      ) : (
+                        "0"
+                      )}
+                    </td>
                     <td className="px-5 py-3 text-[#555]">{job.viewCount}</td>
                     <td className="px-5 py-3">
                       <PublishBadge isPublished={job.isPublished} />

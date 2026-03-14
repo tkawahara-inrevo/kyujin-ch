@@ -114,7 +114,15 @@ export default async function AdminCompanyDetailPage({
                         {job.title}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">{job._count.applications}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      {job._count.applications > 0 ? (
+                        <Link href={`/admin/jobs/${job.id}`} className="text-[#2f6cff] hover:underline">
+                          {job._count.applications}
+                        </Link>
+                      ) : (
+                        "0"
+                      )}
+                    </td>
                     <td className="px-5 py-3 text-[#555]">{job.viewCount}</td>
                     <td className="px-5 py-3">
                       <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${

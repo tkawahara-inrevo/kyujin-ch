@@ -1,5 +1,6 @@
 import { EmploymentType, Prisma } from "@prisma/client";
 import { CATEGORY_OPTIONS, EMPLOYMENT_OPTIONS } from "@/lib/job-options";
+import { PREFECTURES_BY_AREA } from "@/lib/job-locations";
 
 const EMPLOYMENT_TYPE_VALUES = new Set(
   EMPLOYMENT_OPTIONS.map((option) => option.value),
@@ -61,12 +62,11 @@ export function buildPublishedJobSearchWhere(
   const category = normalizeCategoryParam(input.category);
   const employmentType = normalizeEmploymentTypeParam(input.employmentType);
   const location = normalizeTextParam(input.location);
+  const areaPrefectures = location ? PREFECTURES_BY_AREA[location] ?? [] : [];
+  const andConditions: Prisma.JobWhereInput[] = [];
 
-  return {
-    isPublished: true,
-    isDeleted: false,
-    ...buildTargetFilter(input.target),
-    ...(q && {
+  if (q) {
+    andConditions.push({
       OR: [
         { title: { contains: q, mode: "insensitive" } },
         { description: { contains: q, mode: "insensitive" } },
@@ -74,13 +74,31 @@ export function buildPublishedJobSearchWhere(
         { categoryTag: { contains: q, mode: "insensitive" } },
         { tags: { has: q } },
       ],
-    }),
+    });
+  }
+
+  if (location) {
+    if (areaPrefectures.length > 0) {
+      andConditions.push({
+        OR: areaPrefectures.map((prefecture) => ({
+          location: { contains: prefecture, mode: "insensitive" },
+        })),
+      });
+    } else {
+      andConditions.push({
+        location: { contains: location, mode: "insensitive" },
+      });
+    }
+  }
+
+  return {
+    isPublished: true,
+    isDeleted: false,
+    ...buildTargetFilter(input.target),
+    ...(andConditions.length > 0 ? { AND: andConditions } : {}),
     ...(category && {
       categoryTag: { equals: category, mode: "insensitive" },
     }),
     ...(employmentType && { employmentType }),
-    ...(location && {
-      location: { contains: location, mode: "insensitive" },
-    }),
   };
 }

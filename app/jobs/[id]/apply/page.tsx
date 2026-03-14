@@ -7,6 +7,7 @@ import { RecommendSection } from "@/components/recommend-section";
 import { ApplyForm } from "./apply-form";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { rankRecommendedJobs } from "@/lib/recommended-jobs";
 
 type ApplyPageProps = {
   params: Promise<{
@@ -46,20 +47,24 @@ export default async function ApplyPage({
       }))
     : false;
 
-  const recommendedJobs = await prisma.job.findMany({
+  const recommendationCandidates = await prisma.job.findMany({
     where: {
       NOT: {
         id: job.id,
       },
+      isPublished: true,
+      isDeleted: false,
     },
     include: {
       company: true,
     },
-    take: 3,
+    take: 24,
     orderBy: {
       createdAt: "desc",
     },
   });
+
+  const recommendedJobs = rankRecommendedJobs(job, recommendationCandidates, 3);
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">

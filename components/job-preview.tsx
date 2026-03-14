@@ -30,14 +30,15 @@ type JobPreviewData = {
 
 export function JobPreview({ data }: { data: JobPreviewData }) {
   const employmentLabel = data.employmentType
-    ? (data.employmentType === "OTHER" && data.employmentTypeDetail
-        ? `${EMPLOYMENT_LABELS.OTHER} (${data.employmentTypeDetail})`
-        : EMPLOYMENT_LABELS[data.employmentType] || data.employmentType)
+    ? data.employmentType === "OTHER" && data.employmentTypeDetail
+      ? `${EMPLOYMENT_LABELS.OTHER} (${data.employmentTypeDetail})`
+      : EMPLOYMENT_LABELS[data.employmentType] || data.employmentType
     : "";
 
-  const categoryLabel = data.categoryTag === OTHER_CATEGORY_VALUE && data.categoryTagDetail
-    ? `${OTHER_CATEGORY_VALUE} (${data.categoryTagDetail})`
-    : data.categoryTag || "";
+  const categoryLabel =
+    data.categoryTag === OTHER_CATEGORY_VALUE && data.categoryTagDetail
+      ? `${OTHER_CATEGORY_VALUE} (${data.categoryTagDetail})`
+      : data.categoryTag || "";
 
   return (
     <div className="rounded-[12px] border border-[#e5e5e5] bg-white p-6 shadow-sm">
@@ -86,28 +87,22 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
         {(data.salaryMin || data.salaryMax) && (
           <p>
             年収{" "}
-            {data.salaryMin ? `${data.salaryMin}万円` : ""}
+            {data.salaryMin ? `${data.salaryMin}万` : ""}
             {data.salaryMin && data.salaryMax ? " 〜 " : ""}
-            {data.salaryMax ? `${data.salaryMax}万円` : ""}
+            {data.salaryMax ? `${data.salaryMax}万` : ""}
           </p>
         )}
       </div>
 
-      {/* 仕事内容 */}
-      {data.description && (
-        <PreviewBlock heading="仕事内容" body={data.description} />
-      )}
-      {data.requirements && (
-        <PreviewBlock heading="応募条件" body={data.requirements} />
-      )}
+      {data.description && <PreviewBlock heading="仕事内容" body={data.description} />}
+      {data.requirements && <PreviewBlock heading="応募条件" body={data.requirements} />}
       {data.desiredAptitude && (
-        <PreviewBlock heading="求む適性" body={data.desiredAptitude} />
+        <PreviewBlock heading="こんな方に向いています" body={data.desiredAptitude} />
       )}
       {data.recommendedFor && (
-        <PreviewBlock heading="おすすめ" body={data.recommendedFor} />
+        <PreviewBlock heading="こんな方におすすめ" body={data.recommendedFor} />
       )}
 
-      {/* 勤務地 */}
       {(data.officeName || data.officeDetail || data.access) && (
         <div className="mt-4 border-t border-[#eee] pt-4">
           <p className="text-[13px] font-bold text-[#333]">勤務地</p>
@@ -123,7 +118,6 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
         </div>
       )}
 
-      {/* 給与 */}
       {(data.monthlySalary || data.annualSalary) && (
         <div className="mt-4 border-t border-[#eee] pt-4">
           <p className="text-[13px] font-bold text-[#333]">給与</p>
@@ -136,7 +130,6 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
         </div>
       )}
 
-      {/* 勤務時間 */}
       {data.workingHours && (
         <div className="mt-4 border-t border-[#eee] pt-4">
           <p className="text-[13px] font-bold text-[#333]">勤務時間</p>
@@ -144,29 +137,38 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
         </div>
       )}
 
-      {/* 福利厚生 */}
-      {data.benefits && data.benefits.length > 0 && (
-        <div className="mt-4 border-t border-[#eee] pt-4">
-          <p className="text-[13px] font-bold text-[#333]">福利厚生</p>
+      <div className="mt-4 border-t border-[#eee] pt-4">
+        <p className="text-[13px] font-bold text-[#333]">福利厚生</p>
+        {data.benefits && data.benefits.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {data.benefits.map((b) => (
-              <span key={b} className="rounded bg-[#f3f3f3] px-2 py-1 text-[12px] text-[#555]">
-                {b}
+            {data.benefits.map((benefit) => (
+              <span
+                key={benefit}
+                className="rounded bg-[#f3f3f3] px-2 py-1 text-[12px] text-[#555]"
+              >
+                {benefit}
               </span>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="mt-1 text-[13px] leading-[1.8] text-[#94a3b8]">
+            福利厚生は現在確認中です。
+          </p>
+        )}
+      </div>
 
-      {/* 選考プロセス */}
-      {data.selectionProcess && (
-        <div className="mt-4 border-t border-[#eee] pt-4">
-          <p className="text-[13px] font-bold text-[#333]">選考プロセス</p>
+      <div className="mt-4 border-t border-[#eee] pt-4">
+        <p className="text-[13px] font-bold text-[#333]">選考フロー</p>
+        {data.selectionProcess ? (
           <p className="mt-1 whitespace-pre-line text-[13px] text-[#555]">
             {data.selectionProcess}
           </p>
-        </div>
-      )}
+        ) : (
+          <p className="mt-1 text-[13px] leading-[1.8] text-[#94a3b8]">
+            選考フローは現在確認中です。
+          </p>
+        )}
+      </div>
 
       <div className="mt-6">
         <div className="block cursor-default rounded-[10px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold text-white opacity-60">
@@ -181,7 +183,9 @@ function PreviewBlock({ heading, body }: { heading: string; body: string }) {
   return (
     <div className="mt-4 border-t border-[#eee] pt-4">
       <p className="text-[13px] font-bold text-[#333]">{heading}</p>
-      <p className="mt-1 whitespace-pre-line text-[13px] leading-[1.8] text-[#555]">{body}</p>
+      <p className="mt-1 whitespace-pre-line text-[13px] leading-[1.8] text-[#555]">
+        {body}
+      </p>
     </div>
   );
 }

@@ -9,8 +9,7 @@ export function CompanyStory({
 }: CompanyStoryProps) {
   return (
     <section className="mt-8">
-      <div className="grid gap-8 lg:grid-cols-[1fr_220px]">
-        <div>
+      <div>
           <div className="relative aspect-[1.62/1] overflow-hidden rounded-[10px] bg-[#ececec]">
             <Image
               src="/assets/Resume.png"
@@ -94,62 +93,6 @@ export function CompanyStory({
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="text-[13px] leading-[1.9] text-[#4b4b4b]">
-            <p className="font-bold text-[#2f6cff]">メッセージ</p>
-            <ul className="mt-2 space-y-1">
-              <li>→ 会社概要</li>
-              <li>→ 創業背景</li>
-              <li>→ ビジョン</li>
-              <li>→ 使命</li>
-              <li>→ 事業内容</li>
-              <li>→ 採用・育成</li>
-              <li>→ 社風</li>
-              <li>→ 平均年齢</li>
-            </ul>
-          </div>
-
-          <div className="rounded-[12px] border border-[#dddddd] bg-white p-4">
-            <p className="text-[16px] font-bold text-[#333]">{companyName}</p>
-
-            <div className="mt-3 flex items-center gap-2 text-[13px] text-[#444]">
-              <Image src="/assets/Map_Pin.png" alt="" width={14} height={14} />
-              <span>福岡県</span>
-            </div>
-
-            <div className="relative mt-4 h-[140px] overflow-hidden rounded-[8px] bg-[#efefef]">
-              <Image
-                src="/assets/Paper.png"
-                alt={companyName}
-                fill
-                className="object-cover"
-                sizes="220px"
-              />
-            </div>
-
-            <p className="mt-4 text-[12px] leading-[1.8] text-[#555]">
-              企画、開発、制作、販売及び保守（ウェブサイト、ウェブコンテンツの企画、制作、保守及び管理）、人材育成のための教育コンテンツ作成、研修及び指導
-            </p>
-
-            <a
-              href="#"
-              className="mt-3 inline-block text-[12px] font-bold text-[#2f6cff] underline underline-offset-2"
-            >
-              公式サイト
-            </a>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-[8px] bg-[#2f6cff] px-3 py-1 text-[11px] font-bold text-white">
-                求人数　4件
-              </span>
-              <span className="rounded-[8px] bg-[#ff3158] px-3 py-1 text-[11px] font-bold text-white">
-                クチコミ　10件
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

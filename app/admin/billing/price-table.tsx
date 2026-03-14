@@ -273,7 +273,7 @@ function AddCategoryForm({ existingCategories }: { existingCategories: string[] 
   return (
     <div className="rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
       <h3 className="text-[14px] font-bold text-[#333]">新しいカテゴリを追加</h3>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <input
           type="text"
           value={category}

@@ -23,8 +23,8 @@ export default async function AdminAnalyticsPage() {
     monthlyCharges,
     totalViews,
     monthlyViews,
-    topJobs,
-    topCompanies,
+    topJobsByPv,
+    topJobsByApps,
   ] = await Promise.all([
     prisma.job.count({ where: { isDeleted: false } }),
     prisma.application.count(),
@@ -43,29 +43,35 @@ export default async function AdminAnalyticsPage() {
       orderBy: { viewCount: "desc" },
       take: 10,
     }),
-    prisma.company.findMany({
-      include: {
-        _count: { select: { jobs: true } },
-      },
-      orderBy: { createdAt: "asc" },
+    // 応募数ランキング用
+    prisma.job.findMany({
+      where: { isDeleted: false },
+      include: { company: true, _count: { select: { applications: true } } },
+      orderBy: { applications: { _count: "desc" } },
       take: 10,
     }),
   ]);
 
+  // 企業別売上ランキング: 全企業のchargeを集計してTOP10を算出
+  const allCompanies = await prisma.company.findMany({
+    include: { _count: { select: { jobs: true } } },
+  });
+
   const companyCharges = await Promise.all(
-    topCompanies.map(async (company) => {
+    allCompanies.map(async (company) => {
       const charges = await prisma.charge.aggregate({
         where: { isValid: true, application: { job: { companyId: company.id } } },
         _sum: { amount: true },
       });
-
       return { ...company, totalCharge: charges._sum.amount ?? 0 };
     })
   );
 
+  // 売上順でソートしてTOP10
   companyCharges.sort((a, b) => b.totalCharge - a.totalCharge);
+  const topCompanyCharges = companyCharges.slice(0, 10);
 
-  const topJobRows: TopJobRow[] = topJobs.map((job, index) => {
+  const topJobRows: TopJobRow[] = topJobsByPv.map((job, index) => {
     const cvr =
       job.viewCount > 0
         ? ((job._count.applications / job.viewCount) * 100).toFixed(1)
@@ -82,7 +88,25 @@ export default async function AdminAnalyticsPage() {
     };
   });
 
-  const topCompanyRows: TopCompanyRevenueRow[] = companyCharges.map((company, index) => ({
+  const topJobByAppsRows: TopJobRow[] = topJobsByApps
+    .filter((job) => job._count.applications > 0)
+    .map((job, index) => {
+      const cvr =
+        job.viewCount > 0
+          ? ((job._count.applications / job.viewCount) * 100).toFixed(1)
+          : "-";
+      return {
+        id: job.id,
+        rank: index + 1,
+        title: job.title,
+        companyName: job.company.name,
+        viewCount: job.viewCount,
+        applicationsCount: job._count.applications,
+        cvrLabel: cvr === "-" ? cvr : `${cvr}%`,
+      };
+    });
+
+  const topCompanyRows: TopCompanyRevenueRow[] = topCompanyCharges.map((company, index) => ({
     id: company.id,
     rank: index + 1,
     name: company.name,
@@ -94,7 +118,7 @@ export default async function AdminAnalyticsPage() {
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e293b]">分析</h1>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
         <KpiCard label="総求人数" value={totalJobs} color="#2f6cff" />
         <KpiCard label="総応募数" value={totalApps} sub={`今月: ${monthlyApps}`} color="#10b981" />
         <KpiCard
@@ -111,7 +135,7 @@ export default async function AdminAnalyticsPage() {
         />
       </div>
 
-      <AnalyticsRankings topJobs={topJobRows} topCompanies={topCompanyRows} />
+      <AnalyticsRankings topJobs={topJobRows} topJobsByApps={topJobByAppsRows} topCompanies={topCompanyRows} />
     </div>
   );
 }

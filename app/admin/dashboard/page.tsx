@@ -27,7 +27,7 @@ export default async function AdminDashboardPage() {
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e293b]">管理ダッシュボード</h1>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
         {kpiCards.map((kpi) => (
           <Link key={kpi.label} href={kpi.href} className="block rounded-[12px] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:shadow-md">
             <p className="text-[12px] font-semibold text-[#888]">{kpi.label}</p>

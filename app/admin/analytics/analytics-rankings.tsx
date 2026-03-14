@@ -22,9 +22,11 @@ export type TopCompanyRevenueRow = {
 
 export function AnalyticsRankings({
   topJobs,
+  topJobsByApps,
   topCompanies,
 }: {
   topJobs: TopJobRow[];
+  topJobsByApps: TopJobRow[];
   topCompanies: TopCompanyRevenueRow[];
 }) {
   const [selectedJob, setSelectedJob] = useState<TopJobRow | null>(null);
@@ -84,6 +86,64 @@ export function AnalyticsRankings({
                       {job.viewCount.toLocaleString()}
                     </td>
                     <td className="px-5 py-3 text-[#555]">{job.applicationsCount}</td>
+                    <td className="px-5 py-3 text-[#555]">{job.cvrLabel}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-[16px] font-bold text-[#333]">応募数ランキング（求人TOP10）</h2>
+        <div className="mt-3 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+          <div className="md:hidden">
+            <div className="grid grid-cols-[36px_minmax(0,1fr)_54px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
+              <span>#</span>
+              <span className="truncate">求人</span>
+              <span className="text-right">応募</span>
+            </div>
+            <div>
+              {topJobsByApps.map((job) => (
+                <button
+                  key={job.id}
+                  type="button"
+                  onClick={() => setSelectedJob(job)}
+                  className="grid w-full grid-cols-[36px_minmax(0,1fr)_54px] items-center gap-2 border-b border-[#f8f8f8] px-4 py-3 text-left transition hover:bg-[#fafafa]"
+                >
+                  <span className="text-[13px] font-bold text-[#888]">{job.rank}</span>
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-medium text-[#333]">{job.title}</p>
+                    <p className="truncate text-[11px] text-[#999]">{job.companyName}</p>
+                  </div>
+                  <span className="text-right text-[13px] font-bold text-[#10b981]">
+                    {job.applicationsCount}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full text-left text-[13px]">
+              <thead>
+                <tr className="border-b border-[#f0f0f0] text-[#888]">
+                  <th className="w-[40px] px-5 py-3 font-semibold">#</th>
+                  <th className="px-5 py-3 font-semibold">求人タイトル</th>
+                  <th className="px-5 py-3 font-semibold">企業</th>
+                  <th className="px-5 py-3 font-semibold">応募数</th>
+                  <th className="px-5 py-3 font-semibold">PV</th>
+                  <th className="px-5 py-3 font-semibold">CVR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topJobsByApps.map((job) => (
+                  <tr key={job.id} className="border-b border-[#f8f8f8] hover:bg-[#fafafa]">
+                    <td className="px-5 py-3 font-bold text-[#888]">{job.rank}</td>
+                    <td className="px-5 py-3 font-medium text-[#333]">{job.title}</td>
+                    <td className="px-5 py-3 text-[#555]">{job.companyName}</td>
+                    <td className="px-5 py-3 font-medium text-[#10b981]">{job.applicationsCount}</td>
+                    <td className="px-5 py-3 text-[#555]">{job.viewCount.toLocaleString()}</td>
                     <td className="px-5 py-3 text-[#555]">{job.cvrLabel}</td>
                   </tr>
                 ))}

@@ -83,7 +83,7 @@ export default async function AdminCompanyDetailPage({
       </div>
 
       {/* KPI */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3">
         <KpiCard label="求人数" value={company.jobs.length} color="#2f6cff" />
         <KpiCard label="累計請求額" value={`¥${(totalCharges._sum.amount ?? 0).toLocaleString()}`} color="#10b981" />
         <KpiCard label="無効申請数" value={company._count.invalidRequests} color="#f59e0b" />

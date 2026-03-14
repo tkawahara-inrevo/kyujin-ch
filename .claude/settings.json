@@ -49,7 +49,9 @@
       "Bash(ssh -o StrictHostKeyChecking=no -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && git pull && pnpm build && pm2 restart kyujin-ch\")",
       "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset)",
       "Bash(curl -s -X POST http://13.159.236.233:3000/api/debug-auth/reset-all)",
-      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && git pull origin main && npx prisma migrate deploy && pnpm build && pm2 restart kyujin-ch\")",
+      "Bash(ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-1.pem ubuntu@13.159.236.233 \"cd /home/ubuntu/kyujin-ch && npx prisma generate && pnpm build && pm2 restart kyujin-ch\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\kawah\\kyujin-ch\\app\\admin\\messages",

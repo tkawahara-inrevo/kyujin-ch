@@ -67,7 +67,7 @@ export default async function AdminJobseekerDetailPage({
           </dl>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 self-start">
+        <div className="grid grid-cols-2 gap-3 self-start md:gap-4 lg:grid-cols-3">
           <KpiCard label="応募数" value={user.applications.length} color="#2f6cff" />
           <KpiCard label="お気に入り" value={user.favorites.length} color="#f59e0b" />
           <KpiCard label="口コミ数" value={user.reviews.length} color="#10b981" />

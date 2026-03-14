@@ -8,6 +8,8 @@ type CompanySummaryCardProps = {
   description?: string | null;
   websiteUrl?: string | null;
   imageSrc?: string;
+  jobsCount?: number;
+  reviewsCount?: number;
 };
 
 export function CompanySummaryCard({
@@ -17,6 +19,8 @@ export function CompanySummaryCard({
   description,
   websiteUrl,
   imageSrc = "/assets/Resume.png",
+  jobsCount,
+  reviewsCount,
 }: CompanySummaryCardProps) {
   return (
     <section className="rounded-[18px] border border-[#dfdfdf] bg-white p-6">
@@ -65,12 +69,16 @@ export function CompanySummaryCard({
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <span className="rounded-[8px] bg-[#2f6cff] px-3 py-1 text-[12px] font-bold text-white">
-              求人数　4件
-            </span>
-            <span className="rounded-[8px] bg-[#ff3158] px-3 py-1 text-[12px] font-bold text-white">
-              クチコミ　10件
-            </span>
+            {jobsCount != null && (
+              <span className="rounded-[8px] bg-[#2f6cff] px-3 py-1 text-[12px] font-bold text-white">
+                求人数　{jobsCount}件
+              </span>
+            )}
+            {reviewsCount != null && reviewsCount > 0 && (
+              <span className="rounded-[8px] bg-[#ff3158] px-3 py-1 text-[12px] font-bold text-white">
+                クチコミ　{reviewsCount}件
+              </span>
+            )}
           </div>
         </div>
 

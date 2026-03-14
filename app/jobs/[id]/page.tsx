@@ -82,6 +82,11 @@ export default async function JobDetailPage({
       }))
     : false;
 
+  const [companyJobsCount, companyReviewsCount] = await Promise.all([
+    prisma.job.count({ where: { companyId: job.companyId, isPublished: true, isDeleted: false } }),
+    prisma.review.count({ where: { companyId: job.companyId } }),
+  ]);
+
   const recommendedJobs = await prisma.job.findMany({
     where: {
       NOT: {
@@ -197,6 +202,8 @@ export default async function JobDetailPage({
                 websiteUrl={
                   (job.company as { websiteUrl?: string | null }).websiteUrl ?? null
                 }
+                jobsCount={companyJobsCount}
+                reviewsCount={companyReviewsCount}
               />
             </div>
 
@@ -206,7 +213,9 @@ export default async function JobDetailPage({
           </div>
 
           <div className="hidden lg:block">
-            <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} hasApplied={hasApplied} />
+            <div className="sticky top-6">
+              <ActionSidebar applyHref={`/jobs/${job.id}/apply`} primaryLabel="今すぐ応募する" isLoggedIn={isLoggedIn} hasApplied={hasApplied} />
+            </div>
           </div>
         </div>
       </div>

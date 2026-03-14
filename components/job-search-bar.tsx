@@ -9,6 +9,8 @@ type Props = {
   defaultLocation?: string;
   defaultCategory?: string;
   defaultEmploymentType?: string;
+  defaultTarget?: string;
+  defaultSort?: string;
   categories?: string[];
 };
 
@@ -17,6 +19,8 @@ export function JobSearchBar({
   defaultLocation = "",
   defaultCategory = "",
   defaultEmploymentType = "",
+  defaultTarget = "",
+  defaultSort = "",
   categories = [],
 }: Props) {
   const [q, setQ] = useState(defaultQ);
@@ -34,6 +38,8 @@ export function JobSearchBar({
     if (location.trim()) params.set("location", location.trim());
     if (category) params.set("category", category);
     if (empType) params.set("employmentType", empType);
+    if (defaultTarget) params.set("target", defaultTarget);
+    if (defaultSort) params.set("sort", defaultSort);
     router.push(`/jobs?${params.toString()}`);
   }
 
@@ -42,7 +48,10 @@ export function JobSearchBar({
     setLocation("");
     setCategory("");
     setEmpType("");
-    router.push("/jobs");
+    const params = new URLSearchParams();
+    if (defaultTarget) params.set("target", defaultTarget);
+    if (defaultSort) params.set("sort", defaultSort);
+    router.push(params.toString() ? `/jobs?${params.toString()}` : "/jobs");
   }
 
   return (

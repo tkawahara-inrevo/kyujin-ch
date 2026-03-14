@@ -5,6 +5,12 @@ import { JobSearchBar } from "@/components/job-search-bar";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import {
+  buildPublishedJobSearchWhere,
+  normalizeCategoryParam,
+  normalizeEmploymentTypeParam,
+  normalizeTextParam,
+} from "@/lib/job-search";
 
 const cardImages = [
   "/assets/Online.png",
@@ -13,43 +19,39 @@ const cardImages = [
   "/assets/Paper.png",
 ];
 
-type SearchParams = Promise<{ q?: string; location?: string; tag?: string; category?: string; employmentType?: string; target?: string; sort?: string }>;
+type SearchParams = Promise<{
+  q?: string;
+  location?: string;
+  tag?: string;
+  category?: string;
+  employmentType?: string;
+  target?: string;
+  sort?: string;
+}>;
 
 export default async function JobsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, location, tag, category, employmentType, target, sort } = await searchParams;
-
-  // targetからDB条件を組み立てる（"mid" or "2027" etc. — localStorage/URLと同じ形式）
-  function buildTargetFilter(t?: string): Prisma.JobWhereInput {
-    if (!t || t === "all") return {};
-    if (t === "mid") return { targetType: "MID_CAREER" };
-    const year = Number(t);
-    if (!isNaN(year)) {
-      return { targetType: "NEW_GRAD", graduationYear: year };
-    }
-    return {};
-  }
+  const search = await searchParams;
+  const q = normalizeTextParam(search.q);
+  const location = normalizeTextParam(search.location);
+  const tag = normalizeTextParam(search.tag);
+  const category = normalizeCategoryParam(search.category);
+  const employmentType = normalizeEmploymentTypeParam(search.employmentType);
+  const target = normalizeTextParam(search.target);
+  const sort = normalizeTextParam(search.sort);
 
   const where: Prisma.JobWhereInput = {
-    isPublished: true,
-    ...buildTargetFilter(target),
-    ...(q && {
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        { company: { name: { contains: q, mode: "insensitive" } } },
-        { categoryTag: { contains: q, mode: "insensitive" } },
-      ],
+    ...buildPublishedJobSearchWhere({
+      q,
+      category,
+      employmentType,
+      location,
+      target,
     }),
     ...(tag && { tags: { hasSome: [tag] } }),
-    ...(category && { categoryTag: { equals: category, mode: "insensitive" } }),
-    ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
-    ...(location && {
-      location: { contains: location, mode: "insensitive" },
-    }),
   };
 
   const orderBy: Prisma.JobOrderByWithRelationInput =
@@ -62,14 +64,14 @@ export default async function JobsPage({
       orderBy,
     }),
     prisma.job.findMany({
-      where: { isPublished: true, categoryTag: { not: null } },
+      where: { isPublished: true, isDeleted: false, categoryTag: { not: null } },
       select: { categoryTag: true },
       distinct: ["categoryTag"],
     }),
   ]);
 
   const categories = categoryTags
-    .map((j) => j.categoryTag!)
+    .map((job) => job.categoryTag!)
     .filter(Boolean)
     .sort();
 
@@ -87,16 +89,18 @@ export default async function JobsPage({
           defaultLocation={location}
           defaultCategory={category}
           defaultEmploymentType={employmentType}
+          defaultTarget={target}
+          defaultSort={sort}
           categories={categories}
         />
 
         {(q || location || tag || category || employmentType) && (
           <p className="mt-4 text-[13px] text-[#888]">
             {jobs.length} 件の求人が見つかりました
-            {q && <span>（キーワード：{q}）</span>}
-            {tag && <span>（タグ：{tag}）</span>}
-            {category && <span>（カテゴリ：{category}）</span>}
-            {location && <span>（勤務地：{location}）</span>}
+            {q && <span>（キーワード: {q}）</span>}
+            {tag && <span>（タグ: {tag}）</span>}
+            {category && <span>（カテゴリ: {category}）</span>}
+            {location && <span>（勤務地: {location}）</span>}
           </p>
         )}
 

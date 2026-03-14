@@ -7,10 +7,15 @@ import { TargetSelectModal } from "@/components/target-select-modal";
 import { TargetSync } from "@/components/target-sync";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import { auth } from "@/auth";
 import Link from "next/link";
+import {
+  buildPublishedJobSearchWhere,
+  normalizeCategoryParam,
+  normalizeEmploymentTypeParam,
+  normalizeTextParam,
+} from "@/lib/job-search";
 
 const cardImages = [
   "/assets/Online.png",
@@ -35,37 +40,20 @@ export default async function HomePage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const [currentYear, nextYear] = getActiveGraduationYears();
-  const { q, category, employmentType, location, target } = await searchParams;
+  const search = await searchParams;
+  const q = normalizeTextParam(search.q);
+  const category = normalizeCategoryParam(search.category);
+  const employmentType = normalizeEmploymentTypeParam(search.employmentType);
+  const location = normalizeTextParam(search.location);
+  const target = normalizeTextParam(search.target);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const targetFilter: any = {};
-  if (target && target !== "all") {
-    if (target === "mid") {
-      targetFilter.targetType = "MID_CAREER";
-    } else {
-      const year = Number(target);
-      if (!isNaN(year)) {
-        targetFilter.targetType = "NEW_GRAD";
-        targetFilter.graduationYear = year;
-      }
-    }
-  }
-
-  const where = {
-    isPublished: true,
-    isDeleted: false,
-    ...targetFilter,
-    ...(q && {
-      OR: [
-        { title: { contains: q, mode: "insensitive" as const } },
-        { description: { contains: q, mode: "insensitive" as const } },
-        { company: { name: { contains: q, mode: "insensitive" as const } } },
-      ],
-    }),
-    ...(category && { categoryTag: { equals: category, mode: "insensitive" as const } }),
-    ...(employmentType && { employmentType: employmentType as Prisma.EnumEmploymentTypeFilter }),
-    ...(location && { location: { contains: location, mode: "insensitive" as const } }),
-  };
+  const where = buildPublishedJobSearchWhere({
+    q,
+    category,
+    employmentType,
+    location,
+    target,
+  });
 
   const [featuredJobs, newJobs, jobs] = await Promise.all([
     // 注目の求人: PV数+応募数が多い人気求人

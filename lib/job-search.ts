@@ -1,0 +1,86 @@
+import { EmploymentType, Prisma } from "@prisma/client";
+import { CATEGORY_OPTIONS, EMPLOYMENT_OPTIONS } from "@/lib/job-options";
+
+const EMPLOYMENT_TYPE_VALUES = new Set(
+  EMPLOYMENT_OPTIONS.map((option) => option.value),
+);
+
+const CATEGORY_VALUES = new Set(CATEGORY_OPTIONS);
+
+export type JobSearchInput = {
+  q?: string;
+  category?: string;
+  employmentType?: string;
+  location?: string;
+  target?: string;
+};
+
+export function normalizeTextParam(value?: string): string {
+  return value?.trim() ?? "";
+}
+
+export function normalizeCategoryParam(value?: string): string {
+  const category = normalizeTextParam(value);
+  return CATEGORY_VALUES.has(category as (typeof CATEGORY_OPTIONS)[number])
+    ? category
+    : "";
+}
+
+export function normalizeEmploymentTypeParam(value?: string): EmploymentType | "" {
+  const employmentType = normalizeTextParam(value);
+  return EMPLOYMENT_TYPE_VALUES.has(
+    employmentType as (typeof EMPLOYMENT_OPTIONS)[number]["value"],
+  )
+    ? (employmentType as EmploymentType)
+    : "";
+}
+
+export function buildTargetFilter(target?: string): Prisma.JobWhereInput {
+  const normalizedTarget = normalizeTextParam(target);
+
+  if (!normalizedTarget || normalizedTarget === "all") {
+    return {};
+  }
+
+  if (normalizedTarget === "mid") {
+    return { targetType: "MID_CAREER" };
+  }
+
+  const year = Number(normalizedTarget);
+  if (Number.isFinite(year)) {
+    return { targetType: "NEW_GRAD", graduationYear: year };
+  }
+
+  return {};
+}
+
+export function buildPublishedJobSearchWhere(
+  input: JobSearchInput,
+): Prisma.JobWhereInput {
+  const q = normalizeTextParam(input.q);
+  const category = normalizeCategoryParam(input.category);
+  const employmentType = normalizeEmploymentTypeParam(input.employmentType);
+  const location = normalizeTextParam(input.location);
+
+  return {
+    isPublished: true,
+    isDeleted: false,
+    ...buildTargetFilter(input.target),
+    ...(q && {
+      OR: [
+        { title: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { company: { name: { contains: q, mode: "insensitive" } } },
+        { categoryTag: { contains: q, mode: "insensitive" } },
+        { tags: { has: q } },
+      ],
+    }),
+    ...(category && {
+      categoryTag: { equals: category, mode: "insensitive" },
+    }),
+    ...(employmentType && { employmentType }),
+    ...(location && {
+      location: { contains: location, mode: "insensitive" },
+    }),
+  };
+}

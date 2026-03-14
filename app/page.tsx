@@ -67,15 +67,28 @@ export default async function HomePage({
     ...(location && { location: { contains: location, mode: "insensitive" as const } }),
   };
 
-  const jobs = await prisma.job.findMany({
-    where,
-    include: { company: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  // 注目の求人（最初の6件）と新着求人（残り）
-  const featuredJobs = jobs.slice(0, 6);
-  const newJobs = jobs.slice(0, 6);
+  const [featuredJobs, newJobs, jobs] = await Promise.all([
+    // 注目の求人: PV数+応募数が多い人気求人
+    prisma.job.findMany({
+      where,
+      include: { company: true, _count: { select: { applications: true } } },
+      orderBy: { viewCount: "desc" },
+      take: 6,
+    }),
+    // 新着求人: 掲載日が新しい順
+    prisma.job.findMany({
+      where,
+      include: { company: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }),
+    // 検索結果用（検索フィルタがある場合のみ全件取得）
+    prisma.job.findMany({
+      where,
+      include: { company: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   const activeTarget = target || "all";
   const hasSearchFilter = !!(q || category || employmentType || location);

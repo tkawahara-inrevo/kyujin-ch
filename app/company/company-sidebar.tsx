@@ -21,20 +21,38 @@ export function CompanySidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/company/unread-count")
-      .then((r) => r.json())
-      .then((d) => setUnreadCount(d.count))
-      .catch(() => {});
+    async function loadUnreadCount() {
+      try {
+        const response = await fetch("/api/company/unread-count", { cache: "no-store" });
+        const data = await response.json();
+        setUnreadCount(data.count || 0);
+      } catch {
+        // noop
+      }
+    }
 
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        loadUnreadCount();
+      }
+    }
+
+    loadUnreadCount();
     const interval = setInterval(() => {
-      fetch("/api/company/unread-count")
+      fetch("/api/company/unread-count", { cache: "no-store" })
         .then((r) => r.json())
-        .then((d) => setUnreadCount(d.count))
+        .then((d) => setUnreadCount(d.count || 0))
         .catch(() => {});
     }, 30000);
+    window.addEventListener("focus", loadUnreadCount);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", loadUnreadCount);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setIsOpen(false);

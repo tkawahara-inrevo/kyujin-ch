@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type Props = {
   className?: string;
 };
 
 export function UserMessageBadge({ className = "" }: Props) {
+  const pathname = usePathname();
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -14,7 +16,7 @@ export function UserMessageBadge({ className = "" }: Props) {
 
     async function loadUnreadCount() {
       try {
-        const response = await fetch("/api/user/unread-count");
+        const response = await fetch("/api/user/unread-count", { cache: "no-store" });
         const data = await response.json();
         if (isMounted) {
           setCount(data.count || 0);
@@ -24,14 +26,24 @@ export function UserMessageBadge({ className = "" }: Props) {
       }
     }
 
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        loadUnreadCount();
+      }
+    }
+
     loadUnreadCount();
     const interval = setInterval(loadUnreadCount, 30000);
+    window.addEventListener("focus", loadUnreadCount);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
+      window.removeEventListener("focus", loadUnreadCount);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [pathname]);
 
   if (count <= 0) {
     return null;

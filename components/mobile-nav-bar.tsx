@@ -61,19 +61,38 @@ export function MobileNavBar() {
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    fetch("/api/user/unread-count")
-      .then((r) => r.json())
-      .then((d) => setUnread(d.count || 0))
-      .catch(() => {});
+    async function loadUnreadCount() {
+      try {
+        const response = await fetch("/api/user/unread-count", { cache: "no-store" });
+        const data = await response.json();
+        setUnread(data.count || 0);
+      } catch {
+        // noop
+      }
+    }
 
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        loadUnreadCount();
+      }
+    }
+
+    loadUnreadCount();
     const interval = setInterval(() => {
-      fetch("/api/user/unread-count")
+      fetch("/api/user/unread-count", { cache: "no-store" })
         .then((r) => r.json())
         .then((d) => setUnread(d.count || 0))
         .catch(() => {});
     }, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    window.addEventListener("focus", loadUnreadCount);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", loadUnreadCount);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pathname]);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white lg:hidden">

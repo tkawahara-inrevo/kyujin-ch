@@ -20,6 +20,9 @@ type Props = {
   defaultCategory?: string;
   defaultEmploymentType?: string;
   defaultLocation?: string;
+  searchPath?: string;
+  includeSearchTabParam?: boolean;
+  showTabs?: boolean;
 };
 
 export function TopHero({
@@ -28,6 +31,9 @@ export function TopHero({
   defaultCategory = "",
   defaultEmploymentType = "",
   defaultLocation = "",
+  searchPath = "/",
+  includeSearchTabParam = true,
+  showTabs = true,
 }: Props) {
   const [q, setQ] = useState(defaultQ);
   const [category, setCategory] = useState(defaultCategory);
@@ -78,32 +84,35 @@ export function TopHero({
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    const params = new URLSearchParams({ tab: "search" });
+    const params = new URLSearchParams();
+    if (includeSearchTabParam) params.set("tab", "search");
     const target = getTarget();
     if (target) params.set("target", target);
     if (q.trim()) params.set("q", q.trim());
     if (category) params.set("category", category);
     if (employmentType) params.set("employmentType", employmentType);
     if (location) params.set("location", location);
-    router.push(`/?${params.toString()}`);
+    router.push(params.toString() ? `${searchPath}?${params.toString()}` : searchPath);
   }
 
   function handleNewsSearch(e: React.FormEvent) {
     e.preventDefault();
-    const params = new URLSearchParams({ tab: "search" });
+    const params = new URLSearchParams();
+    if (includeSearchTabParam) params.set("tab", "search");
     const target = getTarget();
     if (target) params.set("target", target);
     if (q.trim()) params.set("q", q.trim());
     if (category) params.set("category", category);
-    router.push(`/?${params.toString()}`);
+    router.push(params.toString() ? `${searchPath}?${params.toString()}` : searchPath);
   }
 
   function handleReset() {
     setQ(""); setCategory(""); setEmploymentType(""); setArea(""); setPrefecture("");
     const target = getTarget();
-    const params = new URLSearchParams({ tab: "search" });
+    const params = new URLSearchParams();
+    if (includeSearchTabParam) params.set("tab", "search");
     if (target) params.set("target", target);
-    router.push(`/?${params.toString()}`);
+    router.push(params.toString() ? `${searchPath}?${params.toString()}` : searchPath);
   }
 
   return (
@@ -113,6 +122,7 @@ export function TopHero({
       <div className={`overflow-hidden rounded-[16px] border-2 ${borderColor}`}>
 
         {/* タブ行 */}
+        {showTabs && (
         <div className="grid grid-cols-2">
           {/* 就職最新情報は常に別タブで /news を開く */}
           <a
@@ -138,6 +148,7 @@ export function TopHero({
             求人を探す
           </button>
         </div>
+        )}
 
         {/* 検索フォームエリア（色帯）*/}
         <div className={`${bgColor} px-6 py-5`}>

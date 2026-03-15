@@ -1,16 +1,19 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
-import { JobSearchBar } from "@/components/job-search-bar";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
+import { TopHero } from "@/components/top-hero";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import {
   buildPublishedJobSearchWhere,
+  buildTargetFilter,
   normalizeCategoryParam,
   normalizeEmploymentTypeParam,
   normalizeTextParam,
 } from "@/lib/job-search";
+import { graduationYearLabel } from "@/lib/graduation-years";
+import Link from "next/link";
 
 type SearchParams = Promise<{
   q?: string;
@@ -20,6 +23,7 @@ type SearchParams = Promise<{
   employmentType?: string;
   target?: string;
   sort?: string;
+  page?: string;
 }>;
 
 export default async function JobsPage({
@@ -35,6 +39,8 @@ export default async function JobsPage({
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
   const target = normalizeTextParam(search.target);
   const sort = normalizeTextParam(search.sort);
+  const page = Math.max(1, Number.parseInt(normalizeTextParam(search.page) || "1", 10) || 1);
+  const pageSize = 12;
 
   const where: Prisma.JobWhereInput = {
     ...buildPublishedJobSearchWhere({
@@ -50,46 +56,61 @@ export default async function JobsPage({
   const orderBy: Prisma.JobOrderByWithRelationInput =
     sort === "popular" ? { viewCount: "desc" } : { createdAt: "desc" };
 
-  const [jobs, categoryTags] = await Promise.all([
+  const [jobs, totalCount] = await Promise.all([
     prisma.job.findMany({
       where,
       include: { company: true },
       orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     }),
-    prisma.job.findMany({
-      where: { isPublished: true, isDeleted: false, categoryTag: { not: null } },
-      select: { categoryTag: true },
-      distinct: ["categoryTag"],
-    }),
+    prisma.job.count({ where }),
   ]);
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const targetFilter = buildTargetFilter(target);
+  const targetLabel =
+    target === "mid"
+      ? "中途向け求人"
+      : target && "graduationYear" in targetFilter && typeof targetFilter.graduationYear === "number"
+        ? `${graduationYearLabel(targetFilter.graduationYear)}向け求人`
+        : "求人一覧";
 
-  const categories = categoryTags
-    .map((job) => job.categoryTag!)
-    .filter(Boolean)
-    .sort();
+  function buildPageHref(nextPage: number) {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (location) params.set("location", location);
+    if (tag) params.set("tag", tag);
+    if (category) params.set("category", category);
+    if (employmentType) params.set("employmentType", employmentType);
+    if (target) params.set("target", target);
+    if (sort) params.set("sort", sort);
+    if (nextPage > 1) params.set("page", String(nextPage));
+    return params.toString() ? `/jobs?${params.toString()}` : "/jobs";
+  }
 
   return (
     <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
       <Header />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        <h1 className="mb-6 text-[28px] font-bold text-[#222]">
-          {sort === "popular" ? "注目の求人" : "求人一覧"}
-        </h1>
+      <TopHero
+        activeTab="search"
+        defaultQ={q}
+        defaultCategory={category}
+        defaultEmploymentType={employmentType}
+        defaultLocation={location}
+        searchPath="/jobs"
+        includeSearchTabParam={false}
+        showTabs={false}
+      />
 
-        <JobSearchBar
-          defaultQ={q}
-          defaultLocation={location}
-          defaultCategory={category}
-          defaultEmploymentType={employmentType}
-          defaultTarget={target}
-          defaultSort={sort}
-          categories={categories}
-        />
+      <div className="mx-auto max-w-[1200px] px-4 pb-10 md:px-6">
+        <h1 className="mb-6 text-[28px] font-bold text-[#222]">
+          {sort === "popular" ? "注目の求人" : targetLabel}
+        </h1>
 
         {(q || location || tag || category || employmentType) && (
           <p className="mt-4 text-[13px] text-[#888]">
-            {jobs.length} 件の求人が見つかりました
+            {totalCount} 件の求人が見つかりました
             {q && <span>（キーワード: {q}）</span>}
             {tag && <span>（タグ: {tag}）</span>}
             {category && <span>（カテゴリ: {category}）</span>}
@@ -122,6 +143,36 @@ export default async function JobsPage({
             ))
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-3">
+            <Link
+              href={buildPageHref(Math.max(1, page - 1))}
+              aria-disabled={page <= 1}
+              className={`rounded-[10px] border px-4 py-2 text-[13px] font-semibold ${
+                page <= 1
+                  ? "pointer-events-none border-[#e5e5e5] text-[#bbb]"
+                  : "border-[#d8d8d8] text-[#555] hover:bg-white"
+              }`}
+            >
+              前へ
+            </Link>
+            <p className="text-[13px] text-[#666]">
+              {page} / {totalPages}
+            </p>
+            <Link
+              href={buildPageHref(Math.min(totalPages, page + 1))}
+              aria-disabled={page >= totalPages}
+              className={`rounded-[10px] border px-4 py-2 text-[13px] font-semibold ${
+                page >= totalPages
+                  ? "pointer-events-none border-[#e5e5e5] text-[#bbb]"
+                  : "border-[#d8d8d8] text-[#555] hover:bg-white"
+              }`}
+            >
+              次へ
+            </Link>
+          </div>
+        )}
       </div>
 
       <MobileBottomBar />

@@ -1,11 +1,24 @@
 import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   trustHost: true,
+  session: { strategy: "jwt" },
   providers: [
+    ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ? [
+          Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -15,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: (credentials.email as string).toLowerCase() },
         });
 
         if (!user || !user.password) return null;
@@ -32,17 +45,70 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      if (!user.email) {
+        return false;
+      }
+
+      const email = user.email.toLowerCase();
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true, role: true, isActive: true },
+      });
+
+      if (existingUser && existingUser.role !== "USER") {
+        return false;
+      }
+
+      if (existingUser && !existingUser.isActive) {
+        return false;
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
       }
+
+      const email = typeof token.email === "string" ? token.email.toLowerCase() : null;
+      if (email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, role: true, isActive: true },
+        });
+
+        if (dbUser?.isActive) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
+      }
+
       return token;
     },
     session({ session, token }) {
       if (token.id) session.user.id = token.id as string;
       if (token.role) session.user.role = token.role as string;
       return session;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      await prisma.user.update({
+        where: { id: user.id! },
+        data: {
+          email: user.email?.toLowerCase() ?? undefined,
+          name: user.name ?? "Googleユーザー",
+          role: "USER",
+          notificationsEnabled: true,
+          isActive: true,
+        },
+      });
     },
   },
 });

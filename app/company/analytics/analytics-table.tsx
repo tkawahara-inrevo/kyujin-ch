@@ -76,10 +76,10 @@ export default function AnalyticsTable({ jobs }: { jobs: JobRow[] }) {
                   {"\u5fdc\u52df\u6570"}
                 </th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">
-                  {"\u5fdc\u52df\u7387\uff08\u7d2f\u8a08\uff09"}
+                  {"\u5fdc\u52df\u7387\uff08\u30e6\u30cb\u30fc\u30af\u95b2\u89a7\uff09"}
                 </th>
                 <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">
-                  {"\u5fdc\u52df\u7387\uff087\u65e5\uff09"}
+                  {"\u5fdc\u52df\u7387\uff087\u65e5\u30fb\u30e6\u30cb\u30fc\u30af\uff09"}
                 </th>
               </tr>
             </thead>
@@ -140,8 +140,8 @@ export default function AnalyticsTable({ jobs }: { jobs: JobRow[] }) {
               <MetricCard label={"PV\uff087\u65e5\uff09"} value={String(selectedJob.pvRecent)} />
               <MetricCard label={"\u5fdc\u52df\u6570"} value={String(selectedJob.appsTotal)} />
               <MetricCard label={"\u76f4\u8fd17\u65e5\u5fdc\u52df"} value={String(selectedJob.appsRecent)} />
-              <MetricCard label={"\u5fdc\u52df\u7387\uff08\u7d2f\u8a08\uff09"} value={selectedJob.rateTotal} />
-              <MetricCard label={"\u5fdc\u52df\u7387\uff087\u65e5\uff09"} value={selectedJob.rateRecent} />
+              <MetricCard label={"\u5fdc\u52df\u7387\uff08\u30e6\u30cb\u30fc\u30af\u95b2\u89a7\uff09"} value={selectedJob.rateTotal} />
+              <MetricCard label={"\u5fdc\u52df\u7387\uff087\u65e5\u30fb\u30e6\u30cb\u30fc\u30af\uff09"} value={selectedJob.rateRecent} />
             </div>
 
             <div className="mt-4 rounded-[16px] border border-[#e5e7eb] bg-[#fcfdff] px-3 py-2">

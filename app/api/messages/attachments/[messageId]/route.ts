@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getPresignedUrl } from "@/lib/s3";
+import { s3, S3_BUCKET } from "@/lib/s3";
 
 type RouteProps = {
   params: Promise<{ messageId: string }>;
@@ -47,6 +48,31 @@ export async function GET(_: Request, { params }: RouteProps) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const signedUrl = await getPresignedUrl(message.attachmentUrl);
-  return NextResponse.redirect(signedUrl);
+  const key = new URL(message.attachmentUrl).pathname.slice(1);
+  const object = await s3.send(
+    new GetObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: key,
+    }),
+  );
+
+  if (!object.Body) {
+    return NextResponse.json({ error: "Attachment not found" }, { status: 404 });
+  }
+
+  const fileName = message.attachmentName ?? "attachment";
+  const encodedFileName = encodeURIComponent(fileName);
+  const bytes = Buffer.from(await object.Body.transformToByteArray());
+
+  return new Response(bytes, {
+    headers: {
+      "Content-Type":
+        message.attachmentType ||
+        object.ContentType ||
+        "application/octet-stream",
+      "Content-Length": object.ContentLength?.toString() ?? "",
+      "Content-Disposition": `attachment; filename*=UTF-8''${encodedFileName}`,
+      "Cache-Control": "private, no-store, max-age=0",
+    },
+  });
 }

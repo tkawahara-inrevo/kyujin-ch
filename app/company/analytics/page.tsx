@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireCompany } from "@/lib/auth-helpers";
 import AnalyticsTable from "./analytics-table";
+import { countUniqueViews } from "@/lib/view-metrics";
 
 export default async function CompanyAnalyticsPage() {
   const session = await requireCompany();
@@ -15,24 +16,26 @@ export default async function CompanyAnalyticsPage() {
   const jobs = await prisma.job.findMany({
     where: { companyId: company.id, isDeleted: false },
     include: {
-      _count: { select: { applications: true, jobViews: true } },
+      _count: { select: { applications: true } },
       jobViews: {
-        where: { viewedAt: { gte: sevenDaysAgo } },
-        select: { id: true },
+        select: { sessionId: true, viewedAt: true },
       },
       applications: {
-        where: { createdAt: { gte: sevenDaysAgo } },
-        select: { id: true },
+        select: { id: true, createdAt: true },
       },
     },
     orderBy: { createdAt: "desc" },
   });
 
   const rows = jobs.map((job) => {
-    const pvTotal = job._count.jobViews;
-    const pvRecent = job.jobViews.length;
+    const recentViews = job.jobViews.filter((view) => view.viewedAt >= sevenDaysAgo);
+    const recentApplications = job.applications.filter(
+      (application) => application.createdAt >= sevenDaysAgo,
+    );
+    const pvTotal = countUniqueViews(job.jobViews);
+    const pvRecent = countUniqueViews(recentViews);
     const appsTotal = job._count.applications;
-    const appsRecent = job.applications.length;
+    const appsRecent = recentApplications.length;
     const rateTotal = pvTotal > 0 ? ((appsTotal / pvTotal) * 100).toFixed(1) + "%" : "-";
     const rateRecent = pvRecent > 0 ? ((appsRecent / pvRecent) * 100).toFixed(1) + "%" : "-";
     return {

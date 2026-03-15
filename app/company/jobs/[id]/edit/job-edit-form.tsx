@@ -9,20 +9,9 @@ import {
   EMPLOYMENT_OPTIONS,
   OTHER_CATEGORY_VALUE,
 } from "@/lib/job-options";
+import { AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { JobPreview } from "@/components/job-preview";
-
-const REGION_OPTIONS = [
-  "北海道・東北",
-  "関東",
-  "北陸",
-  "甲信越",
-  "東海",
-  "関西",
-  "中国",
-  "四国",
-  "九州・沖縄",
-];
 
 const TAG_OPTIONS = [
   "完全週休2日制",
@@ -105,9 +94,12 @@ export function JobEditForm({ job }: { job: Job }) {
   const [categoryTagDetail, setCategoryTagDetail] = useState(job.categoryTagDetail || "");
   const [employmentType, setEmploymentType] = useState(job.employmentType || "FULL_TIME");
   const [employmentTypeDetail, setEmploymentTypeDetail] = useState(job.employmentTypeDetail || "");
+  const [selectedRegion, setSelectedRegion] = useState(job.region || "");
+  const [selectedLocation, setSelectedLocation] = useState(job.location || "");
   const [showPreview, setShowPreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
 
   function toggleItem(list: string[], setList: (v: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((t) => t !== item) : [...list, item]);
@@ -126,8 +118,8 @@ export function JobEditForm({ job }: { job: Job }) {
       requirements: fd?.get("requirements") as string || "",
       desiredAptitude: fd?.get("desiredAptitude") as string || "",
       recommendedFor: fd?.get("recommendedFor") as string || "",
-      location: fd?.get("location") as string || "",
-      region: fd?.get("region") as string || "",
+      location: selectedLocation,
+      region: selectedRegion,
       officeName: fd?.get("officeName") as string || "",
       officeDetail: fd?.get("officeDetail") as string || "",
       access: fd?.get("access") as string || "",
@@ -140,7 +132,7 @@ export function JobEditForm({ job }: { job: Job }) {
       tags: selectedTags,
       benefits: selectedBenefits,
     };
-  }, [imageUrl, categoryTag, categoryTagDetail, employmentType, employmentTypeDetail, selectedTags, selectedBenefits]);
+  }, [imageUrl, categoryTag, categoryTagDetail, employmentType, employmentTypeDetail, selectedLocation, selectedRegion, selectedTags, selectedBenefits]);
 
   const [previewKey, setPreviewKey] = useState(0);
   const refreshPreview = () => setPreviewKey((k) => k + 1);
@@ -158,6 +150,10 @@ export function JobEditForm({ job }: { job: Job }) {
       setValidationError("雇用形態「その他」の詳細を入力してください");
       return;
     }
+    if (selectedRegion && !selectedLocation) {
+      setValidationError("都道府県を選択してください");
+      return;
+    }
 
     setLoading(true);
     const fd = new FormData(e.currentTarget);
@@ -168,8 +164,8 @@ export function JobEditForm({ job }: { job: Job }) {
       categoryTag,
       categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
       employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
-      region: fd.get("region") as string,
-      location: fd.get("location") as string,
+      region: selectedRegion,
+      location: selectedLocation,
       salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
       salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
       monthlySalary: fd.get("monthlySalary") as string,
@@ -355,16 +351,38 @@ export function JobEditForm({ job }: { job: Job }) {
           {/* === 勤務地 === */}
           <Section title="勤務地">
             <Field label="勤務地エリア">
-              <select name="region" defaultValue={job.region ?? ""} className={inputCls}>
+              <select
+                name="region"
+                value={selectedRegion}
+                className={inputCls}
+                onChange={(e) => {
+                  const nextRegion = e.target.value;
+                  setSelectedRegion(nextRegion);
+                  if (!(PREFECTURES_BY_AREA[nextRegion] ?? []).includes(selectedLocation)) {
+                    setSelectedLocation("");
+                  }
+                }}
+              >
                 <option value="">選択してください</option>
-                {REGION_OPTIONS.map((r) => (
+                {AREA_OPTIONS.map((r) => (
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
             </Field>
 
-            <Field label="勤務地住所">
-              <input name="location" defaultValue={job.location ?? ""} className={inputCls} placeholder="例: 東京都渋谷区神南1-2-3" />
+            <Field label="都道府県">
+              <select
+                name="location"
+                value={selectedLocation}
+                className={inputCls}
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                disabled={!selectedRegion}
+              >
+                <option value="">選択してください</option>
+                {availablePrefectures.map((prefecture) => (
+                  <option key={prefecture} value={prefecture}>{prefecture}</option>
+                ))}
+              </select>
             </Field>
 
             <Field label="勤務地名称">
@@ -372,7 +390,7 @@ export function JobEditForm({ job }: { job: Job }) {
             </Field>
 
             <Field label="勤務地名称詳細">
-              <textarea name="officeDetail" rows={2} defaultValue={job.officeDetail ?? ""} className={inputCls} />
+              <textarea name="officeDetail" rows={2} defaultValue={job.officeDetail ?? ""} className={inputCls} placeholder="例: 仙台市青葉区中央1-2-3 ○○ビル5F" />
             </Field>
 
             <Field label="アクセス">

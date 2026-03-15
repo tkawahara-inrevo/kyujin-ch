@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
+import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -55,12 +56,50 @@ type JobData = {
   graduationYear?: number;
 };
 
+function normalizeOfficeDetail(location?: string, officeDetail?: string) {
+  const prefecture = location?.trim() ?? "";
+  const detail = officeDetail?.trim() ?? "";
+
+  if (!detail) return null;
+  if (!prefecture) return detail;
+  if (detail === prefecture) return null;
+  if (detail.startsWith(prefecture)) {
+    return detail.slice(prefecture.length).trim() || null;
+  }
+
+  return detail;
+}
+
+function validateLocation(data: JobData) {
+  const region = data.region?.trim() ?? "";
+  const location = data.location?.trim() ?? "";
+
+  if (!location) {
+    return { region: region || null, location: null };
+  }
+
+  if (!ALL_PREFECTURES.includes(location)) {
+    throw new Error("勤務地住所は都道府県を選択してください");
+  }
+
+  if (region && !(PREFECTURES_BY_AREA[region] ?? []).includes(location)) {
+    throw new Error("勤務地エリアと都道府県の組み合わせが正しくありません");
+  }
+
+  return {
+    region: region || null,
+    location,
+  };
+}
+
 function toJobPrismaData(data: JobData) {
+  const normalizedLocation = validateLocation(data);
+
   return {
     title: data.title,
     description: data.description,
     employmentType: data.employmentType as any,
-    location: data.location || null,
+    location: normalizedLocation.location,
     salaryMin: data.salaryMin || null,
     salaryMax: data.salaryMax || null,
     categoryTag: data.categoryTag || null,
@@ -74,13 +113,13 @@ function toJobPrismaData(data: JobData) {
     annualSalary: data.annualSalary || null,
     access: data.access || null,
     officeName: data.officeName || null,
-    officeDetail: data.officeDetail || null,
+    officeDetail: normalizeOfficeDetail(normalizedLocation.location ?? undefined, data.officeDetail),
     benefits: data.benefits || [],
     selectionProcess: data.selectionProcess || null,
     workingHours: data.workingHours || null,
     closingDate: data.closingDate ? new Date(data.closingDate) : null,
     employmentPeriodType: data.employmentPeriodType || null,
-    region: data.region || null,
+    region: normalizedLocation.region,
     categoryTagDetail: data.categoryTag === OTHER_CATEGORY_VALUE ? (data.categoryTagDetail || null) : null,
     employmentTypeDetail: data.employmentType === "OTHER" ? (data.employmentTypeDetail || null) : null,
     targetType: data.targetType || "MID_CAREER",

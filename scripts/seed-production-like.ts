@@ -10,7 +10,7 @@ import {
 } from "@prisma/client";
 
 import { CATEGORY_OPTIONS, OTHER_CATEGORY_VALUE } from "../lib/job-options";
-import { PREFECTURES_BY_AREA } from "../lib/job-locations";
+import { AREA_OPTIONS, CITY_BY_PREFECTURE, PREFECTURES_BY_AREA } from "../lib/job-locations";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -54,7 +54,7 @@ type JobSeed = {
   area: string;
 };
 
-const AREAS = Object.keys(PREFECTURES_BY_AREA);
+const AREAS = AREA_OPTIONS;
 const CURRENT_YEAR = new Date().getFullYear();
 
 const CATEGORY_PROFILES: Record<Category, CategoryProfile> = {
@@ -446,7 +446,8 @@ function buildRecommendedFor(profile: CategoryProfile) {
 }
 
 function buildOfficeDetail(prefecture: string) {
-  return `${prefecture}中央区${randomInt(1, 8)}-${randomInt(1, 20)}-${randomInt(1, 30)}`;
+  const city = CITY_BY_PREFECTURE[prefecture] ?? prefecture;
+  return `${city}${randomInt(1, 8)}-${randomInt(1, 20)}-${randomInt(1, 30)}`;
 }
 
 function buildWorkingHours(index: number) {

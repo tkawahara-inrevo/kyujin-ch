@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ApplyButton } from "./apply-button";
+import { SidebarAuthButtons } from "./sidebar-auth-buttons";
 
 type ActionSidebarProps = {
   applyHref?: string;
@@ -24,10 +25,12 @@ export function ActionSidebar({
   hasApplied = false,
   unreadCount = 0,
 }: ActionSidebarProps) {
+  const showApplyButton = primaryLabel.includes("応募");
+
   return (
     <aside className="sticky top-6 self-start hidden lg:block">
       <div className="rounded-[20px] border border-[#e6e6e6] bg-white px-5 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.04)]">
-        {primaryLabel.includes("応募") ? (
+        {showApplyButton ? (
           <ApplyButton
             href={applyHref}
             isLoggedIn={isLoggedIn}
@@ -50,26 +53,31 @@ export function ActionSidebar({
           機能などが無料で使い放題！
         </p>
 
-        <div className="mt-5 border-t border-[#ececec] pt-4">
-          <div className="space-y-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center gap-3 rounded-[10px] px-2 py-3 text-[14px] font-semibold text-[#333] transition hover:bg-[#fafafa]"
-              >
-                <Image src={item.icon} alt="" width={20} height={20} />
-                <span>{item.label}</span>
-                {item.label === "メッセージ" && unreadCount > 0 && (
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
+        <div className="mt-5">
+          {isLoggedIn ? (
+            <div className="border-t border-[#ececec] pt-4">
+              <div className="space-y-1">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="flex items-center gap-3 rounded-[10px] px-2 py-3 text-[14px] font-semibold text-[#333] transition hover:bg-[#fafafa]"
+                  >
+                    <Image src={item.icon} alt="" width={20} height={20} />
+                    <span>{item.label}</span>
+                    {item.label === "メッセージ" && unreadCount > 0 && (
+                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <SidebarAuthButtons />
+          )}
         </div>
-
       </div>
     </aside>
   );

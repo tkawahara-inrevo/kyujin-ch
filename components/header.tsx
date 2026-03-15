@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { HeaderAuthNav } from "./header-auth-nav";
 import { HeaderAuthButtons } from "./header-auth-buttons";
 import { HeaderTargetBadge } from "./header-target-badge";
+import { UserMessageBadge } from "./user-message-badge";
 import { getActiveGraduationYears } from "@/lib/graduation-years";
 
 const navItems = [
@@ -56,10 +57,11 @@ export async function Header() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
+                  className="relative flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
                 >
                   <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
                   <span>{item.label}</span>
+                  {item.href === "/messages" && <UserMessageBadge className="-mt-3 ml-1" />}
                 </Link>
               ))}
               <HeaderAuthNav />
@@ -72,10 +74,11 @@ export async function Header() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </Link>
-              <Link href="/messages" className="p-1.5 text-[#444]">
+              <Link href="/messages" className="relative p-1.5 text-[#444]">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
+                <UserMessageBadge className="absolute -right-1 -top-1" />
               </Link>
               <HeaderAuthNav />
             </div>

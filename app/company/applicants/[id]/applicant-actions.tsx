@@ -206,12 +206,12 @@ export function ApplicantActions({
               </svg>
             </button>
             <input ref={fileRef} type="file" accept=".pdf,.docx,.xlsx" onChange={handleFileChange} className="hidden" />
-            <input
+            <textarea
               value={msgBody}
               onChange={(e) => setMsgBody(e.target.value)}
               placeholder="メッセージを入力..."
-              className="flex-1 rounded-xl border border-[#ddd] bg-[#fafafa] px-4 py-2 text-[13px] outline-none transition focus:border-[#2f6cff] focus:bg-white"
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(e); } }}
+              rows={3}
+              className="flex-1 resize-none rounded-xl border border-[#ddd] bg-[#fafafa] px-4 py-2.5 text-[13px] outline-none transition focus:border-[#2f6cff] focus:bg-white"
             />
             <button
               type="submit"

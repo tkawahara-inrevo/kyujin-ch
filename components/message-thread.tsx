@@ -35,13 +35,20 @@ export function MessageThread({
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
   const [isPending, startTransition] = useTransition();
-  const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  function scrollThreadToBottom(behavior?: ScrollBehavior) {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior,
+    });
+  }
+
   // 初回表示時に最下部にスクロール
   useEffect(() => {
-    bottomRef.current?.scrollIntoView();
+    scrollThreadToBottom();
   }, []);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -95,15 +102,8 @@ export function MessageThread({
       setFile(null);
       setFileError("");
       if (fileRef.current) fileRef.current.value = "";
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollThreadToBottom("smooth");
     });
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
   }
 
   return (
@@ -135,7 +135,7 @@ export function MessageThread({
               />
             );
           })}
-          <div ref={bottomRef} />
+          <div />
         </div>
       </div>
 
@@ -178,7 +178,6 @@ export function MessageThread({
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            onKeyDown={handleKeyDown}
             disabled={isPending}
             rows={2}
             className="flex-1 resize-none rounded-xl border border-[#ddd] bg-[#fafafa] px-4 py-2.5 text-[14px] outline-none transition focus:border-[#2f6cff] focus:bg-white disabled:opacity-60"

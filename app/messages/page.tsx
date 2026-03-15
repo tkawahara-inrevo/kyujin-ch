@@ -62,7 +62,7 @@ export default async function MessagesPage() {
                       month: "numeric",
                       day: "numeric",
                     })}
-                    unread={(unreadMap.get(conv.id) ?? 0) > 0}
+                    unreadCount={unreadMap.get(conv.id) ?? 0}
                   />
                 ))}
               </div>

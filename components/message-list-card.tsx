@@ -6,7 +6,7 @@ type MessageListCardProps = {
   title: string;
   lastMessage?: string;
   updatedAt: string;
-  unread?: boolean;
+  unreadCount?: number;
 };
 
 export function MessageListCard({
@@ -15,8 +15,10 @@ export function MessageListCard({
   title,
   lastMessage,
   updatedAt,
-  unread = false,
+  unreadCount = 0,
 }: MessageListCardProps) {
+  const unread = unreadCount > 0;
+
   return (
     <Link
       href={`/messages/${id}`}
@@ -34,7 +36,9 @@ export function MessageListCard({
         <div className="flex items-center gap-2">
           <p className="truncate text-[14px] font-bold text-[#333]">{companyName}</p>
           {unread && (
-            <span className="flex-shrink-0 h-2 w-2 rounded-full bg-[#2f6cff]" />
+            <span className="flex h-[20px] min-w-[20px] flex-shrink-0 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[11px] font-bold text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
           )}
           <span className="ml-auto flex-shrink-0 text-[11px] text-[#aaa]">{updatedAt}</span>
         </div>

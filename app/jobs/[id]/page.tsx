@@ -79,6 +79,17 @@ function buildMapQuery(location?: string | null, officeDetail?: string | null) {
   return `${base} ${detail}`;
 }
 
+function formatWorkLocation(location?: string | null, officeDetail?: string | null) {
+  const base = location?.trim() ?? "";
+  const detail = officeDetail?.trim() ?? "";
+
+  if (!base) return detail || null;
+  if (!detail) return base;
+  if (detail.startsWith(base)) return detail;
+
+  return `${base} ${detail}`;
+}
+
 function SectionBlock({
   title,
   body,
@@ -173,6 +184,7 @@ export default async function JobDetailPage({
   const employmentLabel = formatEmployment(job);
   const salaryRange = formatSalaryRange(job.salaryMin, job.salaryMax);
   const closingDateLabel = formatDate(job.closingDate);
+  const workLocation = formatWorkLocation(job.location, job.officeDetail);
   const mapQuery = buildMapQuery(job.location, job.officeDetail);
   const employmentPeriodLabel = job.employmentPeriodType
     ? EMPLOYMENT_PERIOD_LABELS[job.employmentPeriodType] ?? job.employmentPeriodType
@@ -252,8 +264,7 @@ export default async function JobDetailPage({
                   <InfoItem label="月給" value={job.monthlySalary} />
                   <InfoItem label="年収" value={job.annualSalary} />
                   <InfoItem label="勤務地エリア" value={job.region} />
-                  <InfoItem label="勤務地住所" value={job.location} />
-                  <InfoItem label="勤務地詳細" value={job.officeDetail} />
+                  <InfoItem label="勤務地" value={workLocation} />
                   <InfoItem label="最寄り・アクセス" value={job.access} />
                   <InfoItem label="勤務時間" value={job.workingHours} />
                   <InfoItem label="雇用期間" value={employmentPeriodLabel} />
@@ -296,7 +307,7 @@ export default async function JobDetailPage({
             {mapQuery && (
               <div className="mt-8 rounded-[18px] border border-[#e5e5e5] bg-white p-6">
                 <h3 className="text-[18px] font-bold text-[#1e3a5f]">勤務地マップ</h3>
-                <p className="mt-3 text-[14px] text-[#555]">{job.location}</p>
+                <p className="mt-3 text-[14px] text-[#555]">{workLocation}</p>
                 <div className="mt-4 overflow-hidden rounded-xl">
                   <iframe
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed&hl=ja`}

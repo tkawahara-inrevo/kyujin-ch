@@ -7,6 +7,9 @@ import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function MessagesPage() {
   const currentUser = await getCurrentUser();
 

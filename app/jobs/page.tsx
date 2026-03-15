@@ -12,13 +12,6 @@ import {
   normalizeTextParam,
 } from "@/lib/job-search";
 
-const cardImages = [
-  "/assets/Online.png",
-  "/assets/Talk_01.png",
-  "/assets/Resume.png",
-  "/assets/Paper.png",
-];
-
 type SearchParams = Promise<{
   q?: string;
   location?: string;
@@ -110,7 +103,7 @@ export default async function JobsPage({
               条件に合う求人が見つかりませんでした。
             </p>
           ) : (
-            jobs.map((job, index) => (
+            jobs.map((job) => (
               <JobCard
                 key={job.id}
                 id={job.id}
@@ -120,7 +113,7 @@ export default async function JobsPage({
                 salaryMin={job.salaryMin}
                 salaryMax={job.salaryMax}
                 description={job.description}
-                imageSrc={cardImages[index % cardImages.length]}
+                imageSrc={job.imageUrl ?? undefined}
                 badge={sort === "popular" ? "注目" : "新着"}
                 categoryTag={job.categoryTag ?? undefined}
                 tags={job.tags.length > 0 ? job.tags : undefined}

@@ -17,13 +17,6 @@ import {
   normalizeTextParam,
 } from "@/lib/job-search";
 
-const cardImages = [
-  "/assets/Online.png",
-  "/assets/Talk_01.png",
-  "/assets/Resume.png",
-  "/assets/Paper.png",
-];
-
 type SearchParams = Promise<{
   q?: string;
   category?: string;
@@ -122,7 +115,7 @@ export default async function HomePage({
                       条件に合う求人が見つかりませんでした。
                     </p>
                   ) : (
-                    jobs.map((job, index) => (
+                    jobs.map((job) => (
                       <JobCard
                         key={job.id}
                         id={job.id}
@@ -132,7 +125,7 @@ export default async function HomePage({
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
                         description={job.description}
-                        imageSrc={cardImages[index % cardImages.length]}
+                        imageSrc={job.imageUrl ?? undefined}
                         badge={
                           job.targetType === "NEW_GRAD" && job.graduationYear
                             ? graduationYearLabel(job.graduationYear)
@@ -153,7 +146,7 @@ export default async function HomePage({
                 <section>
                   <h2 className="mb-5 text-[20px] font-bold text-[#222] md:text-[22px]">注目の求人</h2>
                   <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-                    {featuredJobs.map((job, index) => (
+                    {featuredJobs.map((job) => (
                       <JobCard
                         key={job.id}
                         id={job.id}
@@ -163,7 +156,7 @@ export default async function HomePage({
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
                         description={job.description}
-                        imageSrc={cardImages[index % cardImages.length]}
+                        imageSrc={job.imageUrl ?? undefined}
                         badge="注目"
                         categoryTag={job.categoryTag ?? undefined}
                         tags={job.tags.length > 0 ? job.tags : undefined}
@@ -188,7 +181,7 @@ export default async function HomePage({
                 <section>
                   <h2 className="mb-5 text-[20px] font-bold text-[#222] md:text-[22px]">新着求人</h2>
                   <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-                    {newJobs.map((job, index) => (
+                    {newJobs.map((job) => (
                       <JobCard
                         key={`new-${job.id}`}
                         id={job.id}
@@ -198,7 +191,7 @@ export default async function HomePage({
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
                         description={job.description}
-                        imageSrc={cardImages[index % cardImages.length]}
+                        imageSrc={job.imageUrl ?? undefined}
                         badge="新着"
                         categoryTag={job.categoryTag ?? undefined}
                         tags={job.tags.length > 0 ? job.tags : undefined}

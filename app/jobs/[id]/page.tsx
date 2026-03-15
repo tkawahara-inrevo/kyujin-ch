@@ -68,6 +68,17 @@ function formatDate(date?: Date | null) {
   return new Date(date).toLocaleDateString("ja-JP");
 }
 
+function buildMapQuery(location?: string | null, officeDetail?: string | null) {
+  const base = location?.trim() ?? "";
+  const detail = officeDetail?.trim() ?? "";
+
+  if (!base) return detail;
+  if (!detail) return base;
+  if (detail.startsWith(base)) return detail;
+
+  return `${base} ${detail}`;
+}
+
 function SectionBlock({
   title,
   body,
@@ -162,6 +173,7 @@ export default async function JobDetailPage({
   const employmentLabel = formatEmployment(job);
   const salaryRange = formatSalaryRange(job.salaryMin, job.salaryMax);
   const closingDateLabel = formatDate(job.closingDate);
+  const mapQuery = buildMapQuery(job.location, job.officeDetail);
   const employmentPeriodLabel = job.employmentPeriodType
     ? EMPLOYMENT_PERIOD_LABELS[job.employmentPeriodType] ?? job.employmentPeriodType
     : null;
@@ -213,7 +225,7 @@ export default async function JobDetailPage({
                 />
               </div>
 
-              <div className="relative mt-6 aspect-[1.95/1] overflow-hidden rounded-[18px] bg-[#ececec]">
+              <div className="relative mt-6 aspect-[2.4/1] overflow-hidden rounded-[18px] bg-[#ececec] md:aspect-[2.15/1]">
                 <Image
                   src={job.imageUrl || "/assets/Resume.png"}
                   alt={job.title}
@@ -281,13 +293,13 @@ export default async function JobDetailPage({
               </section>
             </div>
 
-            {job.location && (
+            {mapQuery && (
               <div className="mt-8 rounded-[18px] border border-[#e5e5e5] bg-white p-6">
                 <h3 className="text-[18px] font-bold text-[#1e3a5f]">勤務地マップ</h3>
                 <p className="mt-3 text-[14px] text-[#555]">{job.location}</p>
                 <div className="mt-4 overflow-hidden rounded-xl">
                   <iframe
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(job.location)}&output=embed&hl=ja`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed&hl=ja`}
                     width="100%"
                     height="280"
                     style={{ border: 0 }}

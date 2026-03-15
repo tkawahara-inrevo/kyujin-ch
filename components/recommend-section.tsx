@@ -10,6 +10,7 @@ type RecommendJob = {
   categoryTag: string | null;
   tags: string[];
   createdAt: Date;
+  imageUrl?: string | null;
   company: { name: string };
 };
 
@@ -18,19 +19,13 @@ type RecommendSectionProps = {
   jobs: RecommendJob[];
 };
 
-const cardImages = [
-  "/assets/Resume.png",
-  "/assets/Paper.png",
-  "/assets/Talk_01.png",
-];
-
 export function RecommendSection({ title = "こちらもおすすめ", jobs }: RecommendSectionProps) {
   return (
     <section className="mt-14 border-t border-[#e5e5e5] pt-12">
       <h2 className="mb-8 text-[22px] font-bold text-[#222]">{title}</h2>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-        {jobs.map((job, index) => (
+        {jobs.map((job) => (
           <JobCard
             key={job.id}
             id={job.id}
@@ -40,7 +35,7 @@ export function RecommendSection({ title = "こちらもおすすめ", jobs }: R
             salaryMin={job.salaryMin}
             salaryMax={job.salaryMax}
             description={job.description}
-            imageSrc={cardImages[index % cardImages.length]}
+            imageSrc={job.imageUrl ?? undefined}
             badge="注目"
             categoryTag={job.categoryTag ?? undefined}
             tags={job.tags.length > 0 ? job.tags : undefined}

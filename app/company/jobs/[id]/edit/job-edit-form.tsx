@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { updateJob, deleteJob } from "@/app/actions/company/jobs";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import {
+  BENEFIT_OPTIONS as SHARED_BENEFIT_OPTIONS,
   CATEGORY_OPTIONS,
   EMPLOYMENT_OPTIONS,
   OTHER_CATEGORY_VALUE,
@@ -465,7 +466,7 @@ export function JobEditForm({ job }: { job: Job }) {
           {/* === 福利厚生 === */}
           <Section title="福利厚生">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {BENEFIT_OPTIONS.map((b) => (
+              {SHARED_BENEFIT_OPTIONS.map((b) => (
                 <label key={b} className="flex items-center gap-2 text-[13px] text-[#444]">
                   <input
                     type="checkbox"

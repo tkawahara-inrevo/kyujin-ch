@@ -23,6 +23,7 @@ export async function GET() {
   const count = await prisma.application.count({
     where: {
       status: "APPLIED",
+      companyViewedAt: null,
       job: { companyId: company.id },
     },
   });

@@ -183,6 +183,7 @@ model Application {
   jobId      String
   motivation String?
   status     ApplicationStatus @default(APPLIED)
+  companyViewedAt DateTime?
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 

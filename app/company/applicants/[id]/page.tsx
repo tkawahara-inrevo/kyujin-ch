@@ -63,6 +63,13 @@ export default async function CompanyApplicantDetailPage({
     notFound();
   }
 
+  if (!application.companyViewedAt) {
+    await prisma.application.update({
+      where: { id: application.id },
+      data: { companyViewedAt: new Date() },
+    });
+  }
+
   if (application.conversation) {
     await prisma.message.updateMany({
       where: {

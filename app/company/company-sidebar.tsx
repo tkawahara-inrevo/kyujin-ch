@@ -7,25 +7,44 @@ import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/company/dashboard", label: "ダッシュボード", icon: "📊" },
-  { href: "/company/jobs", label: "求人管理", icon: "📋" },
-  { href: "/company/applicants", label: "応募者管理", icon: "👤" },
-  { href: "/company/messages", label: "メッセージ", icon: "✉️", badge: true },
-  { href: "/company/billing", label: "請求管理", icon: "💰" },
+  { href: "/company/jobs", label: "求人管理", icon: "🧾" },
+  {
+    href: "/company/applicants",
+    label: "応募者管理",
+    icon: "👤",
+    badgeType: "applications" as const,
+  },
+  {
+    href: "/company/messages",
+    label: "メッセージ",
+    icon: "✉️",
+    badgeType: "messages" as const,
+  },
+  { href: "/company/billing", label: "請求管理", icon: "💳" },
   { href: "/company/analytics", label: "分析", icon: "📈" },
   { href: "/company/settings", label: "設定", icon: "⚙️" },
 ];
 
 export function CompanySidebar() {
   const pathname = usePathname();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [messageUnreadCount, setMessageUnreadCount] = useState(0);
+  const [newApplicationCount, setNewApplicationCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    async function loadUnreadCount() {
+    async function loadBadges() {
       try {
-        const response = await fetch("/api/company/unread-count", { cache: "no-store" });
-        const data = await response.json();
-        setUnreadCount(data.count || 0);
+        const [messageResponse, applicationResponse] = await Promise.all([
+          fetch("/api/company/unread-count", { cache: "no-store" }),
+          fetch("/api/company/new-applications-count", { cache: "no-store" }),
+        ]);
+        const [messageData, applicationData] = await Promise.all([
+          messageResponse.json(),
+          applicationResponse.json(),
+        ]);
+
+        setMessageUnreadCount(messageData.count || 0);
+        setNewApplicationCount(applicationData.count || 0);
       } catch {
         // noop
       }
@@ -33,23 +52,19 @@ export function CompanySidebar() {
 
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
-        loadUnreadCount();
+        loadBadges();
       }
     }
 
-    loadUnreadCount();
-    const interval = setInterval(() => {
-      fetch("/api/company/unread-count", { cache: "no-store" })
-        .then((r) => r.json())
-        .then((d) => setUnreadCount(d.count || 0))
-        .catch(() => {});
-    }, 30000);
-    window.addEventListener("focus", loadUnreadCount);
+    loadBadges();
+    const interval = setInterval(loadBadges, 30000);
+
+    window.addEventListener("focus", loadBadges);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("focus", loadUnreadCount);
+      window.removeEventListener("focus", loadBadges);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [pathname]);
@@ -71,21 +86,28 @@ export function CompanySidebar() {
         <ul className="space-y-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const badgeCount =
+              item.badgeType === "messages"
+                ? messageUnreadCount
+                : item.badgeType === "applications"
+                  ? newApplicationCount
+                  : 0;
+
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium transition ${
                     isActive
-                      ? "bg-[#2f6cff]/10 text-[#2f6cff] font-semibold"
+                      ? "bg-[#2f6cff]/10 font-semibold text-[#2f6cff]"
                       : "text-[#555] hover:bg-[#f7f7f7]"
                   }`}
                 >
                   <span className="text-[16px]">{item.icon}</span>
                   <span className="flex-1">{item.label}</span>
-                  {item.badge && unreadCount > 0 && (
+                  {badgeCount > 0 && (
                     <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#ef4444] px-1.5 text-[11px] font-bold text-white">
-                      {unreadCount > 99 ? "99+" : unreadCount}
+                      {badgeCount > 99 ? "99+" : badgeCount}
                     </span>
                   )}
                 </Link>
@@ -100,7 +122,7 @@ export function CompanySidebar() {
           onClick={() => signOut({ callbackUrl: "/company/login" })}
           className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium text-[#888] hover:bg-[#f7f7f7]"
         >
-          <span className="text-[16px]">🚪</span>
+          <span className="text-[16px]">↩</span>
           <span>ログアウト</span>
         </button>
       </div>
@@ -134,7 +156,10 @@ export function CompanySidebar() {
           />
           <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
             <div className="flex h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
-              <Link href="/company/dashboard" className="truncate text-[18px] font-bold text-[#1e3a5f]">
+              <Link
+                href="/company/dashboard"
+                className="truncate text-[18px] font-bold text-[#1e3a5f]"
+              >
                 企業ちゃんねる
               </Link>
               <button
@@ -143,7 +168,7 @@ export function CompanySidebar() {
                 className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-[#e5e7eb] text-[#666]"
                 aria-label="閉じる"
               >
-                ✕
+                ×
               </button>
             </div>
             {navContent}

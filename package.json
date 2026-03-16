@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:seed": "tsx prisma/seed.ts",
-    "seed:production-like": "tsx scripts/seed-production-like.ts"
+    "seed:production-like": "tsx scripts/seed-production-like.ts",
+    "backfill:missing-charges": "tsx scripts/backfill-missing-charges.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

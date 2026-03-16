@@ -37,9 +37,10 @@ export default async function CompanyBillingPage() {
     ]),
   ).sort((a, b) => a.localeCompare(b));
 
-  const initialMonth = availableMonths.includes(thisMonth)
+  const billedMonths = monthRows.map((row) => row.billingMonth);
+  const initialMonth = billedMonths.includes(thisMonth)
     ? thisMonth
-    : availableMonths[availableMonths.length - 1] ?? thisMonth;
+    : billedMonths[billedMonths.length - 1] ?? thisMonth;
 
   // Fetch selected month charges for initial render
   const [aggregate, chargeRows, priceEntries] = await Promise.all([

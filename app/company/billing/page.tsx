@@ -4,6 +4,9 @@ import { MonthSwitcher } from "./month-switcher";
 import { PricingTable } from "./pricing-table";
 import type { ChargeRow } from "@/app/actions/company/billing";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function CompanyBillingPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({

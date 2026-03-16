@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function CompanyDashboardPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({

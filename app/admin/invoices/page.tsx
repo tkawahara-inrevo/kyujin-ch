@@ -8,17 +8,21 @@ export default async function AdminInvoicesPage() {
   await requireAdmin();
 
   const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const monthRows = await prisma.charge.findMany({
+    where: { isValid: true },
+    select: { billingMonth: true },
+    distinct: ["billingMonth"],
+    orderBy: { billingMonth: "asc" },
+  });
 
-  // 過去3ヶ月～当月の月リストを生成
-  const months: string[] = [];
-  for (let i = 3; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-    );
-  }
+  const months = Array.from(
+    new Set([
+      ...monthRows.map((row) => row.billingMonth),
+      thisMonth,
+    ]),
+  ).sort((a, b) => a.localeCompare(b));
 
-  // 各月の請求データを取得
   const monthlyData = await Promise.all(
     months.map(async (month) => {
       const charges = await prisma.charge.findMany({
@@ -32,7 +36,6 @@ export default async function AdminInvoicesPage() {
         },
       });
 
-      // 企業別に集計
       const byCompany: Record<
         string,
         { companyId: string; companyName: string; total: number; count: number }
@@ -52,21 +55,19 @@ export default async function AdminInvoicesPage() {
         byCompany[company.id].count += 1;
       }
 
-      const breakdown = Object.values(byCompany).sort(
-        (a, b) => b.total - a.total
-      );
-      const grandTotal = breakdown.reduce((s, c) => s + c.total, 0);
+      const breakdown = Object.values(byCompany).sort((a, b) => b.total - a.total);
+      const grandTotal = breakdown.reduce((sum, company) => sum + company.total, 0);
       const totalCount = charges.length;
 
       return { month, grandTotal, totalCount, breakdown };
-    })
+    }),
   );
 
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e293b]">請求管理</h1>
       <p className="mt-1 text-[13px] text-[#888]">
-        過去3ヶ月～当月の請求額と企業別内訳
+        実データの請求月ごとに、企業別の請求合計を確認できます。
       </p>
 
       <InvoiceMonthSwitcher months={months} monthlyData={monthlyData} />

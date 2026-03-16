@@ -14,21 +14,36 @@ export default async function CompanyBillingPage() {
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  // Build available months: current month + 3 months back (oldest first)
-  const availableMonths: string[] = [];
-  for (let i = 3; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    availableMonths.push(
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-    );
-  }
+  const monthRows = await prisma.charge.findMany({
+    where: {
+      application: { job: { companyId: company.id } },
+    },
+    select: {
+      billingMonth: true,
+    },
+    distinct: ["billingMonth"],
+    orderBy: {
+      billingMonth: "asc",
+    },
+  });
 
-  // Fetch current month charges for initial render
+  const availableMonths = Array.from(
+    new Set([
+      ...monthRows.map((row) => row.billingMonth),
+      thisMonth,
+    ]),
+  ).sort((a, b) => a.localeCompare(b));
+
+  const initialMonth = availableMonths.includes(thisMonth)
+    ? thisMonth
+    : availableMonths[availableMonths.length - 1] ?? thisMonth;
+
+  // Fetch selected month charges for initial render
   const [aggregate, chargeRows, priceEntries] = await Promise.all([
     prisma.charge.aggregate({
       where: {
         isValid: true,
-        billingMonth: thisMonth,
+        billingMonth: initialMonth,
         application: { job: { companyId: company.id } },
       },
       _sum: { amount: true },
@@ -36,7 +51,7 @@ export default async function CompanyBillingPage() {
     }),
     prisma.charge.findMany({
       where: {
-        billingMonth: thisMonth,
+        billingMonth: initialMonth,
         application: { job: { companyId: company.id } },
       },
       include: {
@@ -72,7 +87,7 @@ export default async function CompanyBillingPage() {
 
       {/* Month Switcher + Charges Table */}
       <MonthSwitcher
-        initialMonth={thisMonth}
+        initialMonth={initialMonth}
         initialCharges={initialCharges}
         initialTotal={aggregate._sum.amount ?? 0}
         initialCount={aggregate._count}

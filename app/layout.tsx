@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   title: "求人ちゃんねる",
   description: "求人ちゃんねる",
   icons: {
-    icon: "/favicon-32.png",
-    shortcut: "/favicon-32.png",
-    apple: "/favicon-32.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 

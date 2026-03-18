@@ -18,7 +18,11 @@ export default async function AdminCompaniesPage({
       ? {
           OR: [
             { name: { contains: q, mode: "insensitive" } },
+            { corporateNumber: { contains: q, mode: "insensitive" } },
             { companyUser: { email: { contains: q, mode: "insensitive" } } },
+            { companyUser: { username: { contains: q, mode: "insensitive" } } },
+            { companyUser: { lastName: { contains: q, mode: "insensitive" } } },
+            { companyUser: { firstName: { contains: q, mode: "insensitive" } } },
           ],
         }
       : undefined,
@@ -32,7 +36,9 @@ export default async function AdminCompaniesPage({
   const rows: CompanyRow[] = companies.map((company) => ({
     id: company.id,
     name: company.name,
+    corporateNumber: company.corporateNumber ?? "-",
     email: company.companyUser?.email ?? "-",
+    username: company.companyUser?.username ?? "-",
     jobsCount: company._count.jobs,
     isActive: company.isActive,
     createdAt: company.createdAt.toISOString(),
@@ -54,7 +60,7 @@ export default async function AdminCompaniesPage({
         <input
           name="q"
           defaultValue={q}
-          placeholder="企業名やメールアドレスで検索..."
+          placeholder="会社名・法人番号・ユーザー名・メールで検索..."
           className="min-w-[220px] flex-1 rounded-lg border border-[#ddd] bg-white px-4 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
         />
         <button

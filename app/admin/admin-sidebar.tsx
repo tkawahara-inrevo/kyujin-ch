@@ -9,10 +9,11 @@ const navItems = [
   { href: "/admin/dashboard", label: "ダッシュボード", icon: "📊" },
   { href: "/admin/companies", label: "企業一覧", icon: "🏢" },
   { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤" },
-  { href: "/admin/jobs", label: "求人一覧", icon: "📋" },
-  { href: "/admin/billing", label: "料金表管理", icon: "💰" },
-  { href: "/admin/invoices", label: "請求管理", icon: "💳" },
-  { href: "/admin/invalid-requests", label: "無効申請管理", icon: "🔍" },
+  { href: "/admin/jobs", label: "求人一覧", icon: "🧾" },
+  { href: "/admin/billing", label: "請求単価管理", icon: "💳" },
+  { href: "/admin/invoices", label: "請求一覧", icon: "🧮" },
+  { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠" },
+  { href: "/admin/inquiries", label: "お問い合わせ", icon: "✉" },
   { href: "/admin/analytics", label: "分析", icon: "📈" },
 ];
 
@@ -43,7 +44,7 @@ export function AdminSidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium transition ${
                     isActive
-                      ? "bg-[#2f6cff]/10 text-[#2f6cff] font-semibold"
+                      ? "bg-[#2f6cff]/10 font-semibold text-[#2f6cff]"
                       : "text-[#555] hover:bg-[#f7f7f7]"
                   }`}
                 >
@@ -61,7 +62,7 @@ export function AdminSidebar() {
           onClick={() => signOut({ callbackUrl: "/admin/login" })}
           className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium text-[#888] hover:bg-[#f7f7f7]"
         >
-          <span className="text-[16px]">🚪</span>
+          <span className="text-[16px]">↩</span>
           <span>ログアウト</span>
         </button>
       </div>
@@ -80,7 +81,7 @@ export function AdminSidebar() {
           <span className="text-[18px]">☰</span>
         </button>
         <Link href="/admin/dashboard" className="text-[16px] font-bold text-[#1e3a5f]">
-          管理画面
+          管理者画面
         </Link>
         <div className="w-10" />
       </div>
@@ -96,7 +97,7 @@ export function AdminSidebar() {
           <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
             <div className="flex h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
               <Link href="/admin/dashboard" className="truncate text-[18px] font-bold text-[#1e3a5f]">
-                管理画面
+                管理者画面
               </Link>
               <button
                 type="button"
@@ -104,7 +105,7 @@ export function AdminSidebar() {
                 className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-[#e5e7eb] text-[#666]"
                 aria-label="閉じる"
               >
-                ✕
+                ×
               </button>
             </div>
             {navContent}
@@ -115,7 +116,7 @@ export function AdminSidebar() {
       <aside className="hidden w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white md:flex">
         <div className="flex h-[64px] items-center border-b border-[#e5e7eb] px-5">
           <Link href="/admin/dashboard" className="text-[18px] font-bold text-[#1e3a5f]">
-            管理画面
+            管理者画面
           </Link>
         </div>
         {navContent}

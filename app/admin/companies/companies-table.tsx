@@ -7,7 +7,9 @@ import { CompanyActiveToggle } from "./company-active-toggle";
 export type CompanyRow = {
   id: string;
   name: string;
+  corporateNumber: string;
   email: string;
+  username: string;
   jobsCount: number;
   isActive: boolean;
   createdAt: string;
@@ -44,7 +46,10 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                         {company.name}
                       </p>
                       <p className="truncate text-[11px] text-[#999]">
-                        {company.email}
+                        {company.corporateNumber}
+                      </p>
+                      <p className="truncate text-[11px] text-[#999]">
+                        {company.username} / {company.email}
                       </p>
                     </div>
                     <span className="text-right text-[13px] text-[#555]">
@@ -73,7 +78,8 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
                 <th className="px-5 py-3 font-semibold">企業名</th>
-                <th className="px-5 py-3 font-semibold">メール</th>
+                <th className="px-5 py-3 font-semibold">法人番号</th>
+                <th className="px-5 py-3 font-semibold">アカウント</th>
                 <th className="px-5 py-3 font-semibold">求人数</th>
                 <th className="px-5 py-3 font-semibold">ステータス</th>
                 <th className="px-5 py-3 font-semibold">登録日</th>
@@ -82,7 +88,7 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
             <tbody>
               {companies.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-8 text-center text-[#aaa]">
+                  <td colSpan={6} className="px-5 py-8 text-center text-[#aaa]">
                     企業がまだありません
                   </td>
                 </tr>
@@ -100,7 +106,11 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                         {company.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">{company.email}</td>
+                    <td className="px-5 py-3 text-[#555]">{company.corporateNumber}</td>
+                    <td className="px-5 py-3 text-[#555]">
+                      <div>{company.username}</div>
+                      <div className="text-[11px] text-[#888]">{company.email}</div>
+                    </td>
                     <td className="px-5 py-3 text-[#555]">
                       {company.jobsCount > 0 ? (
                         <Link href={`/admin/jobs?q=${encodeURIComponent(company.name)}`} className="text-[#2f6cff] hover:underline">
@@ -145,7 +155,8 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                 <h3 className="mt-1 truncate text-[16px] font-bold text-[#1e3a5f]">
                   {selectedCompany.name}
                 </h3>
-                <p className="truncate text-[12px] text-[#888]">{selectedCompany.email}</p>
+                <p className="truncate text-[12px] text-[#888]">{selectedCompany.corporateNumber}</p>
+                <p className="truncate text-[12px] text-[#888]">{selectedCompany.username} / {selectedCompany.email}</p>
               </div>
               <button
                 type="button"

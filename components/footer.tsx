@@ -17,29 +17,35 @@ export function Footer() {
               />
             </div>
             <p className="mt-4 text-[12px] text-[#666]">
-              最適な仕事を見つけるためのお手伝いをします。
+              ぴったりな出会いを見つけるための求人探しをサポートします。
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-16 text-[12px] text-[#666]">
             <div className="space-y-3">
               <p className="font-bold text-[#333]">求人情報</p>
-              <Link href="/jobs" className="block hover:underline">求人一覧</Link>
-              <p>会社概要</p>
+              <Link href="/jobs" className="block hover:underline">
+                求人一覧
+              </Link>
+              <Link href="/news" className="block hover:underline">
+                お知らせ
+              </Link>
             </div>
             <div className="space-y-3">
               <p className="font-bold text-[#333]">サポート</p>
-              <p>お問い合わせ</p>
-              <p>利用規約（求職者）</p>
-              <p>利用規約（企業）</p>
+              <Link href="/contact" className="block hover:underline">
+                お問い合わせ
+              </Link>
+              <p>利用規約</p>
               <p>プライバシーポリシー</p>
+              <p>掲載を検討中の企業様へ</p>
             </div>
           </div>
         </div>
       </div>
 
       <div className="bg-[#2d2d2d] py-4 text-center text-[12px] text-white">
-        © 2026 求人ちゃんねる.all rights reserved.
+        © 2026 求人ちゃんねる all rights reserved.
       </div>
     </footer>
   );

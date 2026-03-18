@@ -49,12 +49,26 @@ enum AuthProviderType {
   credentials
 }
 
+enum InquiryCategory {
+  QUESTION
+  BUG_REPORT
+}
+
+enum InquiryStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
 model User {
   id                   String   @id @default(cuid())
   name                 String
   email                String   @unique
+  username             String?  @unique
   password             String?
   role                 UserRole @default(USER)
+  firstName            String?
+  lastName             String?
   phone                String?
   resumeUrl            String?
   careerHistoryUrl     String?
@@ -69,6 +83,7 @@ model User {
   favorites    Favorite[]
   reviews      Review[]
   sessions     Session[]
+  inquiries    Inquiry[]
   company      Company?   @relation("CompanyUser")
 }
 
@@ -115,6 +130,7 @@ model VerificationToken {
 model Company {
   id            String   @id @default(cuid())
   name          String
+  corporateNumber String? @unique
   description   String?
   websiteUrl    String?
   location      String?
@@ -332,4 +348,22 @@ model JobView {
   job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@index([jobId, viewedAt])
+}
+
+model Inquiry {
+  id        String          @id @default(cuid())
+  userId    String?
+  category  InquiryCategory
+  status    InquiryStatus   @default(OPEN)
+  name      String
+  phone     String?
+  email     String
+  body      String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([category, createdAt])
 }

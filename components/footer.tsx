@@ -27,8 +27,8 @@ export function Footer() {
               <Link href="/jobs" className="block hover:underline">
                 求人一覧
               </Link>
-              <Link href="/news" className="block hover:underline">
-                お知らせ
+              <Link href="https://inrevo.co.jp/about" className="block hover:underline" target="_blank" rel="noreferrer">
+                会社概要
               </Link>
             </div>
             <div className="space-y-3">

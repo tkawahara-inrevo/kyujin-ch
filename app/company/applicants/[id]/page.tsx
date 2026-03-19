@@ -53,6 +53,9 @@ export default async function CompanyApplicantDetailPage({
     include: {
       user: true,
       job: true,
+      invalidRequests: {
+        orderBy: { createdAt: "desc" },
+      },
       conversation: {
         include: { messages: { orderBy: { createdAt: "asc" } } },
       },
@@ -87,6 +90,7 @@ export default async function CompanyApplicantDetailPage({
   const careerHistoryHref = application.user.careerHistoryUrl
     ? `/api/company/applicant-documents?applicationId=${application.id}&docType=careerHistory`
     : null;
+  const approvedInvalidRequest = application.invalidRequests.find((request) => request.status === "APPROVED");
 
   return (
     <div className="p-6 lg:p-10">
@@ -167,6 +171,7 @@ export default async function CompanyApplicantDetailPage({
           currentStatus={application.status}
           messages={application.conversation?.messages ?? []}
           conversationId={application.conversation?.id}
+          isInvalidated={!!approvedInvalidRequest}
         />
       </div>
     </div>

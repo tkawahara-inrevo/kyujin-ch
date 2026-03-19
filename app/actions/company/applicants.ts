@@ -16,8 +16,14 @@ export async function updateApplicationStatus(applicationId: string, status: str
   // Verify the application belongs to this company
   const app = await prisma.application.findFirst({
     where: { id: applicationId, job: { companyId: company.id } },
+    include: {
+      invalidRequests: {
+        where: { status: "APPROVED" },
+      },
+    },
   });
   if (!app) throw new Error("Application not found");
+  if (app.invalidRequests.length > 0) throw new Error("Invalidated application");
 
   await prisma.application.update({
     where: { id: applicationId },
@@ -46,6 +52,17 @@ export async function sendCompanyMessage(
     where: { companyUserId: session.user.id },
   });
   if (!company) throw new Error("Company not found");
+
+  const application = await prisma.application.findFirst({
+    where: { id: applicationId, job: { companyId: company.id } },
+    include: {
+      invalidRequests: {
+        where: { status: "APPROVED" },
+      },
+    },
+  });
+  if (!application) throw new Error("Application not found");
+  if (application.invalidRequests.length > 0) throw new Error("Invalidated application");
 
   // Find or create conversation
   let conversation = await prisma.conversation.findFirst({

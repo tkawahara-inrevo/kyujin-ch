@@ -50,6 +50,7 @@ export default function CompanyJobNewPage() {
   const [categoryTagDetail, setCategoryTagDetail] = useState("");
   const [employmentType, setEmploymentType] = useState("FULL_TIME");
   const [employmentTypeDetail, setEmploymentTypeDetail] = useState("");
+  const [employmentPeriodType, setEmploymentPeriodType] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showPreview, setShowPreview] = useState(true);
@@ -99,6 +100,7 @@ export default function CompanyJobNewPage() {
       annualSalary: (fd?.get("annualSalary") as string) || "",
       workingHours: (fd?.get("workingHours") as string) || "",
       selectionProcess: (fd?.get("selectionProcess") as string) || "",
+      employmentPeriodType,
       tags: mergedTags,
       benefits: mergedBenefits,
       targetType,
@@ -116,6 +118,7 @@ export default function CompanyJobNewPage() {
     selectedBenefits,
     mergedTags,
     mergedBenefits,
+    employmentPeriodType,
     targetType,
     graduationYear,
   ]);
@@ -167,7 +170,7 @@ export default function CompanyJobNewPage() {
         workingHours: fd.get("workingHours") as string,
         selectionProcess: fd.get("selectionProcess") as string,
         closingDate: fd.get("closingDate") as string,
-        employmentPeriodType: fd.get("employmentPeriodType") as string,
+        employmentPeriodType,
         imageUrl,
         tags: mergedTags,
         benefits: mergedBenefits,
@@ -416,7 +419,12 @@ export default function CompanyJobNewPage() {
             </Field>
 
             <Field label="雇用期間">
-              <select name="employmentPeriodType" className={inputCls}>
+              <select
+                name="employmentPeriodType"
+                className={inputCls}
+                value={employmentPeriodType}
+                onChange={(event) => setEmploymentPeriodType(event.target.value)}
+              >
                 {EMPLOYMENT_PERIOD_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}

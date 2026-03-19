@@ -102,6 +102,7 @@ export function JobEditForm({
   const [categoryTagDetail, setCategoryTagDetail] = useState(job.categoryTagDetail || "");
   const [employmentType, setEmploymentType] = useState(job.employmentType || "FULL_TIME");
   const [employmentTypeDetail, setEmploymentTypeDetail] = useState(job.employmentTypeDetail || "");
+  const [employmentPeriodType, setEmploymentPeriodType] = useState(job.employmentPeriodType || "");
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
@@ -146,6 +147,7 @@ export function JobEditForm({
       annualSalary: (fd?.get("annualSalary") as string) || "",
       workingHours: (fd?.get("workingHours") as string) || "",
       selectionProcess: (fd?.get("selectionProcess") as string) || "",
+      employmentPeriodType,
       tags: mergedTags,
       benefits: mergedBenefits,
       targetType,
@@ -161,6 +163,7 @@ export function JobEditForm({
     selectedRegion,
     mergedTags,
     mergedBenefits,
+    employmentPeriodType,
     targetType,
     graduationYear,
   ]);
@@ -213,7 +216,7 @@ export function JobEditForm({
         selectionProcess: fd.get("selectionProcess") as string,
         workingHours: fd.get("workingHours") as string,
         closingDate: fd.get("closingDate") as string,
-        employmentPeriodType: fd.get("employmentPeriodType") as string,
+        employmentPeriodType,
         region: selectedRegion,
         categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
         employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
@@ -487,7 +490,12 @@ export function JobEditForm({
               <input name="workingHours" defaultValue={job.workingHours ?? ""} className={inputCls} />
             </Field>
             <Field label="雇用期間">
-              <select name="employmentPeriodType" defaultValue={job.employmentPeriodType ?? ""} className={inputCls}>
+              <select
+                name="employmentPeriodType"
+                value={employmentPeriodType}
+                onChange={(event) => setEmploymentPeriodType(event.target.value)}
+                className={inputCls}
+              >
                 {EMPLOYMENT_PERIOD_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}

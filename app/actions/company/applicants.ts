@@ -32,6 +32,7 @@ export async function updateApplicationStatus(applicationId: string, status: str
 
   revalidatePath(`/company/applicants/${applicationId}`);
   revalidatePath("/company/applicants");
+  revalidatePath("/company/messages");
 }
 
 type MessageAttachmentInput = {
@@ -88,4 +89,5 @@ export async function sendCompanyMessage(
   });
 
   revalidatePath(`/company/applicants/${applicationId}`);
+  revalidatePath("/company/messages");
 }

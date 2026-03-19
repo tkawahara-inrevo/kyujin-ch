@@ -84,7 +84,6 @@ export function JobEditForm({
   const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
-  const [previewKey, setPreviewKey] = useState(0);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
@@ -259,7 +258,6 @@ export function JobEditForm({
           type="button"
           onClick={() => {
             setShowPreview((prev) => !prev);
-            setPreviewKey((prev) => prev + 1);
           }}
           className="inline-flex rounded-[14px] bg-[#2f6cff] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
         >
@@ -326,7 +324,6 @@ export function JobEditForm({
                   defaultValue={job.imageUrl ?? undefined}
                   onUploaded={(url) => {
                     setImageUrl(url);
-                    setPreviewKey((prev) => prev + 1);
                   }}
                 />
               </div>
@@ -615,7 +612,7 @@ export function JobEditForm({
         {showPreview ? (
           <div className="hidden self-start xl:sticky xl:top-6 xl:block">
             <div className="h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
-              <JobPreview key={previewKey} data={getPreviewData()} />
+              <JobPreview data={getPreviewData()} />
             </div>
           </div>
         ) : null}

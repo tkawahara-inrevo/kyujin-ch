@@ -54,7 +54,6 @@ export default function CompanyJobNewPage() {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showPreview, setShowPreview] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [previewKey, setPreviewKey] = useState(0);
   const [customTags, setCustomTags] = useState("");
   const [customBenefits, setCustomBenefits] = useState("");
 
@@ -73,8 +72,6 @@ export default function CompanyJobNewPage() {
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
   }
-
-  const refreshPreview = () => setPreviewKey((prev) => prev + 1);
 
   const getPreviewData = useCallback(() => {
     const fd = formRef.current ? new FormData(formRef.current) : null;
@@ -191,7 +188,6 @@ export default function CompanyJobNewPage() {
           type="button"
           onClick={() => {
             setShowPreview((prev) => !prev);
-            refreshPreview();
           }}
           className="inline-flex rounded-[14px] bg-[#2f6cff] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
         >
@@ -213,7 +209,6 @@ export default function CompanyJobNewPage() {
         <form
           ref={formRef}
           onSubmit={handleSubmit}
-          onChange={refreshPreview}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
             showPreview ? "" : "max-w-[860px]"
           }`}
@@ -257,7 +252,6 @@ export default function CompanyJobNewPage() {
                   name="imageUrl"
                   onUploaded={(url) => {
                     setImageUrl(url);
-                    refreshPreview();
                   }}
                 />
               </div>
@@ -525,7 +519,7 @@ export default function CompanyJobNewPage() {
         {showPreview ? (
           <aside className="hidden self-start xl:sticky xl:top-6 xl:block">
             <div className="h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
-              <JobPreview key={previewKey} data={getPreviewData()} />
+              <JobPreview data={getPreviewData()} />
             </div>
           </aside>
         ) : null}

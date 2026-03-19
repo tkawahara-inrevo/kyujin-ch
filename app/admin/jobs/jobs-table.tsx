@@ -1,28 +1,26 @@
 "use client";
 
+import type { JobReviewStatus } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
+import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 
 export type AdminJobRow = {
   id: string;
   title: string;
   companyId: string;
   companyName: string;
-  categoryTag?: string;
   applicationsCount: number;
   viewCount: number;
-  isPublished: boolean;
+  reviewStatus: JobReviewStatus;
   createdAt: string;
+  reviewComment?: string;
 };
 
-function PublishBadge({ isPublished }: { isPublished: boolean }) {
+function ReviewBadge({ status }: { status: JobReviewStatus }) {
   return (
-    <span
-      className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-        isPublished ? "bg-[#d1fae5] text-[#059669]" : "bg-[#f3f4f6] text-[#888]"
-      }`}
-    >
-      {isPublished ? "公開中" : "下書き"}
+    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[status]}`}>
+      {JOB_REVIEW_STATUS_LABELS[status]}
     </span>
   );
 }
@@ -38,10 +36,10 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
             <div className="px-5 py-8 text-center text-[13px] text-[#aaa]">求人がありません</div>
           ) : (
             <>
-              <div className="grid grid-cols-[minmax(0,1fr)_54px_68px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
+              <div className="grid grid-cols-[minmax(0,1fr)_78px_68px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
                 <span className="truncate">求人</span>
-                <span className="text-right">応募</span>
-                <span className="text-center">公開</span>
+                <span className="text-right">応募数</span>
+                <span className="text-center">状態</span>
               </div>
               <div>
                 {jobs.map((job) => (
@@ -49,17 +47,15 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
                     key={job.id}
                     type="button"
                     onClick={() => setSelectedJob(job)}
-                    className="grid w-full grid-cols-[minmax(0,1fr)_54px_68px] items-center gap-2 border-b border-[#f8f8f8] px-4 py-3 text-left transition hover:bg-[#fafafa]"
+                    className="grid w-full grid-cols-[minmax(0,1fr)_78px_68px] items-center gap-2 border-b border-[#f8f8f8] px-4 py-3 text-left transition hover:bg-[#fafafa]"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-[13px] font-medium text-[#333]">{job.title}</p>
                       <p className="truncate text-[11px] text-[#999]">{job.companyName}</p>
                     </div>
-                    <span className="text-right text-[13px] text-[#555]">
-                      {job.applicationsCount}
-                    </span>
+                    <span className="text-right text-[13px] text-[#555]">{job.applicationsCount}</span>
                     <span className="flex justify-center">
-                      <PublishBadge isPublished={job.isPublished} />
+                      <ReviewBadge status={job.reviewStatus} />
                     </span>
                   </button>
                 ))}
@@ -76,50 +72,39 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
                 <th className="px-5 py-3 font-semibold">企業</th>
                 <th className="px-5 py-3 font-semibold">応募数</th>
                 <th className="px-5 py-3 font-semibold">PV</th>
-                <th className="px-5 py-3 font-semibold">公開</th>
-                <th className="px-5 py-3 font-semibold">掲載日</th>
+                <th className="px-5 py-3 font-semibold">ステータス</th>
+                <th className="px-5 py-3 font-semibold">登録日</th>
               </tr>
             </thead>
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-[#aaa]">求人がありません</td>
+                  <td colSpan={6} className="px-5 py-8 text-center text-[#aaa]">
+                    求人がありません
+                  </td>
                 </tr>
               ) : (
                 jobs.map((job) => (
                   <tr key={job.id} className="border-b border-[#f8f8f8] hover:bg-[#fafafa]">
                     <td className="px-5 py-3 font-medium text-[#333]">
-                      <Link
-                        href={`/admin/jobs/${job.id}`}
-                        className="hover:text-[#2f6cff] hover:underline"
-                      >
+                      <Link href={`/admin/jobs/${job.id}`} className="hover:text-[#2f6cff] hover:underline">
                         {job.title}
                       </Link>
+                      {job.reviewComment ? (
+                        <p className="mt-1 text-[11px] text-[#a16207]">{job.reviewComment}</p>
+                      ) : null}
                     </td>
                     <td className="px-5 py-3 text-[#555]">
-                      <Link
-                        href={`/admin/companies/${job.companyId}`}
-                        className="hover:text-[#2f6cff] hover:underline"
-                      >
+                      <Link href={`/admin/companies/${job.companyId}`} className="hover:text-[#2f6cff] hover:underline">
                         {job.companyName}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">
-                      {job.applicationsCount > 0 ? (
-                        <Link href={`/admin/jobs/${job.id}`} className="text-[#2f6cff] hover:underline">
-                          {job.applicationsCount}
-                        </Link>
-                      ) : (
-                        "0"
-                      )}
-                    </td>
+                    <td className="px-5 py-3 text-[#555]">{job.applicationsCount}</td>
                     <td className="px-5 py-3 text-[#555]">{job.viewCount}</td>
                     <td className="px-5 py-3">
-                      <PublishBadge isPublished={job.isPublished} />
+                      <ReviewBadge status={job.reviewStatus} />
                     </td>
-                    <td className="px-5 py-3 text-[#888]">
-                      {new Date(job.createdAt).toLocaleDateString("ja-JP")}
-                    </td>
+                    <td className="px-5 py-3 text-[#888]">{new Date(job.createdAt).toLocaleDateString("ja-JP")}</td>
                   </tr>
                 ))
               )}
@@ -128,7 +113,7 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
         </div>
       </div>
 
-      {selectedJob && (
+      {selectedJob ? (
         <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
           <button type="button" aria-label="close" onClick={() => setSelectedJob(null)} className="absolute inset-0" />
           <div className="relative max-h-[85vh] w-full rounded-t-[24px] bg-white px-5 pb-6 pt-4 shadow-[0_-8px_24px_rgba(0,0,0,0.14)]">
@@ -152,16 +137,14 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
                 <p className="mt-1 text-[16px] font-bold text-[#333]">{selectedJob.viewCount}</p>
               </div>
               <div className="rounded-[12px] bg-[#f8fafc] px-4 py-3">
-                <p className="text-[11px] font-semibold text-[#888]">公開状態</p>
+                <p className="text-[11px] font-semibold text-[#888]">ステータス</p>
                 <div className="mt-2">
-                  <PublishBadge isPublished={selectedJob.isPublished} />
+                  <ReviewBadge status={selectedJob.reviewStatus} />
                 </div>
               </div>
               <div className="rounded-[12px] bg-[#f8fafc] px-4 py-3">
-                <p className="text-[11px] font-semibold text-[#888]">掲載日</p>
-                <p className="mt-1 text-[14px] font-medium text-[#333]">
-                  {new Date(selectedJob.createdAt).toLocaleDateString("ja-JP")}
-                </p>
+                <p className="text-[11px] font-semibold text-[#888]">登録日</p>
+                <p className="mt-1 text-[14px] font-medium text-[#333]">{new Date(selectedJob.createdAt).toLocaleDateString("ja-JP")}</p>
               </div>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
@@ -174,7 +157,7 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

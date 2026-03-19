@@ -1,8 +1,9 @@
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
-import { JobsTable, type AdminJobRow } from "./jobs-table";
-import Link from "next/link";
 import { Prisma } from "@prisma/client";
+import Link from "next/link";
+import { requireAdmin } from "@/lib/auth-helpers";
+import { JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
+import { prisma } from "@/lib/prisma";
+import { JobsTable, type AdminJobRow } from "./jobs-table";
 
 type SearchParams = Promise<{ q?: string; category?: string; status?: string }>;
 
@@ -16,16 +17,17 @@ export default async function AdminJobsPage({
 
   const where: Prisma.JobWhereInput = {
     isDeleted: false,
-    ...(q && {
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { company: { name: { contains: q, mode: "insensitive" } } },
-        { location: { contains: q, mode: "insensitive" } },
-      ],
-    }),
-    ...(category && { categoryTag: category }),
-    ...(status === "published" && { isPublished: true }),
-    ...(status === "draft" && { isPublished: false }),
+    ...(q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" } },
+            { company: { name: { contains: q, mode: "insensitive" } } },
+            { location: { contains: q, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+    ...(category ? { categoryTag: category } : {}),
+    ...(status ? { reviewStatus: status as any } : {}),
   };
 
   const [jobs, categoryTags] = await Promise.all([
@@ -35,7 +37,7 @@ export default async function AdminJobsPage({
         company: true,
         _count: { select: { applications: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     }),
     prisma.job.findMany({
       where: { isDeleted: false, categoryTag: { not: null } },
@@ -45,21 +47,18 @@ export default async function AdminJobsPage({
     }),
   ]);
 
-  const categories = categoryTags.map((j) => j.categoryTag!).filter(Boolean);
-
+  const categories = categoryTags.map((job) => job.categoryTag!).filter(Boolean);
   const rows: AdminJobRow[] = jobs.map((job) => ({
     id: job.id,
     title: job.title,
     companyId: job.companyId,
     companyName: job.company.name,
-    categoryTag: job.categoryTag ?? undefined,
     applicationsCount: job._count.applications,
     viewCount: job.viewCount,
-    isPublished: job.isPublished,
+    reviewStatus: job.reviewStatus,
     createdAt: job.createdAt.toISOString(),
+    reviewComment: job.reviewComment ?? undefined,
   }));
-
-  const hasFilter = !!(q || category || status);
 
   return (
     <div className="p-6 lg:p-10">
@@ -78,8 +77,10 @@ export default async function AdminJobsPage({
           className="rounded-lg border border-[#ddd] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
         >
           <option value="">全カテゴリ</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+          {categories.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
           ))}
         </select>
         <select
@@ -88,8 +89,10 @@ export default async function AdminJobsPage({
           className="rounded-lg border border-[#ddd] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
         >
           <option value="">全ステータス</option>
-          <option value="published">公開中</option>
-          <option value="draft">下書き</option>
+          <option value="DRAFT">{JOB_REVIEW_STATUS_LABELS.DRAFT}</option>
+          <option value="PENDING_REVIEW">{JOB_REVIEW_STATUS_LABELS.PENDING_REVIEW}</option>
+          <option value="PUBLISHED">{JOB_REVIEW_STATUS_LABELS.PUBLISHED}</option>
+          <option value="RETURNED">{JOB_REVIEW_STATUS_LABELS.RETURNED}</option>
         </select>
         <button
           type="submit"
@@ -97,22 +100,17 @@ export default async function AdminJobsPage({
         >
           検索
         </button>
-        {hasFilter && (
+        {q || category || status ? (
           <Link
             href="/admin/jobs"
             className="rounded-lg border border-[#ddd] px-4 py-2 text-[13px] text-[#666] hover:bg-[#f5f5f5]"
           >
             クリア
           </Link>
-        )}
+        ) : null}
       </form>
 
-      <p className="mt-3 text-[13px] text-[#888]">
-        {hasFilter && jobs.length === 0
-          ? "条件に一致する求人が見つかりません"
-          : `${jobs.length} 件`}
-      </p>
-
+      <p className="mt-3 text-[13px] text-[#888]">{jobs.length} 件</p>
       <JobsTable jobs={rows} />
     </div>
   );

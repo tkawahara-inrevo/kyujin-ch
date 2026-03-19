@@ -1,28 +1,29 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navItems = [
-  { href: "/company/dashboard", label: "ダッシュボード", icon: "📊" },
-  { href: "/company/jobs", label: "求人管理", icon: "🧾" },
+  { href: "/company/dashboard", label: "ダッシュボード", icon: "/assets/Graph.png" },
+  { href: "/company/jobs", label: "求人管理", icon: "/assets/Paper.png" },
   {
     href: "/company/applicants",
     label: "応募者管理",
-    icon: "👤",
+    icon: "/assets/Person.png",
     badgeType: "applications" as const,
   },
   {
     href: "/company/messages",
     label: "メッセージ",
-    icon: "✉️",
+    icon: "/assets/Chat_Circle.png",
     badgeType: "messages" as const,
   },
-  { href: "/company/billing", label: "請求管理", icon: "💳" },
-  { href: "/company/analytics", label: "分析", icon: "📈" },
-  { href: "/company/settings", label: "設定", icon: "⚙️" },
+  { href: "/company/billing", label: "請求管理", icon: "/assets/List.png" },
+  { href: "/company/analytics", label: "分析", icon: "/assets/Graph.png" },
+  { href: "/company/settings", label: "設定", icon: "/assets/Edit_Pencil_Line_02.png" },
 ];
 
 export function CompanySidebar() {
@@ -42,7 +43,6 @@ export function CompanySidebar() {
           messageResponse.json(),
           applicationResponse.json(),
         ]);
-
         setMessageUnreadCount(messageData.count || 0);
         setNewApplicationCount(applicationData.count || 0);
       } catch {
@@ -58,7 +58,6 @@ export function CompanySidebar() {
 
     loadBadges();
     const interval = setInterval(loadBadges, 30000);
-
     window.addEventListener("focus", loadBadges);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
@@ -82,8 +81,8 @@ export function CompanySidebar() {
 
   const navContent = (
     <>
-      <nav className="flex-1 px-3 py-4">
-        <ul className="space-y-1">
+      <nav className="flex-1 px-7 py-8">
+        <ul className="space-y-4">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const badgeCount =
@@ -97,19 +96,19 @@ export function CompanySidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium transition ${
+                  className={`flex items-center gap-4 rounded-[12px] px-4 py-3 text-[15px] font-bold transition ${
                     isActive
-                      ? "bg-[#2f6cff]/10 font-semibold text-[#2f6cff]"
-                      : "text-[#555] hover:bg-[#f7f7f7]"
+                      ? "bg-[#eef4ff] text-[#222]"
+                      : "text-[#222] hover:bg-[#f5f7fb]"
                   }`}
                 >
-                  <span className="text-[16px]">{item.icon}</span>
+                  <Image src={item.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
                   <span className="flex-1">{item.label}</span>
-                  {badgeCount > 0 && (
-                    <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#ef4444] px-1.5 text-[11px] font-bold text-white">
+                  {badgeCount > 0 ? (
+                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[11px] font-bold text-white">
                       {badgeCount > 99 ? "99+" : badgeCount}
                     </span>
-                  )}
+                  ) : null}
                 </Link>
               </li>
             );
@@ -117,12 +116,12 @@ export function CompanySidebar() {
         </ul>
       </nav>
 
-      <div className="border-t border-[#e5e7eb] px-3 py-4">
+      <div className="border-t border-[#edf0f5] px-7 py-6">
         <button
           onClick={() => signOut({ callbackUrl: "/company/login" })}
-          className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium text-[#888] hover:bg-[#f7f7f7]"
+          className="flex w-full items-center gap-4 rounded-[12px] px-4 py-3 text-[15px] font-bold text-[#7a7f87] transition hover:bg-[#f5f7fb]"
         >
-          <span className="text-[16px]">↩</span>
+          <span className="text-[22px]">⇦</span>
           <span>ログアウト</span>
         </button>
       </div>
@@ -131,22 +130,23 @@ export function CompanySidebar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-40 flex h-[64px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 md:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-[#edf0f5] bg-white px-4 md:hidden">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#e5e7eb] text-[#1e3a5f]"
+          className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#e7ebf3] text-[#20242d]"
           aria-label="メニューを開く"
         >
           <span className="text-[18px]">☰</span>
         </button>
-        <Link href="/company/dashboard" className="text-[16px] font-bold text-[#1e3a5f]">
-          企業ちゃんねる
+        <Link href="/company/dashboard" className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]">
+          <Image src="/assets/Person.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+          <span>求人ちゃんねる</span>
         </Link>
         <div className="w-10" />
       </div>
 
-      {isOpen && (
+      {isOpen ? (
         <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
@@ -154,18 +154,16 @@ export function CompanySidebar() {
             aria-label="メニューを閉じる"
             onClick={() => setIsOpen(false)}
           />
-          <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
-            <div className="flex h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
-              <Link
-                href="/company/dashboard"
-                className="truncate text-[18px] font-bold text-[#1e3a5f]"
-              >
-                企業ちゃんねる
+          <aside className="relative flex h-full w-[272px] max-w-[86vw] flex-col border-r border-[#edf0f5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.16)]">
+            <div className="flex h-[120px] items-center justify-between border-b border-[#edf0f5] px-6">
+              <Link href="/company/dashboard" className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]">
+                <Image src="/assets/Person.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
+                <span>求人ちゃんねる</span>
               </Link>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-[#e5e7eb] text-[#666]"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#e7ebf3] text-[#666]"
                 aria-label="閉じる"
               >
                 ×
@@ -174,12 +172,13 @@ export function CompanySidebar() {
             {navContent}
           </aside>
         </div>
-      )}
+      ) : null}
 
-      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white md:flex">
-        <div className="flex h-[64px] items-center border-b border-[#e5e7eb] px-5">
-          <Link href="/company/dashboard" className="text-[18px] font-bold text-[#1e3a5f]">
-            企業ちゃんねる
+      <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white md:flex">
+        <div className="flex h-[120px] items-center border-b border-[#edf0f5] px-8">
+          <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
+            <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
+            <span>求人ちゃんねる</span>
           </Link>
         </div>
         {navContent}

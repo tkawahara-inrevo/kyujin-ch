@@ -613,6 +613,7 @@ async function main() {
         employmentType,
         employmentTypeDetail: employmentLabel(employmentType),
         isPublished: true,
+        reviewStatus: "PUBLISHED",
         isDeleted: false,
         categoryTag: job.category,
         categoryTagDetail: job.category === OTHER_CATEGORY_VALUE ? "事業推進・運営サポート" : null,

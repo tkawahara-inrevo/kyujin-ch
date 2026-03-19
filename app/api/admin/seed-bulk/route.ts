@@ -194,6 +194,8 @@ export async function GET(req: Request) {
       const viewCount = randomInt(0, 5000);
       const createdAt = randomDate(new Date("2025-06-01"), new Date("2026-03-14"));
 
+      const isPublished = Math.random() > 0.05;
+
       const job = await prisma.job.create({
         data: {
           companyId,
@@ -203,7 +205,8 @@ export async function GET(req: Request) {
           salaryMin,
           salaryMax,
           employmentType: employmentType as any,
-          isPublished: Math.random() > 0.05,
+          isPublished,
+          reviewStatus: isPublished ? "PUBLISHED" : "DRAFT",
           categoryTag: category,
           tags,
           viewCount,

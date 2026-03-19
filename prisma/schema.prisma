@@ -60,6 +60,13 @@ enum InquiryStatus {
   CLOSED
 }
 
+enum JobReviewStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  RETURNED
+}
+
 model User {
   id                   String   @id @default(cuid())
   name                 String
@@ -157,6 +164,9 @@ model Job {
   employmentType EmploymentType @default(FULL_TIME)
   isPublished    Boolean        @default(true)
   isDeleted      Boolean        @default(false)
+  reviewStatus   JobReviewStatus @default(DRAFT)
+  reviewComment  String?
+  pendingContent Json?
   viewCount      Int            @default(0)
   categoryTag    String?
   tags           String[]

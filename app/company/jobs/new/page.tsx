@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { createJob } from "@/app/actions/company/jobs";
+import { createJob, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import {
   BENEFIT_OPTIONS as SHARED_BENEFIT_OPTIONS,
@@ -127,6 +127,8 @@ export default function CompanyJobNewPage() {
 
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
     await createJob({
       title: fd.get("title") as string,
@@ -154,10 +156,9 @@ export default function CompanyJobNewPage() {
       imageUrl,
       tags: selectedTags,
       benefits: selectedBenefits,
-      isPublished: fd.get("isPublished") === "true",
       targetType,
       graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
-    });
+    }, submissionMode);
 
     router.push("/company/jobs");
   }
@@ -279,12 +280,9 @@ export default function CompanyJobNewPage() {
               <input name="closingDate" type="date" className={inputCls} />
             </Field>
 
-            <Field label="公開設定">
-              <select name="isPublished" className={inputCls}>
-                <option value="true">即時公開</option>
-                <option value="false">下書き保存</option>
-              </select>
-            </Field>
+            <div className="rounded-[12px] border border-[#dbe4ff] bg-[#f4f7ff] px-4 py-4 text-[13px] text-[#587199]">
+              求人は公開されず、審査に提出すると管理者の承認後に公開されます!
+            </div>
           </Section>
 
           {/* === 仕事内容 === */}
@@ -438,13 +436,22 @@ export default function CompanyJobNewPage() {
           </Section>
 
           {/* === 送信 === */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
             <button
               type="submit"
+              data-mode="review"
               disabled={loading}
               className="rounded-[10px] bg-[#2f6cff] px-8 py-3 text-[14px] font-bold text-white hover:opacity-90 disabled:opacity-50"
             >
               {loading ? "保存中..." : "作成する"}
+            </button>
+            <button
+              type="submit"
+              data-mode="draft"
+              disabled={loading}
+              className="rounded-[10px] border border-[#c8d6f6] bg-white px-8 py-3 text-[14px] font-bold text-[#2f6cff] hover:bg-[#f7faff] disabled:opacity-50"
+            >
+              下書き保存
             </button>
             <button
               type="button"

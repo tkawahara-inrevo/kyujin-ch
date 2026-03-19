@@ -150,6 +150,10 @@ export default async function JobDetailPage({
     notFound();
   }
 
+  if (!job.isPublished || job.reviewStatus !== "PUBLISHED" || job.isDeleted) {
+    notFound();
+  }
+
   const hasApplied = isLoggedIn
     ? !!(await prisma.application.findUnique({
         where: { userId_jobId: { userId: session!.user!.id!, jobId: job.id } },
@@ -158,7 +162,7 @@ export default async function JobDetailPage({
 
   const [companyJobsCount, companyReviewsCount] = await Promise.all([
     prisma.job.count({
-      where: { companyId: job.companyId, isPublished: true, isDeleted: false },
+      where: { companyId: job.companyId, isPublished: true, reviewStatus: "PUBLISHED", isDeleted: false },
     }),
     prisma.review.count({ where: { companyId: job.companyId } }),
   ]);
@@ -167,6 +171,7 @@ export default async function JobDetailPage({
     where: {
       NOT: { id: job.id },
       isPublished: true,
+      reviewStatus: "PUBLISHED",
       isDeleted: false,
     },
     include: {

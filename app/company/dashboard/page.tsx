@@ -1,152 +1,154 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function KpiCard({
+  label,
+  value,
+  href,
+  colorClass,
+  sub,
+}: {
+  label: string;
+  value: string | number;
+  href: string;
+  colorClass: string;
+  sub?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-[18px] bg-white p-6 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(37,56,88,0.08)]"
+    >
+      <p className="text-[16px] font-bold text-[#2b2f38]">{label}</p>
+      <p className={`mt-5 text-[18px] font-bold md:text-[24px] ${colorClass}`}>{value}</p>
+      {sub ? <p className="mt-3 text-[13px] text-[#7f8795]">{sub}</p> : null}
+    </Link>
+  );
+}
 
 export default async function CompanyDashboardPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
   });
-  if (!company) return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+
+  if (!company) {
+    return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+  }
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const currentBillingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  const [
-    monthlyApps,
-    activeJobs,
-    unreadMessages,
-    recentApps,
-    currentMonthCharges,
-    lifetimeCharges,
-  ] = await Promise.all([
-    prisma.application.count({
-      where: { job: { companyId: company.id }, createdAt: { gte: startOfMonth } },
-    }),
-    prisma.job.count({
-      where: { companyId: company.id, isPublished: true, isDeleted: false },
-    }),
-    prisma.message.count({
-      where: {
-        isRead: false,
-        senderType: "USER",
-        conversation: { application: { job: { companyId: company.id } } },
-      },
-    }),
-    prisma.application.findMany({
-      where: { job: { companyId: company.id } },
-      include: { user: true, job: true },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-    prisma.charge.aggregate({
-      where: {
-        isValid: true,
-        billingMonth: currentBillingMonth,
-        application: { job: { companyId: company.id } },
-      },
-      _sum: { amount: true },
-    }),
-    prisma.charge.aggregate({
-      where: {
-        isValid: true,
-        application: { job: { companyId: company.id } },
-      },
-      _sum: { amount: true },
-    }),
-  ]);
-
-  const kpiCards = [
-    { label: "当月応募数", value: monthlyApps, color: "#2f6cff", href: "/company/applicants" },
-    { label: "掲載中求人", value: activeJobs, color: "#10b981", href: "/company/jobs" },
-    {
-      label: "概算費用",
-      value: `¥${(lifetimeCharges._sum.amount ?? 0).toLocaleString()}`,
-      sub: `当月: ¥${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`,
-      color: "#f59e0b",
-      href: "/company/billing",
-    },
-    { label: "未読メッセージ", value: unreadMessages, color: "#ef4444", href: "/company/messages" },
-  ];
+  const [monthlyApps, publishedJobs, unreadMessages, recentApps, currentMonthCharges, lifetimeCharges] =
+    await Promise.all([
+      prisma.application.count({
+        where: { job: { companyId: company.id }, createdAt: { gte: startOfMonth } },
+      }),
+      prisma.job.count({
+        where: { companyId: company.id, reviewStatus: "PUBLISHED", isDeleted: false },
+      }),
+      prisma.message.count({
+        where: {
+          isRead: false,
+          senderType: "USER",
+          conversation: { application: { job: { companyId: company.id } } },
+        },
+      }),
+      prisma.application.findMany({
+        where: { job: { companyId: company.id } },
+        include: { user: true, job: true },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      }),
+      prisma.charge.aggregate({
+        where: {
+          isValid: true,
+          billingMonth: currentBillingMonth,
+          application: { job: { companyId: company.id } },
+        },
+        _sum: { amount: true },
+      }),
+      prisma.charge.aggregate({
+        where: {
+          isValid: true,
+          application: { job: { companyId: company.id } },
+        },
+        _sum: { amount: true },
+      }),
+    ]);
 
   return (
-    <div className="p-6 lg:p-10">
-      <h1 className="text-[24px] font-bold text-[#1e3a5f]">ダッシュボード</h1>
+    <div className="px-6 py-8 md:px-12 md:py-10">
+      <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">ダッシュボード</h1>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
-        {kpiCards.map((kpi) => (
-          <Link
-            key={kpi.label}
-            href={kpi.href}
-            className="block rounded-[12px] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:shadow-md md:p-5"
-          >
-            <p className="text-[11px] font-semibold leading-[1.5] text-[#888] md:text-[12px]">
-              {kpi.label}
-            </p>
-            <p
-              className="mt-2 text-[22px] font-bold md:text-[28px]"
-              style={{ color: kpi.color }}
-            >
-              {kpi.value}
-            </p>
-            {"sub" in kpi && typeof kpi.sub === "string" ? (
-              <p className="mt-1 text-[11px] text-[#aaa] md:text-[12px]">{kpi.sub}</p>
-            ) : null}
-          </Link>
-        ))}
+      <div className="mt-8 grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <KpiCard
+          label="当月応募数"
+          value={monthlyApps}
+          href="/company/applicants"
+          colorClass="text-[#ff3158]"
+        />
+        <KpiCard
+          label="掲載中求人"
+          value={publishedJobs}
+          href="/company/jobs"
+          colorClass="text-[#2f6cff]"
+        />
+        <KpiCard
+          label="概算費用"
+          value={`¥ ${(lifetimeCharges._sum.amount ?? 0).toLocaleString()}`}
+          href="/company/billing"
+          colorClass="text-[#f59e0b]"
+          sub={`当月　¥ ${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`}
+        />
+        <KpiCard
+          label="未読メッセージ"
+          value={unreadMessages}
+          href="/company/messages"
+          colorClass="text-[#22c55e]"
+        />
       </div>
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[16px] font-bold text-[#333]">最新の応募</h2>
-          <Link
-            href="/company/applicants"
-            className="text-[13px] font-semibold text-[#2f6cff] hover:underline"
-          >
-            すべて見る »
+      <section className="mt-12">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-[24px] font-bold text-[#2b2f38]">最新の応募</h2>
+          <Link href="/company/applicants" className="text-[15px] font-bold text-[#2b2f38] hover:opacity-70">
+            すべて見る　›
           </Link>
         </div>
-        <div className="mt-3 overflow-x-auto rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <table className="min-w-[520px] w-full text-left text-[13px]">
+
+        <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+          <table className="w-full min-w-[620px] text-left text-[14px]">
             <thead>
-              <tr className="border-b border-[#f0f0f0] text-[#888]">
-                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">氏名</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">応募求人</th>
-                <th className="whitespace-nowrap px-4 py-3 font-semibold md:px-5">応募日</th>
+              <tr className="border-b border-[#e8edf5] text-[#7f8795]">
+                <th className="px-6 py-5 font-bold">氏名</th>
+                <th className="px-6 py-5 font-bold">応募求人</th>
+                <th className="px-6 py-5 font-bold">応募日</th>
               </tr>
             </thead>
             <tbody>
               {recentApps.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-5 py-8 text-center text-[#aaa]">
-                    応募はまだありません
+                  <td colSpan={3} className="px-6 py-10 text-center text-[#9aa3b2]">
+                    まだ応募はありません
                   </td>
                 </tr>
               ) : (
-                recentApps.map((app) => (
-                  <tr key={app.id} className="border-b border-[#f8f8f8] hover:bg-[#fafafa]">
-                    <td className="px-5 py-3 font-medium text-[#333]">
-                      <Link
-                        href={`/company/applicants/${app.id}`}
-                        className="hover:text-[#2f6cff] hover:underline"
-                      >
-                        {app.user.name}
+                recentApps.map((application) => (
+                  <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
+                    <td className="px-6 py-5 font-bold text-[#333]">
+                      <Link href={`/company/applicants/${application.id}`} className="hover:text-[#2f6cff]">
+                        {application.user.name}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 text-[#555]">
-                      <Link
-                        href={`/company/jobs/${app.job.id}/edit`}
-                        className="hover:text-[#2f6cff] hover:underline"
-                      >
-                        {app.job.title}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3 text-[#888]">
-                      {app.createdAt.toLocaleDateString("ja-JP")}
+                    <td className="px-6 py-5 text-[#333]">{application.job.title}</td>
+                    <td className="px-6 py-5 text-[#666]">
+                      {application.createdAt.toLocaleDateString("ja-JP")}
                     </td>
                   </tr>
                 ))
@@ -154,7 +156,7 @@ export default async function CompanyDashboardPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

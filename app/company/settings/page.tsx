@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/prisma";
 import SettingsEditForm from "./settings-edit-form";
 
 export default async function CompanySettingsPage() {
@@ -9,26 +9,46 @@ export default async function CompanySettingsPage() {
     where: { companyUserId: session.user.id },
     include: { companyUser: true },
   });
-  if (!company) return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+
+  if (!company) {
+    return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+  }
 
   return (
-    <div className="p-6 lg:p-10">
-      <h1 className="text-[24px] font-bold text-[#1e3a5f]">設定</h1>
+    <div className="px-6 py-8 md:px-12 md:py-10">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">設定</h1>
+          <p className="mt-3 text-[18px] font-bold text-[#444]">プロフィール設定</p>
+        </div>
+        <Link
+          href="#company-settings-edit"
+          className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold text-white transition hover:opacity-90"
+        >
+          編集する
+        </Link>
+      </div>
 
-      <div className="mt-6 max-w-[600px] space-y-6">
-        <Section title="企業プロフィール">
-          <Row label="企業名" value={company.name} />
-          <Row label="説明" value={company.description || "未設定"} />
-          <Row label="WebサイトURL" value={company.websiteUrl || "未設定"} />
-          <Row label="所在地" value={company.location || "未設定"} />
-        </Section>
+      <div className="mt-8 rounded-[18px] bg-white p-8 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+        <h2 className="text-[24px] font-bold text-[#2b2f38]">企業情報</h2>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <InfoBlock label="会社名" value={company.name} />
+          <InfoBlock label="所在地" value={company.location || "未設定"} />
+          <InfoBlock label="WEBサイト" value={company.websiteUrl || "未設定"} />
+          <InfoBlock label="担当者" value={company.companyUser?.name || "未設定"} />
+          <InfoBlock label="メール" value={company.companyUser?.email || "未設定"} />
+          <InfoBlock label="電話番号" value={company.companyUser?.phone || "未設定"} />
+        </div>
 
-        <Section title="担当者情報">
-          <Row label="氏名" value={company.companyUser?.name || "未設定"} />
-          <Row label="メール" value={company.companyUser?.email || "未設定"} />
-          <Row label="電話番号" value={company.companyUser?.phone || "未設定"} />
-        </Section>
+        <div className="mt-6 rounded-[14px] bg-[#f7f9fd] p-5">
+          <p className="text-[13px] font-bold text-[#7f8795]">会社説明</p>
+          <p className="mt-2 whitespace-pre-line text-[14px] leading-[1.9] text-[#333]">
+            {company.description || "未設定"}
+          </p>
+        </div>
+      </div>
 
+      <div id="company-settings-edit" className="mt-8">
         <SettingsEditForm
           companyName={company.name}
           description={company.description || ""}
@@ -37,34 +57,25 @@ export default async function CompanySettingsPage() {
           contactName={company.companyUser?.name || ""}
           phone={company.companyUser?.phone || ""}
         />
+      </div>
 
-        <div className="pt-2">
-          <Link
-            href="/company/settings/password"
-            className="inline-block rounded-[8px] bg-[#2f6cff] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1d5ae0]"
-          >
-            パスワードを変更する →
-          </Link>
-        </div>
+      <div className="mt-6">
+        <Link
+          href="/company/settings/password"
+          className="inline-flex items-center justify-center rounded-[12px] border border-[#d6dce8] bg-white px-6 py-3 text-[14px] font-bold text-[#333] shadow-[0_2px_8px_rgba(37,56,88,0.04)] transition hover:bg-[#f7f9fd]"
+        >
+          パスワードを変更する
+        </Link>
       </div>
     </div>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[12px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-      <h2 className="mb-4 text-[16px] font-bold text-[#333]">{title}</h2>
-      <dl className="space-y-3 text-[14px]">{children}</dl>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-4">
-      <dt className="w-[120px] shrink-0 font-semibold text-[#888]">{label}</dt>
-      <dd className="text-[#333]">{value}</dd>
+    <div className="rounded-[14px] bg-[#f7f9fd] px-5 py-4">
+      <p className="text-[13px] font-bold text-[#7f8795]">{label}</p>
+      <p className="mt-2 text-[15px] font-bold text-[#333]">{value}</p>
     </div>
   );
 }

@@ -41,6 +41,10 @@ export default async function ApplyPage({
     notFound();
   }
 
+  if (!job.isPublished || job.reviewStatus !== "PUBLISHED" || job.isDeleted) {
+    notFound();
+  }
+
   const hasApplied = isLoggedIn
     ? !!(await prisma.application.findUnique({
         where: { userId_jobId: { userId: session!.user!.id!, jobId: job.id } },
@@ -53,6 +57,7 @@ export default async function ApplyPage({
         id: job.id,
       },
       isPublished: true,
+      reviewStatus: "PUBLISHED",
       isDeleted: false,
     },
     include: {

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { getDisplayFirstName, getDisplayLastName } from "@/lib/company-account";
+import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { CompanyActiveToggle } from "../company-active-toggle";
 import CompanyEditForm from "./company-edit-form";
 
@@ -126,11 +127,9 @@ export default async function AdminCompanyDetailPage({
                     <td className="px-5 py-3 text-[#555]">{job.viewCount}</td>
                     <td className="px-5 py-3">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                          job.isPublished ? "bg-[#d1fae5] text-[#059669]" : "bg-[#f3f4f6] text-[#888]"
-                        }`}
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[job.reviewStatus]}`}
                       >
-                        {job.isPublished ? "公開中" : "非公開"}
+                        {JOB_REVIEW_STATUS_LABELS[job.reviewStatus]}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-[#888]">{job.createdAt.toLocaleDateString("ja-JP")}</td>

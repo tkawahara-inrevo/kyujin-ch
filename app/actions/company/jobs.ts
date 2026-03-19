@@ -1,8 +1,11 @@
 "use server";
 
 import { auth } from "@/auth";
+import { Prisma, type JobReviewStatus } from "@prisma/client";
+import { parsePendingContent, toPendingContentJson, type JobPendingContent } from "@/lib/job-pending";
 import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
+import { isJobPublished } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -16,14 +19,7 @@ async function getCompanyId() {
   return company.id;
 }
 
-export async function toggleJobPublish(jobId: string, isPublished: boolean) {
-  const companyId = await getCompanyId();
-  await prisma.job.update({
-    where: { id: jobId, companyId },
-    data: { isPublished },
-  });
-  revalidatePath("/company/jobs");
-}
+export type JobSubmissionMode = "draft" | "review";
 
 type JobData = {
   title: string;
@@ -34,7 +30,6 @@ type JobData = {
   salaryMax?: number;
   categoryTag?: string;
   tags?: string[];
-  isPublished: boolean;
   imageUrl?: string;
   requirements?: string;
   desiredAptitude?: string;
@@ -55,6 +50,10 @@ type JobData = {
   targetType?: string;
   graduationYear?: number;
 };
+
+function resolveReviewStatus(submissionMode: JobSubmissionMode): JobReviewStatus {
+  return submissionMode === "review" ? "PENDING_REVIEW" : "DRAFT";
+}
 
 function normalizeOfficeDetail(location?: string, officeDetail?: string) {
   const prefecture = location?.trim() ?? "";
@@ -92,19 +91,18 @@ function validateLocation(data: JobData) {
   };
 }
 
-function toJobPrismaData(data: JobData) {
+function normalizeJobData(data: JobData): JobPendingContent {
   const normalizedLocation = validateLocation(data);
 
   return {
     title: data.title,
     description: data.description,
-    employmentType: data.employmentType as any,
+    employmentType: data.employmentType,
     location: normalizedLocation.location,
     salaryMin: data.salaryMin || null,
     salaryMax: data.salaryMax || null,
     categoryTag: data.categoryTag || null,
     tags: data.tags || [],
-    isPublished: data.isPublished,
     imageUrl: data.imageUrl || null,
     requirements: data.requirements || null,
     desiredAptitude: data.desiredAptitude || null,
@@ -117,7 +115,7 @@ function toJobPrismaData(data: JobData) {
     benefits: data.benefits || [],
     selectionProcess: data.selectionProcess || null,
     workingHours: data.workingHours || null,
-    closingDate: data.closingDate ? new Date(data.closingDate) : null,
+    closingDate: data.closingDate ? new Date(data.closingDate).toISOString() : null,
     employmentPeriodType: data.employmentPeriodType || null,
     region: normalizedLocation.region,
     categoryTagDetail: data.categoryTag === OTHER_CATEGORY_VALUE ? (data.categoryTagDetail || null) : null,
@@ -127,21 +125,136 @@ function toJobPrismaData(data: JobData) {
   };
 }
 
-export async function createJob(data: JobData) {
-  const companyId = await getCompanyId();
-  await prisma.job.create({
-    data: { companyId, ...toJobPrismaData(data) },
-  });
-  revalidatePath("/company/jobs");
+function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
+  const normalized = normalizeJobData(data);
+  const reviewStatus = resolveReviewStatus(submissionMode);
+
+  return {
+    title: normalized.title,
+    description: normalized.description,
+    employmentType: normalized.employmentType as any,
+    location: normalized.location,
+    salaryMin: normalized.salaryMin,
+    salaryMax: normalized.salaryMax,
+    categoryTag: normalized.categoryTag,
+    tags: normalized.tags,
+    isPublished: isJobPublished(reviewStatus),
+    reviewStatus,
+    reviewComment: submissionMode === "review" ? null : undefined,
+    imageUrl: normalized.imageUrl,
+    requirements: normalized.requirements,
+    desiredAptitude: normalized.desiredAptitude,
+    recommendedFor: normalized.recommendedFor,
+    monthlySalary: normalized.monthlySalary,
+    annualSalary: normalized.annualSalary,
+    access: normalized.access,
+    officeName: normalized.officeName,
+    officeDetail: normalized.officeDetail,
+    benefits: normalized.benefits,
+    selectionProcess: normalized.selectionProcess,
+    workingHours: normalized.workingHours,
+    closingDate: normalized.closingDate ? new Date(normalized.closingDate) : null,
+    employmentPeriodType: normalized.employmentPeriodType,
+    region: normalized.region,
+    categoryTagDetail: normalized.categoryTagDetail,
+    employmentTypeDetail: normalized.employmentTypeDetail,
+    targetType: normalized.targetType,
+    graduationYear: normalized.graduationYear,
+    pendingContent: Prisma.DbNull,
+  };
 }
 
-export async function updateJob(jobId: string, data: JobData) {
+export async function createJob(data: JobData, submissionMode: JobSubmissionMode) {
   const companyId = await getCompanyId();
-  await prisma.job.update({
-    where: { id: jobId, companyId },
-    data: toJobPrismaData(data),
+  await prisma.job.create({
+    data: { companyId, ...toLiveJobPrismaData(data, submissionMode) },
   });
   revalidatePath("/company/jobs");
+  revalidatePath("/admin/jobs");
+}
+
+export async function updateJob(jobId: string, data: JobData, submissionMode: JobSubmissionMode) {
+  const companyId = await getCompanyId();
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, companyId, isDeleted: false },
+    select: {
+      id: true,
+      reviewStatus: true,
+      isPublished: true,
+      pendingContent: true,
+      reviewComment: true,
+    },
+  });
+  if (!job) throw new Error("Job not found");
+
+  const normalized = normalizeJobData(data);
+  const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+  const hasPublishedVersion = job.isPublished || job.reviewStatus === "PUBLISHED" || hasPendingVersion;
+
+  if (hasPublishedVersion) {
+    await prisma.job.update({
+      where: { id: jobId, companyId },
+      data: {
+        pendingContent: toPendingContentJson(normalized),
+        reviewStatus: submissionMode === "review" ? "PENDING_REVIEW" : job.reviewStatus,
+        reviewComment: submissionMode === "review" ? null : job.reviewComment,
+        isPublished: true,
+      },
+    });
+  } else {
+    await prisma.job.update({
+      where: { id: jobId, companyId },
+      data: toLiveJobPrismaData(data, submissionMode),
+    });
+  }
+
+  revalidatePath("/company/jobs");
+  revalidatePath(`/company/jobs/${jobId}/edit`);
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${jobId}`);
+  revalidatePath("/");
+  revalidatePath("/jobs");
+}
+
+export async function withdrawJobSubmission(jobId: string) {
+  const companyId = await getCompanyId();
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, companyId, isDeleted: false },
+    select: {
+      id: true,
+      reviewStatus: true,
+      pendingContent: true,
+      isPublished: true,
+    },
+  });
+
+  if (!job) throw new Error("Job not found");
+  if (job.reviewStatus !== "PENDING_REVIEW") throw new Error("Only pending jobs can be withdrawn");
+
+  const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+
+  await prisma.job.update({
+    where: { id: jobId, companyId },
+    data: hasPendingVersion
+      ? {
+          reviewStatus: "PUBLISHED",
+          reviewComment: null,
+          isPublished: true,
+          pendingContent: Prisma.DbNull,
+        }
+      : {
+          reviewStatus: "DRAFT",
+          reviewComment: null,
+          isPublished: false,
+        },
+  });
+
+  revalidatePath("/company/jobs");
+  revalidatePath(`/company/jobs/${jobId}/edit`);
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${jobId}`);
+  revalidatePath("/");
+  revalidatePath("/jobs");
 }
 
 export async function deleteJob(jobId: string) {

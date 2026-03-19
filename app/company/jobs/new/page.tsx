@@ -168,7 +168,7 @@ export default function CompanyJobNewPage() {
   }
 
   return (
-    <div className="px-6 py-8 md:px-10 md:py-10 xl:px-14">
+    <div className="mx-auto max-w-[1540px] px-6 py-8 md:px-10 md:py-10 xl:px-12">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="text-[30px] font-bold leading-none tracking-tight text-[#2c2f36] md:text-[34px]">
           求人を作成する
@@ -193,7 +193,7 @@ export default function CompanyJobNewPage() {
 
       <div
         className={`mt-6 grid items-start gap-6 xl:gap-8 ${
-          showPreview ? "xl:grid-cols-[minmax(0,1fr)_minmax(620px,680px)]" : ""
+          showPreview ? "xl:grid-cols-[minmax(460px,0.8fr)_minmax(780px,1.2fr)]" : ""
         }`}
       >
         <form
@@ -489,8 +489,8 @@ export default function CompanyJobNewPage() {
         </form>
 
         {showPreview ? (
-          <aside className="hidden self-start xl:sticky xl:top-6 xl:block">
-            <div className="h-[calc(100vh-72px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
+          <aside className="hidden self-start xl:block">
+            <div className="sticky top-6 h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <JobPreview key={previewKey} data={getPreviewData()} />
             </div>
           </aside>

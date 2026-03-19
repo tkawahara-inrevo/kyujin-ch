@@ -85,6 +85,7 @@ export function JobEditForm({
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [, setPreviewRevision] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
     job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
@@ -118,6 +119,7 @@ export function JobEditForm({
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
+    setPreviewRevision((prev) => prev + 1);
   }
 
   const getPreviewData = useCallback(() => {
@@ -285,6 +287,7 @@ export function JobEditForm({
         <form
           ref={formRef}
           onSubmit={handleSubmit}
+          onInput={() => setPreviewRevision((prev) => prev + 1)}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
             showPreview ? "" : "max-w-[860px]"
           }`}

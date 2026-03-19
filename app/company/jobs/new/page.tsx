@@ -56,6 +56,7 @@ export default function CompanyJobNewPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [customTags, setCustomTags] = useState("");
   const [customBenefits, setCustomBenefits] = useState("");
+  const [, setPreviewRevision] = useState(0);
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
   const parsedCustomTags = customTags
@@ -71,6 +72,7 @@ export default function CompanyJobNewPage() {
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
+    setPreviewRevision((prev) => prev + 1);
   }
 
   const getPreviewData = useCallback(() => {
@@ -209,6 +211,7 @@ export default function CompanyJobNewPage() {
         <form
           ref={formRef}
           onSubmit={handleSubmit}
+          onInput={() => setPreviewRevision((prev) => prev + 1)}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
             showPreview ? "" : "max-w-[860px]"
           }`}

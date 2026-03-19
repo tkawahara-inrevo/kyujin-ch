@@ -193,7 +193,7 @@ export default function CompanyJobNewPage() {
 
       <div
         className={`mt-6 grid items-start gap-6 xl:gap-8 ${
-          showPreview ? "xl:grid-cols-[minmax(0,1fr)_minmax(460px,552px)]" : ""
+          showPreview ? "xl:grid-cols-[minmax(0,1fr)_minmax(620px,680px)]" : ""
         }`}
       >
         <form
@@ -489,8 +489,8 @@ export default function CompanyJobNewPage() {
         </form>
 
         {showPreview ? (
-          <aside className="hidden xl:block">
-            <div className="sticky top-6 h-[calc(100vh-72px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
+          <aside className="hidden self-start xl:sticky xl:top-6 xl:block">
+            <div className="h-[calc(100vh-72px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <JobPreview key={previewKey} data={getPreviewData()} />
             </div>
           </aside>

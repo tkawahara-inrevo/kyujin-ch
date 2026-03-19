@@ -214,7 +214,7 @@ export default function CompanyJobNewPage() {
         <form
           ref={formRef}
           onSubmit={handleSubmit}
-          onInput={() => setPreviewRevision((prev) => prev + 1)}
+          onChange={() => setPreviewRevision((prev) => prev + 1)}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
             showPreview ? "" : "max-w-[860px]"
           }`}

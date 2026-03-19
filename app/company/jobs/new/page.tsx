@@ -55,8 +55,20 @@ export default function CompanyJobNewPage() {
   const [showPreview, setShowPreview] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
+  const [customTags, setCustomTags] = useState("");
+  const [customBenefits, setCustomBenefits] = useState("");
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
+  const parsedCustomTags = customTags
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const parsedCustomBenefits = customBenefits
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const mergedTags = Array.from(new Set([...selectedTags, ...parsedCustomTags]));
+  const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
@@ -88,8 +100,8 @@ export default function CompanyJobNewPage() {
       annualSalary: (fd?.get("annualSalary") as string) || "",
       workingHours: (fd?.get("workingHours") as string) || "",
       selectionProcess: (fd?.get("selectionProcess") as string) || "",
-      tags: selectedTags,
-      benefits: selectedBenefits,
+      tags: mergedTags,
+      benefits: mergedBenefits,
       targetType,
       graduationYear,
     };
@@ -103,6 +115,8 @@ export default function CompanyJobNewPage() {
     selectedRegion,
     selectedTags,
     selectedBenefits,
+    mergedTags,
+    mergedBenefits,
     targetType,
     graduationYear,
   ]);
@@ -156,8 +170,8 @@ export default function CompanyJobNewPage() {
         closingDate: fd.get("closingDate") as string,
         employmentPeriodType: fd.get("employmentPeriodType") as string,
         imageUrl,
-        tags: selectedTags,
-        benefits: selectedBenefits,
+        tags: mergedTags,
+        benefits: mergedBenefits,
         targetType,
         graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
       },
@@ -168,7 +182,7 @@ export default function CompanyJobNewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1540px] px-6 py-8 md:px-10 md:py-10 xl:px-12">
+    <div className="mx-auto max-w-[1760px] px-5 py-8 md:px-8 md:py-10 xl:px-10 2xl:px-12">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="text-[30px] font-bold leading-none tracking-tight text-[#2c2f36] md:text-[34px]">
           求人を作成する
@@ -193,7 +207,7 @@ export default function CompanyJobNewPage() {
 
       <div
         className={`mt-6 grid items-start gap-6 xl:gap-8 ${
-          showPreview ? "xl:grid-cols-[minmax(460px,0.8fr)_minmax(780px,1.2fr)]" : ""
+          showPreview ? "xl:grid-cols-[minmax(500px,0.78fr)_minmax(860px,1.22fr)]" : ""
         }`}
       >
         <form
@@ -440,6 +454,16 @@ export default function CompanyJobNewPage() {
                 </label>
               ))}
             </div>
+            <Field label="独自の求人タグ">
+              <textarea
+                value={customTags}
+                onChange={(event) => setCustomTags(event.target.value)}
+                className={textareaCls}
+                rows={3}
+                placeholder="例：海外出張あり、インセンティブあり"
+              />
+              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
+            </Field>
           </Section>
 
           <Section title="福利厚生">
@@ -459,6 +483,16 @@ export default function CompanyJobNewPage() {
                 </label>
               ))}
             </div>
+            <Field label="独自の福利厚生">
+              <textarea
+                value={customBenefits}
+                onChange={(event) => setCustomBenefits(event.target.value)}
+                className={textareaCls}
+                rows={3}
+                placeholder="例：ランチ補助、書籍購入補助、社内バー"
+              />
+              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
+            </Field>
           </Section>
 
           <div className="flex flex-wrap gap-3 pt-8">
@@ -489,8 +523,8 @@ export default function CompanyJobNewPage() {
         </form>
 
         {showPreview ? (
-          <aside className="hidden self-start xl:block">
-            <div className="sticky top-6 h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
+          <aside className="hidden self-start xl:sticky xl:top-6 xl:block">
+            <div className="h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <JobPreview key={previewKey} data={getPreviewData()} />
             </div>
           </aside>

@@ -21,11 +21,11 @@ const TAG_OPTIONS = [
   "新卒歓迎",
   "フレックスタイム",
   "急募",
-  "駅チカ",
-  "交通費支給",
+  "中途採用",
+  "資格取得支援",
   "大手企業",
   "ベンチャー",
-  "中途採用",
+  "年間休日120日以上",
   "副業OK",
   "土日祝休み",
 ];
@@ -33,7 +33,7 @@ const TAG_OPTIONS = [
 const EMPLOYMENT_PERIOD_OPTIONS = [
   { value: "", label: "選択してください" },
   { value: "indefinite", label: "期間の定めなし" },
-  { value: "fixed", label: "有期雇用" },
+  { value: "fixed", label: "期間の定めあり" },
   { value: "trial", label: "試用期間あり" },
 ];
 
@@ -81,12 +81,19 @@ export function JobEditForm({
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [previewKey, setPreviewKey] = useState(0);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags);
-  const [selectedBenefits, setSelectedBenefits] = useState<string[]>(job.benefits);
+  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
+    job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
+  );
+  const [customTags, setCustomTags] = useState(job.tags.filter((tag) => !TAG_OPTIONS.includes(tag)).join("、"));
+  const [customBenefits, setCustomBenefits] = useState(
+    job.benefits.filter((benefit) => !benefitOptions.includes(benefit)).join("、"),
+  );
   const gradYears = getActiveGraduationYears();
   const [targetType, setTargetType] = useState(job.targetType || "MID_CAREER");
   const [graduationYear, setGraduationYear] = useState(job.graduationYear || gradYears[0]);
@@ -98,6 +105,17 @@ export function JobEditForm({
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
+
+  const parsedCustomTags = customTags
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const parsedCustomBenefits = customBenefits
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const mergedTags = Array.from(new Set([...selectedTags, ...parsedCustomTags]));
+  const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
@@ -127,8 +145,10 @@ export function JobEditForm({
       annualSalary: (fd?.get("annualSalary") as string) || "",
       workingHours: (fd?.get("workingHours") as string) || "",
       selectionProcess: (fd?.get("selectionProcess") as string) || "",
-      tags: selectedTags,
-      benefits: selectedBenefits,
+      tags: mergedTags,
+      benefits: mergedBenefits,
+      targetType,
+      graduationYear,
     };
   }, [
     imageUrl,
@@ -138,8 +158,10 @@ export function JobEditForm({
     employmentTypeDetail,
     selectedLocation,
     selectedRegion,
-    selectedTags,
-    selectedBenefits,
+    mergedTags,
+    mergedBenefits,
+    targetType,
+    graduationYear,
   ]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -157,7 +179,7 @@ export function JobEditForm({
     }
 
     if (selectedRegion && !selectedLocation) {
-      setValidationError("都道府県を選択してください");
+      setValidationError("勤務地を選択してください");
       return;
     }
 
@@ -176,7 +198,7 @@ export function JobEditForm({
         salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
         salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
         categoryTag,
-        tags: selectedTags,
+        tags: mergedTags,
         imageUrl,
         requirements: fd.get("requirements") as string,
         desiredAptitude: fd.get("desiredAptitude") as string,
@@ -186,7 +208,7 @@ export function JobEditForm({
         access: fd.get("access") as string,
         officeName: fd.get("officeName") as string,
         officeDetail: fd.get("officeDetail") as string,
-        benefits: selectedBenefits,
+        benefits: mergedBenefits,
         selectionProcess: fd.get("selectionProcess") as string,
         workingHours: fd.get("workingHours") as string,
         closingDate: fd.get("closingDate") as string,
@@ -228,7 +250,7 @@ export function JobEditForm({
         </span>
         {job.reviewComment ? <span className="text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
         {hasPendingVersion ? (
-          <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#2563eb]">差し替え申請データあり</span>
+          <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#2563eb]">差し替え審査データあり</span>
         ) : null}
       </div>
 
@@ -239,29 +261,39 @@ export function JobEditForm({
             setShowPreview((prev) => !prev);
             setPreviewKey((prev) => prev + 1);
           }}
-          className="hidden items-center gap-2 rounded-[8px] border border-[#2f6cff] px-4 py-2 text-[13px] font-semibold text-[#2f6cff] transition hover:bg-[#2f6cff]/5 lg:flex"
+          className="inline-flex rounded-[14px] bg-[#2f6cff] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
         >
-          {showPreview ? "プレビューを閉じる" : "プレビュー"}
+          {showPreview ? "プレビューを閉じる" : "プレビューを開く"}
         </button>
       </div>
 
       {validationError ? (
-        <div className="mt-4 rounded-[8px] border border-[#ff3158] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
+        <div className="mt-5 rounded-[14px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
           {validationError}
         </div>
       ) : null}
 
       {hasPublishedVersion ? (
         <div className="mt-4 rounded-[12px] border border-[#dbe4ff] bg-[#f4f7ff] px-4 py-4 text-[13px] leading-[1.8] text-[#587199]">
-          公開中の求人を編集して審査に提出すると、現在の掲載内容はそのまま公開されます。承認後に編集内容へ自動で差し替わります!
+          公開中の求人を編集して審査に提出すると、現在の掲載内容はそのまま残り、審査完了後に新しい内容へ自動で差し替わります。
         </div>
       ) : null}
 
-      <div className={`mt-4 ${showPreview ? "grid gap-8 lg:grid-cols-2" : ""}`}>
-        <form ref={formRef} onSubmit={handleSubmit} className={`space-y-8 ${showPreview ? "" : "max-w-[720px]"}`}>
+      <div
+        className={`mt-6 grid items-start gap-6 xl:gap-8 ${
+          showPreview ? "xl:grid-cols-[minmax(500px,0.78fr)_minmax(860px,1.22fr)]" : ""
+        }`}
+      >
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
+            showPreview ? "" : "max-w-[860px]"
+          }`}
+        >
           <Section title="ターゲット">
             <Field label="対象" required>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 <TargetButton active={targetType === "MID_CAREER"} onClick={() => setTargetType("MID_CAREER")}>
                   中途
                 </TargetButton>
@@ -281,157 +313,166 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="求人情報">
+          <Section title="基本情報">
             <Field label="タイトル" required>
               <input name="title" required defaultValue={job.title} className={inputCls} />
             </Field>
+
             <Field label="メイン画像">
-              <ThumbnailUpload
-                name="imageUrl"
-                defaultValue={job.imageUrl ?? undefined}
-                onUploaded={(url) => {
-                  setImageUrl(url);
-                  setPreviewKey((prev) => prev + 1);
-                }}
-              />
+              <p className="mb-2 text-[13px] text-[#6b7280]">対応形式：jpg / png / webp（最大10MB）</p>
+              <div className="rounded-[18px] border border-[#d9dfec] p-4">
+                <ThumbnailUpload
+                  name="imageUrl"
+                  defaultValue={job.imageUrl ?? undefined}
+                  onUploaded={(url) => {
+                    setImageUrl(url);
+                    setPreviewKey((prev) => prev + 1);
+                  }}
+                />
+              </div>
             </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="カテゴリ">
-                <select
-                  name="categoryTag"
-                  className={inputCls}
-                  value={categoryTag}
-                  onChange={(event) => {
-                    setCategoryTag(event.target.value);
-                    if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
-                  }}
-                >
-                  <option value="">選択してください</option>
-                  {CATEGORY_OPTIONS.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                {categoryTag === OTHER_CATEGORY_VALUE ? (
-                  <input
-                    name="categoryTagDetail"
-                    value={categoryTagDetail}
-                    onChange={(event) => setCategoryTagDetail(event.target.value)}
-                    required
-                    className={`${inputCls} mt-2`}
-                    placeholder="カテゴリの詳細"
-                  />
-                ) : null}
-              </Field>
-              <Field label="雇用形態" required>
-                <select
-                  name="employmentType"
-                  required
-                  className={inputCls}
-                  value={employmentType}
-                  onChange={(event) => {
-                    setEmploymentType(event.target.value);
-                    if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
-                  }}
-                >
-                  {EMPLOYMENT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                {employmentType === "OTHER" ? (
-                  <input
-                    name="employmentTypeDetail"
-                    value={employmentTypeDetail}
-                    onChange={(event) => setEmploymentTypeDetail(event.target.value)}
-                    required
-                    className={`${inputCls} mt-2`}
-                    placeholder="雇用形態の詳細"
-                  />
-                ) : null}
-              </Field>
-            </div>
-            <Field label="応募締切">
+
+            <Field label="求人カテゴリ">
+              <select
+                name="categoryTag"
+                className={inputCls}
+                value={categoryTag}
+                onChange={(event) => {
+                  setCategoryTag(event.target.value);
+                  if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
+                }}
+              >
+                <option value="">選択してください</option>
+                {CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              {categoryTag === OTHER_CATEGORY_VALUE ? (
+                <input
+                  name="categoryTagDetail"
+                  value={categoryTagDetail}
+                  onChange={(event) => setCategoryTagDetail(event.target.value)}
+                  className={`${inputCls} mt-3`}
+                  placeholder="カテゴリの詳細を入力"
+                />
+              ) : null}
+            </Field>
+
+            <Field label="雇用形態" required>
+              <select
+                name="employmentType"
+                required
+                className={inputCls}
+                value={employmentType}
+                onChange={(event) => {
+                  setEmploymentType(event.target.value);
+                  if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
+                }}
+              >
+                {EMPLOYMENT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {employmentType === "OTHER" ? (
+                <input
+                  name="employmentTypeDetail"
+                  value={employmentTypeDetail}
+                  onChange={(event) => setEmploymentTypeDetail(event.target.value)}
+                  className={`${inputCls} mt-3`}
+                  placeholder="雇用形態の詳細を入力"
+                />
+              ) : null}
+            </Field>
+
+            <Field label="掲載終了日">
               <input name="closingDate" type="date" defaultValue={closingDateStr} className={inputCls} />
             </Field>
           </Section>
 
           <Section title="仕事内容">
             <Field label="仕事内容" required>
-              <textarea name="description" required rows={6} defaultValue={job.description} className={inputCls} />
+              <textarea name="description" required rows={6} defaultValue={job.description} className={textareaCls} />
             </Field>
             <Field label="応募条件">
-              <textarea name="requirements" rows={4} defaultValue={job.requirements ?? ""} className={inputCls} />
+              <textarea name="requirements" rows={4} defaultValue={job.requirements ?? ""} className={textareaCls} />
             </Field>
             <Field label="向いている人">
-              <textarea name="desiredAptitude" rows={4} defaultValue={job.desiredAptitude ?? ""} className={inputCls} />
+              <textarea name="desiredAptitude" rows={4} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} />
             </Field>
             <Field label="おすすめの人">
-              <textarea name="recommendedFor" rows={4} defaultValue={job.recommendedFor ?? ""} className={inputCls} />
+              <textarea name="recommendedFor" rows={4} defaultValue={job.recommendedFor ?? ""} className={textareaCls} />
             </Field>
           </Section>
 
           <Section title="勤務地">
-            <Field label="エリア">
-              <select
-                name="region"
-                value={selectedRegion}
-                className={inputCls}
-                onChange={(event) => {
-                  const nextRegion = event.target.value;
-                  setSelectedRegion(nextRegion);
-                  if (!(PREFECTURES_BY_AREA[nextRegion] ?? []).includes(selectedLocation)) {
-                    setSelectedLocation("");
-                  }
-                }}
-              >
-                <option value="">選択してください</option>
-                {AREA_OPTIONS.map((area) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="都道府県">
-              <select
-                name="location"
-                value={selectedLocation}
-                className={inputCls}
-                onChange={(event) => setSelectedLocation(event.target.value)}
-                disabled={!selectedRegion}
-              >
-                <option value="">選択してください</option>
-                {availablePrefectures.map((prefecture) => (
-                  <option key={prefecture} value={prefecture}>
-                    {prefecture}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="勤務地名">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="エリア">
+                <select
+                  name="region"
+                  value={selectedRegion}
+                  className={inputCls}
+                  onChange={(event) => {
+                    const nextRegion = event.target.value;
+                    setSelectedRegion(nextRegion);
+                    if (!(PREFECTURES_BY_AREA[nextRegion] ?? []).includes(selectedLocation)) {
+                      setSelectedLocation("");
+                    }
+                  }}
+                >
+                  <option value="">選択してください</option>
+                  {AREA_OPTIONS.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field label="勤務地">
+                <select
+                  name="location"
+                  value={selectedLocation}
+                  className={inputCls}
+                  onChange={(event) => setSelectedLocation(event.target.value)}
+                  disabled={!selectedRegion}
+                >
+                  <option value="">選択してください</option>
+                  {availablePrefectures.map((prefecture) => (
+                    <option key={prefecture} value={prefecture}>
+                      {prefecture}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <Field label="勤務地住所">
               <input name="officeName" defaultValue={job.officeName ?? ""} className={inputCls} />
             </Field>
+
             <Field label="勤務地詳細">
-              <textarea name="officeDetail" rows={2} defaultValue={job.officeDetail ?? ""} className={inputCls} />
+              <textarea name="officeDetail" rows={3} defaultValue={job.officeDetail ?? ""} className={textareaCls} />
             </Field>
-            <Field label="アクセス">
+
+            <Field label="最寄り・アクセス">
               <input name="access" defaultValue={job.access ?? ""} className={inputCls} />
             </Field>
           </Section>
 
           <Section title="給与">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="最低年収">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="最低年収（万円）">
                 <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} />
               </Field>
-              <Field label="最高年収">
+              <Field label="最高年収（万円）">
                 <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} />
               </Field>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <Field label="月給表記">
                 <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} />
               </Field>
@@ -455,7 +496,12 @@ export function JobEditForm({
               </select>
             </Field>
             <Field label="選考フロー">
-              <textarea name="selectionProcess" rows={3} defaultValue={job.selectionProcess ?? ""} className={inputCls} />
+              <textarea
+                name="selectionProcess"
+                rows={4}
+                defaultValue={job.selectionProcess ?? ""}
+                className={textareaCls}
+              />
             </Field>
           </Section>
 
@@ -464,10 +510,10 @@ export function JobEditForm({
               {TAG_OPTIONS.map((tag) => (
                 <label
                   key={tag}
-                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] transition ${
+                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
                     selectedTags.includes(tag)
-                      ? "border-[#2f6cff] bg-[#2f6cff]/10 text-[#2f6cff]"
-                      : "border-[#ddd] text-[#666] hover:border-[#aaa]"
+                      ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
+                      : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
                   }`}
                 >
                   <input
@@ -480,38 +526,61 @@ export function JobEditForm({
                 </label>
               ))}
             </div>
+            <Field label="独自の求人タグ">
+              <textarea
+                value={customTags}
+                onChange={(event) => setCustomTags(event.target.value)}
+                className={textareaCls}
+                rows={3}
+                placeholder="例：海外出張あり、インセンティブあり"
+              />
+              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
+            </Field>
           </Section>
 
           <Section title="福利厚生">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {SHARED_BENEFIT_OPTIONS.map((benefit) => (
-                <label key={benefit} className="flex items-center gap-2 text-[13px] text-[#444]">
+                <label
+                  key={benefit}
+                  className="flex items-center gap-2 rounded-[12px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063]"
+                >
                   <input
                     type="checkbox"
                     checked={selectedBenefits.includes(benefit)}
                     onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
-                    className="h-4 w-4 rounded border-[#ddd] text-[#2f6cff]"
+                    className="h-4 w-4 rounded border-[#c4cddd] text-[#2f6cff]"
                   />
                   {benefit}
                 </label>
               ))}
             </div>
+            <Field label="独自の福利厚生">
+              <textarea
+                value={customBenefits}
+                onChange={(event) => setCustomBenefits(event.target.value)}
+                className={textareaCls}
+                rows={3}
+                placeholder="例：ランチ補助、書籍購入補助、社内バー"
+              />
+              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
+            </Field>
           </Section>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-3 pt-8">
             <button
               type="submit"
               data-mode="review"
               disabled={loading}
-              className="rounded-[10px] bg-[#2f6cff] px-8 py-3 text-[14px] font-bold text-white hover:opacity-90 disabled:opacity-50"
+              className="rounded-[14px] bg-[#2f6cff] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "保存中..." : "審査に提出"}
+              {loading ? "送信中..." : "審査に提出"}
             </button>
             <button
               type="submit"
               data-mode="draft"
               disabled={loading}
-              className="rounded-[10px] border border-[#c8d6f6] bg-white px-8 py-3 text-[14px] font-bold text-[#2f6cff] hover:bg-[#f7faff] disabled:opacity-50"
+              className="rounded-[14px] border border-[#c8d6f6] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2f6cff] transition hover:bg-[#f7faff] disabled:opacity-50"
             >
               下書き保存
             </button>
@@ -520,7 +589,7 @@ export function JobEditForm({
                 type="button"
                 onClick={handleWithdraw}
                 disabled={loading}
-                className="rounded-[10px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3 text-[14px] font-bold text-[#b7791f] hover:bg-[#fff3d8] disabled:opacity-50"
+                className="rounded-[14px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3.5 text-[15px] font-bold text-[#b7791f] transition hover:bg-[#fff3d8] disabled:opacity-50"
               >
                 審査を取り下げる
               </button>
@@ -528,7 +597,7 @@ export function JobEditForm({
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-[10px] border border-[#ddd] px-8 py-3 text-[14px] font-medium text-[#666] hover:bg-[#f7f7f7]"
+              className="rounded-[14px] border border-[#d6dde9] bg-white px-8 py-3.5 text-[15px] font-medium text-[#5b6472] transition hover:bg-[#f6f8fb]"
             >
               キャンセル
             </button>
@@ -536,7 +605,7 @@ export function JobEditForm({
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="ml-auto rounded-[10px] border border-[#ff3158] px-6 py-3 text-[14px] font-bold text-[#ff3158] hover:bg-[#fff5f7] disabled:opacity-50"
+              className="ml-auto rounded-[14px] border border-[#ff3158] px-6 py-3.5 text-[15px] font-bold text-[#ff3158] transition hover:bg-[#fff5f7] disabled:opacity-50"
             >
               削除
             </button>
@@ -544,8 +613,8 @@ export function JobEditForm({
         </form>
 
         {showPreview ? (
-          <div className="hidden lg:block">
-            <div className="sticky top-6">
+          <div className="hidden self-start xl:sticky xl:top-6 xl:block">
+            <div className="h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <JobPreview key={previewKey} data={getPreviewData()} />
             </div>
           </div>
@@ -555,23 +624,26 @@ export function JobEditForm({
   );
 }
 
-const inputCls = "w-full rounded-[8px] border border-[#ddd] px-4 py-3 text-[14px] outline-none focus:border-[#2f6cff]";
+const inputCls =
+  "w-full rounded-[12px] border border-[#d9dfec] bg-white px-4 py-3 text-[14px] text-[#2b2f38] outline-none transition placeholder:text-[#b2bac8] focus:border-[#2f6cff]";
+
+const textareaCls = `${inputCls} min-h-[120px] resize-y`;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-4">
-      <h2 className="border-b border-[#e5e5e5] pb-2 text-[16px] font-bold text-[#1e3a5f]">{title}</h2>
-      {children}
-    </div>
+    <section className="border-b border-[#e8edf5] pb-8 last:border-b-0 last:pb-0">
+      <h2 className="mb-5 text-[18px] font-bold text-[#2f6cff]">{title}</h2>
+      <div className="space-y-5">{children}</div>
+    </section>
   );
 }
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">
+      <label className="mb-2 block text-[15px] font-semibold text-[#3d4552]">
         {label}
-        {required ? <span className="ml-1 text-[#ff3158]">*</span> : null}
+        {required ? <span className="ml-1 text-[#ff3158]">必須</span> : null}
       </label>
       {children}
     </div>
@@ -591,8 +663,8 @@ function TargetButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[8px] border px-5 py-3 text-[14px] font-semibold transition ${
-        active ? "border-[#2f6cff] bg-[#2f6cff]/10 text-[#2f6cff]" : "border-[#ddd] text-[#666] hover:border-[#aaa]"
+      className={`rounded-[10px] border px-5 py-3 text-[15px] font-semibold transition ${
+        active ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]" : "border-[#d7dce6] bg-white text-[#5f6977]"
       }`}
     >
       {children}

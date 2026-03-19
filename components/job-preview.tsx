@@ -62,11 +62,11 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
     "地方企業と“可能性”を結びつけるための仲間を募集しています。事業の成長と挑戦を支えるポジションです。";
 
   return (
-    <div className="rounded-[24px] bg-white">
-      <p className="mb-3 text-[14px] font-bold text-[#2f6cff]">Preview - 求職者に表示されるイメージ</p>
+    <div className="flex h-full min-h-0 flex-col rounded-[24px] bg-white">
+      <p className="mb-3 shrink-0 text-[14px] font-bold text-[#2f6cff]">Preview - 求職者に表示されるイメージ</p>
 
-      <div className="overflow-hidden rounded-[22px] border border-[#edf1f7] bg-white shadow-[0_2px_10px_rgba(27,52,90,0.04)]">
-        <div className="px-5 pb-5 pt-4">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-[22px] border border-[#edf1f7] bg-white shadow-[0_2px_10px_rgba(27,52,90,0.04)]">
+        <div className="h-full overflow-y-auto px-5 pb-5 pt-4">
           <h2 className="text-[18px] font-bold leading-[1.6] text-[#2b2f38]">
             {headlinePrefix(targetLabel, categoryLabel)}
             {data.title || "充実の福利厚生が自慢！人材営業スタッフ"}

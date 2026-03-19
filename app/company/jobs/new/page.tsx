@@ -490,7 +490,7 @@ export default function CompanyJobNewPage() {
 
         {showPreview ? (
           <aside className="hidden xl:block">
-            <div className="sticky top-6 rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
+            <div className="sticky top-6 h-[calc(100vh-72px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <JobPreview key={previewKey} data={getPreviewData()} />
             </div>
           </aside>

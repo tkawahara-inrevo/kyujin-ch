@@ -3,11 +3,13 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { withdrawJobSubmission } from "@/app/actions/company/jobs";
+import { toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
 
 type JobRow = {
   id: string;
   title: string;
+  employmentTypeLabel: string;
+  location: string;
   reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED";
   isPublished: boolean;
   applicationsCount: number;
@@ -20,6 +22,13 @@ const FILTER_OPTIONS = [
   { value: "PENDING_REVIEW", label: "審査中" },
   { value: "PUBLISHED", label: "審査済み" },
   { value: "RETURNED", label: "要修正" },
+];
+
+const SORT_OPTIONS = [
+  { value: "updated_desc", label: "更新日が新しい順" },
+  { value: "updated_asc", label: "更新日が古い順" },
+  { value: "applications_desc", label: "応募数が多い順" },
+  { value: "id_asc", label: "求人ID順" },
 ];
 
 const REVIEW_LABELS: Record<JobRow["reviewStatus"], string> = {
@@ -39,9 +48,11 @@ const REVIEW_BADGES: Record<JobRow["reviewStatus"], string> = {
 export function CompanyJobsTable({
   jobs,
   currentStatus,
+  currentSort,
 }: {
   jobs: JobRow[];
   currentStatus: string;
+  currentSort: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -51,9 +62,25 @@ export function CompanyJobsTable({
     () => FILTER_OPTIONS.some((option) => option.value === currentStatus) ? currentStatus : "all",
     [currentStatus],
   );
+  const sortValue = useMemo(
+    () => SORT_OPTIONS.some((option) => option.value === currentSort) ? currentSort : "updated_desc",
+    [currentSort],
+  );
+
+  function pushQuery(nextStatus: string, nextSort: string) {
+    const params = new URLSearchParams();
+    if (nextStatus !== "all") params.set("status", nextStatus);
+    if (nextSort !== "updated_desc") params.set("sort", nextSort);
+    const query = params.toString();
+    router.push(query ? `/company/jobs?${query}` : "/company/jobs");
+  }
 
   function changeFilter(nextValue: string) {
-    router.push(nextValue === "all" ? "/company/jobs" : `/company/jobs?status=${nextValue}`);
+    pushQuery(nextValue, sortValue);
+  }
+
+  function changeSort(nextValue: string) {
+    pushQuery(filterValue, nextValue);
   }
 
   function handleWithdraw() {
@@ -62,6 +89,13 @@ export function CompanyJobsTable({
     startTransition(async () => {
       await withdrawJobSubmission(targetJob.id);
       setTargetJob(null);
+      router.refresh();
+    });
+  }
+
+  function handleToggleVisibility(job: JobRow) {
+    startTransition(async () => {
+      await toggleJobVisibility(job.id);
       router.refresh();
     });
   }
@@ -83,13 +117,30 @@ export function CompanyJobsTable({
             ))}
           </select>
         </div>
+        <div className="w-full max-w-[280px]">
+          <label className="mb-2 block text-[14px] font-bold text-[#444]">並び替え</label>
+          <select
+            value={sortValue}
+            onChange={(event) => changeSort(event.target.value)}
+            className="w-full rounded-[10px] border border-[#d6dce8] bg-white px-4 py-3 text-[14px] text-[#333] outline-none focus:border-[#2f6cff]"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="mt-6 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <table className="w-full min-w-[720px] text-left text-[14px]">
+        <table className="w-full min-w-[1080px] text-left text-[14px]">
           <thead>
             <tr className="border-b border-[#e8edf5] text-[#7f8795]">
+              <th className="px-5 py-5 font-bold">求人ID</th>
               <th className="px-5 py-5 font-bold">応募求人</th>
+              <th className="px-5 py-5 font-bold">雇用形態</th>
+              <th className="px-5 py-5 font-bold">勤務地</th>
               <th className="px-5 py-5 font-bold">応募数</th>
               <th className="px-5 py-5 font-bold">審査状況</th>
               <th className="px-5 py-5 text-right font-bold">公開</th>
@@ -98,7 +149,7 @@ export function CompanyJobsTable({
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-5 py-12 text-center text-[#9aa3b2]">
+                <td colSpan={7} className="px-5 py-12 text-center text-[#9aa3b2]">
                   条件に合う求人はありません
                 </td>
               </tr>
@@ -107,11 +158,14 @@ export function CompanyJobsTable({
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
                 return (
                   <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
+                    <td className="px-5 py-5 font-mono text-[12px] text-[#667085]">{job.id}</td>
                     <td className="px-5 py-5 font-bold text-[#333]">
                       <Link href={`/company/jobs/${job.id}/edit`} className="hover:text-[#2f6cff]">
                         {job.title}
                       </Link>
                     </td>
+                    <td className="px-5 py-5 text-[#333]">{job.employmentTypeLabel}</td>
+                    <td className="px-5 py-5 text-[#333]">{job.location}</td>
                     <td className="px-5 py-5 font-bold text-[#333]">{job.applicationsCount}</td>
                     <td className="px-5 py-5">
                       {canWithdraw ? (
@@ -129,15 +183,28 @@ export function CompanyJobsTable({
                       )}
                     </td>
                     <td className="px-5 py-5 text-right">
-                      <span
-                        className={`rounded-full px-3 py-1 text-[12px] font-bold ${
-                          job.isPublished
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVisibility(job)}
+                        disabled={isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion)}
+                        className="inline-flex items-center gap-3 disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label={job.isPublished ? "非公開にする" : "公開する"}
                       >
-                        {job.isPublished ? "公開" : "非公開"}
-                      </span>
+                        <span className="text-[12px] font-bold text-[#5f6775]">
+                          {job.isPublished ? "公開" : "非公開"}
+                        </span>
+                        <span
+                          className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
+                            job.isPublished ? "bg-[#2f6cff]" : "bg-[#d6dce8]"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+                              job.isPublished ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </span>
+                      </button>
                     </td>
                   </tr>
                 );

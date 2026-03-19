@@ -1,12 +1,28 @@
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
+import { EMPLOYMENT_LABELS } from "@/lib/job-options";
 import { prisma } from "@/lib/prisma";
 import { CompanyJobsTable } from "./company-jobs-table";
 
-type SearchParams = Promise<{ status?: string }>;
+type SearchParams = Promise<{ status?: string; sort?: string }>;
 
 const REVIEW_STATUS_FILTERS = new Set(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED"]);
+const SORT_OPTIONS = new Set(["updated_desc", "updated_asc", "applications_desc", "id_asc"]);
+
+function buildOrderBy(sort?: string) {
+  switch (sort) {
+    case "updated_asc":
+      return [{ updatedAt: "asc" as const }, { createdAt: "asc" as const }];
+    case "applications_desc":
+      return [{ applications: { _count: "desc" as const } }, { updatedAt: "desc" as const }];
+    case "id_asc":
+      return [{ id: "asc" as const }];
+    case "updated_desc":
+    default:
+      return [{ updatedAt: "desc" as const }, { createdAt: "desc" as const }];
+  }
+}
 
 export default async function CompanyJobsPage({
   searchParams,
@@ -14,7 +30,8 @@ export default async function CompanyJobsPage({
   searchParams: SearchParams;
 }) {
   const session = await requireCompany();
-  const { status } = await searchParams;
+  const { status, sort } = await searchParams;
+  const normalizedSort = sort && SORT_OPTIONS.has(sort) ? sort : "updated_desc";
 
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
@@ -33,17 +50,21 @@ export default async function CompanyJobsPage({
     select: {
       id: true,
       title: true,
+      employmentType: true,
+      location: true,
       reviewStatus: true,
       isPublished: true,
       pendingContent: true,
       _count: { select: { applications: true } },
     },
-    orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+    orderBy: buildOrderBy(normalizedSort),
   });
 
   const rows = jobs.map((job) => ({
     id: job.id,
     title: job.title,
+    employmentTypeLabel: EMPLOYMENT_LABELS[job.employmentType] ?? job.employmentType,
+    location: job.location ?? "未設定",
     reviewStatus: job.reviewStatus,
     isPublished: job.isPublished,
     applicationsCount: job._count.applications,
@@ -63,7 +84,11 @@ export default async function CompanyJobsPage({
         </Link>
       </div>
 
-      <CompanyJobsTable jobs={rows} currentStatus={status ?? "all"} />
+      <CompanyJobsTable
+        jobs={rows}
+        currentStatus={status ?? "all"}
+        currentSort={normalizedSort}
+      />
     </div>
   );
 }

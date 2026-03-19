@@ -257,6 +257,43 @@ export async function withdrawJobSubmission(jobId: string) {
   revalidatePath("/jobs");
 }
 
+export async function toggleJobVisibility(jobId: string) {
+  const companyId = await getCompanyId();
+  const job = await prisma.job.findFirst({
+    where: { id: jobId, companyId, isDeleted: false },
+    select: {
+      id: true,
+      isPublished: true,
+      reviewStatus: true,
+      pendingContent: true,
+    },
+  });
+
+  if (!job) throw new Error("Job not found");
+
+  const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+  const hasPublishedVersion = job.isPublished || job.reviewStatus === "PUBLISHED" || hasPendingVersion;
+
+  if (job.reviewStatus === "PENDING_REVIEW" && !hasPublishedVersion) {
+    throw new Error("審査中の新規求人は公開状態を変更できません");
+  }
+
+  await prisma.job.update({
+    where: { id: jobId, companyId },
+    data: {
+      isPublished: !job.isPublished,
+    },
+  });
+
+  revalidatePath("/company/jobs");
+  revalidatePath(`/company/jobs/${jobId}/edit`);
+  revalidatePath("/company/dashboard");
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${jobId}`);
+  revalidatePath("/");
+  revalidatePath("/jobs");
+}
+
 export async function deleteJob(jobId: string) {
   const companyId = await getCompanyId();
   const job = await prisma.job.findFirst({

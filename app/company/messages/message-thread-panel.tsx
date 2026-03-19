@@ -138,8 +138,8 @@ export function MessageThreadPanel({
   }
 
   return (
-    <div className="rounded-[22px] bg-white p-5 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-      <div className="border-b border-[#edf1f7] pb-4">
+    <div className="flex h-full min-h-0 flex-col rounded-[22px] bg-white p-5 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+      <div className="shrink-0 border-b border-[#edf1f7] pb-4">
         <h2 className="text-[18px] font-bold text-[#2f6cff]">メッセージ</h2>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-[14px]">
           <span className="font-bold text-[#2b2f38]">{applicantName} さん</span>
@@ -151,7 +151,7 @@ export function MessageThreadPanel({
         </div>
       </div>
 
-      <div className="mt-4 rounded-[20px] bg-[#f7f9fc] p-4">
+      <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-[20px] bg-[#f7f9fc] p-4">
         {isInvalidated ? (
           <div className="rounded-[18px] bg-white px-5 py-6 text-[13px] text-[#8f97a5]">
             無効化されているため閲覧ができません
@@ -160,7 +160,7 @@ export function MessageThreadPanel({
           <>
             <div
               ref={scrollAreaRef}
-              className="max-h-[52vh] min-h-[360px] space-y-3 overflow-y-auto pr-1"
+              className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1"
             >
               {messages.length === 0 ? (
                 <div className="rounded-[18px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2]">
@@ -206,7 +206,7 @@ export function MessageThreadPanel({
               )}
             </div>
 
-            <form onSubmit={handleSendMessage} className="mt-4 flex items-end gap-4">
+            <form onSubmit={handleSendMessage} className="mt-4 flex shrink-0 items-end gap-4">
               <div className="flex-1">
                 {file ? (
                   <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#eef4ff] px-3 py-2 text-[12px] text-[#2f6cff]">

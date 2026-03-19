@@ -148,14 +148,14 @@ export default async function CompanyMessagesPage({
       : null;
 
   return (
-    <div className="px-6 py-8 md:px-12 md:py-10">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-6 py-8 md:px-12 md:py-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">メッセージ</h1>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <div className="space-y-4">
+      <div className="mt-8 grid min-h-0 flex-1 gap-6 overflow-hidden xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="flex min-h-0 flex-col gap-4 overflow-hidden">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
 
-          <div className="max-h-[68vh] space-y-3 overflow-y-auto pr-2">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
             {conversations.length === 0 ? (
               <div className="rounded-[22px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2] shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
                 条件に合うメッセージはありません
@@ -217,7 +217,7 @@ export default async function CompanyMessagesPage({
           </div>
         </div>
 
-        <div>
+        <div className="min-h-0 overflow-hidden">
           {selectedApplication && selectedApplication.conversation ? (
             <MessageThreadPanel
               applicationId={selectedApplication.id}

@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
+import { EmploymentType, Prisma } from "@prisma/client";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
 import { prisma } from "@/lib/prisma";
@@ -28,7 +28,7 @@ export async function approveJob(jobId: string) {
         ? {
             title: pendingContent.title,
             description: pendingContent.description,
-            employmentType: pendingContent.employmentType as any,
+            employmentType: pendingContent.employmentType as EmploymentType,
             location: pendingContent.location,
             salaryMin: pendingContent.salaryMin,
             salaryMax: pendingContent.salaryMax,

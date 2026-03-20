@@ -1,9 +1,9 @@
 ﻿"use client";
 
-import { isValidElement, useCallback, useEffect, useRef, useState } from "react";
+import { isValidElement, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode } from "@/app/actions/company/jobs";
-import { JobPreview } from "@/components/job-preview";
+import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import { AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
@@ -80,13 +80,11 @@ export function JobEditForm({
   hasPendingVersion: boolean;
 }) {
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
   const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [, setPreviewRevision] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
     job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
@@ -107,6 +105,22 @@ export function JobEditForm({
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
   const workAddress = [job.officeDetail, job.officeName].find((value) => value && value.trim()) ?? "";
+  const [formValues, setFormValues] = useState<Record<string, string>>({
+    title: job.title,
+    description: job.description,
+    requirements: job.requirements ?? "",
+    desiredAptitude: job.desiredAptitude ?? "",
+    recommendedFor: job.recommendedFor ?? "",
+    officeDetail: workAddress,
+    access: job.access ?? "",
+    salaryMin: job.salaryMin ? String(job.salaryMin) : "",
+    salaryMax: job.salaryMax ? String(job.salaryMax) : "",
+    monthlySalary: job.monthlySalary ?? "",
+    annualSalary: job.annualSalary ?? "",
+    workingHours: job.workingHours ?? "",
+    selectionProcess: job.selectionProcess ?? "",
+    closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "",
+  });
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
 
   const parsedCustomTags = customTags
@@ -141,52 +155,60 @@ export function JobEditForm({
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
-    setPreviewRevision((prev) => prev + 1);
   }
 
-  const getPreviewData = useCallback(() => {
-    const fd = formRef.current ? new FormData(formRef.current) : null;
-    return {
-      title: (fd?.get("title") as string) || "",
+  const previewData = useMemo<JobPreviewData>(
+    () => ({
+      title: formValues.title ?? "",
       imageUrl,
       categoryTag,
       categoryTagDetail,
       employmentType,
       employmentTypeDetail,
-      description: (fd?.get("description") as string) || "",
-      requirements: (fd?.get("requirements") as string) || "",
-      desiredAptitude: (fd?.get("desiredAptitude") as string) || "",
-      recommendedFor: (fd?.get("recommendedFor") as string) || "",
+      description: formValues.description ?? "",
+      requirements: formValues.requirements ?? "",
+      desiredAptitude: formValues.desiredAptitude ?? "",
+      recommendedFor: formValues.recommendedFor ?? "",
       location: selectedLocation,
       region: selectedRegion,
-      officeDetail: (fd?.get("officeDetail") as string) || "",
-      access: (fd?.get("access") as string) || "",
-      salaryMin: (fd?.get("salaryMin") as string) || "",
-      salaryMax: (fd?.get("salaryMax") as string) || "",
-      monthlySalary: (fd?.get("monthlySalary") as string) || "",
-      annualSalary: (fd?.get("annualSalary") as string) || "",
-      workingHours: (fd?.get("workingHours") as string) || "",
-      selectionProcess: (fd?.get("selectionProcess") as string) || "",
+      officeDetail: formValues.officeDetail ?? "",
+      access: formValues.access ?? "",
+      salaryMin: formValues.salaryMin ?? "",
+      salaryMax: formValues.salaryMax ?? "",
+      monthlySalary: formValues.monthlySalary ?? "",
+      annualSalary: formValues.annualSalary ?? "",
+      workingHours: formValues.workingHours ?? "",
+      selectionProcess: formValues.selectionProcess ?? "",
       employmentPeriodType,
       tags: mergedTags,
       benefits: mergedBenefits,
       targetType,
       graduationYear,
-    };
-  }, [
-    imageUrl,
-    categoryTag,
-    categoryTagDetail,
-    employmentType,
-    employmentTypeDetail,
-    selectedLocation,
-    selectedRegion,
-    mergedTags,
-    mergedBenefits,
-    employmentPeriodType,
-    targetType,
-    graduationYear,
-  ]);
+    }),
+    [
+      formValues,
+      imageUrl,
+      categoryTag,
+      categoryTagDetail,
+      employmentType,
+      employmentTypeDetail,
+      selectedLocation,
+      selectedRegion,
+      employmentPeriodType,
+      mergedTags,
+      mergedBenefits,
+      targetType,
+      graduationYear,
+    ],
+  );
+
+  function readFormValues(form: HTMLFormElement) {
+    setFormValues(
+      Object.fromEntries(
+        Array.from(new FormData(form).entries(), ([key, value]) => [key, typeof value === "string" ? value : ""]),
+      ),
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -307,9 +329,8 @@ export function JobEditForm({
         }`}
       >
         <form
-          ref={formRef}
           onSubmit={handleSubmit}
-          onChange={() => setPreviewRevision((prev) => prev + 1)}
+          onChange={(event) => readFormValues(event.currentTarget)}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
@@ -649,7 +670,7 @@ export function JobEditForm({
           <div className="hidden self-start 2xl:block">
             <div className="sticky top-6 rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <div className="max-h-[calc(100vh-72px)] overflow-y-auto">
-                <JobPreview data={getPreviewData()} />
+                <JobPreview data={previewData} />
               </div>
             </div>
           </div>
@@ -670,7 +691,7 @@ export function JobEditForm({
             </div>
             <div className="min-h-0 flex-1 overflow-hidden rounded-[20px] bg-[#f8fbff]">
               <div className="h-full overflow-y-auto p-3 md:p-4">
-                <JobPreview data={getPreviewData()} />
+                <JobPreview data={previewData} />
               </div>
             </div>
           </div>

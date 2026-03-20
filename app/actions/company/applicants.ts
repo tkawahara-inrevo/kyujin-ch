@@ -1,10 +1,11 @@
 "use server";
 
 import { auth } from "@/auth";
+import type { ApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function updateApplicationStatus(applicationId: string, status: string) {
+export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus) {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
 
@@ -27,7 +28,7 @@ export async function updateApplicationStatus(applicationId: string, status: str
 
   await prisma.application.update({
     where: { id: applicationId },
-    data: { status: status as any },
+    data: { status },
   });
 
   revalidatePath(`/company/applicants/${applicationId}`);

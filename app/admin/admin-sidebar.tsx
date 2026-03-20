@@ -22,10 +22,6 @@ export function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -42,6 +38,7 @@ export function AdminSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium transition ${
                     isActive
                       ? "bg-[#2f6cff]/10 font-semibold text-[#2f6cff]"
@@ -80,7 +77,7 @@ export function AdminSidebar() {
         >
           <span className="text-[18px]">☰</span>
         </button>
-        <Link href="/admin/dashboard" className="text-[16px] font-bold text-[#1e3a5f]">
+        <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-[16px] font-bold text-[#1e3a5f]">
           管理者画面
         </Link>
         <div className="w-10" />
@@ -96,7 +93,11 @@ export function AdminSidebar() {
           />
           <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#e5e7eb] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
             <div className="flex h-[64px] items-center justify-between border-b border-[#e5e7eb] px-5">
-              <Link href="/admin/dashboard" className="truncate text-[18px] font-bold text-[#1e3a5f]">
+              <Link
+                href="/admin/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="truncate text-[18px] font-bold text-[#1e3a5f]"
+              >
                 管理者画面
               </Link>
               <button

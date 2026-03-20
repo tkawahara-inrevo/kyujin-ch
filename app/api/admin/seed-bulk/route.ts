@@ -1,3 +1,4 @@
+import { ApplicationStatus, EmploymentType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -204,7 +205,7 @@ export async function GET(req: Request) {
           location: loc,
           salaryMin,
           salaryMax,
-          employmentType: employmentType as any,
+          employmentType: employmentType as EmploymentType,
           isPublished,
           reviewStatus: isPublished ? "PUBLISHED" : "DRAFT",
           categoryTag: category,
@@ -264,7 +265,7 @@ export async function GET(req: Request) {
           userId,
           jobId: jobRec.id,
           motivation: "この求人に興味があり、自分のスキルを活かせると考え応募しました。",
-          status: status as any,
+          status: status as ApplicationStatus,
           createdAt: appDate,
           updatedAt: appDate,
         },
@@ -334,8 +335,9 @@ export async function GET(req: Request) {
         reviews: reviewsCreated,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Seed error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown seed error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

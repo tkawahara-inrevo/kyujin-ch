@@ -69,10 +69,6 @@ export function CompanySidebar() {
   }, [pathname]);
 
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -96,6 +92,7 @@ export function CompanySidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-4 rounded-[12px] px-4 py-3 text-[15px] font-bold transition ${
                     isActive
                       ? "bg-[#eef4ff] text-[#222]"
@@ -139,7 +136,11 @@ export function CompanySidebar() {
         >
           <span className="text-[18px]">☰</span>
         </button>
-        <Link href="/company/dashboard" className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]">
+        <Link
+          href="/company/dashboard"
+          onClick={() => setIsOpen(false)}
+          className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]"
+        >
           <Image src="/assets/Person.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
           <span>求人ちゃんねる</span>
         </Link>
@@ -156,7 +157,11 @@ export function CompanySidebar() {
           />
           <aside className="relative flex h-full w-[272px] max-w-[86vw] flex-col border-r border-[#edf0f5] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.16)]">
             <div className="flex h-[120px] items-center justify-between border-b border-[#edf0f5] px-6">
-              <Link href="/company/dashboard" className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]">
+              <Link
+                href="/company/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]"
+              >
                 <Image src="/assets/Person.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
                 <span>求人ちゃんねる</span>
               </Link>

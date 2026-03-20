@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { Prisma, type JobReviewStatus } from "@prisma/client";
+import { EmploymentType, Prisma, type JobReviewStatus } from "@prisma/client";
 import { parsePendingContent, toPendingContentJson, type JobPendingContent } from "@/lib/job-pending";
 import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
@@ -131,7 +131,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
   return {
     title: normalized.title,
     description: normalized.description,
-    employmentType: normalized.employmentType as any,
+    employmentType: normalized.employmentType as EmploymentType,
     location: normalized.location,
     salaryMin: normalized.salaryMin,
     salaryMax: normalized.salaryMax,

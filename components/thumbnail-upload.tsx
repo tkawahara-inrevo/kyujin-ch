@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useState, useRef, useCallback } from "react";
 
@@ -8,6 +9,9 @@ type ThumbnailUploadProps = {
   onUploaded?: (url: string) => void;
 };
 
+const MAX_SIZE = 5 * 1024 * 1024;
+const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUploadProps) {
   const [preview, setPreview] = useState<string | null>(defaultValue || null);
   const [uploading, setUploading] = useState(false);
@@ -15,9 +19,6 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUpl
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
-
-  const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-  const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
   const resizeImage = useCallback(
     (file: File): Promise<Blob> =>

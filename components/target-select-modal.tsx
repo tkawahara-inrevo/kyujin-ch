@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -10,15 +10,10 @@ interface Props {
 }
 
 export function TargetSelectModal({ currentYear, nextYear }: Props) {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(
+    () => typeof window !== "undefined" && !localStorage.getItem("kyujin-target"),
+  );
   const router = useRouter();
-
-  useEffect(() => {
-    const saved = localStorage.getItem("kyujin-target");
-    if (!saved) {
-      setShow(true);
-    }
-  }, []);
 
   if (!show) return null;
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -54,11 +55,11 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
           <div>
             {/* ヘッダー */}
             <div className="mb-4 flex items-center gap-3">
-              <a href="/messages" className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0f0f0] text-[#666] transition hover:bg-[#e5e5e5]">
+              <Link href="/messages" className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f0f0f0] text-[#666] transition hover:bg-[#e5e5e5]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
-              </a>
+              </Link>
               <div className="flex-1 min-w-0">
                 <h1 className="truncate text-[16px] font-bold text-[#333]">{job.company.name}</h1>
                 <p className="truncate text-[13px] text-[#888]">{job.title}</p>

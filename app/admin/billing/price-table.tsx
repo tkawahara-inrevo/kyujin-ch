@@ -22,9 +22,9 @@ export default function PriceTable({
   return (
     <div className="mt-6 space-y-6">
       {categories.map((category) => (
-        <CategorySection key={category} category={category} entries={grouped[category]} allCategories={categories} />
+        <CategorySection key={category} category={category} entries={grouped[category]} />
       ))}
-      <AddCategoryForm existingCategories={categories} />
+      <AddCategoryForm />
     </div>
   );
 }
@@ -32,11 +32,9 @@ export default function PriceTable({
 function CategorySection({
   category,
   entries,
-  allCategories,
 }: {
   category: string;
   entries: Entry[];
-  allCategories: string[];
 }) {
   const [showAdd, setShowAdd] = useState(false);
 
@@ -236,7 +234,7 @@ function AddEntryRow({ category, onDone }: { category: string; onDone: () => voi
   );
 }
 
-function AddCategoryForm({ existingCategories }: { existingCategories: string[] }) {
+function AddCategoryForm() {
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");

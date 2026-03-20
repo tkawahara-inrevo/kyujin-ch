@@ -1,9 +1,10 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { graduationYearLabel } from "@/lib/graduation-years";
 import { EMPLOYMENT_LABELS, OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 
-type JobPreviewData = {
+export type JobPreviewData = {
   title?: string;
   imageUrl?: string;
   categoryTag?: string;

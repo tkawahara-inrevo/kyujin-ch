@@ -37,36 +37,42 @@ export function TopHero({
   );
 
   useEffect(() => {
-    setQ(defaultQ);
-    setCategory(defaultCategory);
-    setEmploymentType(defaultEmploymentType);
+    const frame = window.requestAnimationFrame(() => {
+      setQ(defaultQ);
+      setCategory(defaultCategory);
+      setEmploymentType(defaultEmploymentType);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [defaultQ, defaultCategory, defaultEmploymentType]);
 
   useEffect(() => {
-    if (!defaultLocation) {
+    const frame = window.requestAnimationFrame(() => {
+      if (!defaultLocation) {
+        setArea("");
+        setPrefecture("");
+        return;
+      }
+
+      if (AREA_OPTIONS.includes(defaultLocation)) {
+        setArea(defaultLocation);
+        setPrefecture("");
+        return;
+      }
+
+      const matchedArea = Object.entries(PREFECTURES_BY_AREA).find(([, prefectures]) =>
+        prefectures.includes(defaultLocation),
+      );
+
+      if (matchedArea) {
+        setArea(matchedArea[0]);
+        setPrefecture(defaultLocation);
+        return;
+      }
+
       setArea("");
       setPrefecture("");
-      return;
-    }
-
-    if (AREA_OPTIONS.includes(defaultLocation)) {
-      setArea(defaultLocation);
-      setPrefecture("");
-      return;
-    }
-
-    const matchedArea = Object.entries(PREFECTURES_BY_AREA).find(([, prefectures]) =>
-      prefectures.includes(defaultLocation),
-    );
-
-    if (matchedArea) {
-      setArea(matchedArea[0]);
-      setPrefecture(defaultLocation);
-      return;
-    }
-
-    setArea("");
-    setPrefecture("");
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [defaultLocation]);
 
   const prefectureOptions = useMemo(

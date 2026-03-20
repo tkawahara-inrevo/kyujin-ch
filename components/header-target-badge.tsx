@@ -11,14 +11,11 @@ interface Props {
 
 export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
   const searchParams = useSearchParams();
-  const [target, setTarget] = useState<string | null>(null);
+  const [storedTarget, setStoredTarget] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : localStorage.getItem("kyujin-target"),
+  );
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const urlTarget = searchParams.get("target");
-    const t = urlTarget || localStorage.getItem("kyujin-target");
-    setTarget(t);
-  }, [searchParams]);
+  const target = searchParams.get("target") || storedTarget;
 
   // 外側クリックで閉じる
   useEffect(() => {
@@ -71,6 +68,7 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
 
   function handleSwitch(value: string) {
     localStorage.setItem("kyujin-target", value);
+    setStoredTarget(value);
     setOpen(false);
   }
 

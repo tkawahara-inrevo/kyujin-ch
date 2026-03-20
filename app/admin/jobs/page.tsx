@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type JobReviewStatus } from "@prisma/client";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { JobsTable, type AdminJobRow } from "./jobs-table";
 
 type SearchParams = Promise<{ q?: string; category?: string; status?: string }>;
+const REVIEW_STATUS_FILTERS = new Set<JobReviewStatus>(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED"]);
 
 export default async function AdminJobsPage({
   searchParams,
@@ -27,7 +28,9 @@ export default async function AdminJobsPage({
         }
       : {}),
     ...(category ? { categoryTag: category } : {}),
-    ...(status ? { reviewStatus: status as any } : {}),
+    ...(status && REVIEW_STATUS_FILTERS.has(status as JobReviewStatus)
+      ? { reviewStatus: status as JobReviewStatus }
+      : {}),
   };
 
   const [jobs, categoryTags] = await Promise.all([

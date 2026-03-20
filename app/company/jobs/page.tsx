@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { JobReviewStatus } from "@prisma/client";
 import { requireCompany } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
 import { EMPLOYMENT_LABELS } from "@/lib/job-options";
@@ -45,7 +46,7 @@ export default async function CompanyJobsPage({
     where: {
       companyId: company.id,
       isDeleted: false,
-      ...(status && REVIEW_STATUS_FILTERS.has(status) ? { reviewStatus: status as any } : {}),
+      ...(status && REVIEW_STATUS_FILTERS.has(status) ? { reviewStatus: status as JobReviewStatus } : {}),
     },
     select: {
       id: true,

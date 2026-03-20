@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -11,15 +11,10 @@ interface Props {
 
 export function SidebarTargetBanner({ currentYear, nextYear }: Props) {
   const searchParams = useSearchParams();
-  const [activeTarget, setActiveTarget] = useState<string | null>(null);
-
-  useEffect(() => {
-    const urlTarget = searchParams.get("target");
-    const target = urlTarget || localStorage.getItem("kyujin-target") || String(currentYear);
-    setActiveTarget(target);
-  }, [searchParams, currentYear]);
-
-  if (!activeTarget) return null;
+  const [storedTarget, setStoredTarget] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : localStorage.getItem("kyujin-target"),
+  );
+  const activeTarget = searchParams.get("target") || storedTarget || String(currentYear);
 
   // 現在のフィルタに応じてバナーの表示を変える
   const isCurrentYear = activeTarget === String(currentYear);
@@ -68,6 +63,7 @@ export function SidebarTargetBanner({ currentYear, nextYear }: Props) {
 
   function handleClick(target: string) {
     localStorage.setItem("kyujin-target", target);
+    setStoredTarget(target);
   }
 
   return (

@@ -365,10 +365,6 @@ function mulberry32(seed: number) {
 
 const random = mulberry32(20260315);
 
-function pickOne<T>(items: T[]): T {
-  return items[Math.floor(random() * items.length)]!;
-}
-
 function pickSome<T>(items: T[], count: number): T[] {
   const pool = [...items];
   const picked: T[] = [];

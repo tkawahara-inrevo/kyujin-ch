@@ -45,7 +45,6 @@ export function FavoriteListSection({
         {favorites.map((favorite, index) => (
           <FavoriteListItem
             key={favorite.id}
-            id={favorite.id}
             jobId={favorite.job.id}
             title={favorite.job.title}
             companyName={favorite.job.company.name}

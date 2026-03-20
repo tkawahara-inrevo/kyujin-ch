@@ -6,20 +6,17 @@ type DayCount = { date: string; count: number };
 
 export default function ApplicationChart({ jobId }: { jobId: string }) {
   const [data, setData] = useState<DayCount[] | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch(`/api/company/analytics/applications?jobId=${jobId}`)
       .then((res) => res.json())
       .then((d: DayCount[]) => {
         setData(d);
-        setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => setData([]));
   }, [jobId]);
 
-  if (loading) {
+  if (data === null) {
     return (
       <div className="flex h-[180px] items-center justify-center text-[13px] text-[#aaa]">
         読み込み中...

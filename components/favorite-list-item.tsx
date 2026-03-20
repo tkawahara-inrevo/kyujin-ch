@@ -3,7 +3,6 @@ import Link from "next/link";
 import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
 
 type FavoriteListItemProps = {
-  id: string;
   jobId: string;
   title: string;
   companyName: string;
@@ -23,7 +22,6 @@ function formatSalary(min?: number | null, max?: number | null) {
 }
 
 export function FavoriteListItem({
-  id,
   jobId,
   title,
   companyName,

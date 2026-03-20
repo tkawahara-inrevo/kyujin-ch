@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
+import type { ApplicationStatus } from "@prisma/client";
 import { sendCompanyMessage, updateApplicationStatus } from "@/app/actions/company/applicants";
 
-const STATUSES: { value: string; label: string }[] = [
+const STATUSES: { value: ApplicationStatus; label: string }[] = [
   { value: "APPLIED", label: "応募済み" },
   { value: "REVIEWING", label: "選考中" },
   { value: "INTERVIEW", label: "面接" },
@@ -44,7 +45,7 @@ export function ApplicantActions({
   isInvalidated = false,
 }: {
   applicationId: string;
-  currentStatus: string;
+  currentStatus: ApplicationStatus;
   messages: Message[];
   conversationId?: string;
   isInvalidated?: boolean;
@@ -55,7 +56,7 @@ export function ApplicantActions({
   const [fileError, setFileError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleStatusChange(status: string) {
+  function handleStatusChange(status: ApplicationStatus) {
     if (isInvalidated) return;
     startTransition(() => updateApplicationStatus(applicationId, status));
   }

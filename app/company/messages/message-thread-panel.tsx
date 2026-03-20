@@ -19,35 +19,6 @@ type Message = {
   createdAt: Date;
 };
 
-function InfoBadge({
-  href,
-  label,
-  active = true,
-}: {
-  href?: string | null;
-  label: string;
-  active?: boolean;
-}) {
-  if (!active || !href) {
-    return (
-      <span className="inline-flex rounded-full bg-[#e5e7eb] px-3 py-1 text-[12px] font-bold text-[#8d97a6]">
-        {label}
-      </span>
-    );
-  }
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex rounded-full bg-[#2f6cff] px-3 py-1 text-[12px] font-bold text-white transition hover:opacity-90"
-    >
-      {label}
-    </a>
-  );
-}
-
 export function MessageThreadPanel({
   applicationId,
   applicantName,
@@ -140,18 +111,39 @@ export function MessageThreadPanel({
   return (
     <div className="flex h-full min-h-0 flex-col rounded-[22px] bg-white p-5 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
       <div className="shrink-0 border-b border-[#edf1f7] pb-4">
-        <h2 className="text-[18px] font-bold text-[#2f6cff]">メッセージ</h2>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-[14px]">
-          <span className="font-bold text-[#2b2f38]">{applicantName} さん</span>
-          <span className="text-[#8f97a5]">{jobTitle}</span>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <InfoBadge href={resumeHref} label="履歴書あり" active={!!resumeHref} />
-          <InfoBadge href={careerHistoryHref} label="職務経歴書あり" active={!!careerHistoryHref} />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-[24px] font-bold leading-[1.3] text-[#2b2f38]">
+              {applicantName} さん
+            </p>
+            <p className="mt-1 text-[15px] font-semibold text-[#7f8795]">{jobTitle}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            {resumeHref ? (
+              <a
+                href={resumeHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-full bg-[#eef4ff] px-3 py-1.5 font-bold text-[#2f6cff] transition hover:bg-[#dfeaff]"
+              >
+                履歴書
+              </a>
+            ) : null}
+            {careerHistoryHref ? (
+              <a
+                href={careerHistoryHref}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-full bg-[#eef4ff] px-3 py-1.5 font-bold text-[#2f6cff] transition hover:bg-[#dfeaff]"
+              >
+                職務経歴書
+              </a>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-[20px] bg-[#f7f9fc] p-4">
+      <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-[20px] bg-[#f7f9fc] p-3">
         {isInvalidated ? (
           <div className="rounded-[18px] bg-white px-5 py-6 text-[13px] text-[#8f97a5]">
             無効化されているため閲覧ができません
@@ -160,7 +152,7 @@ export function MessageThreadPanel({
           <>
             <div
               ref={scrollAreaRef}
-              className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1"
+              className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1"
             >
               {messages.length === 0 ? (
                 <div className="rounded-[18px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2]">
@@ -171,7 +163,7 @@ export function MessageThreadPanel({
                   const isCompany = message.senderType === "COMPANY";
                   return (
                     <div key={message.id} className={`flex ${isCompany ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[78%] ${isCompany ? "items-end" : "items-start"}`}>
+                      <div className={`max-w-[86%] ${isCompany ? "items-end" : "items-start"}`}>
                         <div
                           className={`rounded-[18px] px-5 py-4 text-[14px] leading-[1.8] ${
                             isCompany
@@ -206,7 +198,7 @@ export function MessageThreadPanel({
               )}
             </div>
 
-            <form onSubmit={handleSendMessage} className="mt-4 flex shrink-0 items-end gap-4">
+            <form onSubmit={handleSendMessage} className="mt-3 flex shrink-0 items-end gap-3">
               <div className="flex-1">
                 {file ? (
                   <div className="mb-2 flex items-center gap-2 rounded-[12px] bg-[#eef4ff] px-3 py-2 text-[12px] text-[#2f6cff]">

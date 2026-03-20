@@ -74,10 +74,10 @@ export default async function CompanyApplicantsPage({
         <table className="w-full table-fixed text-left text-[14px]">
           <thead>
             <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-              <th className="w-[180px] px-4 py-4 font-bold">氏名</th>
-              <th className="w-[180px] px-4 py-4 font-bold">応募求人</th>
-              <th className="w-[180px] px-4 py-4 font-bold">ステータス</th>
-              <th className="w-[180px] px-4 py-4 font-bold">応募日</th>
+              <th className="w-[140px] px-4 py-4 font-bold">氏名</th>
+              <th className="px-4 py-4 font-bold">応募求人</th>
+              <th className="w-[136px] px-4 py-4 font-bold">ステータス</th>
+              <th className="w-[132px] px-4 py-4 font-bold">応募日</th>
             </tr>
           </thead>
           <tbody>
@@ -96,10 +96,10 @@ export default async function CompanyApplicantsPage({
                     </Link>
                   </td>
                   <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={application.job.title}>{application.job.title}</span></td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 text-center">
                     <StatusBadge status={application.status} />
                   </td>
-                  <td className="px-4 py-4 text-[#666]">{application.createdAt.toLocaleDateString("ja-JP")}</td>
+                  <td className="px-4 py-4 text-center text-[#666]">{application.createdAt.toLocaleDateString("ja-JP")}</td>
                 </tr>
               ))
             )}

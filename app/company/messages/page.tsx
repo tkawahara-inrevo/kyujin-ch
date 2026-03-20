@@ -151,11 +151,11 @@ export default async function CompanyMessagesPage({
     <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-6 py-8 md:px-12 md:py-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">メッセージ</h1>
 
-      <div className="mt-8 grid min-h-0 flex-1 gap-6 overflow-hidden xl:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="mt-8 grid min-h-0 flex-1 gap-5 overflow-hidden xl:grid-cols-[268px_minmax(0,1fr)] 2xl:grid-cols-[288px_minmax(0,1fr)]">
         <div className="flex min-h-0 flex-col gap-4 overflow-hidden">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
 
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-2">
             {conversations.length === 0 ? (
               <div className="rounded-[22px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2] shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
                 条件に合うメッセージはありません
@@ -170,7 +170,7 @@ export default async function CompanyMessagesPage({
                   <Link
                     key={conversation.id}
                     href={buildMessagesHref(jobId, conversation.applicationId)}
-                    className={`block rounded-[22px] px-4 py-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
+                    className={`block rounded-[18px] px-4 py-3 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
                       isActive ? "bg-[#eef4ff]" : "bg-white hover:-translate-y-0.5"
                     }`}
                   >
@@ -181,19 +181,19 @@ export default async function CompanyMessagesPage({
                             未読
                           </span>
                         ) : null}
-                        <p className="mt-3 truncate text-[18px] font-bold text-[#2b2f38]">
+                        <p className="mt-3 truncate text-[17px] font-bold text-[#2b2f38]">
                           {conversation.application.user.name}
                         </p>
-                        <p className="mt-2 line-clamp-2 text-[14px] font-semibold leading-[1.6] text-[#444]">
+                        <p className="mt-2 line-clamp-2 text-[14px] font-semibold leading-[1.55] text-[#444]">
                           {conversation.application.job.title}
                         </p>
-                        <p className="mt-2 line-clamp-3 text-[13px] leading-[1.7] text-[#666]">
+                        <p className="mt-2 line-clamp-1 text-[12px] leading-[1.5] text-[#7b8493]">
                           {lastMessage?.body ||
                             (lastMessage?.attachmentName
                               ? `添付: ${lastMessage.attachmentName}`
                               : "まだメッセージはありません")}
                         </p>
-                        <p className="mt-2 text-[12px] text-[#9aa3b2]">
+                        <p className="mt-1 text-[12px] text-[#9aa3b2]">
                           更新日{" "}
                           {lastMessage
                             ? new Date(lastMessage.createdAt).toLocaleDateString("ja-JP")

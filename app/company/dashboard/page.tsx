@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
@@ -123,31 +123,31 @@ export default async function CompanyDashboardPage() {
         </div>
 
         <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-          <table className="w-full min-w-[620px] text-left text-[14px]">
+          <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="px-6 py-5 font-bold">氏名</th>
-                <th className="px-6 py-5 font-bold">応募求人</th>
-                <th className="px-6 py-5 font-bold">応募日</th>
+                <th className="w-[120px] px-4 py-4 font-bold">氏名</th>
+                <th className="w-[120px] px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[120px] px-4 py-4 font-bold">応募日</th>
               </tr>
             </thead>
             <tbody>
               {recentApps.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-[#9aa3b2]">
+                  <td colSpan={3} className="px-4 py-10 text-center text-[#9aa3b2]">
                     まだ応募はありません
                   </td>
                 </tr>
               ) : (
                 recentApps.map((application) => (
                   <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-6 py-5 font-bold text-[#333]">
-                      <Link href={`/company/applicants/${application.id}`} className="hover:text-[#2f6cff]">
+                    <td className="px-4 py-4 font-bold text-[#333]">
+                      <Link href={`/company/applicants/${application.id}`} className="block truncate hover:text-[#2f6cff]" title={application.user.name ?? ""}>
                         {application.user.name}
                       </Link>
                     </td>
-                    <td className="px-6 py-5 text-[#333]">{application.job.title}</td>
-                    <td className="px-6 py-5 text-[#666]">
+                    <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={application.job.title}>{application.job.title}</span></td>
+                    <td className="px-4 py-4 text-[#666]">
                       {application.createdAt.toLocaleDateString("ja-JP")}
                     </td>
                   </tr>
@@ -160,3 +160,4 @@ export default async function CompanyDashboardPage() {
     </div>
   );
 }
+

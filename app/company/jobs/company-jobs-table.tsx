@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
@@ -134,22 +134,22 @@ export function CompanyJobsTable({
       </div>
 
       <div className="mt-6 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <table className="w-full min-w-[1080px] text-left text-[14px]">
+        <table className="w-full table-fixed text-left text-[14px]">
           <thead>
             <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-              <th className="px-5 py-5 font-bold">求人ID</th>
-              <th className="px-5 py-5 font-bold">応募求人</th>
-              <th className="px-5 py-5 font-bold">雇用形態</th>
-              <th className="px-5 py-5 font-bold">勤務地</th>
-              <th className="px-5 py-5 font-bold">応募数</th>
-              <th className="px-5 py-5 font-bold">審査状況</th>
-              <th className="px-5 py-5 text-right font-bold">公開</th>
+              <th className="w-[100px] px-4 py-4 font-bold">求人ID</th>
+              <th className="px-4 py-4 font-bold">応募求人</th>
+              <th className="w-[128px] px-4 py-4 font-bold">雇用形態</th>
+              <th className="w-[132px] px-4 py-4 font-bold">勤務地</th>
+              <th className="w-[92px] px-4 py-4 font-bold">応募数</th>
+              <th className="w-[160px] px-4 py-4 font-bold">審査状況</th>
+              <th className="w-[84px] px-4 py-4 text-center font-bold">公開</th>
             </tr>
           </thead>
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-[#9aa3b2]">
+                <td colSpan={7} className="px-4 py-12 text-center text-[#9aa3b2]">
                   条件に合う求人はありません
                 </td>
               </tr>
@@ -158,16 +158,16 @@ export function CompanyJobsTable({
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
                 return (
                   <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-5 py-5 font-mono text-[12px] text-[#667085]">{job.id}</td>
-                    <td className="px-5 py-5 font-bold text-[#333]">
-                      <Link href={`/company/jobs/${job.id}/edit`} className="hover:text-[#2f6cff]">
+                    <td className="px-4 py-4 font-mono text-[12px] text-[#667085]">{job.id}</td>
+                    <td className="px-4 py-4 font-bold text-[#333]">
+                      <Link href={`/company/jobs/${job.id}/edit`} className="block truncate hover:text-[#2f6cff]" title={job.title}>
                         {job.title}
                       </Link>
                     </td>
-                    <td className="px-5 py-5 text-[#333]">{job.employmentTypeLabel}</td>
-                    <td className="px-5 py-5 text-[#333]">{job.location}</td>
-                    <td className="px-5 py-5 font-bold text-[#333]">{job.applicationsCount}</td>
-                    <td className="px-5 py-5">
+                    <td className="px-4 py-4 text-[#333]">{job.employmentTypeLabel}</td>
+                    <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={job.location}>{job.location}</span></td>
+                    <td className="px-4 py-4 font-bold text-[#333]">{job.applicationsCount}</td>
+                    <td className="px-4 py-4">
                       {canWithdraw ? (
                         <button
                           type="button"
@@ -182,17 +182,14 @@ export function CompanyJobsTable({
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-5 text-right">
+                    <td className="px-4 py-4 text-center">
                       <button
                         type="button"
                         onClick={() => handleToggleVisibility(job)}
                         disabled={isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion)}
-                        className="inline-flex items-center gap-3 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
                         aria-label={job.isPublished ? "非公開にする" : "公開する"}
                       >
-                        <span className="text-[12px] font-bold text-[#5f6775]">
-                          {job.isPublished ? "公開" : "非公開"}
-                        </span>
                         <span
                           className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
                             job.isPublished ? "bg-[#2f6cff]" : "bg-[#d6dce8]"
@@ -249,3 +246,4 @@ export function CompanyJobsTable({
     </>
   );
 }
+

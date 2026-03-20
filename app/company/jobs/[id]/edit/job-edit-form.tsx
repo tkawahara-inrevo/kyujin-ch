@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { isValidElement, useCallback, useRef, useState } from "react";
+import { isValidElement, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { JobPreview } from "@/components/job-preview";
@@ -84,6 +84,7 @@ export function JobEditForm({
   const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [, setPreviewRevision] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
@@ -118,6 +119,25 @@ export function JobEditForm({
     .filter(Boolean);
   const mergedTags = Array.from(new Set([...selectedTags, ...parsedCustomTags]));
   const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1536px)");
+    const sync = () => setIsWidePreview(mediaQuery.matches);
+
+    sync();
+    mediaQuery.addEventListener("change", sync);
+    return () => mediaQuery.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!showPreview || isWidePreview) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showPreview, isWidePreview]);
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
@@ -265,7 +285,7 @@ export function JobEditForm({
           }}
           className="inline-flex rounded-[14px] bg-[#2f6cff] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
         >
-          {showPreview ? "プレビューを閉じる" : "プレビューを開く"}
+          {isWidePreview ? (showPreview ? "プレビューを閉じる" : "プレビューを開く") : "プレビューを確認"}
         </button>
       </div>
 
@@ -282,8 +302,8 @@ export function JobEditForm({
       ) : null}
 
       <div
-        className={`mt-6 grid items-start gap-6 xl:gap-8 ${
-          showPreview ? "xl:grid-cols-[minmax(500px,0.78fr)_minmax(860px,1.22fr)]" : ""
+        className={`mt-6 grid items-start gap-6 2xl:gap-8 ${
+          showPreview && isWidePreview ? "2xl:grid-cols-[minmax(520px,0.78fr)_minmax(760px,1.22fr)]" : ""
         }`}
       >
         <form
@@ -291,7 +311,7 @@ export function JobEditForm({
           onSubmit={handleSubmit}
           onChange={() => setPreviewRevision((prev) => prev + 1)}
           className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
-            showPreview ? "" : "max-w-[860px]"
+            showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
           <Section title="ターゲット">
@@ -625,14 +645,37 @@ export function JobEditForm({
           </div>
         </form>
 
-        {showPreview ? (
-          <div className="hidden self-start xl:sticky xl:top-6 xl:block">
-            <div className="h-[calc(100vh-96px)] rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
-              <JobPreview data={getPreviewData()} />
+        {showPreview && isWidePreview ? (
+          <div className="hidden self-start 2xl:block">
+            <div className="sticky top-6 rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
+              <div className="max-h-[calc(100vh-72px)] overflow-y-auto">
+                <JobPreview data={getPreviewData()} />
+              </div>
             </div>
           </div>
         ) : null}
       </div>
+      {showPreview && !isWidePreview ? (
+        <div className="fixed inset-0 z-[70] bg-[rgba(15,23,42,0.45)] p-4 md:p-6">
+          <div className="mx-auto flex h-full w-full max-w-[1120px] flex-col rounded-[24px] bg-white p-4 shadow-[0_24px_80px_rgba(15,23,42,0.28)] md:p-5">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <p className="text-[16px] font-bold text-[#2c2f36]">プレビューを確認</p>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="inline-flex rounded-[12px] border border-[#d7deeb] px-4 py-2 text-[14px] font-bold text-[#4b5563] transition hover:bg-[#f8fbff]"
+              >
+                閉じる
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-hidden rounded-[20px] bg-[#f8fbff]">
+              <div className="h-full overflow-y-auto p-3 md:p-4">
+                <JobPreview data={getPreviewData()} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
@@ -692,3 +735,4 @@ function TargetButton({
     </button>
   );
 }
+

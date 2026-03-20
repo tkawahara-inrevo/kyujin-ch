@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { isValidElement, useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createJob, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { JobPreview } from "@/components/job-preview";
@@ -91,7 +91,6 @@ export default function CompanyJobNewPage() {
       recommendedFor: (fd?.get("recommendedFor") as string) || "",
       location: selectedLocation,
       region: selectedRegion,
-      officeName: (fd?.get("officeName") as string) || "",
       officeDetail: (fd?.get("officeDetail") as string) || "",
       access: (fd?.get("access") as string) || "",
       salaryMin: (fd?.get("salaryMin") as string) || "",
@@ -165,7 +164,6 @@ export default function CompanyJobNewPage() {
         desiredAptitude: fd.get("desiredAptitude") as string,
         recommendedFor: fd.get("recommendedFor") as string,
         access: fd.get("access") as string,
-        officeName: fd.get("officeName") as string,
         officeDetail: fd.get("officeDetail") as string,
         workingHours: fd.get("workingHours") as string,
         selectionProcess: fd.get("selectionProcess") as string,
@@ -382,11 +380,16 @@ export default function CompanyJobNewPage() {
             </div>
 
             <Field label="勤務地住所">
-              <input name="officeName" className={inputCls} />
+              <textarea
+                name="officeDetail"
+                rows={3}
+                className={textareaCls}
+                placeholder="例：渋谷スクランブルスクエア 12F / 千代田区丸の内1-1-1"
+              />
             </Field>
 
             <Field label="勤務地詳細">
-              <textarea name="officeDetail" rows={3} className={textareaCls} />
+              <input type="hidden" name="officeName" value="" />
             </Field>
 
             <Field label="最寄り・アクセス">
@@ -562,10 +565,18 @@ function Field({
   required?: boolean;
   children: React.ReactNode;
 }) {
+  if (
+    isValidElement<{ type?: string }>(children) &&
+    children.type === "input" &&
+    children.props.type === "hidden"
+  ) {
+    return children;
+  }
+
   return (
     <div>
       <label className="mb-2 block text-[15px] font-semibold text-[#3d4552]">
-        {label}
+        {label === "勤務地名称" ? "勤務地住所" : label === "勤務地詳細" ? "勤務地補足" : label}
         {required ? <span className="ml-1 text-[#ff3158]">必須</span> : null}
       </label>
       {children}

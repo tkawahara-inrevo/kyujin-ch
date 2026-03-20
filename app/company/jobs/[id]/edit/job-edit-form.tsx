@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { isValidElement, useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { JobPreview } from "@/components/job-preview";
@@ -105,6 +105,7 @@ export function JobEditForm({
   const [employmentPeriodType, setEmploymentPeriodType] = useState(job.employmentPeriodType || "");
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
+  const workAddress = [job.officeDetail, job.officeName].find((value) => value && value.trim()) ?? "";
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
 
   const parsedCustomTags = customTags
@@ -138,7 +139,6 @@ export function JobEditForm({
       recommendedFor: (fd?.get("recommendedFor") as string) || "",
       location: selectedLocation,
       region: selectedRegion,
-      officeName: (fd?.get("officeName") as string) || "",
       officeDetail: (fd?.get("officeDetail") as string) || "",
       access: (fd?.get("access") as string) || "",
       salaryMin: (fd?.get("salaryMin") as string) || "",
@@ -210,7 +210,6 @@ export function JobEditForm({
         monthlySalary: fd.get("monthlySalary") as string,
         annualSalary: fd.get("annualSalary") as string,
         access: fd.get("access") as string,
-        officeName: fd.get("officeName") as string,
         officeDetail: fd.get("officeDetail") as string,
         benefits: mergedBenefits,
         selectionProcess: fd.get("selectionProcess") as string,
@@ -454,11 +453,17 @@ export function JobEditForm({
             </div>
 
             <Field label="勤務地住所">
-              <input name="officeName" defaultValue={job.officeName ?? ""} className={inputCls} />
+              <textarea
+                name="officeDetail"
+                rows={3}
+                defaultValue={workAddress}
+                className={textareaCls}
+                placeholder="例：渋谷スクランブルスクエア 12F / 千代田区丸の内1-1-1"
+              />
             </Field>
 
             <Field label="勤務地詳細">
-              <textarea name="officeDetail" rows={3} defaultValue={job.officeDetail ?? ""} className={textareaCls} />
+              <input type="hidden" name="officeName" value="" />
             </Field>
 
             <Field label="最寄り・アクセス">
@@ -647,10 +652,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  if (
+    isValidElement<{ type?: string }>(children) &&
+    children.type === "input" &&
+    children.props.type === "hidden"
+  ) {
+    return children;
+  }
+
   return (
     <div>
       <label className="mb-2 block text-[15px] font-semibold text-[#3d4552]">
-        {label}
+        {label === "勤務地名称" ? "勤務地住所" : label === "勤務地詳細" ? "勤務地補足" : label}
         {required ? <span className="ml-1 text-[#ff3158]">必須</span> : null}
       </label>
       {children}

@@ -128,7 +128,7 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
             ) : null}
             {(data.officeDetail || data.access || data.workingHours) && (
               <div className="space-y-2 text-[14px] text-[#4d5867]">
-                {data.officeDetail ? <p>勤務地詳細：{data.officeDetail}</p> : null}
+                {data.officeDetail ? <p>勤務地住所：{data.officeDetail}</p> : null}
                 {data.access ? <p>アクセス：{data.access}</p> : null}
                 {data.workingHours ? <p>勤務時間：{data.workingHours}</p> : null}
               </div>

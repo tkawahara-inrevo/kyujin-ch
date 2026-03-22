@@ -1,7 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { requireCompany } from "@/lib/auth-helpers";
+import { canSubmitInvalidRequest } from "@/lib/invalid-request-deadline";
+import { prisma } from "@/lib/prisma";
 
 export type ChargeRow = {
   id: string;
@@ -12,6 +13,7 @@ export type ChargeRow = {
   isValid: boolean;
   applicationId: string;
   hasExistingRequest: boolean;
+  canRequestInvalidation: boolean;
 };
 
 export type MonthChargesResult = {
@@ -25,11 +27,11 @@ export async function getChargesForMonth(billingMonth: string): Promise<MonthCha
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
   });
+
   if (!company) {
     return { charges: [], totalAmount: 0, count: 0 };
   }
 
-  // Validate billingMonth format
   if (!/^\d{4}-\d{2}$/.test(billingMonth)) {
     return { charges: [], totalAmount: 0, count: 0 };
   }
@@ -62,15 +64,16 @@ export async function getChargesForMonth(billingMonth: string): Promise<MonthCha
     }),
   ]);
 
-  const charges: ChargeRow[] = chargeRows.map((ch) => ({
-    id: ch.id,
-    createdAt: ch.createdAt.toISOString(),
-    jobTitle: ch.application.job.title,
-    userName: ch.application.user.name ?? "不明",
-    amount: ch.amount,
-    isValid: ch.isValid,
-    applicationId: ch.application.id,
-    hasExistingRequest: ch.application.invalidRequests.length > 0,
+  const charges: ChargeRow[] = chargeRows.map((charge) => ({
+    id: charge.id,
+    createdAt: charge.createdAt.toISOString(),
+    jobTitle: charge.application.job.title,
+    userName: charge.application.user.name ?? "応募者",
+    amount: charge.amount,
+    isValid: charge.isValid,
+    applicationId: charge.application.id,
+    hasExistingRequest: charge.application.invalidRequests.length > 0,
+    canRequestInvalidation: canSubmitInvalidRequest(charge.application.createdAt),
   }));
 
   return {

@@ -247,6 +247,7 @@ export function MonthSwitcher({
                         <InvalidRequestButton
                           applicationId={charge.applicationId}
                           hasExistingRequest={charge.hasExistingRequest}
+                          canRequestInvalidation={charge.canRequestInvalidation}
                         />
                       )}
                     </td>
@@ -322,6 +323,7 @@ export function MonthSwitcher({
                   <InvalidRequestButton
                     applicationId={selectedCharge.applicationId}
                     hasExistingRequest={selectedCharge.hasExistingRequest}
+                    canRequestInvalidation={selectedCharge.canRequestInvalidation}
                   />
                 </div>
               )}

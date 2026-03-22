@@ -1,8 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import type { ChargeRow } from "@/app/actions/company/billing";
 import { requireCompany } from "@/lib/auth-helpers";
+import { canSubmitInvalidRequest } from "@/lib/invalid-request-deadline";
+import { prisma } from "@/lib/prisma";
 import { MonthSwitcher } from "./month-switcher";
 import { PricingTable } from "./pricing-table";
-import type { ChargeRow } from "@/app/actions/company/billing";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,7 +13,10 @@ export default async function CompanyBillingPage() {
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
   });
-  if (!company) return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+
+  if (!company) {
+    return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
+  }
 
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -31,10 +35,7 @@ export default async function CompanyBillingPage() {
   });
 
   const availableMonths = Array.from(
-    new Set([
-      ...monthRows.map((row) => row.billingMonth),
-      thisMonth,
-    ]),
+    new Set([...monthRows.map((row) => row.billingMonth), thisMonth]),
   ).sort((a, b) => a.localeCompare(b));
 
   const billedMonths = monthRows.map((row) => row.billingMonth);
@@ -42,7 +43,6 @@ export default async function CompanyBillingPage() {
     ? thisMonth
     : billedMonths[billedMonths.length - 1] ?? thisMonth;
 
-  // Fetch selected month charges for initial render
   const [aggregate, chargeRows, priceEntries] = await Promise.all([
     prisma.charge.aggregate({
       where: {
@@ -74,22 +74,22 @@ export default async function CompanyBillingPage() {
     }),
   ]);
 
-  const initialCharges: ChargeRow[] = chargeRows.map((ch) => ({
-    id: ch.id,
-    createdAt: ch.createdAt.toISOString(),
-    jobTitle: ch.application.job.title,
-    userName: ch.application.user.name ?? "不明",
-    amount: ch.amount,
-    isValid: ch.isValid,
-    applicationId: ch.application.id,
-    hasExistingRequest: ch.application.invalidRequests.length > 0,
+  const initialCharges: ChargeRow[] = chargeRows.map((charge) => ({
+    id: charge.id,
+    createdAt: charge.createdAt.toISOString(),
+    jobTitle: charge.application.job.title,
+    userName: charge.application.user.name ?? "応募者",
+    amount: charge.amount,
+    isValid: charge.isValid,
+    applicationId: charge.application.id,
+    hasExistingRequest: charge.application.invalidRequests.length > 0,
+    canRequestInvalidation: canSubmitInvalidRequest(charge.application.createdAt),
   }));
 
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">請求管理</h1>
 
-      {/* Month Switcher + Charges Table */}
       <MonthSwitcher
         initialMonth={initialMonth}
         initialCharges={initialCharges}
@@ -98,7 +98,6 @@ export default async function CompanyBillingPage() {
         availableMonths={availableMonths}
       />
 
-      {/* Collapsible Pricing Table with PDF Download */}
       <PricingTable priceEntries={priceEntries} />
     </div>
   );

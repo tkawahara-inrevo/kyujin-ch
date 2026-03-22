@@ -29,7 +29,7 @@ const applicationImages = [
 export function ApplicationListSection({ applications }: ApplicationListSectionProps) {
   return (
     <section className="border-b border-[#dddddd] pb-8">
-      <h1 className="text-[40px] font-bold text-[#333]">応募済み一覧</h1>
+      <h1 className="text-[22px] font-bold text-[#333]">応募済み一覧</h1>
 
       <div className="mt-6 space-y-4">
         {applications.map((application, index) => (

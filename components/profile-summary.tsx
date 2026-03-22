@@ -25,7 +25,7 @@ export function ProfileSummary({
   return (
     <section className="border-b border-[#dddddd] pb-8">
       <div className="flex items-center gap-4">
-        <h1 className="text-[40px] font-bold text-[#333]">マイページ</h1>
+        <h1 className="text-[22px] font-bold text-[#333]">マイページ</h1>
 
         <Link
           href="/mypage/edit"
@@ -44,22 +44,22 @@ export function ProfileSummary({
       <div className="mt-6 grid max-w-[420px] gap-4">
         <div>
           <p className="text-[14px] font-bold text-[#666]">氏名</p>
-          <p className="mt-1 text-[34px] font-bold text-[#333]">{name}</p>
+          <p className="mt-1 text-[20px] font-bold text-[#333] md:text-[22px]">{name}</p>
         </div>
 
         <div>
           <p className="text-[14px] font-bold text-[#666]">メールアドレス</p>
-          <p className="mt-1 text-[34px] font-bold text-[#333]">{email}</p>
+          <p className="mt-1 text-[20px] font-bold text-[#333] md:text-[22px]">{email}</p>
         </div>
 
         <div>
           <p className="text-[14px] font-bold text-[#666]">電話番号</p>
-          <p className="mt-1 text-[34px] font-bold text-[#333]">{phone ?? "未設定"}</p>
+          <p className="mt-1 text-[20px] font-bold text-[#333] md:text-[22px]">{phone ?? "未設定"}</p>
         </div>
 
         <div>
           <p className="text-[14px] font-bold text-[#666]">通知設定</p>
-          <p className="mt-1 text-[34px] font-bold text-[#333]">
+          <p className="mt-1 text-[20px] font-bold text-[#333] md:text-[22px]">
             {notificationsEnabled ? "ON" : "OFF"}
           </p>
         </div>

@@ -38,7 +38,7 @@ export function ProfileEditForm({
 
   return (
     <section className="border-b border-[#dddddd] pb-8">
-      <h1 className="text-[40px] font-bold text-[#333]">マイページ</h1>
+      <h1 className="text-[22px] font-bold text-[#333]">マイページ</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-[420px] space-y-4">
         <div>

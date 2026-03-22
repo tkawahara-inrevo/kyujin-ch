@@ -39,7 +39,7 @@ export function FavoriteListSection({
 }: FavoriteListSectionProps) {
   return (
     <section className="border-b border-[#dddddd] pb-8">
-      <h1 className="text-[40px] font-bold text-[#333]">気になる一覧</h1>
+      <h1 className="text-[22px] font-bold text-[#333]">気になる一覧</h1>
 
       <div className="mt-6 space-y-4">
         {favorites.map((favorite, index) => (

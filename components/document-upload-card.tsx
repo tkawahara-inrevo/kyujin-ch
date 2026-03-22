@@ -51,7 +51,7 @@ export function DocumentUploadCard({
       <p className="text-[16px] font-bold text-[#333]">{title}</p>
 
       <div className="mt-4 flex items-center justify-between gap-4">
-        <p className="text-[22px] font-bold text-[#555]">
+        <p className="text-[18px] font-bold text-[#555] md:text-[20px]">
           {isPending ? "アップロード中..." : uploaded ? "アップロード済" : "未アップロード"}
         </p>
 

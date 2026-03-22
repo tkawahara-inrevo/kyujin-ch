@@ -33,7 +33,7 @@ export default async function MyPage() {
             />
 
             <section className="mt-10">
-              <h2 className="text-[40px] font-bold text-[#333]">書類アップロード</h2>
+              <h2 className="text-[22px] font-bold text-[#333]">書類アップロード</h2>
               <p className="mt-3 text-[14px] font-semibold text-[#777]">
                 対応形式：PDF / DOCX / XLSX（最大10MB）
               </p>

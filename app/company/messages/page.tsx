@@ -151,10 +151,8 @@ export default async function CompanyMessagesPage({
   const backHref = jobId ? `/company/messages?jobId=${jobId}` : "/company/messages";
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-4 py-6 md:px-8 md:py-8 xl:px-10">
-      <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">メッセージ</h1>
-
-      <div className="mt-6 hidden min-h-0 flex-1 gap-5 xl:flex">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-4 py-4 md:px-8 md:py-5 xl:px-10">
+      <div className="hidden min-h-0 flex-1 gap-5 xl:flex">
         <div className="flex min-h-0 w-[280px] shrink-0 flex-col gap-4 overflow-hidden xl:w-[320px]">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
 
@@ -225,7 +223,7 @@ export default async function CompanyMessagesPage({
         </div>
       </div>
 
-      <div className="mt-6 min-h-0 flex-1 xl:hidden">
+      <div className="min-h-0 flex-1 xl:hidden">
         {applicationId && selectedApplication && selectedApplication.conversation ? (
           <MessageThreadPanel
             applicationId={selectedApplication.id}

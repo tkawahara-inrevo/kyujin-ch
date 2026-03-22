@@ -165,7 +165,7 @@ export function CompanyJobsTable({
       </div>
 
       <div className="mt-6 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <div className="md:hidden">
+        <div className="xl:hidden">
           {jobs.length === 0 ? (
             <div className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う求人はありません</div>
           ) : (
@@ -228,7 +228,7 @@ export function CompanyJobsTable({
           )}
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden xl:block">
           <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">

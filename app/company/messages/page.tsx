@@ -148,13 +148,14 @@ export default async function CompanyMessagesPage({
     selectedApplication?.user.careerHistoryUrl && selectedApplication
       ? `/api/company/applicant-documents?applicationId=${selectedApplication.id}&docType=careerHistory`
       : null;
+  const backHref = jobId ? `/company/messages?jobId=${jobId}` : "/company/messages";
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-6 py-8 md:px-10 md:py-10 xl:px-12">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-4 py-6 md:px-8 md:py-8 xl:px-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">メッセージ</h1>
 
-      <div className="mt-8 grid min-h-0 flex-1 gap-5 overflow-hidden xl:grid-cols-[236px_minmax(0,1fr)] 2xl:grid-cols-[252px_minmax(0,1fr)]">
-        <div className="flex min-h-0 flex-col gap-4 overflow-hidden">
+      <div className="mt-6 hidden min-h-0 flex-1 gap-5 xl:flex">
+        <div className="flex min-h-0 w-[280px] shrink-0 flex-col gap-4 overflow-hidden xl:w-[320px]">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
 
           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-2">
@@ -164,47 +165,39 @@ export default async function CompanyMessagesPage({
               </div>
             ) : (
               conversations.map((conversation) => {
-                const lastMessage = conversation.messages[0];
                 const isActive = selectedApplicationId === conversation.applicationId;
                 const unreadCount = isActive ? 0 : conversation._count.messages;
+                const updatedAt = conversation.messages[0]?.createdAt ?? conversation.updatedAt;
 
                 return (
                   <Link
                     key={conversation.id}
                     href={buildMessagesHref(jobId, conversation.applicationId)}
-                    className={`block rounded-[18px] px-4 py-3 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
-                      isActive ? "bg-[#eef4ff]" : "bg-white hover:-translate-y-0.5"
+                    className={`block rounded-[18px] border px-4 py-3 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
+                      isActive
+                        ? "border-[#d8e7ff] bg-[#eef4ff]"
+                        : "border-transparent bg-white hover:-translate-y-0.5 hover:border-[#e5ebf5]"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        {unreadCount > 0 ? (
-                          <span className="inline-flex rounded-full bg-[#2f6cff] px-3 py-1 text-[11px] font-bold text-white">
-                            未読
-                          </span>
-                        ) : null}
-                        <p className="mt-2 truncate text-[16px] font-bold text-[#2b2f38]">
-                          {conversation.application.user.name}
-                        </p>
-                        <p className="mt-2 line-clamp-2 text-[13px] font-semibold leading-[1.5] text-[#444]">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-[16px] font-bold text-[#2b2f38]">
+                            {conversation.application.user.name}
+                          </p>
+                          {unreadCount > 0 ? (
+                            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
+                              {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-[13px] font-semibold leading-[1.5] text-[#475467]">
                           {conversation.application.job.title}
                         </p>
-                        <p className="mt-2 text-[12px] text-[#9aa3b2]">
-                          更新日{" "}
-                          {lastMessage
-                            ? new Date(lastMessage.createdAt).toLocaleDateString("ja-JP")
-                            : "-"}
-                        </p>
                       </div>
-
-                      <div className="flex items-center gap-3">
-                        {unreadCount > 0 ? (
-                          <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-[#ff3158] px-2 text-[12px] font-bold text-white">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        ) : null}
-                        <span className="text-[22px] text-[#222]">→</span>
-                      </div>
+                      <p className="shrink-0 text-[11px] text-[#98a2b3]">
+                        {new Date(updatedAt).toLocaleDateString("ja-JP")}
+                      </p>
                     </div>
                   </Link>
                 );
@@ -213,7 +206,7 @@ export default async function CompanyMessagesPage({
           </div>
         </div>
 
-        <div className="min-h-0 overflow-hidden">
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
           {selectedApplication && selectedApplication.conversation ? (
             <MessageThreadPanel
               applicationId={selectedApplication.id}
@@ -230,6 +223,68 @@ export default async function CompanyMessagesPage({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 min-h-0 flex-1 xl:hidden">
+        {applicationId && selectedApplication && selectedApplication.conversation ? (
+          <MessageThreadPanel
+            applicationId={selectedApplication.id}
+            applicantName={selectedApplication.user.name ?? "応募者"}
+            jobTitle={selectedApplication.job.title}
+            messages={selectedApplication.conversation.messages}
+            resumeHref={resumeHref}
+            careerHistoryHref={careerHistoryHref}
+            isInvalidated={selectedApplication.invalidRequests.length > 0}
+            mobileBackHref={backHref}
+          />
+        ) : (
+          <div className="flex h-full min-h-0 flex-col overflow-hidden">
+            <div className="shrink-0">
+              <MessageJobFilter jobs={jobs} currentJobId={jobId} />
+            </div>
+            <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto">
+              {conversations.length === 0 ? (
+                <div className="rounded-[18px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2] shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+                  条件に合うメッセージはありません
+                </div>
+              ) : (
+                conversations.map((conversation) => {
+                  const unreadCount = conversation._count.messages;
+                  const updatedAt = conversation.messages[0]?.createdAt ?? conversation.updatedAt;
+
+                  return (
+                    <Link
+                      key={conversation.id}
+                      href={buildMessagesHref(jobId, conversation.applicationId)}
+                      className="block rounded-[18px] bg-white px-4 py-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition hover:bg-[#fafcff]"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-[16px] font-bold text-[#2b2f38]">
+                              {conversation.application.user.name}
+                            </p>
+                            {unreadCount > 0 ? (
+                              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-[13px] font-semibold leading-[1.5] text-[#475467]">
+                            {conversation.application.job.title}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-[11px] text-[#98a2b3]">
+                          {new Date(updatedAt).toLocaleDateString("ja-JP")}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

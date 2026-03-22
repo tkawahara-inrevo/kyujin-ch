@@ -42,7 +42,7 @@ export function AnalyticsRankings({
       <div className="mt-8">
         <h2 className="text-[16px] font-bold text-[#333]">PVランキング（求人TOP10）</h2>
         <div className="mt-3 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <div className="md:hidden">
+          <div className="xl:hidden">
             <div className="grid grid-cols-[36px_minmax(0,1fr)_60px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
               <span>#</span>
               <span className="truncate">求人</span>
@@ -69,7 +69,7 @@ export function AnalyticsRankings({
             </div>
           </div>
 
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden overflow-x-auto xl:block">
             <table className="w-full text-left text-[13px]">
               <thead>
                 <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -107,7 +107,7 @@ export function AnalyticsRankings({
       <div className="mt-8">
         <h2 className="text-[16px] font-bold text-[#333]">応募ランキング（求人TOP10）</h2>
         <div className="mt-3 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <div className="md:hidden">
+          <div className="xl:hidden">
             <div className="grid grid-cols-[36px_minmax(0,1fr)_60px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
               <span>#</span>
               <span className="truncate">求人</span>
@@ -134,7 +134,7 @@ export function AnalyticsRankings({
             </div>
           </div>
 
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden overflow-x-auto xl:block">
             <table className="w-full text-left text-[13px]">
               <thead>
                 <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -170,7 +170,7 @@ export function AnalyticsRankings({
       <div className="mt-8">
         <h2 className="text-[16px] font-bold text-[#333]">企業ランキング</h2>
         <div className="mt-3 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <div className="md:hidden">
+          <div className="xl:hidden">
             <div className="grid grid-cols-[36px_minmax(0,1fr)_92px] gap-2 border-b border-[#f0f0f0] px-4 py-3 text-[11px] font-semibold text-[#888]">
               <span>#</span>
               <span className="truncate">企業</span>
@@ -199,7 +199,7 @@ export function AnalyticsRankings({
             </div>
           </div>
 
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden overflow-x-auto xl:block">
             <table className="w-full text-left text-[13px]">
               <thead>
                 <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -233,7 +233,7 @@ export function AnalyticsRankings({
       </div>
 
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button
             type="button"
             aria-label="close"
@@ -270,7 +270,7 @@ export function AnalyticsRankings({
       )}
 
       {selectedCompany && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button
             type="button"
             aria-label="close"

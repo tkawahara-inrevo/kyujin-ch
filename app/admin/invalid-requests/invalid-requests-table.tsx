@@ -35,7 +35,7 @@ export function InvalidRequestsTable({ requests }: { requests: InvalidRequestRow
   return (
     <>
       <div className="mt-6 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div className="md:hidden">
+        <div className="xl:hidden">
           {requests.length === 0 ? (
             <div className="px-5 py-8 text-center text-[13px] text-[#aaa]">
               無効申請はありません
@@ -70,7 +70,7 @@ export function InvalidRequestsTable({ requests }: { requests: InvalidRequestRow
           )}
         </div>
 
-        <div className="hidden overflow-x-auto md:block">
+        <div className="hidden overflow-x-auto xl:block">
           <table className="w-full text-left text-[13px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -117,7 +117,7 @@ export function InvalidRequestsTable({ requests }: { requests: InvalidRequestRow
       </div>
 
       {selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button type="button" aria-label="close" onClick={() => setSelectedRequest(null)} className="absolute inset-0" />
           <div className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-[24px] bg-white px-5 pb-6 pt-4 shadow-[0_-8px_24px_rgba(0,0,0,0.14)]">
             <div className="mx-auto h-1.5 w-12 rounded-full bg-[#d1d5db]" />

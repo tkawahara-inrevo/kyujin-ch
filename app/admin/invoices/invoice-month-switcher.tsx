@@ -98,7 +98,7 @@ export function InvoiceMonthSwitcher({
           ) : (
             <>
               {/* モバイル */}
-              <div className="md:hidden">
+              <div className="xl:hidden">
                 {current.breakdown.map((row) => (
                   <div
                     key={row.companyId}
@@ -118,7 +118,7 @@ export function InvoiceMonthSwitcher({
               </div>
 
               {/* デスクトップ */}
-              <div className="hidden overflow-x-auto md:block">
+              <div className="hidden overflow-x-auto xl:block">
                 <table className="w-full text-left text-[13px]">
                   <thead>
                     <tr className="border-b border-[#f0f0f0] text-[#888]">

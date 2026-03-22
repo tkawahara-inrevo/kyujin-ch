@@ -144,7 +144,7 @@ export function MonthSwitcher({
           </div>
         )}
 
-        <div className="md:hidden">
+        <div className="xl:hidden">
           {charges.length === 0 ? (
             <div className="px-5 py-8 text-center text-[13px] text-[#aaa]">
               {"\u8acb\u6c42\u30c7\u30fc\u30bf\u306f\u3042\u308a\u307e\u305b\u3093"}
@@ -193,7 +193,7 @@ export function MonthSwitcher({
           )}
         </div>
 
-        <div className="hidden overflow-x-auto md:block">
+        <div className="hidden overflow-x-auto xl:block">
           <table className="w-full min-w-[760px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -259,7 +259,7 @@ export function MonthSwitcher({
       </div>
 
       {selectedCharge && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button
             type="button"
             aria-label="close"

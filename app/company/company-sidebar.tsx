@@ -127,7 +127,7 @@ export function CompanySidebar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-[#edf0f5] bg-white px-4 md:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-[#edf0f5] bg-white px-4 xl:hidden">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
@@ -148,7 +148,7 @@ export function CompanySidebar() {
       </div>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/30"
@@ -179,7 +179,7 @@ export function CompanySidebar() {
         </div>
       ) : null}
 
-      <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white md:flex">
+      <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white xl:flex">
         <div className="flex h-[120px] items-center border-b border-[#edf0f5] px-8">
           <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
             <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />

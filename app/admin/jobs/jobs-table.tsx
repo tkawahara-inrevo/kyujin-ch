@@ -31,7 +31,7 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
   return (
     <>
       <div className="mt-6 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div className="md:hidden">
+        <div className="xl:hidden">
           {jobs.length === 0 ? (
             <div className="px-5 py-8 text-center text-[13px] text-[#aaa]">求人がありません</div>
           ) : (
@@ -64,7 +64,7 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
           )}
         </div>
 
-        <div className="hidden overflow-x-auto md:block">
+        <div className="hidden overflow-x-auto xl:block">
           <table className="w-full text-left text-[13px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -114,7 +114,7 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
       </div>
 
       {selectedJob ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button type="button" aria-label="close" onClick={() => setSelectedJob(null)} className="absolute inset-0" />
           <div className="relative max-h-[85vh] w-full rounded-t-[24px] bg-white px-5 pb-6 pt-4 shadow-[0_-8px_24px_rgba(0,0,0,0.14)]">
             <div className="mx-auto h-1.5 w-12 rounded-full bg-[#d1d5db]" />

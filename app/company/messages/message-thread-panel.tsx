@@ -27,6 +27,7 @@ export function MessageThreadPanel({
   resumeHref,
   careerHistoryHref,
   isInvalidated = false,
+  mobileBackHref,
 }: {
   applicationId: string;
   applicantName: string;
@@ -35,6 +36,7 @@ export function MessageThreadPanel({
   resumeHref?: string | null;
   careerHistoryHref?: string | null;
   isInvalidated?: boolean;
+  mobileBackHref?: string;
 }) {
   const [isPending, startTransition] = useTransition();
   const [msgBody, setMsgBody] = useState("");
@@ -111,35 +113,46 @@ export function MessageThreadPanel({
   return (
     <div className="flex h-full min-h-0 flex-col rounded-[22px] bg-white p-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] xl:p-5">
       <div className="shrink-0 border-b border-[#edf1f7] pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-[22px] font-bold leading-[1.3] text-[#2b2f38]">
-              {applicantName} さん
+            {mobileBackHref ? (
+              <a
+                href={mobileBackHref}
+                className="mb-3 inline-flex items-center text-[13px] font-semibold text-[#667085] xl:hidden"
+              >
+                ← 一覧に戻る
+              </a>
+            ) : null}
+            <p className="truncate text-[20px] font-bold leading-[1.3] text-[#2b2f38] lg:text-[22px]">
+              {applicantName}
             </p>
             <p className="mt-1 text-[14px] font-semibold text-[#7f8795]">{jobTitle}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-[12px]">
-            {resumeHref ? (
-              <a
-                href={resumeHref}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full bg-[#f3f6fb] px-3 py-1.5 font-bold text-[#4b5d78] transition hover:bg-[#e8eef8]"
-              >
-                履歴書
-              </a>
-            ) : null}
-            {careerHistoryHref ? (
-              <a
-                href={careerHistoryHref}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full bg-[#f3f6fb] px-3 py-1.5 font-bold text-[#4b5d78] transition hover:bg-[#e8eef8]"
-              >
-                職務経歴書
-              </a>
-            ) : null}
-          </div>
+
+          {resumeHref || careerHistoryHref ? (
+            <div className="flex shrink-0 flex-col items-end gap-2 text-[12px]">
+              {resumeHref ? (
+                <a
+                  href={resumeHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-[#4b5d78] transition hover:text-[#2f6cff]"
+                >
+                  履歴書
+                </a>
+              ) : null}
+              {careerHistoryHref ? (
+                <a
+                  href={careerHistoryHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-[#4b5d78] transition hover:text-[#2f6cff]"
+                >
+                  職務経歴書
+                </a>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -150,7 +163,7 @@ export function MessageThreadPanel({
           </div>
         ) : (
           <>
-            <div ref={scrollAreaRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+            <div ref={scrollAreaRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {messages.length === 0 ? (
                 <div className="rounded-[18px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2]">
                   まだメッセージはありません
@@ -161,10 +174,12 @@ export function MessageThreadPanel({
 
                   return (
                     <div key={message.id} className={`flex ${isCompany ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[90%] ${isCompany ? "items-end" : "items-start"}`}>
+                      <div className={`max-w-[92%] lg:max-w-[84%] ${isCompany ? "items-end" : "items-start"}`}>
                         <div
-                          className={`rounded-[18px] px-5 py-4 text-[14px] leading-[1.8] ${
-                            isCompany ? "bg-[#2f6cff] text-white" : "bg-white text-[#2b2f38]"
+                          className={`rounded-[18px] px-4 py-3 text-[14px] leading-[1.8] lg:px-5 lg:py-4 ${
+                            isCompany
+                              ? "bg-[#2f6cff] text-white"
+                              : "bg-white text-[#2b2f38] shadow-[0_1px_3px_rgba(15,23,42,0.06)]"
                           }`}
                         >
                           {message.body ? <p className="whitespace-pre-wrap">{message.body}</p> : null}
@@ -251,7 +266,7 @@ export function MessageThreadPanel({
                   <button
                     type="submit"
                     disabled={isPending || (!msgBody.trim() && !file)}
-                    className="h-[76px] min-w-[88px] rounded-[18px] bg-[#8f9094] px-5 text-[20px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-[76px] min-w-[84px] rounded-[18px] bg-[#8f9094] px-4 text-[18px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 lg:min-w-[88px] lg:px-5 lg:text-[20px]"
                   >
                     送信
                   </button>

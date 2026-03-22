@@ -68,7 +68,7 @@ export function AdminSidebar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-40 flex h-[64px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 md:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-[64px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 xl:hidden">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
@@ -84,7 +84,7 @@ export function AdminSidebar() {
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/30"
@@ -114,7 +114,7 @@ export function AdminSidebar() {
         </div>
       )}
 
-      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white md:flex">
+      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-[#e5e7eb] bg-white xl:flex">
         <div className="flex h-[64px] items-center border-b border-[#e5e7eb] px-5">
           <Link href="/admin/dashboard" className="text-[18px] font-bold text-[#1e3a5f]">
             管理者画面

@@ -21,7 +21,7 @@ export default function AnalyticsTable({ jobs }: { jobs: JobRow[] }) {
   return (
     <>
       <div className="mt-6 rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <div className="md:hidden">
+        <div className="xl:hidden">
           {jobs.length === 0 ? (
             <div className="px-5 py-8 text-center text-[13px] text-[#aaa]">
               {"\u6c42\u4eba\u304c\u307e\u3060\u3042\u308a\u307e\u305b\u3093"}
@@ -59,7 +59,7 @@ export default function AnalyticsTable({ jobs }: { jobs: JobRow[] }) {
           )}
         </div>
 
-        <div className="hidden overflow-x-auto md:block">
+        <div className="hidden overflow-x-auto xl:block">
           <table className="w-full min-w-[760px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] text-[#888]">
@@ -108,7 +108,7 @@ export default function AnalyticsTable({ jobs }: { jobs: JobRow[] }) {
       </div>
 
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40 md:hidden">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 xl:hidden">
           <button
             type="button"
             aria-label="close"

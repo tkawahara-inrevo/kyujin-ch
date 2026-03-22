@@ -62,7 +62,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="mt-3 overflow-hidden rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <div className="md:hidden">
+          <div className="xl:hidden">
             {recentCompanies.length === 0 ? (
               <div className="px-4 py-10 text-center text-[#9aa3b2]">まだ登録企業はありません</div>
             ) : (
@@ -83,7 +83,7 @@ export default async function AdminDashboardPage() {
             )}
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden xl:block">
             <table className="w-full table-fixed text-left text-[13px]">
               <thead>
                 <tr className="border-b border-[#f0f0f0] text-[#888]">

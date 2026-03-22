@@ -109,22 +109,22 @@ export function MessageThreadPanel({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-[22px] bg-white p-5 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-      <div className="shrink-0 border-b border-[#edf1f7] pb-4">
+    <div className="flex h-full min-h-0 flex-col rounded-[22px] bg-white p-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] xl:p-5">
+      <div className="shrink-0 border-b border-[#edf1f7] pb-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-[24px] font-bold leading-[1.3] text-[#2b2f38]">
+            <p className="truncate text-[22px] font-bold leading-[1.3] text-[#2b2f38]">
               {applicantName} さん
             </p>
-            <p className="mt-1 text-[15px] font-semibold text-[#7f8795]">{jobTitle}</p>
+            <p className="mt-1 text-[14px] font-semibold text-[#7f8795]">{jobTitle}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          <div className="flex flex-wrap items-center gap-2 text-[12px]">
             {resumeHref ? (
               <a
                 href={resumeHref}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center rounded-full bg-[#eef4ff] px-3 py-1.5 font-bold text-[#2f6cff] transition hover:bg-[#dfeaff]"
+                className="inline-flex items-center rounded-full bg-[#f3f6fb] px-3 py-1.5 font-bold text-[#4b5d78] transition hover:bg-[#e8eef8]"
               >
                 履歴書
               </a>
@@ -134,7 +134,7 @@ export function MessageThreadPanel({
                 href={careerHistoryHref}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center rounded-full bg-[#eef4ff] px-3 py-1.5 font-bold text-[#2f6cff] transition hover:bg-[#dfeaff]"
+                className="inline-flex items-center rounded-full bg-[#f3f6fb] px-3 py-1.5 font-bold text-[#4b5d78] transition hover:bg-[#e8eef8]"
               >
                 職務経歴書
               </a>
@@ -143,17 +143,14 @@ export function MessageThreadPanel({
         </div>
       </div>
 
-      <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-[20px] bg-[#f7f9fc] p-3">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col rounded-[20px] bg-[#f7f9fc] p-3">
         {isInvalidated ? (
           <div className="rounded-[18px] bg-white px-5 py-6 text-[13px] text-[#8f97a5]">
             無効化されているため閲覧ができません
           </div>
         ) : (
           <>
-            <div
-              ref={scrollAreaRef}
-              className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1"
-            >
+            <div ref={scrollAreaRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
               {messages.length === 0 ? (
                 <div className="rounded-[18px] bg-white px-5 py-10 text-center text-[13px] text-[#9aa3b2]">
                   まだメッセージはありません
@@ -161,14 +158,13 @@ export function MessageThreadPanel({
               ) : (
                 messages.map((message) => {
                   const isCompany = message.senderType === "COMPANY";
+
                   return (
                     <div key={message.id} className={`flex ${isCompany ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[86%] ${isCompany ? "items-end" : "items-start"}`}>
+                      <div className={`max-w-[90%] ${isCompany ? "items-end" : "items-start"}`}>
                         <div
                           className={`rounded-[18px] px-5 py-4 text-[14px] leading-[1.8] ${
-                            isCompany
-                              ? "bg-[#2f6cff] text-white"
-                              : "bg-white text-[#2b2f38]"
+                            isCompany ? "bg-[#2f6cff] text-white" : "bg-white text-[#2b2f38]"
                           }`}
                         >
                           {message.body ? <p className="whitespace-pre-wrap">{message.body}</p> : null}
@@ -178,9 +174,7 @@ export function MessageThreadPanel({
                               target="_blank"
                               rel="noreferrer"
                               className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-bold ${
-                                isCompany
-                                  ? "bg-white/15 text-white"
-                                  : "bg-[#eef4ff] text-[#2f6cff]"
+                                isCompany ? "bg-white/15 text-white" : "bg-[#eef4ff] text-[#2f6cff]"
                               }`}
                             >
                               <span>添付</span>
@@ -251,13 +245,13 @@ export function MessageThreadPanel({
                     onChange={(event) => setMsgBody(event.target.value)}
                     placeholder="メッセージを書く..."
                     rows={3}
-                    className="min-h-[76px] flex-1 resize-none rounded-[18px] border border-[#d8e0ec] bg-white px-6 py-5 text-[14px] outline-none transition focus:border-[#2f6cff]"
+                    className="min-h-[76px] flex-1 resize-none rounded-[18px] border border-[#d8e0ec] bg-white px-5 py-4 text-[14px] outline-none transition focus:border-[#2f6cff]"
                   />
 
                   <button
                     type="submit"
                     disabled={isPending || (!msgBody.trim() && !file)}
-                    className="h-[78px] min-w-[100px] rounded-[18px] bg-[#8f9094] px-6 text-[24px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-[76px] min-w-[88px] rounded-[18px] bg-[#8f9094] px-5 text-[20px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     送信
                   </button>

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "./status-badge";
@@ -47,20 +47,20 @@ export default async function CompanyApplicantsPage({
       <form action="/company/applicants" className="mt-8">
         <div className="flex max-w-[420px] items-end gap-3">
           <div className="flex-1">
-          <label className="mb-2 block text-[14px] font-bold text-[#444]">絞り込み条件</label>
-          <select
-            name="jobId"
-            defaultValue={jobId ?? ""}
-            className="w-full rounded-[10px] border border-[#d6dce8] bg-white px-4 py-3 text-[14px] text-[#333] outline-none focus:border-[#2f6cff]"
-          >
-            <option value="">応募求人</option>
-            {jobs.map((job) => (
-              <option key={job.id} value={job.id}>
-                {job.title}
-              </option>
-            ))}
-          </select>
-        </div>
+            <label className="mb-2 block text-[14px] font-bold text-[#444]">絞り込み条件</label>
+            <select
+              name="jobId"
+              defaultValue={jobId ?? ""}
+              className="w-full rounded-[10px] border border-[#d6dce8] bg-white px-4 py-3 text-[14px] text-[#333] outline-none focus:border-[#2f6cff]"
+            >
+              <option value="">応募求人</option>
+              {jobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.title}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="submit"
             className="rounded-[10px] bg-[#2f6cff] px-5 py-3 text-[14px] font-bold text-white"
@@ -70,14 +70,14 @@ export default async function CompanyApplicantsPage({
         </div>
       </form>
 
-      <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <table className="w-full table-fixed text-left text-[14px]">
+      <div className="mt-8 overflow-x-auto overflow-y-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+        <table className="w-full min-w-[680px] table-fixed text-left text-[14px]">
           <thead>
             <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-              <th className="w-[140px] px-4 py-4 font-bold">氏名</th>
+              <th className="w-[112px] px-4 py-4 font-bold">氏名</th>
               <th className="px-4 py-4 font-bold">応募求人</th>
-              <th className="w-[136px] px-4 py-4 font-bold">ステータス</th>
-              <th className="w-[132px] px-4 py-4 font-bold">応募日</th>
+              <th className="w-[112px] px-4 py-4 text-center font-bold">ステータス</th>
+              <th className="w-[112px] px-4 py-4 text-center font-bold">応募日</th>
             </tr>
           </thead>
           <tbody>
@@ -91,15 +91,25 @@ export default async function CompanyApplicantsPage({
               applications.map((application) => (
                 <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
                   <td className="px-4 py-4 font-bold text-[#333]">
-                    <Link href={`/company/applicants/${application.id}`} className="block truncate hover:text-[#2f6cff]" title={application.user.name ?? ""}>
+                    <Link
+                      href={`/company/applicants/${application.id}`}
+                      className="block truncate hover:text-[#2f6cff]"
+                      title={application.user.name ?? ""}
+                    >
                       {application.user.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={application.job.title}>{application.job.title}</span></td>
+                  <td className="px-4 py-4 text-[#333]">
+                    <span className="block truncate" title={application.job.title}>
+                      {application.job.title}
+                    </span>
+                  </td>
                   <td className="px-4 py-4 text-center">
                     <StatusBadge status={application.status} />
                   </td>
-                  <td className="px-4 py-4 text-center text-[#666]">{application.createdAt.toLocaleDateString("ja-JP")}</td>
+                  <td className="px-4 py-4 text-center text-[#666]">
+                    {application.createdAt.toLocaleDateString("ja-JP")}
+                  </td>
                 </tr>
               ))
             )}
@@ -109,4 +119,3 @@ export default async function CompanyApplicantsPage({
     </div>
   );
 }
-

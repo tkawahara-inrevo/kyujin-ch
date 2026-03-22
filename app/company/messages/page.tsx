@@ -79,7 +79,9 @@ export default async function CompanyMessagesPage({
   ]);
 
   const selectedConversation =
-    conversations.find((conversation) => conversation.applicationId === applicationId) ?? conversations[0] ?? null;
+    conversations.find((conversation) => conversation.applicationId === applicationId) ??
+    conversations[0] ??
+    null;
 
   const selectedApplication = selectedConversation
     ? await prisma.application.findFirst({
@@ -148,10 +150,10 @@ export default async function CompanyMessagesPage({
       : null;
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-6 py-8 md:px-12 md:py-10">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-6 py-8 md:px-10 md:py-10 xl:px-12">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">メッセージ</h1>
 
-      <div className="mt-8 grid min-h-0 flex-1 gap-5 overflow-hidden xl:grid-cols-[268px_minmax(0,1fr)] 2xl:grid-cols-[288px_minmax(0,1fr)]">
+      <div className="mt-8 grid min-h-0 flex-1 gap-5 overflow-hidden xl:grid-cols-[236px_minmax(0,1fr)] 2xl:grid-cols-[252px_minmax(0,1fr)]">
         <div className="flex min-h-0 flex-col gap-4 overflow-hidden">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
 
@@ -177,23 +179,17 @@ export default async function CompanyMessagesPage({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         {unreadCount > 0 ? (
-                          <span className="inline-flex rounded-full bg-[#2f6cff] px-4 py-1 text-[12px] font-bold text-white">
+                          <span className="inline-flex rounded-full bg-[#2f6cff] px-3 py-1 text-[11px] font-bold text-white">
                             未読
                           </span>
                         ) : null}
-                        <p className="mt-3 truncate text-[17px] font-bold text-[#2b2f38]">
+                        <p className="mt-2 truncate text-[16px] font-bold text-[#2b2f38]">
                           {conversation.application.user.name}
                         </p>
-                        <p className="mt-2 line-clamp-2 text-[14px] font-semibold leading-[1.55] text-[#444]">
+                        <p className="mt-2 line-clamp-2 text-[13px] font-semibold leading-[1.5] text-[#444]">
                           {conversation.application.job.title}
                         </p>
-                        <p className="mt-2 line-clamp-1 text-[12px] leading-[1.5] text-[#7b8493]">
-                          {lastMessage?.body ||
-                            (lastMessage?.attachmentName
-                              ? `添付: ${lastMessage.attachmentName}`
-                              : "まだメッセージはありません")}
-                        </p>
-                        <p className="mt-1 text-[12px] text-[#9aa3b2]">
+                        <p className="mt-2 text-[12px] text-[#9aa3b2]">
                           更新日{" "}
                           {lastMessage
                             ? new Date(lastMessage.createdAt).toLocaleDateString("ja-JP")
@@ -207,7 +203,7 @@ export default async function CompanyMessagesPage({
                             {unreadCount > 99 ? "99+" : unreadCount}
                           </span>
                         ) : null}
-                        <span className="text-[24px] text-[#222]">→</span>
+                        <span className="text-[22px] text-[#222]">→</span>
                       </div>
                     </div>
                   </Link>

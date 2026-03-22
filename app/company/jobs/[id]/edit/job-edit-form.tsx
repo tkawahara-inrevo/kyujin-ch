@@ -82,7 +82,7 @@ export function JobEditForm({
   const router = useRouter();
   const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));

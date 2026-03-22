@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
@@ -104,7 +104,7 @@ export default async function CompanyDashboardPage() {
           value={`¥ ${(lifetimeCharges._sum.amount ?? 0).toLocaleString()}`}
           href="/company/billing"
           colorClass="text-[#f59e0b]"
-          sub={`当月　¥ ${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`}
+          sub={`当月 ¥ ${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`}
         />
         <KpiCard
           label="未読メッセージ"
@@ -118,46 +118,79 @@ export default async function CompanyDashboardPage() {
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[24px] font-bold text-[#2b2f38]">最新の応募</h2>
           <Link href="/company/applicants" className="text-[15px] font-bold text-[#2b2f38] hover:opacity-70">
-            すべて見る　›
+            すべて見る →
           </Link>
         </div>
 
         <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-          <table className="w-full table-fixed text-left text-[14px]">
-            <thead>
-              <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[120px] px-4 py-4 font-bold">氏名</th>
-                <th className="w-[120px] px-4 py-4 font-bold">応募求人</th>
-                <th className="w-[120px] px-4 py-4 font-bold">応募日</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentApps.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="px-4 py-10 text-center text-[#9aa3b2]">
-                    まだ応募はありません
-                  </td>
+          <div className="md:hidden">
+            {recentApps.length === 0 ? (
+              <div className="px-4 py-10 text-center text-[#9aa3b2]">まだ応募はありません</div>
+            ) : (
+              <div className="divide-y divide-[#edf0f5]">
+                {recentApps.map((application) => (
+                  <Link
+                    key={application.id}
+                    href={`/company/applicants/${application.id}`}
+                    className="block px-4 py-4 transition hover:bg-[#fafcff]"
+                  >
+                    <p className="truncate text-[15px] font-bold text-[#333]">{application.user.name}</p>
+                    <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
+                      {application.job.title}
+                    </p>
+                    <p className="mt-3 text-[12px] text-[#98a2b3]">
+                      応募日 {application.createdAt.toLocaleDateString("ja-JP")}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="hidden md:block">
+            <table className="w-full table-fixed text-left text-[14px]">
+              <thead>
+                <tr className="border-b border-[#e8edf5] text-[#7f8795]">
+                  <th className="w-[104px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
+                  <th className="px-4 py-4 font-bold">応募求人</th>
+                  <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">応募日</th>
                 </tr>
-              ) : (
-                recentApps.map((application) => (
-                  <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-4 py-4 font-bold text-[#333]">
-                      <Link href={`/company/applicants/${application.id}`} className="block truncate hover:text-[#2f6cff]" title={application.user.name ?? ""}>
-                        {application.user.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={application.job.title}>{application.job.title}</span></td>
-                    <td className="px-4 py-4 text-[#666]">
-                      {application.createdAt.toLocaleDateString("ja-JP")}
+              </thead>
+              <tbody>
+                {recentApps.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-4 py-10 text-center text-[#9aa3b2]">
+                      まだ応募はありません
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  recentApps.map((application) => (
+                    <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
+                      <td className="px-4 py-4 font-bold text-[#333]">
+                        <Link
+                          href={`/company/applicants/${application.id}`}
+                          className="block truncate hover:text-[#2f6cff]"
+                          title={application.user.name ?? ""}
+                        >
+                          {application.user.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4 text-[#333]">
+                        <span className="block truncate" title={application.job.title}>
+                          {application.job.title}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-[#666]">
+                        {application.createdAt.toLocaleDateString("ja-JP")}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
@@ -44,6 +44,38 @@ const REVIEW_BADGES: Record<JobRow["reviewStatus"], string> = {
   RETURNED: "bg-rose-100 text-rose-700",
 };
 
+function PublishToggle({
+  job,
+  disabled,
+  onToggle,
+}: {
+  job: JobRow;
+  disabled: boolean;
+  onToggle: (job: JobRow) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(job)}
+      disabled={disabled}
+      className="inline-flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+      aria-label={job.isPublished ? "非公開にする" : "公開する"}
+    >
+      <span
+        className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
+          job.isPublished ? "bg-[#2f6cff]" : "bg-[#d6dce8]"
+        }`}
+      >
+        <span
+          className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+            job.isPublished ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
 export function CompanyJobsTable({
   jobs,
   currentStatus,
@@ -58,11 +90,11 @@ export function CompanyJobsTable({
   const [targetJob, setTargetJob] = useState<JobRow | null>(null);
 
   const filterValue = useMemo(
-    () => FILTER_OPTIONS.some((option) => option.value === currentStatus) ? currentStatus : "all",
+    () => (FILTER_OPTIONS.some((option) => option.value === currentStatus) ? currentStatus : "all"),
     [currentStatus],
   );
   const sortValue = useMemo(
-    () => SORT_OPTIONS.some((option) => option.value === currentSort) ? currentSort : "updated_desc",
+    () => (SORT_OPTIONS.some((option) => option.value === currentSort) ? currentSort : "updated_desc"),
     [currentSort],
   );
 
@@ -133,83 +165,135 @@ export function CompanyJobsTable({
       </div>
 
       <div className="mt-6 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <table className="w-full table-fixed text-left text-[14px]">
-          <thead>
-            <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-              <th className="px-4 py-4 font-bold">応募求人</th>
-              <th className="w-[118px] px-4 py-4 font-bold">雇用形態</th>
-              <th className="w-[120px] px-4 py-4 font-bold">勤務地</th>
-              <th className="w-[92px] px-4 py-4 font-bold">応募数</th>
-              <th className="w-[148px] px-4 py-4 font-bold">審査状況</th>
-              <th className="w-[84px] px-4 py-4 text-center font-bold">公開</th>
-            </tr>
-          </thead>
-          <tbody>
-            {jobs.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">
-                  条件に合う求人はありません
-                </td>
-              </tr>
-            ) : (
-              jobs.map((job) => {
+        <div className="md:hidden">
+          {jobs.length === 0 ? (
+            <div className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う求人はありません</div>
+          ) : (
+            <div className="divide-y divide-[#edf0f5]">
+              {jobs.map((job) => {
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
+                const visibilityDisabled = isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
                 return (
-                  <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-4 py-4 font-bold text-[#333]">
+                  <div key={job.id} className="px-4 py-4">
+                    <div className="flex items-start justify-between gap-3">
                       <Link
                         href={`/company/jobs/${job.id}/edit`}
-                        className="block truncate hover:text-[#2f6cff]"
-                        title={job.title}
+                        className="min-w-0 flex-1 text-[15px] font-bold leading-[1.6] text-[#333] hover:text-[#2f6cff]"
                       >
-                        {job.title}
+                        <span className="line-clamp-2">{job.title}</span>
                       </Link>
-                    </td>
-                    <td className="px-4 py-4 text-[#333]">{job.employmentTypeLabel}</td>
-                    <td className="px-4 py-4 text-[#333]"><span className="block truncate" title={job.location}>{job.location}</span></td>
-                    <td className="px-4 py-4 font-bold text-[#333]">{job.applicationsCount}</td>
-                    <td className="px-4 py-4">
-                      {canWithdraw ? (
-                        <button
-                          type="button"
-                          onClick={() => setTargetJob(job)}
-                          className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${REVIEW_BADGES[job.reviewStatus]}`}
-                        >
-                          {REVIEW_LABELS[job.reviewStatus]}
-                        </button>
-                      ) : (
-                        <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${REVIEW_BADGES[job.reviewStatus]}`}>
-                          {REVIEW_LABELS[job.reviewStatus]}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleVisibility(job)}
-                        disabled={isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion)}
-                        className="inline-flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={job.isPublished ? "非公開にする" : "公開する"}
-                      >
-                        <span
-                          className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${
-                            job.isPublished ? "bg-[#2f6cff]" : "bg-[#d6dce8]"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                              job.isPublished ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          />
-                        </span>
-                      </button>
-                    </td>
-                  </tr>
+                      <div className="shrink-0">
+                        <PublishToggle job={job} disabled={visibilityDisabled} onToggle={handleToggleVisibility} />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
+                      <div>
+                        <p className="text-[#98a2b3]">雇用形態</p>
+                        <p className="mt-1 font-semibold text-[#344054]">{job.employmentTypeLabel}</p>
+                      </div>
+                      <div>
+                        <p className="text-[#98a2b3]">勤務地</p>
+                        <p className="mt-1 truncate font-semibold text-[#344054]" title={job.location}>
+                          {job.location}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[#98a2b3]">応募数</p>
+                        <p className="mt-1 font-semibold text-[#344054]">{job.applicationsCount}</p>
+                      </div>
+                      <div>
+                        <p className="text-[#98a2b3]">審査状況</p>
+                        <div className="mt-1">
+                          {canWithdraw ? (
+                            <button
+                              type="button"
+                              onClick={() => setTargetJob(job)}
+                              className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${REVIEW_BADGES[job.reviewStatus]}`}
+                            >
+                              {REVIEW_LABELS[job.reviewStatus]}
+                            </button>
+                          ) : (
+                            <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${REVIEW_BADGES[job.reviewStatus]}`}>
+                              {REVIEW_LABELS[job.reviewStatus]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 );
-              })
-            )}
-          </tbody>
-        </table>
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block">
+          <table className="w-full table-fixed text-left text-[14px]">
+            <thead>
+              <tr className="border-b border-[#e8edf5] text-[#7f8795]">
+                <th className="px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[118px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
+                <th className="w-[112px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
+                <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
+                <th className="w-[132px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
+                <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
+              </tr>
+            </thead>
+            <tbody>
+              {jobs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">
+                    条件に合う求人はありません
+                  </td>
+                </tr>
+              ) : (
+                jobs.map((job) => {
+                  const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
+                  const visibilityDisabled = isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
+                  return (
+                    <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
+                      <td className="px-4 py-4 font-bold text-[#333]">
+                        <Link
+                          href={`/company/jobs/${job.id}/edit`}
+                          className="block truncate hover:text-[#2f6cff]"
+                          title={job.title}
+                        >
+                          {job.title}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-4 text-[#333]">{job.employmentTypeLabel}</td>
+                      <td className="px-3 py-4 text-[#333]">
+                        <span className="block truncate" title={job.location}>
+                          {job.location}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-center font-bold text-[#333]">{job.applicationsCount}</td>
+                      <td className="px-3 py-4 text-center">
+                        {canWithdraw ? (
+                          <button
+                            type="button"
+                            onClick={() => setTargetJob(job)}
+                            className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${REVIEW_BADGES[job.reviewStatus]}`}
+                          >
+                            {REVIEW_LABELS[job.reviewStatus]}
+                          </button>
+                        ) : (
+                          <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${REVIEW_BADGES[job.reviewStatus]}`}>
+                            {REVIEW_LABELS[job.reviewStatus]}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <PublishToggle job={job} disabled={visibilityDisabled} onToggle={handleToggleVisibility} />
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {targetJob ? (
@@ -247,4 +331,3 @@ export function CompanyJobsTable({
     </>
   );
 }
-

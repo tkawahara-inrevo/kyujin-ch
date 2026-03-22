@@ -38,7 +38,7 @@ const EMPLOYMENT_PERIOD_OPTIONS = [
 
 export default function CompanyJobNewPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [pendingAction, setPendingAction] = useState<JobSubmissionMode | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const gradYears = getActiveGraduationYears();
@@ -166,45 +166,52 @@ export default function CompanyJobNewPage() {
       return;
     }
 
-    setLoading(true);
     const fd = new FormData(event.currentTarget);
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
-    await createJob(
-      {
-        title: fd.get("title") as string,
-        description: fd.get("description") as string,
-        employmentType,
-        categoryTag,
-        categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
-        employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
-        region: selectedRegion,
-        location: selectedLocation,
-        salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
-        salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
-        monthlySalary: fd.get("monthlySalary") as string,
-        annualSalary: fd.get("annualSalary") as string,
-        requirements: fd.get("requirements") as string,
-        desiredAptitude: fd.get("desiredAptitude") as string,
-        recommendedFor: fd.get("recommendedFor") as string,
-        access: fd.get("access") as string,
-        officeDetail: fd.get("officeDetail") as string,
-        workingHours: fd.get("workingHours") as string,
-        selectionProcess: fd.get("selectionProcess") as string,
-        closingDate: fd.get("closingDate") as string,
-        employmentPeriodType,
-        imageUrl,
-        tags: mergedTags,
-        benefits: mergedBenefits,
-        targetType,
-        graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
-      },
-      submissionMode,
-    );
+    setPendingAction(submissionMode);
 
-    router.push("/company/jobs");
+    try {
+      await createJob(
+        {
+          title: fd.get("title") as string,
+          description: fd.get("description") as string,
+          employmentType,
+          categoryTag,
+          categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
+          employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
+          region: selectedRegion,
+          location: selectedLocation,
+          salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
+          salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
+          monthlySalary: fd.get("monthlySalary") as string,
+          annualSalary: fd.get("annualSalary") as string,
+          requirements: fd.get("requirements") as string,
+          desiredAptitude: fd.get("desiredAptitude") as string,
+          recommendedFor: fd.get("recommendedFor") as string,
+          access: fd.get("access") as string,
+          officeDetail: fd.get("officeDetail") as string,
+          workingHours: fd.get("workingHours") as string,
+          selectionProcess: fd.get("selectionProcess") as string,
+          closingDate: fd.get("closingDate") as string,
+          employmentPeriodType,
+          imageUrl,
+          tags: mergedTags,
+          benefits: mergedBenefits,
+          targetType,
+          graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
+        },
+        submissionMode,
+      );
+
+      router.push("/company/jobs");
+    } finally {
+      setPendingAction(null);
+    }
   }
+
+  const isSubmitting = pendingAction !== null;
 
   return (
     <div className="mx-auto max-w-[1920px] px-4 py-8 md:px-6 md:py-10 xl:px-8 2xl:px-10">
@@ -531,18 +538,18 @@ export default function CompanyJobNewPage() {
             <button
               type="submit"
               data-mode="review"
-              disabled={loading}
+              disabled={isSubmitting}
               className="rounded-[14px] bg-[#2f6cff] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "送信中..." : "審査に提出"}
+              {pendingAction === "review" ? "送信中..." : "審査に提出"}
             </button>
             <button
               type="submit"
               data-mode="draft"
-              disabled={loading}
+              disabled={isSubmitting}
               className="rounded-[14px] border border-[#c8d6f6] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2f6cff] transition hover:bg-[#f7faff] disabled:opacity-50"
             >
-              下書き保存
+              {pendingAction === "draft" ? "保存中..." : "下書き保存"}
             </button>
             <button
               type="button"

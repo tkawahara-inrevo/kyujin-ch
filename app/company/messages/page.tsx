@@ -151,7 +151,7 @@ export default async function CompanyMessagesPage({
   const backHref = jobId ? `/company/messages?jobId=${jobId}` : "/company/messages";
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-4 py-4 md:px-8 md:py-5 xl:px-10">
+    <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden px-4 py-3 md:px-6 md:py-4 xl:px-8">
       <div className="hidden min-h-0 flex-1 gap-5 xl:flex">
         <div className="flex min-h-0 w-[280px] shrink-0 flex-col gap-4 overflow-hidden xl:w-[320px]">
           <MessageJobFilter jobs={jobs} currentJobId={jobId} />
@@ -237,7 +237,7 @@ export default async function CompanyMessagesPage({
           />
         ) : (
           <div className="flex h-full min-h-0 flex-col overflow-hidden">
-            <div className="shrink-0">
+            <div className="shrink-0 pb-2">
               <MessageJobFilter jobs={jobs} currentJobId={jobId} />
             </div>
             <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto">

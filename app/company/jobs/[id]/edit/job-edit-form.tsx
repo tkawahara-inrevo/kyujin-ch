@@ -80,8 +80,9 @@ export function JobEditForm({
   hasPendingVersion: boolean;
 }) {
   const router = useRouter();
+  const [currentReviewStatus, setCurrentReviewStatus] = useState(job.reviewStatus);
   const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
-  const [loading, setLoading] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"review" | "draft" | "withdraw" | "delete" | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -229,69 +230,84 @@ export function JobEditForm({
       return;
     }
 
-    setLoading(true);
     const fd = new FormData(event.currentTarget);
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
+    setPendingAction(submissionMode);
 
-    await updateJob(
-      job.id,
-      {
-        title: fd.get("title") as string,
-        description: fd.get("description") as string,
-        employmentType,
-        location: selectedLocation,
-        salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
-        salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
-        categoryTag,
-        tags: mergedTags,
-        imageUrl,
-        requirements: fd.get("requirements") as string,
-        desiredAptitude: fd.get("desiredAptitude") as string,
-        recommendedFor: fd.get("recommendedFor") as string,
-        monthlySalary: fd.get("monthlySalary") as string,
-        annualSalary: fd.get("annualSalary") as string,
-        access: fd.get("access") as string,
-        officeDetail: fd.get("officeDetail") as string,
-        benefits: mergedBenefits,
-        selectionProcess: fd.get("selectionProcess") as string,
-        workingHours: fd.get("workingHours") as string,
-        closingDate: fd.get("closingDate") as string,
-        employmentPeriodType,
-        region: selectedRegion,
-        categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
-        employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
-        targetType,
-        graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
-      },
-      submissionMode,
-    );
+    try {
+      await updateJob(
+        job.id,
+        {
+          title: fd.get("title") as string,
+          description: fd.get("description") as string,
+          employmentType,
+          location: selectedLocation,
+          salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
+          salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
+          categoryTag,
+          tags: mergedTags,
+          imageUrl,
+          requirements: fd.get("requirements") as string,
+          desiredAptitude: fd.get("desiredAptitude") as string,
+          recommendedFor: fd.get("recommendedFor") as string,
+          monthlySalary: fd.get("monthlySalary") as string,
+          annualSalary: fd.get("annualSalary") as string,
+          access: fd.get("access") as string,
+          officeDetail: fd.get("officeDetail") as string,
+          benefits: mergedBenefits,
+          selectionProcess: fd.get("selectionProcess") as string,
+          workingHours: fd.get("workingHours") as string,
+          closingDate: fd.get("closingDate") as string,
+          employmentPeriodType,
+          region: selectedRegion,
+          categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
+          employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
+          targetType,
+          graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
+        },
+        submissionMode,
+      );
 
-    router.push("/company/jobs");
+      router.push("/company/jobs");
+    } finally {
+      setPendingAction(null);
+    }
   }
 
   async function handleDelete() {
     if (!confirm("この求人を削除しますか？")) return;
-    setLoading(true);
-    await deleteJob(job.id);
-    router.push("/company/jobs");
+    setPendingAction("delete");
+    try {
+      await deleteJob(job.id);
+      router.push("/company/jobs");
+    } finally {
+      setPendingAction(null);
+    }
   }
 
   async function handleWithdraw() {
     if (!confirm("審査申請を取り下げますか？")) return;
-    setLoading(true);
-    await withdrawJobSubmission(job.id);
-    router.refresh();
-    setLoading(false);
+    setPendingAction("withdraw");
+    try {
+      await withdrawJobSubmission(job.id);
+      setCurrentReviewStatus(hasPublishedVersion ? "PUBLISHED" : "DRAFT");
+      router.refresh();
+    } finally {
+      setPendingAction(null);
+    }
   }
 
   const closingDateStr = job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "";
 
+  const isSubmitting = pendingAction !== null;
+  const canWithdraw = currentReviewStatus === "PENDING_REVIEW";
+
   return (
     <>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[job.reviewStatus]}`}>
-          {JOB_REVIEW_STATUS_LABELS[job.reviewStatus]}
+        <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[currentReviewStatus]}`}>
+          {JOB_REVIEW_STATUS_LABELS[currentReviewStatus]}
         </span>
         {job.reviewComment ? <span className="text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
         {hasPendingVersion ? (
@@ -622,30 +638,34 @@ export function JobEditForm({
           </Section>
 
           <div className="flex flex-wrap items-center gap-3 pt-8">
-            <button
-              type="submit"
-              data-mode="review"
-              disabled={loading}
-              className="rounded-[14px] bg-[#2f6cff] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-            >
-              {loading ? "送信中..." : "審査に提出"}
-            </button>
-            <button
-              type="submit"
-              data-mode="draft"
-              disabled={loading}
-              className="rounded-[14px] border border-[#c8d6f6] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2f6cff] transition hover:bg-[#f7faff] disabled:opacity-50"
-            >
-              下書き保存
-            </button>
-            {job.reviewStatus === "PENDING_REVIEW" ? (
+            {!canWithdraw ? (
+              <button
+                type="submit"
+                data-mode="review"
+                disabled={isSubmitting}
+                className="rounded-[14px] bg-[#2f6cff] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                {pendingAction === "review" ? "送信中..." : "審査に提出"}
+              </button>
+            ) : null}
+            {!canWithdraw ? (
+              <button
+                type="submit"
+                data-mode="draft"
+                disabled={isSubmitting}
+                className="rounded-[14px] border border-[#c8d6f6] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2f6cff] transition hover:bg-[#f7faff] disabled:opacity-50"
+              >
+                {pendingAction === "draft" ? "保存中..." : "下書き保存"}
+              </button>
+            ) : null}
+            {canWithdraw ? (
               <button
                 type="button"
                 onClick={handleWithdraw}
-                disabled={loading}
+                disabled={isSubmitting}
                 className="rounded-[14px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3.5 text-[15px] font-bold text-[#b7791f] transition hover:bg-[#fff3d8] disabled:opacity-50"
               >
-                審査を取り下げる
+                {pendingAction === "withdraw" ? "取り下げ中..." : "審査を取り下げる"}
               </button>
             ) : null}
             <button
@@ -658,10 +678,10 @@ export function JobEditForm({
             <button
               type="button"
               onClick={handleDelete}
-              disabled={loading}
+              disabled={isSubmitting}
               className="ml-auto rounded-[14px] border border-[#ff3158] px-6 py-3.5 text-[15px] font-bold text-[#ff3158] transition hover:bg-[#fff5f7] disabled:opacity-50"
             >
-              削除
+              {pendingAction === "delete" ? "削除中..." : "削除"}
             </button>
           </div>
         </form>

@@ -28,7 +28,6 @@ const SORT_OPTIONS = [
   { value: "updated_desc", label: "更新日が新しい順" },
   { value: "updated_asc", label: "更新日が古い順" },
   { value: "applications_desc", label: "応募数が多い順" },
-  { value: "id_asc", label: "求人ID順" },
 ];
 
 const REVIEW_LABELS: Record<JobRow["reviewStatus"], string> = {
@@ -137,19 +136,18 @@ export function CompanyJobsTable({
         <table className="w-full table-fixed text-left text-[14px]">
           <thead>
             <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-              <th className="w-[100px] px-4 py-4 font-bold">求人ID</th>
               <th className="px-4 py-4 font-bold">応募求人</th>
-              <th className="w-[128px] px-4 py-4 font-bold">雇用形態</th>
-              <th className="w-[132px] px-4 py-4 font-bold">勤務地</th>
+              <th className="w-[118px] px-4 py-4 font-bold">雇用形態</th>
+              <th className="w-[120px] px-4 py-4 font-bold">勤務地</th>
               <th className="w-[92px] px-4 py-4 font-bold">応募数</th>
-              <th className="w-[160px] px-4 py-4 font-bold">審査状況</th>
+              <th className="w-[148px] px-4 py-4 font-bold">審査状況</th>
               <th className="w-[84px] px-4 py-4 text-center font-bold">公開</th>
             </tr>
           </thead>
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-[#9aa3b2]">
+                <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">
                   条件に合う求人はありません
                 </td>
               </tr>
@@ -158,9 +156,12 @@ export function CompanyJobsTable({
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
                 return (
                   <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-4 py-4 font-mono text-[12px] text-[#667085]">{job.id}</td>
                     <td className="px-4 py-4 font-bold text-[#333]">
-                      <Link href={`/company/jobs/${job.id}/edit`} className="block truncate hover:text-[#2f6cff]" title={job.title}>
+                      <Link
+                        href={`/company/jobs/${job.id}/edit`}
+                        className="block truncate hover:text-[#2f6cff]"
+                        title={job.title}
+                      >
                         {job.title}
                       </Link>
                     </td>

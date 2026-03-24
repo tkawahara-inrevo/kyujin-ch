@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
@@ -38,7 +39,8 @@ export function DocumentUploadCard({
   const router = useRouter();
 
   const uploaded = Boolean(fileUrl);
-  const fileName = fileUrl ? fileUrl.split("/").pop() : undefined;
+  const fileName = fileUrl ? decodeURIComponent(fileUrl.split("/").pop() ?? "") : undefined;
+  const openHref = `/api/upload?docType=${docType}&mode=open`;
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -69,51 +71,41 @@ export function DocumentUploadCard({
       }
     });
 
-    // reset input so the same file can be selected again
     e.target.value = "";
-  }
-
-  async function handleOpenFile() {
-    setError("");
-
-    try {
-      const res = await fetch(`/api/upload?docType=${docType}`, {
-        cache: "no-store",
-      });
-      const json = await readJsonSafely(res);
-
-      if (!res.ok || !json?.url) {
-        setError(json?.error ?? "ファイルを開けませんでした");
-        return;
-      }
-
-      window.open(json.url, "_blank", "noopener,noreferrer");
-    } catch {
-      setError("ファイルを開けませんでした");
-    }
   }
 
   return (
     <div className="rounded-[18px] border border-[#d9d9d9] bg-white p-5">
       <p className="text-[16px] font-bold text-[#333]">{title}</p>
 
-      <div className="mt-4 flex items-center justify-between gap-4">
+      <div className="mt-4 flex items-start justify-between gap-4">
         <p className="text-[18px] font-bold text-[#555] md:text-[20px]">
           {isPending ? "アップロード中..." : uploaded ? "アップロード済み" : "未アップロード"}
         </p>
 
-        {uploaded && fileName && !isPending && (
-          <button
-            type="button"
-            onClick={handleOpenFile}
-            className="rounded-[8px] bg-[#9a9a9a] px-3 py-2 text-[14px] font-bold text-white hover:opacity-80"
-          >
-            {fileName}
-          </button>
-        )}
+        {uploaded && fileName && !isPending ? (
+          <div className="flex max-w-[70%] flex-col items-end gap-2">
+            <Link
+              href={openHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="max-w-full rounded-[8px] bg-[#9a9a9a] px-3 py-2 text-[14px] font-bold text-white hover:opacity-80"
+            >
+              <span className="block truncate">{fileName}</span>
+            </Link>
+            <Link
+              href={openHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] font-bold text-[#2f6cff] hover:underline"
+            >
+              プレビュー / ダウンロード
+            </Link>
+          </div>
+        ) : null}
       </div>
 
-      {error && <p className="mt-2 text-[13px] text-[#ff3158]">{error}</p>}
+      {error ? <p className="mt-2 text-[13px] text-[#ff3158]">{error}</p> : null}
 
       <input
         ref={inputRef}

@@ -21,12 +21,6 @@ export default async function CompanySettingsPage() {
           <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">設定</h1>
           <p className="mt-3 text-[18px] font-bold text-[#444]">プロフィール設定</p>
         </div>
-        <Link
-          href="#company-settings-edit"
-          className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold text-white transition hover:opacity-90"
-        >
-          編集する
-        </Link>
       </div>
 
       <div className="mt-8 rounded-[18px] bg-white p-8 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">

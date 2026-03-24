@@ -19,6 +19,10 @@ function serverError(message = "アップロード処理に失敗しました") 
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
+function getDownloadFileName(fileUrl: string) {
+  return decodeURIComponent(fileUrl.split("/").pop() ?? "document");
+}
+
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
@@ -37,12 +41,20 @@ export async function GET(req: NextRequest) {
     });
 
     const fileUrl = docType === "resume" ? user?.resumeUrl : user?.careerHistoryUrl;
-
     if (!fileUrl) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
     const signedUrl = await getPresignedUrl(fileUrl);
+    if (req.nextUrl.searchParams.get("mode") === "open") {
+      const response = NextResponse.redirect(signedUrl);
+      response.headers.set(
+        "Content-Disposition",
+        `inline; filename*=UTF-8''${encodeURIComponent(getDownloadFileName(fileUrl))}`,
+      );
+      return response;
+    }
+
     return NextResponse.json({ url: signedUrl });
   } catch (error) {
     console.error("Failed to fetch uploaded document", error);
@@ -63,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     if (!(file instanceof File) || typeof docType !== "string" || !isValidDocType(docType)) {
       return NextResponse.json(
-        { error: "ファイルと種類を指定してください" },
+        { error: "ファイルと種類を選択してください" },
         { status: 400 },
       );
     }

@@ -17,20 +17,38 @@ export default function SettingsEditForm(props: Props) {
   const [form, setForm] = useState(props);
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSave = () => {
+    const companyName = form.companyName.trim();
+    if (!companyName) {
+      setError("会社名を入力してください");
+      setSuccess(false);
+      return;
+    }
+
+    setError(null);
     setSuccess(false);
     startTransition(async () => {
-      await updateCompanySettings(form);
-      setEditing(false);
-      setSuccess(true);
+      try {
+        await updateCompanySettings({ ...form, companyName });
+        setForm((current) => ({ ...current, companyName }));
+        setEditing(false);
+        setSuccess(true);
+      } catch (saveError) {
+        setError(saveError instanceof Error ? saveError.message : "保存に失敗しました");
+      }
     });
   };
 
   if (!editing) {
     return (
       <button
-        onClick={() => { setEditing(true); setSuccess(false); }}
+        onClick={() => {
+          setEditing(true);
+          setSuccess(false);
+          setError(null);
+        }}
         className="rounded-[8px] bg-[#2f6cff] px-5 py-2.5 text-[14px] font-bold text-white hover:bg-[#1d5ae0]"
       >
         編集する
@@ -40,15 +58,21 @@ export default function SettingsEditForm(props: Props) {
 
   return (
     <div className="space-y-5 rounded-[12px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-      {success && (
+      {success ? (
         <div className="rounded-[8px] bg-[#d1fae5] px-4 py-3 text-[13px] font-medium text-[#059669]">
           保存しました
         </div>
-      )}
+      ) : null}
+
+      {error ? (
+        <div className="rounded-[8px] bg-[#fff1f2] px-4 py-3 text-[13px] font-medium text-[#e11d48]">
+          {error}
+        </div>
+      ) : null}
 
       <h2 className="text-[16px] font-bold text-[#333]">プロフィール編集</h2>
 
-      <Field label="企業名" value={form.companyName} onChange={(v) => setForm({ ...form, companyName: v })} />
+      <Field label="会社名" value={form.companyName} onChange={(v) => setForm({ ...form, companyName: v })} required />
       <Field label="説明" value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
       <Field label="WebサイトURL" value={form.websiteUrl} onChange={(v) => setForm({ ...form, websiteUrl: v })} />
       <Field label="所在地" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
@@ -64,7 +88,11 @@ export default function SettingsEditForm(props: Props) {
           {isPending ? "保存中..." : "保存"}
         </button>
         <button
-          onClick={() => { setEditing(false); setForm(props); }}
+          onClick={() => {
+            setEditing(false);
+            setForm(props);
+            setError(null);
+          }}
           className="rounded-[8px] bg-[#e5e7eb] px-5 py-2.5 text-[14px] font-bold text-[#555] hover:bg-[#d1d5db]"
         >
           キャンセル
@@ -79,15 +107,20 @@ function Field({
   value,
   onChange,
   multiline,
+  required,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   multiline?: boolean;
+  required?: boolean;
 }) {
   return (
     <div>
-      <label className="mb-1 block text-[13px] font-semibold text-[#555]">{label}</label>
+      <label className="mb-1 block text-[13px] font-semibold text-[#555]">
+        {label}
+        {required ? <span className="ml-1 text-[#ff3158]">*</span> : null}
+      </label>
       {multiline ? (
         <textarea
           value={value}

@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function updateCompanySettings(data: {
@@ -17,26 +17,34 @@ export async function updateCompanySettings(data: {
     throw new Error("Unauthorized");
   }
 
+  const companyName = data.companyName.trim();
+  if (!companyName) {
+    throw new Error("会社名を入力してください");
+  }
+
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
   });
-  if (!company) throw new Error("企業情報が見つかりません");
+
+  if (!company) {
+    throw new Error("企業情報が見つかりません");
+  }
 
   await prisma.$transaction([
     prisma.company.update({
       where: { id: company.id },
       data: {
-        name: data.companyName,
-        description: data.description || null,
-        websiteUrl: data.websiteUrl || null,
-        location: data.location || null,
+        name: companyName,
+        description: data.description.trim() || null,
+        websiteUrl: data.websiteUrl.trim() || null,
+        location: data.location.trim() || null,
       },
     }),
     prisma.user.update({
       where: { id: session.user.id },
       data: {
-        name: data.contactName,
-        phone: data.phone || null,
+        name: data.contactName.trim(),
+        phone: data.phone.trim() || null,
       },
     }),
   ]);

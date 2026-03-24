@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { JobsTable, type AdminJobRow } from "./jobs-table";
 
 type SearchParams = Promise<{ q?: string; category?: string; status?: string }>;
-const REVIEW_STATUS_FILTERS = new Set<JobReviewStatus>(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED"]);
+const REVIEW_STATUS_FILTERS = new Set<JobReviewStatus>(["DRAFT", "PENDING_REVIEW", "PUBLISHED"]);
 
 export default async function AdminJobsPage({
   searchParams,
@@ -30,7 +30,7 @@ export default async function AdminJobsPage({
     ...(category ? { categoryTag: category } : {}),
     ...(status && REVIEW_STATUS_FILTERS.has(status as JobReviewStatus)
       ? { reviewStatus: status as JobReviewStatus }
-      : {}),
+      : { reviewStatus: { not: "RETURNED" as JobReviewStatus } }),
   };
 
   const [jobs, categoryTags] = await Promise.all([
@@ -95,7 +95,6 @@ export default async function AdminJobsPage({
           <option value="DRAFT">{JOB_REVIEW_STATUS_LABELS.DRAFT}</option>
           <option value="PENDING_REVIEW">{JOB_REVIEW_STATUS_LABELS.PENDING_REVIEW}</option>
           <option value="PUBLISHED">{JOB_REVIEW_STATUS_LABELS.PUBLISHED}</option>
-          <option value="RETURNED">{JOB_REVIEW_STATUS_LABELS.RETURNED}</option>
         </select>
         <button
           type="submit"

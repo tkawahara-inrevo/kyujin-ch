@@ -27,7 +27,7 @@ export default async function AdminJobDetailPage({
 
   if (!job) notFound();
 
-  const pendingContent = parsePendingContent(job.pendingContent);
+  const pendingContent = job.reviewStatus === "PENDING_REVIEW" ? parsePendingContent(job.pendingContent) : null;
   const displayJob = pendingContent ? { ...job, ...pendingContent } : job;
 
   const totalCharges = await prisma.charge.aggregate({

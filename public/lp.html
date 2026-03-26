@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>求人ちゃんねる｜応募課金型の求人掲載サービス</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1d63e3',
+        accent: '#eb0937',
+        dark: '#333333',
+        lightgray: '#f4f4f4',
+        pinkbg: '#ffdfe6',
+      },
+      fontFamily: {
+        sans: ['"Noto Sans JP"', 'sans-serif'],
+      },
+    },
+  },
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Noto Sans JP', sans-serif; color: #333; }
+  .gradient-bar { background: linear-gradient(to right, #1d63e3, #eb0937); }
+</style>
+</head>
+<body class="bg-white">
+
+<!-- ===== HEADER ===== -->
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+  <div class="max-w-[1100px] mx-auto flex items-center justify-between px-4 md:px-6 h-[75px]">
+    <a href="#" class="text-lg font-black">求人ちゃんねる</a>
+    <!-- Mobile menu button -->
+    <button id="menuBtn" class="md:hidden p-2" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <nav class="hidden md:flex items-center gap-[30px]">
+      <a href="https://kyujin-ch.jp" class="text-[12px] font-bold text-dark underline">求人一覧</a>
+      <a href="https://share-na2.hsforms.com/1J_ElGtXjQJy2GqZLqwlWVA409jf5" class="inline-flex items-center gap-2 rounded-[50px] bg-primary h-[40px] px-6 text-[12px] font-bold text-white hover:opacity-90">資料ダウンロード ▶</a>
+      <a href="https://kyujin-ch.jp/contact/" class="inline-flex items-center gap-2 rounded-[50px] bg-accent h-[40px] px-6 text-[12px] font-bold text-white hover:opacity-90">求人の掲載はこちら ▶</a>
+    </nav>
+  </div>
+  <!-- Mobile nav -->
+  <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-4 pb-4 space-y-3">
+    <a href="https://kyujin-ch.jp" class="block text-sm font-bold py-2">求人一覧</a>
+    <a href="https://share-na2.hsforms.com/1J_ElGtXjQJy2GqZLqwlWVA409jf5" class="block text-center rounded-full bg-primary py-3 text-sm font-bold text-white">資料ダウンロード ▶</a>
+    <a href="https://kyujin-ch.jp/contact/" class="block text-center rounded-full bg-accent py-3 text-sm font-bold text-white">求人の掲載はこちら ▶</a>
+  </div>
+</header>
+
+<!-- ===== HERO (FV) ===== -->
+<section class="bg-white">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 relative min-h-[300px] md:min-h-[420px]">
+    <!-- Device mockup - overlapping text area from behind -->
+    <img src="lp/FV_img.png" alt="求人ちゃんねる画面イメージ" class="hidden md:block absolute z-0" style="top: 60px; left: 180px; width: 1050px; clip-path: inset(0 0 15% 0);">
+
+    <!-- Left content - on top of mockup -->
+    <div class="relative z-10 w-full md:w-[55%] py-10 md:py-[50px] md:ml-[120px]">
+      <h1 class="text-[28px] md:text-[40px] font-bold leading-[1.3]">「追いかける」から</h1>
+      <div class="gradient-bar h-[50px] md:h-[67px] w-full max-w-[507px] mt-[5px] flex items-center pl-[14px] rounded-sm">
+        <span class="text-[32px] md:text-[48px] font-bold text-white leading-none whitespace-nowrap">「選ばれる」採用へ。</span>
+      </div>
+
+      <!-- Checkmarks -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-[20px] mt-[20px]">
+        <div class="flex items-center gap-[5px]">
+          <span class="text-accent text-xl font-bold">✓</span>
+          <span class="text-[14px] md:text-[18px] font-bold">応募が来た分だけ課金</span>
+        </div>
+        <div class="flex items-center gap-[5px]">
+          <span class="text-accent text-xl font-bold">✓</span>
+          <span class="text-[14px] md:text-[18px] font-bold">本気度の高い応募が集まる</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mt-[15px] bg-white/80 backdrop-blur-sm rounded-[10px] p-[10px] max-w-[487px]">
+        <p class="text-[11px] md:text-[12px] leading-[20px]">
+          エントリー課金型のため、無駄な採用コストや採用工数を削減。<br>
+          エージェントを介さない自主応募型の仕組みにより、志望度の高い応募が集まります。<br>
+          結果、ミスマッチの少ない「選ばれる採用」を実現。
+        </p>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-[30px] mt-[10px]">
+        <a href="https://share-na2.hsforms.com/1J_ElGtXjQJy2GqZLqwlWVA409jf5" class="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-white px-6 py-3 text-[14px] md:text-[16px] font-bold text-primary hover:bg-blue-50 h-[50px]">
+          資料ダウンロード ▶
+        </a>
+        <a href="https://kyujin-ch.jp/contact/" class="inline-flex items-center justify-center gap-2 rounded-[10px] border border-accent bg-white px-6 py-3 text-[14px] md:text-[16px] font-bold text-accent shadow-md hover:bg-red-50 h-[50px]">
+          求人の掲載はこちら ▶
+        </a>
+      </div>
+    </div>
+
+    <!-- SP only: mockup below text -->
+    <div class="md:hidden w-full flex justify-center pb-6">
+      <img src="lp/FV_img-sp.png" alt="求人ちゃんねる画面イメージ" class="w-full max-w-[400px] h-auto">
+    </div>
+
+    <p class="relative z-10 text-[8px] text-right pb-4">
+      ※掲載の画面は開発中のものであり、実際の製品とは異なる場合があります。
+    </p>
+  </div>
+</section>
+
+<!-- ===== COMPARISON TABLE (01) ===== -->
+<section class="bg-primary py-10 md:py-[60px]">
+  <div class="max-w-[1000px] mx-auto px-4 md:px-6">
+    <h2 class="text-[20px] md:text-[24px] font-bold text-lightgray text-center leading-[34px]">
+      応募0なのに、まだ費用を払い続けますか？<br>
+      応募が来た分だけ課金。採用コストは最小へ。
+    </h2>
+
+    <!-- Mobile: horizontal scroll -->
+    <div class="mt-[30px] overflow-x-auto md:overflow-visible pb-4 md:pb-0">
+      <div class="flex gap-[10px] min-w-[800px] md:min-w-0 items-end">
+        <!-- Row labels -->
+        <div class="w-[68px] flex-shrink-0 flex flex-col items-center text-[13px] font-bold text-white text-center mt-[50px]">
+          <div class="h-[94px] flex items-center mt-[30px]">課金方法</div>
+          <div class="h-[94px] flex items-center mt-[10px]">コスト</div>
+          <div class="h-[94px] flex items-center mt-[10px]">求職者の質</div>
+        </div>
+
+        <!-- 掲載型 -->
+        <div class="flex-1 bg-lightgray rounded-[20px] p-[10px] min-w-[170px]">
+          <div class="text-[14px] font-bold text-center h-[20px] mb-[20px]">掲載型サービス</div>
+          <div class="space-y-[10px]">
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center">
+              <span class="font-bold">掲載課金</span>
+              <span class="font-normal text-[13px] mt-1">掲載期間に応じて<br>費用が発生</span>
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              応募が0でも<br>掲載費が発生
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              転職検討層
+            </div>
+          </div>
+        </div>
+
+        <!-- 広告型 -->
+        <div class="flex-1 bg-lightgray rounded-[20px] p-[10px] min-w-[170px]">
+          <div class="text-[14px] font-bold text-center h-[20px] mb-[20px]">広告型サービス</div>
+          <div class="space-y-[10px]">
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center">
+              <span class="font-bold">クリック課金</span>
+              <span class="font-normal text-[13px] mt-1">1クリックごとに<br>費用が発生</span>
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              応募が0でも<br>クリックで費用発生
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              転職意欲はバラバラ
+            </div>
+          </div>
+        </div>
+
+        <!-- 人材紹介型 -->
+        <div class="flex-1 bg-lightgray rounded-[20px] p-[10px] min-w-[170px]">
+          <div class="text-[14px] font-bold text-center h-[20px] mb-[20px]">人材紹介型</div>
+          <div class="space-y-[10px]">
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center">
+              <span class="font-bold">成果報酬</span>
+              <span class="font-normal text-[13px] mt-1">採用成功時に<br>成果報酬が発生</span>
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              採用時に<br>150万以上など<br>高額報酬が発生
+            </div>
+            <div class="bg-white rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold">
+              担当者の質次第
+            </div>
+          </div>
+        </div>
+
+        <!-- 求人ちゃんねる -->
+        <div class="w-[207px] flex-shrink-0 bg-white rounded-[20px] px-[10px] py-[20px] shadow-[0px_4px_4px_rgba(0,0,0,0.14)]">
+          <div class="text-center h-[20px] mb-[20px] font-bold text-[14px]">求人ちゃんねる</div>
+          <div class="space-y-[10px]">
+            <div class="bg-pinkbg rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center">
+              <span class="font-bold text-accent">応募課金</span>
+              <span class="font-normal text-[13px] mt-1">応募が来た分だけ<br>費用が発生</span>
+            </div>
+            <div class="bg-pinkbg rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold text-accent">
+              応募が来た分だけだから<br>無駄なコストなし
+            </div>
+            <div class="bg-pinkbg rounded-[10px] h-[94px] flex flex-col items-center justify-center text-[14px] text-center font-bold text-accent">
+              自主的に応募する<br>意欲の高い求職者
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TOPIC (02) ===== -->
+<section class="py-10 md:py-[60px] bg-white">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 flex flex-col md:flex-row gap-6 md:gap-0">
+    <!-- Left image -->
+    <div class="w-full md:w-[503px] h-[250px] md:h-[356px] rounded-md overflow-hidden flex-shrink-0">
+      <picture>
+        <source media="(max-width: 767px)" srcset="lp/Topic_img-sp.png">
+        <img src="lp/Topic_img.png" alt="採用イメージ" class="w-full h-full object-cover">
+      </picture>
+    </div>
+    <!-- Right text -->
+    <div class="flex-1 flex items-center">
+      <div class="md:pl-[30px]">
+        <h2 class="text-[28px] md:text-[40px] font-bold leading-[1.4]">
+          採用リスクは最小<br>採用成功率は最大へ
+        </h2>
+        <p class="mt-6 md:mt-[60px] text-[13px] md:text-[14px] leading-[24px]">
+          早期離職の損失は、1人あたり約187.5万円。<br>
+          10人なら、約2000万円。<br><br>
+          求人ちゃんねるは 応募課金型だから、母集団形成のコストを抑えられ<br>
+          求職者が自ら応募する仕組み。志望度の高い応募者と出会えます。<br><br>
+          だからこそ、採用コストも、離職コストも抑えられます。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== POINT (03) ===== -->
+<section class="relative bg-white overflow-hidden">
+  <!-- Blue bg with diagonal clip -->
+  <div class="absolute inset-0 bg-primary" style="clip-path: polygon(0 0, 100% 5%, 100% 95%, 0 100%);"></div>
+  <div class="relative max-w-[1100px] mx-auto px-4 md:px-6 py-16 md:py-[80px]">
+    <!-- POINT watermark -->
+    <div class="hidden md:block absolute left-0 top-[50%] -translate-y-1/2 text-white/10 text-[200px] font-black leading-none select-none pointer-events-none">POINT</div>
+
+    <div class="relative grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-[23px] max-w-[900px] mx-auto">
+      <!-- Point 01 -->
+      <div class="bg-white rounded-[20px] p-[20px] text-center">
+        <div class="text-accent text-[36px] md:text-[40px] font-black leading-none">01</div>
+        <div class="w-[100px] md:w-[120px] h-[100px] md:h-[120px] mx-auto mt-[15px]">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Point01_img-sp.png">
+            <img src="lp/Point01_img.png" alt="応募課金" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">応募が来た分だけ課金</h3>
+        <p class="text-[12px] leading-[20px] mt-[10px]">
+          求人掲載は無料。応募が来た分だけ課金。掲載費だけ払って応募ゼロ、そんなリスクなく応募を集められます。
+        </p>
+      </div>
+
+      <!-- Point 02 -->
+      <div class="bg-white rounded-[20px] p-[20px] text-center">
+        <div class="text-accent text-[36px] md:text-[40px] font-black leading-none">02</div>
+        <div class="w-[100px] md:w-[120px] h-[100px] md:h-[120px] mx-auto mt-[15px]">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Point02_img-sp.png">
+            <img src="lp/Point02_img.png" alt="自主応募" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">自主応募のみ</h3>
+        <p class="text-[12px] leading-[20px] mt-[10px]">
+          エージェント経由は一切なし。求職者は自分で求人を探し、自主的に応募します。だからこそ、熱意の高い求職者が集まります。
+        </p>
+      </div>
+
+      <!-- Point 03 -->
+      <div class="bg-white rounded-[20px] p-[20px] text-center">
+        <div class="text-accent text-[36px] md:text-[40px] font-black leading-none">03</div>
+        <div class="w-[100px] md:w-[120px] h-[100px] md:h-[120px] mx-auto mt-[15px]">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Point03_img-sp.png">
+            <img src="lp/Point03_img.png" alt="リスクなく検証" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">リスクで検証可能</h3>
+        <p class="text-[12px] leading-[20px] mt-[10px]">
+          応募が来るまで費用は発生しません。掲載も無料のため、求人内容や写真を変えながら応募が集まる求人をリスクなく検証できます。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FLOW (04) ===== -->
+<section class="bg-accent py-10 md:py-[30px]">
+  <div class="max-w-[1000px] mx-auto px-4 md:px-6 text-center">
+    <h2 class="text-[20px] md:text-[24px] font-bold text-white leading-[29px]">お申込みから掲載の流れ</h2>
+
+    <div class="mt-8 md:mt-[59px] flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
+      <!-- Step 1 -->
+      <div class="bg-white rounded-[20px] p-[20px] w-full md:w-[283px] text-center">
+        <div class="w-[60px] h-[60px] mx-auto">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Flow01_img-sp.png">
+            <img src="lp/Flow01_img.png" alt="お問い合わせ" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">お問い合わせ</h3>
+        <p class="text-[12px] mt-[10px]">お問合せ後、ヒアリングを実施</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="hidden md:flex items-center px-[8px]">
+        <span class="text-white text-[16px]">▶</span>
+      </div>
+      <div class="md:hidden text-white text-[16px]">▼</div>
+
+      <!-- Step 2 -->
+      <div class="bg-white rounded-[20px] p-[20px] w-full md:w-[283px] text-center">
+        <div class="w-[60px] h-[60px] mx-auto">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Flow02_img-sp.png">
+            <img src="lp/Flow02_img.png" alt="アカウント開設" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">アカウント開設</h3>
+        <p class="text-[12px] mt-[10px]">ヒアリング後アカウントを作成</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="hidden md:flex items-center px-[8px]">
+        <span class="text-white text-[16px]">▶</span>
+      </div>
+      <div class="md:hidden text-white text-[16px]">▼</div>
+
+      <!-- Step 3 -->
+      <div class="bg-white rounded-[20px] p-[20px] w-full md:w-[283px] text-center">
+        <div class="w-[60px] h-[60px] mx-auto">
+          <picture>
+            <source media="(max-width: 767px)" srcset="lp/Flow03_img-sp.png">
+            <img src="lp/Flow03_img.png" alt="求人作成・公開" class="w-full h-full object-contain">
+          </picture>
+        </div>
+        <h3 class="font-bold text-[16px] mt-[15px]">求人作成・公開</h3>
+        <p class="text-[12px] mt-[10px]">
+          求人を作成し公開へ<br>
+          <span class="font-bold">ここまで料金は一切かかりません</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Diagonal transition ===== -->
+<div class="bg-white">
+  <svg class="w-full h-[40px] block" viewBox="0 0 1440 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="0,0 1440,0 0,40" fill="#eb0937"/>
+  </svg>
+</div>
+
+<!-- ===== CTA BUTTONS ===== -->
+<section class="bg-white py-10 md:py-[50px]">
+  <div class="max-w-[900px] mx-auto px-4 md:px-6 flex flex-col sm:flex-row gap-4 sm:gap-[30px] justify-center">
+    <a href="https://share-na2.hsforms.com/1J_ElGtXjQJy2GqZLqwlWVA409jf5" class="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-white px-8 py-3 text-[14px] md:text-[16px] font-bold text-primary hover:bg-blue-50 h-[50px] flex-1">
+      資料ダウンロード ▶
+    </a>
+    <a href="https://kyujin-ch.jp/contact/" class="inline-flex items-center justify-center gap-2 rounded-[10px] border border-accent bg-white px-8 py-3 text-[14px] md:text-[16px] font-bold text-accent shadow-md hover:bg-red-50 h-[50px] flex-1">
+      求人の掲載はこちら ▶
+    </a>
+  </div>
+</section>
+
+<!-- ===== FAQ (05) ===== -->
+<section class="bg-white py-10 md:py-[40px]">
+  <div class="max-w-[900px] mx-auto px-4 md:px-6">
+    <h2 class="text-[20px] md:text-[24px] font-bold text-center">
+      <span class="border-b-[3px] border-accent pb-[8px]">よくある質問</span>
+    </h2>
+    <p class="mt-[20px] text-center text-[12px] leading-[20px]">
+      そのほかにもご不明な点がございましたら、お気軽にお問い合わせください。<br>
+      導入前のご相談から運用方法まで、丁寧にご案内いたします。
+    </p>
+
+    <div class="mt-[30px] space-y-[20px]">
+      <div class="border-b border-gray-200 pb-[20px]">
+        <h3 class="font-bold text-[14px]">Q1. 企業アカウントの作成方法は？</h3>
+        <p class="mt-[10px] text-[12px] leading-[20px]">
+          A. <a href="https://kyujin-ch.jp/contact/" class="text-accent underline">こちらのページ</a>から貴社の情報を記載し、送信ください。企業審査を次第2営業日以内にアカウントの発行手続きをいたします。
+        </p>
+      </div>
+      <div class="border-b border-gray-200 pb-[20px]">
+        <h3 class="font-bold text-[14px]">Q2. サポート体制はどのようになっていますか？</h3>
+        <p class="mt-[10px] text-[12px] leading-[20px]">
+          A. 求人ちゃんねるの利用にあたりご不明な点がある場合は、ログイン後、管理画面のお問い合わせフォームよりご連絡ください。アカウント作成や求人情報の方法、管理画面の操作方法など、わかりやすくご案内いたします。
+        </p>
+      </div>
+      <div class="border-b border-gray-200 pb-[20px]">
+        <h3 class="font-bold text-[14px]">Q3. 費用はいくらですか？</h3>
+        <p class="mt-[10px] text-[12px] leading-[20px]">
+          A. 1名あたりの応募単価となっております。2名応募が来れば2名分の料金がご請求されます。料金に関して<a href="https://share-na2.hsforms.com/1J_ElGtXjQJy2GqZLqwlWVA409jf5" class="text-accent underline">こちら</a>をご確認ください。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BOTTOM CTA (06) ===== -->
+<section class="bg-white py-10 md:py-[60px]">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center gap-8 md:gap-0">
+    <!-- Left image -->
+    <div class="w-full md:w-[497px] h-[200px] md:h-[245px] flex-shrink-0 overflow-hidden rounded-md">
+      <picture>
+        <source media="(max-width: 767px)" srcset="lp/Bottom_img-sp.png">
+        <img src="lp/Bottom_img.png" alt="切り替えるイメージ" class="w-full h-full object-cover">
+      </picture>
+    </div>
+    <!-- Right text -->
+    <div class="flex-1 md:pl-[30px]">
+      <h2 class="text-[32px] md:text-[40px] font-bold leading-[1.4] text-accent">
+        いま、<br>切り替える
+      </h2>
+      <div class="mt-6 md:mt-[60px]">
+        <p class="text-[13px] md:text-[14px] leading-[36px]">自社の採用について課題整理からでも歓迎です。</p>
+        <p class="text-[13px] md:text-[14px] leading-[36px]">お気軽にご相談ください。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="bg-dark text-white">
+  <div class="max-w-[1100px] mx-auto px-4 md:px-6 pt-[34px]">
+    <div class="flex flex-col md:flex-row gap-8 md:gap-[200px]">
+      <!-- Left -->
+      <div class="w-full md:w-[270px]">
+        <div class="text-[18px] font-bold">求人ちゃんねる</div>
+        <p class="mt-[18px] text-[14px] text-gray-300">最適な仕事を見つけるためのお手伝いをします。</p>
+        <div class="mt-[20px] flex items-center gap-[30px]">
+          <span class="text-[12px] text-gray-400">INREVO</span>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="flex gap-8 md:gap-[33px]">
+        <div>
+          <div class="text-[14px] font-bold">求人情報</div>
+          <div class="mt-[13px] space-y-[15px] text-[12px] text-gray-300">
+            <a href="https://kyujin-ch.jp" class="block hover:text-white">求人一覧</a>
+            <a href="https://kyujin-ch.jp" class="block hover:text-white">会社概要</a>
+          </div>
+        </div>
+        <div>
+          <div class="text-[14px] font-bold">サポート</div>
+          <div class="mt-[13px] space-y-[15px] text-[12px] text-gray-300">
+            <a href="https://kyujin-ch.jp/contact/" class="block hover:text-white">お問い合わせ</a>
+            <a href="#" class="block hover:text-white">利用規約（求職者）</a>
+            <a href="#" class="block hover:text-white">利用規約（企業）</a>
+            <a href="#" class="block hover:text-white">プライバシーポリシー</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-[40px] bg-[#222] py-[13px] text-center text-[14px] text-gray-400">
+    &copy; 2026 求人ちゃんねる.all rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>

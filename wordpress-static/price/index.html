@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>料金表 | 求人ちゃんねる</title>
+  <link rel="stylesheet" href="../shared/common.css">
+  <style>
+    .price-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 90px 90px;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 18px;
+      max-width: 660px;
+    }
+
+    .field-label {
+      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #444;
+    }
+
+    .field input,
+    .field select,
+    .field button {
+      width: 100%;
+      height: 30px;
+      border: 1px solid #d7d7d7;
+      border-radius: 3px;
+      background: #fff;
+      font-size: 12px;
+      padding: 0 10px;
+    }
+
+    .field button {
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .field button.primary {
+      border-color: #2f6cff;
+      background: #2f6cff;
+      color: #fff;
+    }
+
+    .field button.secondary {
+      background: #f5f7fb;
+      color: #333;
+    }
+
+    .price-table-wrap {
+      overflow-x: auto;
+      border-top: 1px solid #d0d0d0;
+    }
+
+    .price-table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .price-table thead th {
+      padding: 8px 12px;
+      text-align: center;
+      border-bottom: 1px solid #d0d0d0;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .price-table thead th:first-child {
+      color: #333;
+      background: #f5f5f5;
+      text-align: left;
+    }
+
+    .price-table thead th:nth-child(2) {
+      background: #2f6cff;
+    }
+
+    .price-table thead th:nth-child(3) {
+      background: #ff214f;
+    }
+
+    .price-table tbody tr.category-row td {
+      background: #eeeeee;
+      color: #333;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-bottom: 1px solid #d8d8d8;
+    }
+
+    .price-table tbody td {
+      padding: 4px 10px;
+      border-bottom: 1px solid #e7e7e7;
+      line-height: 1.45;
+    }
+
+    .price-table tbody td:nth-child(2),
+    .price-table tbody td:nth-child(3) {
+      width: 120px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .table-note {
+      margin-top: 12px;
+      text-align: right;
+      font-size: 10px;
+      color: #888;
+    }
+
+    @media (max-width: 780px) {
+      .price-toolbar {
+        grid-template-columns: 1fr;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-logo" href="https://kyujin-ch.jp">
+        <img src="https://kyujin-ch.com/assets/Person.png" alt="求人ちゃんねる">
+        <span>求人ちゃんねる</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <h1 class="page-title">料金表</h1>
+
+    <div class="price-toolbar">
+      <div class="field">
+        <div class="field-label">キーワードから探す</div>
+        <input id="keyword" type="text" placeholder="">
+      </div>
+      <div class="field">
+        <div class="field-label">カテゴリ</div>
+        <select id="category"></select>
+      </div>
+      <div class="field">
+        <div class="field-label">&nbsp;</div>
+        <button id="searchButton" class="primary" type="button">検索</button>
+      </div>
+      <div class="field">
+        <div class="field-label">&nbsp;</div>
+        <button id="resetButton" class="secondary" type="button">リセット</button>
+      </div>
+    </div>
+
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th>カテゴリ / 職種</th>
+            <th>経験者</th>
+            <th>未経験者</th>
+          </tr>
+        </thead>
+        <tbody id="priceTableBody"></tbody>
+      </table>
+    </div>
+    <p class="table-note">表示している金額は税抜価格です</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="site-footer__brand">
+        <a class="site-logo" href="https://kyujin-ch.jp">
+          <img src="https://kyujin-ch.com/assets/Person.png" alt="求人ちゃんねる">
+          <span>求人ちゃんねる</span>
+        </a>
+        <p>最適な仕事を見つけるためのお手伝いをします。</p>
+      </div>
+      <div class="site-footer__links">
+        <div>
+          <h4>求人情報</h4>
+          <a href="https://kyujin-ch.com/jobs">求人一覧</a>
+          <a href="https://inrevo.co.jp/about" target="_blank" rel="noreferrer">会社概要</a>
+        </div>
+        <div>
+          <h4>サポート</h4>
+          <a href="https://kyujin-ch.com/contact">お問い合わせ</a>
+          <a href="/kiyaku">利用規約（求職者）</a>
+          <a href="/kiyaku-company">利用規約（企業）</a>
+          <a href="https://kyujin-ch.com/privacy-policy">プライバシーポリシー</a>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">© 2026 求人ちゃんねる all rights reserved.</div>
+  </footer>
+
+  <script src="./prices-data.js"></script>
+  <script>
+    const allRows = Array.isArray(window.KYUJIN_PRICE_DATA) ? window.KYUJIN_PRICE_DATA : [];
+    const keywordInput = document.getElementById("keyword");
+    const categorySelect = document.getElementById("category");
+    const searchButton = document.getElementById("searchButton");
+    const resetButton = document.getElementById("resetButton");
+    const tableBody = document.getElementById("priceTableBody");
+
+    const categories = ["すべて", ...new Set(allRows.map((item) => item.category))];
+    categorySelect.innerHTML = categories
+      .map((category) => `<option value="${category}">${category}</option>`)
+      .join("");
+
+    function yen(value) {
+      return value == null ? "" : `${Number(value).toLocaleString()}`;
+    }
+
+    function renderTable(rows) {
+      const grouped = new Map();
+      rows.forEach((row) => {
+        if (!grouped.has(row.category)) grouped.set(row.category, []);
+        grouped.get(row.category).push(row);
+      });
+
+      const html = Array.from(grouped.entries())
+        .map(([category, items]) => {
+          const categoryRow = `<tr class="category-row"><td colspan="3">${category}</td></tr>`;
+          const itemRows = items
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((item) => `
+              <tr>
+                <td>${item.subcategory}</td>
+                <td>${yen(item.experiencedPrice)}</td>
+                <td>${yen(item.inexperiencedPrice)}</td>
+              </tr>
+            `)
+            .join("");
+          return categoryRow + itemRows;
+        })
+        .join("");
+
+      tableBody.innerHTML = html || `<tr><td colspan="3" style="padding:20px 10px;text-align:center;color:#888;">該当する職種が見つかりませんでした。</td></tr>`;
+    }
+
+    function applyFilter() {
+      const keyword = keywordInput.value.trim();
+      const category = categorySelect.value;
+      const rows = allRows.filter((row) => {
+        const matchesCategory = category === "すべて" || row.category === category;
+        const matchesKeyword =
+          keyword.length === 0 ||
+          row.category.includes(keyword) ||
+          row.subcategory.includes(keyword);
+        return matchesCategory && matchesKeyword;
+      });
+      renderTable(rows);
+    }
+
+    searchButton.addEventListener("click", applyFilter);
+    resetButton.addEventListener("click", () => {
+      keywordInput.value = "";
+      categorySelect.value = "すべて";
+      renderTable(allRows);
+    });
+    categorySelect.addEventListener("change", applyFilter);
+
+    renderTable(allRows);
+  </script>
+</body>
+</html>

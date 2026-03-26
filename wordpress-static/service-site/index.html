@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>求人ちゃんねる サービスサイト</title>
+  <meta name="description" content="応募が来た分だけ課金。採用コストを最小に抑えながら、本気度の高い応募者と出会える求人ちゃんねるのサービス紹介ページです。">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-logo" href="https://kyujin-ch.jp/">
+        <img src="https://kyujin-ch.com/assets/Person.png" alt="求人ちゃんねる">
+        <span>求人ちゃんねる</span>
+      </a>
+
+      <nav class="site-nav" aria-label="グローバルナビゲーション">
+        <a href="https://kyujin-ch.com/jobs">求人一覧</a>
+        <a href="#downloads">お役立ち資料</a>
+        <a class="site-nav__button site-nav__button--blue" href="#downloads">資料ダウンロード</a>
+        <a class="site-nav__button site-nav__button--red" href="https://kyujin-ch.com/contact">求人の掲載はこちら</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__inner">
+        <div class="hero__stage">
+          <div class="hero__copy">
+            <p class="hero__lead">「追いかける」から</p>
+            <div class="hero__headline-box">「選ばれる」採用へ。</div>
+
+            <ul class="hero__points">
+              <li>応募が来た分だけ課金</li>
+              <li>本気度の高い応募が集まる</li>
+            </ul>
+
+            <p class="hero__description">
+              エントリー課金型のため、無駄な掲載コストや採用工数を削減。<br>
+              エージェントを介さない自主応募の仕組みによって、志望度の高い応募が集まります。<br>
+              結果、ミスマッチの少ない「選ばれる採用」を実現。
+            </p>
+
+            <div class="hero__actions">
+              <a class="cta-button cta-button--outline" href="#downloads">資料ダウンロード</a>
+              <a class="cta-button cta-button--solid" href="https://kyujin-ch.com/contact">求人の掲載はこちら</a>
+            </div>
+          </div>
+
+          <div class="hero__visual">
+            <picture>
+              <source media="(max-width: 767px)" srcset="./assets/hero-mobile.png">
+              <img src="./assets/hero-desktop.png" alt="求人ちゃんねるサービスイメージ">
+            </picture>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="comparison">
+      <div class="comparison__inner">
+        <h2>
+          応募なのに、まだ費用を払い続けますか？<br>
+          応募が来た分だけ課金。採用コストは最小へ。
+        </h2>
+
+        <div class="comparison__table">
+          <div class="comparison__labels">
+            <span>課金方法</span>
+            <span>コスト</span>
+            <span>求める質</span>
+          </div>
+
+          <div class="comparison__grid">
+            <article class="comparison-card">
+              <h3>掲載課金サービス</h3>
+              <div class="comparison-card__cell">掲載課金</div>
+              <div class="comparison-card__cell">掲載開始に応じて費用が発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">応募が0でも掲載費が発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">転職検討層</div>
+            </article>
+
+            <article class="comparison-card">
+              <h3>広告型サービス</h3>
+              <div class="comparison-card__cell">クリック課金</div>
+              <div class="comparison-card__cell">1クリックごとに費用が発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">応募が0でもクリックで費用発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">転職意欲はバラバラ</div>
+            </article>
+
+            <article class="comparison-card">
+              <h3>人材紹介型</h3>
+              <div class="comparison-card__cell">成果報酬</div>
+              <div class="comparison-card__cell">採用成功時に応募者1名ごとに費用発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">採用時に150万以上など高額報酬が発生</div>
+              <div class="comparison-card__cell comparison-card__cell--foot">担当者の質次第</div>
+            </article>
+
+            <article class="comparison-card comparison-card--featured">
+              <div class="comparison-card__brand">
+                <img src="https://kyujin-ch.com/assets/Person.png" alt="求人ちゃんねる">
+                <span>求人ちゃんねる</span>
+              </div>
+              <div class="comparison-card__cell comparison-card__cell--strong">応募課金</div>
+              <div class="comparison-card__cell comparison-card__cell--strong">応募が来た分だけ費用発生</div>
+              <div class="comparison-card__cell comparison-card__cell--alert">応募が来なければ無駄なコストなし</div>
+              <div class="comparison-card__cell comparison-card__cell--alert">自主的に応募する意欲の高い求職者</div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="topic">
+      <div class="topic__inner">
+        <div class="topic__visual">
+          <picture>
+            <source media="(max-width: 767px)" srcset="./assets/topic-mobile.png">
+            <img src="./assets/topic-desktop.png" alt="採用リスクを抑えるイメージ">
+          </picture>
+        </div>
+
+        <div class="topic__content">
+          <h2>採用リスクは最小<br>採用成功率は最大へ</h2>
+          <p>
+            早期離職の損失は、1人あたり約187.5万円。10人なら、約2000万円。<br>
+            求人ちゃんねるは応募課金型だから、母集団形成のコストを抑えられ<br>
+            求職者が自ら応募する仕組み。志望度の高い応募者と出会えます。<br>
+            だからこそ、採用コストも、離職コストも抑えられます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="points">
+      <div class="points__inner">
+        <div class="points__bg-text">POINT</div>
+
+        <article class="point-card">
+          <div class="point-card__number">01</div>
+          <img src="./assets/point-1.png" alt="">
+          <h3>応募が来た分だけ課金</h3>
+          <p>
+            求人掲載は無料、応募が来た分だけ課金。<br>
+            掲載後だけ払って応募ゼロ、そんなリスクなし。<br>
+            低リスクで応募を集められます。
+          </p>
+        </article>
+
+        <article class="point-card">
+          <div class="point-card__number">02</div>
+          <img src="./assets/point-2.png" alt="">
+          <h3>自主応募のみ</h3>
+          <p>
+            エージェント機能は一切なし。<br>
+            求職者は自分で求人を探し、自主的に応募します。<br>
+            だからこそ、熱量の高い求職者が集まります。
+          </p>
+        </article>
+
+        <article class="point-card">
+          <div class="point-card__number">03</div>
+          <img src="./assets/point-3.png" alt="">
+          <h3>リスク0で検証可能</h3>
+          <p>
+            応募が来るまで費用は発生しません。<br>
+            掲載も無料のため、求人内容や訴求文を変えながら応募が集まる求人をリスクなく検証できます。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="flow">
+      <div class="flow__inner">
+        <h2>お申込みから掲載の流れ</h2>
+
+        <div class="flow__grid">
+          <article class="flow-card">
+            <h3>お問い合わせ</h3>
+            <img src="./assets/flow-1.png" alt="">
+            <p>お問合せ後、ヒアリングを実施</p>
+          </article>
+
+          <div class="flow__arrow" aria-hidden="true">▶</div>
+
+          <article class="flow-card">
+            <h3>アカウント開設</h3>
+            <img src="./assets/flow-2.png" alt="">
+            <p>ヒアリング後アカウントを作成</p>
+          </article>
+
+          <div class="flow__arrow" aria-hidden="true">▶</div>
+
+          <article class="flow-card">
+            <h3>求人作成・公開</h3>
+            <img src="./assets/flow-3.png" alt="">
+            <p>求人を作成し公開へ<br>ここまで料金は一切かかりません</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="downloads" class="download-cta">
+      <div class="download-cta__inner">
+        <a class="cta-button cta-button--outline cta-button--wide" href="#downloads">資料ダウンロード</a>
+        <a class="cta-button cta-button--solid cta-button--wide" href="https://kyujin-ch.com/contact">求人の掲載はこちら</a>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="faq__inner">
+        <div class="faq__mark">
+          <img src="./assets/qa-mark.png" alt="">
+        </div>
+
+        <div class="faq__title">
+          <span class="faq__title-line"></span>
+          <h2>よくある質問</h2>
+          <span class="faq__title-line faq__title-line--red"></span>
+        </div>
+
+        <p class="faq__lead">
+          そのほかにもご不明な点がございましたら、お気軽にお問い合わせください。<br>
+          導入前のご相談から運用方法まで、丁寧にご案内いたします。
+        </p>
+
+        <div class="faq__list">
+          <article class="faq-item">
+            <h3>Q1. 企業アカウントの作成方法は？</h3>
+            <p>
+              A. <a href="https://kyujin-ch.com/contact">こちらのページ</a> から貴社の情報を記載し、送信ください。企業審査を次第2営業日以内にアカウントの発行手続きをいたします。
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Q2. サポート体制はどのようになっていますか？</h3>
+            <p>
+              A. 求人ちゃんねるの利用にあたりご不明な点がある場合は、ログイン後、管理画面のお問い合わせフォームからご連絡ください。アカウント作成や求人投稿の方法、管理画面の操作方法など、わかりやすくご説明します。
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Q3. 掲載はいくらですか？</h3>
+            <p>
+              A. 1名あたりの応募単価となっております。2名応募が来れば2名分の料金がご請求されます。料金に関しては <a href="/price/">こちら</a> をご確認ください。
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="switch">
+      <div class="switch__inner">
+        <div class="switch__copy">
+          <h2>いま、<br>切り替える</h2>
+          <p>
+            自社の採用について課題認識があっても後回しです。<br>
+            お気軽にご相談ください。
+          </p>
+        </div>
+
+        <div class="switch__visual">
+          <picture>
+            <source media="(max-width: 767px)" srcset="./assets/bottom-mobile.png">
+            <img src="./assets/bottom-desktop.png" alt="切り替えイメージ">
+          </picture>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__main">
+      <div class="site-footer__brand">
+        <a class="site-logo" href="https://kyujin-ch.jp/">
+          <img src="https://kyujin-ch.com/assets/Person.png" alt="求人ちゃんねる">
+          <span>求人ちゃんねる</span>
+        </a>
+        <p>最適な仕事を見つけるためのお手伝いをします。</p>
+        <div class="site-footer__logos">
+          <img src="https://inrevo.co.jp/wp-content/themes/standard_black_corporate/img/company/common/logo.svg" alt="INREVO">
+          <img src="https://inrevo.co.jp/wp-content/themes/standard_black_corporate/img/company/common/pmark.png" alt="Privacy Mark">
+        </div>
+      </div>
+
+      <div class="site-footer__links">
+        <div>
+          <h4>求人情報</h4>
+          <a href="https://kyujin-ch.com/jobs">求人一覧</a>
+          <a href="https://inrevo.co.jp/about" target="_blank" rel="noreferrer">会社概要</a>
+        </div>
+        <div>
+          <h4>サポート</h4>
+          <a href="https://kyujin-ch.com/contact">お問い合わせ</a>
+          <a href="/kiyaku/">利用規約（求職者）</a>
+          <a href="/kiyaku-company/">利用規約（企業）</a>
+          <a href="/application-notes/">お申込みに関する注意事項</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">© 2026 求人ちゃんねる. all rights reserved.</div>
+  </footer>
+</body>
+</html>

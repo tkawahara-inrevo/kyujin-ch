@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(npx prisma:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(chmod 600 /c/Users/kawah/kyujin-ch/tmp/wp_key.pem)",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 bitnami@18.179.136.107 \"ls /opt/bitnami/wordpress/\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"grep -r ''お問い合わせ'' /opt/bitnami/wordpress/shared/ 2>/dev/null | head -20\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"ls /opt/bitnami/wordpress/shared/\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"grep -rn ''お問い合わせ\\\\|contact\\\\|inquiry'' /opt/bitnami/wordpress/index.php 2>/dev/null | head -20\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"ls /opt/bitnami/wordpress/service/ /opt/bitnami/wordpress/price/ /opt/bitnami/wordpress/kiyaku/ /opt/bitnami/wordpress/kiyaku-company/ /opt/bitnami/wordpress/thanks/\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"grep -n ''お問い合わせ\\\\|contact\\\\|inquiry\\\\|footer'' /opt/bitnami/wordpress/index.php | head -30\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"file /opt/bitnami/wordpress/index.php && head -5 /opt/bitnami/wordpress/index.php\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"grep -n ''お問い合わせ'' /opt/bitnami/wordpress/price/index.html /opt/bitnami/wordpress/kiyaku/index.html /opt/bitnami/wordpress/kiyaku-company/index.html\")",
+      "Bash(ssh -i /c/Users/kawah/kyujin-ch/tmp/wp_key.pem -o StrictHostKeyChecking=no bitnami@18.179.136.107 \"grep -rn ''お問い合わせ'' /opt/bitnami/wordpress/wp-content/themes/ 2>/dev/null | grep -i ''footer\\\\|hsforms\\\\|contact'' | head -20\")",
+      "Bash(ssh -i:*)"
     ]
   }
 }

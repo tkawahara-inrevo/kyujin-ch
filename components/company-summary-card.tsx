@@ -46,16 +46,6 @@ export function CompanySummaryCard({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        {websiteUrl && (
-          <Link
-            href={websiteUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[13px] font-semibold text-[#2f6cff] underline underline-offset-2 hover:opacity-80"
-          >
-            公式サイト →
-          </Link>
-        )}
         {jobsCount != null && (
           <span className="rounded-full bg-[#f1f5f9] px-3 py-1 text-[12px] font-semibold text-[#475569]">
             求人 {jobsCount}件

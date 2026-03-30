@@ -33,12 +33,18 @@ export function Footer() {
             </div>
             <div className="space-y-3">
               <p className="font-bold text-[#333]">サポート</p>
-              <Link href="/contact" className="block hover:underline">
+              <Link href="https://share-na2.hsforms.com/1VPHZhB4tQWG_UNmAOZHrHA409jf5" className="block hover:underline" target="_blank" rel="noreferrer">
                 お問い合わせ
               </Link>
-              <p>利用規約</p>
-              <p>プライバシーポリシー</p>
-              <p>掲載を検討中の企業様へ</p>
+              <Link href="https://kyujin-ch.jp/kiyaku" className="block hover:underline" target="_blank" rel="noreferrer">
+                利用規約
+              </Link>
+              <Link href="https://inrevo.co.jp/privacy-policy" className="block hover:underline" target="_blank" rel="noreferrer">
+                プライバシーポリシー
+              </Link>
+              <Link href="https://kyujin-ch.jp/service" className="block hover:underline" target="_blank" rel="noreferrer">
+                掲載を検討中の企業様へ
+              </Link>
             </div>
           </div>
         </div>

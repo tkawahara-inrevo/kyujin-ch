@@ -42,8 +42,10 @@ export async function Header() {
 
         {/* 中央：企業向けリンク */}
         <Link
-          href="/company/login"
+          href="https://kyujin-ch.jp/service"
           className="hidden text-[12px] font-semibold text-[#2f6cff] hover:underline md:block"
+          target="_blank"
+          rel="noreferrer"
         >
           求人掲載を検討中の企業様へ
         </Link>
@@ -78,7 +80,7 @@ export async function Header() {
 
       {/* モバイル：企業向けリンク */}
       <div className="border-t border-[#f0f0f0] px-4 py-1.5 text-center md:hidden">
-        <Link href="/company/login" className="text-[11px] font-semibold text-[#2f6cff] hover:underline">
+        <Link href="https://kyujin-ch.jp/service" className="text-[11px] font-semibold text-[#2f6cff] hover:underline" target="_blank" rel="noreferrer">
           求人掲載を検討中の企業様へ
         </Link>
       </div>

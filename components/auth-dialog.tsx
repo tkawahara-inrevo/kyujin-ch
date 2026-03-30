@@ -75,7 +75,7 @@ export function AuthDialog({ initialMode = "register", onClose }: Props) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onClick={handleBackdropClick}
     >
-      <div className="mx-4 w-full max-w-[520px] rounded-[16px] bg-white px-10 py-10 shadow-xl">
+      <div className="mx-4 w-full max-w-[520px] rounded-[16px] bg-white px-10 py-10 shadow-xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-[22px] font-bold text-[#1a1a1a]">
           {mode === "register" ? "新規会員登録" : "ログイン"}
         </h2>

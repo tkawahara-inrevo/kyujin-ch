@@ -52,12 +52,14 @@ export function TopFVSection({
         <div className="mx-auto max-w-[1200px] px-4 pt-3 pb-0 md:px-6">
           {/* タブ */}
           <div className="grid grid-cols-2">
-            <button
-              onClick={() => handleTab("news")}
-              className="rounded-tl-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
+            <Link
+              href="/news"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-tl-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
             >
               就職最新情報
-            </button>
+            </Link>
             <button
               onClick={() => handleTab("search")}
               className="rounded-tr-[10px] border-2 border-b-0 border-[#ff5a78] bg-white py-2.5 text-[13px] font-bold text-[#ff5a78] transition hover:bg-[#fff0f3]"
@@ -88,7 +90,7 @@ export function TopFVSection({
                   href="/news"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mb-2 flex w-full items-center justify-center rounded-[5px] bg-[#1d63e3] py-2 text-[11px] font-bold text-white transition hover:opacity-90 md:text-[12px]"
+                  className="mb-2 flex w-full items-center justify-center rounded-[5px] bg-[#1d63e3] py-2 text-[11px] font-bold !text-white transition hover:opacity-90 md:text-[12px]"
                 >
                   最新情報更新中！
                 </Link>

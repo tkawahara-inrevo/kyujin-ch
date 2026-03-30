@@ -90,46 +90,26 @@ function formatWorkLocation(location?: string | null, officeDetail?: string | nu
   return `${base} ${detail}`;
 }
 
-function SectionBlock({
-  title,
-  body,
-}: {
-  title: string;
-  body?: string | null;
-}) {
+function SectionBody({ title, body }: { title: string; body?: string | null }) {
   if (!body) return null;
-
   return (
-    <section className="rounded-[18px] border border-[#e5e5e5] bg-white p-6">
-      <h2 className="text-[18px] font-bold text-[#1e3a5f]">{title}</h2>
-      <div className="mt-4 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
+    <div className="px-6 py-6">
+      <h2 className="text-[16px] font-bold text-[#1a1a1a]">{title}</h2>
+      <div className="mt-3 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
         {body}
       </div>
-    </section>
-  );
-}
-
-function InfoItem({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) {
-  if (!value) return null;
-
-  return (
-    <div className="rounded-[14px] bg-[#f8fafc] px-4 py-4">
-      <p className="text-[11px] font-semibold text-[#7a8699]">{label}</p>
-      <p className="mt-1 whitespace-pre-line text-[14px] leading-[1.7] text-[#334155]">
-        {value}
-      </p>
     </div>
   );
 }
 
-function EmptyMessage({ text }: { text: string }) {
-  return <p className="text-[14px] leading-[1.8] text-[#94a3b8]">{text}</p>;
+function RequirementRow({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-4 py-3.5">
+      <dt className="w-[100px] shrink-0 text-[12px] font-semibold text-[#888]">{label}</dt>
+      <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.7] text-[#333]">{value}</dd>
+    </div>
+  );
 }
 
 export default async function JobDetailPage({
@@ -201,10 +181,57 @@ export default async function JobDetailPage({
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-6 md:px-6 md:py-10">
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
+        <div className="grid items-start gap-6 lg:grid-cols-[1fr_252px] lg:gap-8">
           <div>
-            <div className="rounded-[24px] border border-[#e8ebf0] bg-white p-5 md:p-7">
-              <div className="flex flex-wrap gap-2">
+            {/* ── トップカード ── */}
+            <div className="rounded-[20px] border border-[#e8ebf0] bg-white p-5 md:p-7">
+              {/* 会社名 + ブックマーク */}
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[13px] font-semibold text-[#6b7280]">
+                  {job.company.name}
+                </p>
+                <FavoriteToggleButton
+                  jobId={job.id}
+                  revalidatePaths={[`/jobs/${job.id}`, "/favorites"]}
+                />
+              </div>
+
+              {/* タイトル */}
+              <h1 className="mt-2 text-[20px] font-bold leading-[1.5] text-[#1f2937] md:text-[28px]">
+                {job.title}
+              </h1>
+
+              {/* 画像 */}
+              <div className="relative mt-5 aspect-[2.4/1] overflow-hidden rounded-[14px] bg-[#ececec] md:aspect-[2.15/1]">
+                <Image
+                  src={job.imageUrl || "/assets/Resume.png"}
+                  alt={job.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                />
+              </div>
+
+              {/* 勤務地 + 年収 */}
+              {(workLocation || salaryRange) && (
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  {workLocation && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-[#555]">
+                      <Image src="/assets/Map_Pin.png" alt="" width={14} height={14} className="shrink-0" />
+                      <span>{workLocation}</span>
+                    </div>
+                  )}
+                  {salaryRange && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-[#555]">
+                      <Image src="/assets/Paper.png" alt="" width={14} height={14} className="shrink-0" />
+                      <span>{salaryRange}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* タグ */}
+              <div className="mt-4 flex flex-wrap gap-2">
                 <span className="rounded-full bg-[#2f6cff] px-3 py-1 text-[11px] font-bold text-white">
                   {formatTarget(job)}
                 </span>
@@ -225,61 +252,38 @@ export default async function JobDetailPage({
                   </span>
                 ))}
               </div>
-
-              <div className="mt-5 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[13px] font-semibold text-[#6b7280]">
-                    {job.company.name}
-                  </p>
-                  <h1 className="mt-2 text-[24px] font-bold leading-[1.5] text-[#1f2937] md:text-[38px]">
-                    {job.title}
-                  </h1>
-                </div>
-
-                <FavoriteToggleButton
-                  jobId={job.id}
-                  revalidatePaths={[`/jobs/${job.id}`, "/favorites"]}
-                />
-              </div>
-
-              <div className="relative mt-6 aspect-[2.4/1] overflow-hidden rounded-[18px] bg-[#ececec] md:aspect-[2.15/1]">
-                <Image
-                  src={job.imageUrl || "/assets/Resume.png"}
-                  alt={job.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 800px"
-                />
-              </div>
             </div>
 
-            <div className="mt-8 space-y-5">
-              <SectionBlock title="仕事内容" body={job.description} />
-              <SectionBlock title="応募条件" body={job.requirements} />
-              <SectionBlock title="こんな方に向いています" body={job.desiredAptitude} />
-              <SectionBlock title="こんな方におすすめ" body={job.recommendedFor} />
+            {/* ── テキストセクション ── */}
+            <div className="mt-5 overflow-hidden rounded-[18px] border border-[#e5e5e5] bg-white divide-y divide-[#f0f0f0]">
+              <SectionBody title="仕事内容" body={job.description} />
+              <SectionBody title="応募条件" body={job.requirements} />
+              <SectionBody title="こんな方に向いています" body={job.desiredAptitude} />
+              <SectionBody title="こんな方におすすめ" body={job.recommendedFor} />
 
-              <section className="rounded-[18px] border border-[#e5e5e5] bg-white p-6">
-                <h2 className="text-[18px] font-bold text-[#1e3a5f]">募集要項</h2>
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <InfoItem label="雇用形態" value={employmentLabel} />
-                  <InfoItem label="対象" value={formatTarget(job)} />
-                  <InfoItem label="カテゴリ" value={categoryLabel} />
-                  <InfoItem label="想定年収レンジ" value={salaryRange} />
-                  <InfoItem label="月給" value={job.monthlySalary} />
-                  <InfoItem label="年収" value={job.annualSalary} />
-                  <InfoItem label="勤務地エリア" value={job.region} />
-                  <InfoItem label="勤務地" value={workLocation} />
-                  <InfoItem label="最寄り・アクセス" value={job.access} />
-                  <InfoItem label="勤務時間" value={job.workingHours} />
-                  <InfoItem label="雇用期間" value={employmentPeriodLabel} />
-                  <InfoItem label="応募締切" value={closingDateLabel} />
-                </div>
-              </section>
+              {/* 募集要項 */}
+              <div className="px-6 py-6">
+                <h2 className="text-[16px] font-bold text-[#1a1a1a]">募集要項</h2>
+                <dl className="mt-3 divide-y divide-[#f5f5f5]">
+                  <RequirementRow label="雇用形態" value={employmentLabel} />
+                  <RequirementRow label="対象" value={formatTarget(job)} />
+                  <RequirementRow label="カテゴリ" value={categoryLabel} />
+                  <RequirementRow label="想定年収" value={salaryRange} />
+                  <RequirementRow label="月給" value={job.monthlySalary} />
+                  <RequirementRow label="年収" value={job.annualSalary} />
+                  <RequirementRow label="勤務地エリア" value={job.region} />
+                  <RequirementRow label="勤務地" value={workLocation} />
+                  <RequirementRow label="最寄・アクセス" value={job.access} />
+                  <RequirementRow label="勤務時間" value={job.workingHours} />
+                  <RequirementRow label="雇用期間" value={employmentPeriodLabel} />
+                  <RequirementRow label="応募締切" value={closingDateLabel} />
+                </dl>
+              </div>
 
-              <section className="rounded-[18px] border border-[#e5e5e5] bg-white p-6">
-                <h2 className="text-[18px] font-bold text-[#1e3a5f]">福利厚生・制度</h2>
-                <div className="mt-4">
+              {/* 福利厚生 */}
+              <div className="px-6 py-6">
+                <h2 className="text-[16px] font-bold text-[#1a1a1a]">福利厚生・制度</h2>
+                <div className="mt-3">
                   {job.benefits.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {job.benefits.map((benefit) => (
@@ -292,27 +296,29 @@ export default async function JobDetailPage({
                       ))}
                     </div>
                   ) : (
-                    <EmptyMessage text="福利厚生・制度は現在確認中です。" />
+                    <p className="text-[14px] text-[#94a3b8]">福利厚生・制度は現在確認中です。</p>
                   )}
                 </div>
-              </section>
+              </div>
 
-              <section className="rounded-[18px] border border-[#e5e5e5] bg-white p-6">
-                <h2 className="text-[18px] font-bold text-[#1e3a5f]">選考フロー</h2>
-                <div className="mt-4 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
-                  {job.selectionProcess ? (
-                    job.selectionProcess
-                  ) : (
-                    <EmptyMessage text="選考フローは現在確認中です。" />
+              {/* 選考フロー */}
+              <div className="px-6 py-6">
+                <h2 className="text-[16px] font-bold text-[#1a1a1a]">選考フロー</h2>
+                <div className="mt-3 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
+                  {job.selectionProcess ?? (
+                    <span className="text-[#94a3b8]">選考フローは現在確認中です。</span>
                   )}
                 </div>
-              </section>
+              </div>
             </div>
 
+            {/* 地図 */}
             {mapQuery && (
-              <div className="mt-8 rounded-[18px] border border-[#e5e5e5] bg-white p-6">
-                <h3 className="text-[18px] font-bold text-[#1e3a5f]">勤務地マップ</h3>
-                <p className="mt-3 text-[14px] text-[#555]">{workLocation}</p>
+              <div className="mt-5 rounded-[18px] border border-[#e5e5e5] bg-white p-6">
+                <h3 className="text-[16px] font-bold text-[#1a1a1a]">勤務地マップ</h3>
+                {workLocation && (
+                  <p className="mt-2 text-[13px] text-[#555]">{workLocation}</p>
+                )}
                 <div className="mt-4 overflow-hidden rounded-xl">
                   <iframe
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed&hl=ja`}
@@ -328,7 +334,8 @@ export default async function JobDetailPage({
               </div>
             )}
 
-            <div className="mt-12">
+            {/* 企業情報 */}
+            <div className="mt-5">
               <CompanySummaryCard
                 companyId={job.company.id}
                 companyName={job.company.name}
@@ -342,6 +349,7 @@ export default async function JobDetailPage({
               />
             </div>
 
+            {/* 応募ボタン（本文下） */}
             <div className="mt-6">
               <ApplyButton
                 href={`/jobs/${job.id}/apply`}
@@ -366,6 +374,7 @@ export default async function JobDetailPage({
         </div>
       </div>
 
+      {/* モバイル固定応募バー */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#e9e9e9] bg-white px-4 py-3 lg:hidden">
         <ApplyButton
           href={`/jobs/${job.id}/apply`}

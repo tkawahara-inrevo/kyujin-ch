@@ -47,13 +47,15 @@ export function ActionSidebar({
           </Link>
         )}
 
-        <p className="mt-4 text-[11px] leading-[1.6] text-[#8a8a8a]">
-          会員登録で応募やお気に入り、メッセージ
-          <br />
-          機能などが無料で使い放題！
-        </p>
+        {!isLoggedIn && (
+          <p className="mt-3 text-center text-[11px] leading-[1.7] text-[#8a8a8a]">
+            応募にはログインもしくは
+            <br />
+            新規会員登録が必要です
+          </p>
+        )}
 
-        <div className="mt-5">
+        <div className="mt-4">
           {isLoggedIn ? (
             <div className="border-t border-[#ececec] pt-4">
               <div className="space-y-1">

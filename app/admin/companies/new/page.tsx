@@ -105,9 +105,9 @@ export default function AdminCompanyNewPage() {
       <div className="p-6 lg:p-10">
         <div className="max-w-[720px] rounded-[20px] bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
           <p className="text-[12px] font-bold tracking-[0.18em] text-[#2f6cff]">ACCOUNT ISSUED</p>
-          <h1 className="mt-3 text-[28px] font-bold text-[#1e293b]">企業アカウントを発行したよ!</h1>
+          <h1 className="mt-3 text-[28px] font-bold text-[#1e293b]">企業アカウントを発行しました</h1>
           <p className="mt-3 text-[14px] leading-7 text-[#555]">
-            仮パスワードは今ここでしか見えないので、必要なら控えておいてね!
+            仮パスワードはこの画面でのみ表示されます。必要な場合は必ず控えてください。
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">

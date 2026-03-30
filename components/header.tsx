@@ -43,7 +43,7 @@ export async function Header() {
         {/* 中央：企業向けリンク */}
         <Link
           href="https://kyujin-ch.jp/service"
-          className="hidden text-[12px] font-semibold text-[#2f6cff] hover:underline md:block"
+          className="hidden text-[10px] text-[#1d63e3] underline md:block"
           target="_blank"
           rel="noreferrer"
         >

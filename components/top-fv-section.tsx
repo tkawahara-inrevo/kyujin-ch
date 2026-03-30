@@ -56,7 +56,7 @@ export function TopFVSection({
               href="/news"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-tl-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
+              className="rounded-tl-[10px] border-2 border-b-0 border-r-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
             >
               就職最新情報
             </Link>

@@ -1,5 +1,5 @@
 import { Header } from "@/components/header";
-import { TopHero } from "@/components/top-hero";
+import { TopFVSection } from "@/components/top-fv-section";
 import { RightSidebar } from "@/components/right-sidebar";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
@@ -81,14 +81,13 @@ export default async function HomePage({
       )}
       <TargetSync />
       <Header />
-      <TopHero
-        activeTab="search"
+      <TopFVSection
+        hasSearchFilter={hasSearchFilter}
+        isLoggedIn={isLoggedIn}
         defaultQ={q}
         defaultCategory={category}
         defaultEmploymentType={employmentType}
         defaultLocation={location}
-        searchPath="/jobs"
-        includeSearchTabParam={false}
       />
 
       <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6 md:py-10">

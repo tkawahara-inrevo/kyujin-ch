@@ -723,23 +723,6 @@ export default function CompanyJobNewPage() {
           </Section>
 
           <Section title="詳細情報（任意）">
-            <Field label="ポジションの役割・ミッション">
-              <textarea
-                name="positionMission"
-                rows={3}
-                className={textareaCls}
-                placeholder="例：チームの中心として提案活動をリードし、半年で売上基盤の構築を目指していただきます。"
-              />
-            </Field>
-            <Field label="研修・育成制度">
-              <textarea
-                rows={2}
-                value={trainingInfo}
-                onChange={(e) => setTrainingInfo(e.target.value)}
-                className={textareaCls}
-                placeholder="例：入社後1ヶ月間のOJT研修あり。メンター制度を導入しており、先輩社員がサポートします。"
-              />
-            </Field>
             <Field label="青少年雇用情報（若者雇用促進法）">
               <p className="mb-3 text-[12px] text-[#6b7280]">任意。新卒採用がある場合は入力を推奨します。</p>
               <div className="overflow-x-auto">

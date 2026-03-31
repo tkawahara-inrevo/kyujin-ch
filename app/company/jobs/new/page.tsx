@@ -36,6 +36,19 @@ const EMPLOYMENT_PERIOD_OPTIONS = [
   { value: "trial", label: "試用期間あり" },
 ];
 
+const DESCRIPTION_TEMPLATE = `【主な業務内容】
+・
+
+【職場環境】
+
+
+【入社後の流れ】
+入社後はOJTにて業務を覚えていただきます。`;
+
+const SELECTION_PROCESS_TEMPLATE = `書類選考 → 一次面接（オンライン可） → 最終面接 → 内定
+
+※選考期間の目安：1〜2週間程度`;
+
 export default function CompanyJobNewPage() {
   const router = useRouter();
   const [pendingAction, setPendingAction] = useState<JobSubmissionMode | null>(null);
@@ -52,6 +65,11 @@ export default function CompanyJobNewPage() {
   const [employmentPeriodType, setEmploymentPeriodType] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectionProcess, setSelectionProcess] = useState("");
+  const [officeDetail, setOfficeDetail] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [postalLoading, setPostalLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -102,20 +120,20 @@ export default function CompanyJobNewPage() {
       categoryTagDetail,
       employmentType,
       employmentTypeDetail,
-      description: formValues.description ?? "",
+      description,
       requirements: formValues.requirements ?? "",
       desiredAptitude: formValues.desiredAptitude ?? "",
       recommendedFor: formValues.recommendedFor ?? "",
       location: selectedLocation,
       region: selectedRegion,
-      officeDetail: formValues.officeDetail ?? "",
+      officeDetail,
       access: formValues.access ?? "",
       salaryMin: formValues.salaryMin ?? "",
       salaryMax: formValues.salaryMax ?? "",
       monthlySalary: formValues.monthlySalary ?? "",
       annualSalary: formValues.annualSalary ?? "",
       workingHours: formValues.workingHours ?? "",
-      selectionProcess: formValues.selectionProcess ?? "",
+      selectionProcess,
       employmentPeriodType,
       tags: mergedTags,
       benefits: mergedBenefits,
@@ -129,6 +147,9 @@ export default function CompanyJobNewPage() {
       categoryTagDetail,
       employmentType,
       employmentTypeDetail,
+      description,
+      officeDetail,
+      selectionProcess,
       selectedLocation,
       selectedRegion,
       employmentPeriodType,
@@ -138,6 +159,26 @@ export default function CompanyJobNewPage() {
       graduationYear,
     ],
   );
+
+  async function handlePostalCode(code: string) {
+    setPostalLoading(true);
+    try {
+      const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${code}`);
+      const json = await res.json();
+      if (json.results?.[0]) {
+        const { address1, address2, address3 } = json.results[0] as { address1: string; address2: string; address3: string };
+        const area = Object.entries(PREFECTURES_BY_AREA).find(([, prefs]) => prefs.includes(address1))?.[0] ?? "";
+        if (area) setSelectedRegion(area);
+        setSelectedLocation(address1);
+        const fullAddr = [address1, address2, address3].filter(Boolean).join("");
+        setOfficeDetail((prev) => prev || fullAddr);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setPostalLoading(false);
+    }
+  }
 
   function readFormValues(form: HTMLFormElement) {
     setFormValues(
@@ -352,7 +393,33 @@ export default function CompanyJobNewPage() {
 
           <Section title="仕事内容">
             <Field label="仕事内容" required>
-              <textarea name="description" required rows={6} className={textareaCls} />
+              <div className="mb-2 flex items-center gap-2">
+                {!description ? (
+                  <button
+                    type="button"
+                    onClick={() => setDescription(DESCRIPTION_TEMPLATE)}
+                    className="rounded-[10px] border border-[#2f6cff] bg-[#eef4ff] px-4 py-2 text-[13px] font-bold text-[#2f6cff] hover:bg-[#dde9ff] transition"
+                  >
+                    テンプレートを使って素早く入力 →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { if (confirm("テンプレートで上書きしますか？")) setDescription(DESCRIPTION_TEMPLATE); }}
+                    className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] px-3 py-1.5 text-[12px] text-[#7b8797] hover:bg-[#eef3fb] transition"
+                  >
+                    テンプレートに変更
+                  </button>
+                )}
+              </div>
+              <textarea
+                name="description"
+                required
+                rows={6}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className={textareaCls}
+              />
             </Field>
             <Field label="応募条件">
               <textarea name="requirements" rows={4} className={textareaCls} />
@@ -366,6 +433,25 @@ export default function CompanyJobNewPage() {
           </Section>
 
           <Section title="勤務地">
+            <Field label="郵便番号">
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, "");
+                    setPostalCode(val);
+                    if (val.length === 7) handlePostalCode(val);
+                  }}
+                  className={`${inputCls} max-w-[180px]`}
+                  placeholder="例：1500001"
+                  maxLength={7}
+                />
+                {postalLoading && <span className="text-[13px] text-[#888]">検索中...</span>}
+              </div>
+              <p className="mt-1.5 text-[12px] text-[#7b8797]">7桁入力でエリア・都道府県を自動入力します</p>
+            </Field>
+
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="エリア">
                 <select
@@ -411,6 +497,8 @@ export default function CompanyJobNewPage() {
               <textarea
                 name="officeDetail"
                 rows={3}
+                value={officeDetail}
+                onChange={(e) => setOfficeDetail(e.target.value)}
                 className={textareaCls}
                 placeholder="例：渋谷スクランブルスクエア 12F / 千代田区丸の内1-1-1"
               />
@@ -465,7 +553,32 @@ export default function CompanyJobNewPage() {
             </Field>
 
             <Field label="選考フロー">
-              <textarea name="selectionProcess" rows={4} className={textareaCls} />
+              <div className="mb-2 flex items-center gap-2">
+                {!selectionProcess ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectionProcess(SELECTION_PROCESS_TEMPLATE)}
+                    className="rounded-[10px] border border-[#2f6cff] bg-[#eef4ff] px-4 py-2 text-[13px] font-bold text-[#2f6cff] hover:bg-[#dde9ff] transition"
+                  >
+                    テンプレートを使って素早く入力 →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { if (confirm("テンプレートで上書きしますか？")) setSelectionProcess(SELECTION_PROCESS_TEMPLATE); }}
+                    className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] px-3 py-1.5 text-[12px] text-[#7b8797] hover:bg-[#eef3fb] transition"
+                  >
+                    テンプレートに変更
+                  </button>
+                )}
+              </div>
+              <textarea
+                name="selectionProcess"
+                rows={4}
+                value={selectionProcess}
+                onChange={(e) => setSelectionProcess(e.target.value)}
+                className={textareaCls}
+              />
             </Field>
           </Section>
 

@@ -37,7 +37,13 @@ export async function POST(req: NextRequest) {
   const ext = path.extname(file.name) || ".jpg";
   const key = `images/${randomUUID()}${ext}`;
   const bytes = await file.arrayBuffer();
-  const url = await uploadToS3(key, Buffer.from(bytes), file.type);
 
-  return NextResponse.json({ url });
+  try {
+    const url = await uploadToS3(key, Buffer.from(bytes), file.type);
+    return NextResponse.json({ url });
+  } catch (err) {
+    console.error("[upload-image] S3 upload error:", err);
+    const message = err instanceof Error ? err.message : "S3アップロードに失敗しました";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

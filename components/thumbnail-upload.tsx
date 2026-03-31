@@ -43,7 +43,7 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded, hint }: Thumbn
           ctx.drawImage(img, 0, 0, width, height);
           canvas.toBlob(
             (blob) => (blob ? resolve(blob) : reject(new Error("Canvas toBlob failed"))),
-            file.type === "image/png" ? "image/png" : "image/jpeg",
+            "image/jpeg",
             0.85
           );
         };
@@ -76,7 +76,17 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded, hint }: Thumbn
         formData.append("file", resized, file.name);
 
         const res = await fetch("/api/upload-image", { method: "POST", body: formData });
-        const json = await res.json();
+        if (res.status === 413) {
+          setError("画像ファイルが大きすぎます。別の画像または小さいサイズでお試しください。");
+          return;
+        }
+        let json: { url?: string; error?: string } = {};
+        try {
+          json = await res.json();
+        } catch {
+          setError("サーバーエラーが発生しました。時間をおいてお試しください。");
+          return;
+        }
         if (!res.ok) {
           setError(json.error || "アップロードに失敗しました");
           return;

@@ -114,6 +114,15 @@ type Job = {
   smokingPolicyIndoor?: string | null;
   smokingPolicyOutdoor?: string | null;
   smokingNote?: string | null;
+  recruitmentBackground?: string | null;
+  positionMission?: string | null;
+  holidayPolicy?: string | null;
+  trialPeriod?: string | null;
+  fixedOvertime?: string | null;
+  salaryRevision?: string | null;
+  interviewCount?: string | null;
+  selectionDuration?: string | null;
+  joinTiming?: string | null;
 };
 
 export function JobEditForm({
@@ -181,6 +190,15 @@ export function JobEditForm({
     workingHours: job.workingHours ?? "",
     selectionProcess: job.selectionProcess ?? "",
     closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "",
+    recruitmentBackground: job.recruitmentBackground ?? "",
+    positionMission: job.positionMission ?? "",
+    holidayPolicy: job.holidayPolicy ?? "",
+    trialPeriod: job.trialPeriod ?? "",
+    fixedOvertime: job.fixedOvertime ?? "",
+    salaryRevision: job.salaryRevision ?? "",
+    interviewCount: job.interviewCount ?? "",
+    selectionDuration: job.selectionDuration ?? "",
+    joinTiming: job.joinTiming ?? "",
   });
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
 
@@ -245,6 +263,15 @@ export function JobEditForm({
       benefits: mergedBenefits,
       targetType,
       graduationYear,
+      recruitmentBackground: formValues.recruitmentBackground ?? "",
+      positionMission: formValues.positionMission ?? "",
+      holidayPolicy: formValues.holidayPolicy ?? "",
+      trialPeriod: formValues.trialPeriod ?? "",
+      fixedOvertime: formValues.fixedOvertime ?? "",
+      salaryRevision: formValues.salaryRevision ?? "",
+      interviewCount: formValues.interviewCount ?? "",
+      selectionDuration: formValues.selectionDuration ?? "",
+      joinTiming: formValues.joinTiming ?? "",
     }),
     [
       formValues,
@@ -352,6 +379,15 @@ export function JobEditForm({
           smokingPolicyIndoor: smokingPolicyIndoor || undefined,
           smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
           smokingNote: smokingNote || undefined,
+          recruitmentBackground: fd.get("recruitmentBackground") as string,
+          positionMission: fd.get("positionMission") as string,
+          holidayPolicy: fd.get("holidayPolicy") as string,
+          trialPeriod: fd.get("trialPeriod") as string,
+          fixedOvertime: fd.get("fixedOvertime") as string,
+          salaryRevision: fd.get("salaryRevision") as string,
+          interviewCount: fd.get("interviewCount") as string,
+          selectionDuration: fd.get("selectionDuration") as string,
+          joinTiming: fd.get("joinTiming") as string,
         },
         submissionMode,
       );
@@ -651,10 +687,6 @@ export function JobEditForm({
               />
             </Field>
 
-            <Field label="勤務地詳細">
-              <input type="hidden" name="officeName" value="" />
-            </Field>
-
             <Field label="最寄り・アクセス">
               <input name="access" defaultValue={job.access ?? ""} className={inputCls} placeholder="例：JR渋谷駅 徒歩3分 / 地下鉄表参道駅 徒歩5分" />
             </Field>
@@ -726,6 +758,94 @@ export function JobEditForm({
                 placeholder="例：書類選考 → 一次面接（オンライン可） → 最終面接 → 内定&#10;※選考期間の目安：1〜2週間程度"
               />
             </Field>
+          </Section>
+
+          <Section title="募集背景・ポジション">
+            <Field label="募集背景">
+              <textarea
+                name="recruitmentBackground"
+                rows={3}
+                defaultValue={job.recruitmentBackground ?? ""}
+                className={textareaCls}
+                placeholder="例：事業拡大に伴い、既存顧客対応と新規開拓を強化するため増員募集します。"
+              />
+            </Field>
+            <Field label="ポジションの役割">
+              <textarea
+                name="positionMission"
+                rows={3}
+                defaultValue={job.positionMission ?? ""}
+                className={textareaCls}
+                placeholder="例：チームの中心として提案活動をリードし、半年で売上基盤の構築を目指していただきます。"
+              />
+            </Field>
+          </Section>
+
+          <Section title="条件詳細">
+            <Field label="休日・休暇">
+              <textarea
+                name="holidayPolicy"
+                rows={3}
+                defaultValue={job.holidayPolicy ?? ""}
+                className={textareaCls}
+                placeholder="例：完全週休2日制（土日祝）、年末年始、夏季、慶弔、有給休暇（入社半年後10日付与）"
+              />
+            </Field>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="試用期間">
+                <input
+                  name="trialPeriod"
+                  defaultValue={job.trialPeriod ?? ""}
+                  className={inputCls}
+                  placeholder="例：3ヶ月（条件変更なし）"
+                />
+              </Field>
+              <Field label="固定残業代">
+                <input
+                  name="fixedOvertime"
+                  defaultValue={job.fixedOvertime ?? ""}
+                  className={inputCls}
+                  placeholder="例：月30時間分・50,000円を含む（超過分別途支給）"
+                />
+              </Field>
+            </div>
+            <Field label="昇給・賞与">
+              <input
+                name="salaryRevision"
+                defaultValue={job.salaryRevision ?? ""}
+                className={inputCls}
+                placeholder="例：昇給年1回、賞与年2回（業績連動）"
+              />
+            </Field>
+          </Section>
+
+          <Section title="選考・入社時期">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="面接回数・方法">
+                <input
+                  name="interviewCount"
+                  defaultValue={job.interviewCount ?? ""}
+                  className={inputCls}
+                  placeholder="例：2回（一次オンライン可）"
+                />
+              </Field>
+              <Field label="選考期間の目安">
+                <input
+                  name="selectionDuration"
+                  defaultValue={job.selectionDuration ?? ""}
+                  className={inputCls}
+                  placeholder="例：応募から2週間程度"
+                />
+              </Field>
+              <Field label="入社時期">
+                <input
+                  name="joinTiming"
+                  defaultValue={job.joinTiming ?? ""}
+                  className={inputCls}
+                  placeholder="例：即日〜3ヶ月以内"
+                />
+              </Field>
+            </div>
           </Section>
 
           <Section title="求人タグ">
@@ -1022,4 +1142,3 @@ function TargetButton({
     </button>
   );
 }
-

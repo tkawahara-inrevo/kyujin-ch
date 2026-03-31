@@ -30,6 +30,15 @@ export type JobPreviewData = {
   benefits?: string[];
   targetType?: string;
   graduationYear?: number;
+  recruitmentBackground?: string;
+  positionMission?: string;
+  holidayPolicy?: string;
+  trialPeriod?: string;
+  fixedOvertime?: string;
+  salaryRevision?: string;
+  interviewCount?: string;
+  selectionDuration?: string;
+  joinTiming?: string;
 };
 
 export function JobPreview({ data }: { data: JobPreviewData }) {

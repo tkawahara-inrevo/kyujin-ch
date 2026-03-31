@@ -207,6 +207,17 @@ model Job {
   smokingPolicyOutdoor  String?   // 屋外の受動喫煙対策
   smokingNote           String?   // 特記事項
 
+  // engage寄せ: 掲載品質向上のための追加項目
+  recruitmentBackground String?   // 募集背景
+  positionMission       String?   // ポジションの役割・ミッション
+  holidayPolicy         String?   // 休日・休暇
+  trialPeriod           String?   // 試用期間
+  fixedOvertime         String?   // 固定残業代
+  salaryRevision        String?   // 昇給・賞与
+  interviewCount        String?   // 面接回数・方法
+  selectionDuration     String?   // 選考期間の目安
+  joinTiming            String?   // 入社時期
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

@@ -53,6 +53,15 @@ type JobData = {
   smokingPolicyIndoor?: string;
   smokingPolicyOutdoor?: string;
   smokingNote?: string;
+  recruitmentBackground?: string;
+  positionMission?: string;
+  holidayPolicy?: string;
+  trialPeriod?: string;
+  fixedOvertime?: string;
+  salaryRevision?: string;
+  interviewCount?: string;
+  selectionDuration?: string;
+  joinTiming?: string;
 };
 
 export type YouthYearStats = {
@@ -142,6 +151,15 @@ function normalizeJobData(data: JobData): JobPendingContent {
     smokingPolicyIndoor: data.smokingPolicyIndoor || null,
     smokingPolicyOutdoor: data.smokingPolicyOutdoor || null,
     smokingNote: data.smokingNote || null,
+    recruitmentBackground: data.recruitmentBackground || null,
+    positionMission: data.positionMission || null,
+    holidayPolicy: data.holidayPolicy || null,
+    trialPeriod: data.trialPeriod || null,
+    fixedOvertime: data.fixedOvertime || null,
+    salaryRevision: data.salaryRevision || null,
+    interviewCount: data.interviewCount || null,
+    selectionDuration: data.selectionDuration || null,
+    joinTiming: data.joinTiming || null,
   };
 }
 
@@ -185,6 +203,15 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     smokingPolicyIndoor: normalized.smokingPolicyIndoor,
     smokingPolicyOutdoor: normalized.smokingPolicyOutdoor,
     smokingNote: normalized.smokingNote,
+    recruitmentBackground: normalized.recruitmentBackground,
+    positionMission: normalized.positionMission,
+    holidayPolicy: normalized.holidayPolicy,
+    trialPeriod: normalized.trialPeriod,
+    fixedOvertime: normalized.fixedOvertime,
+    salaryRevision: normalized.salaryRevision,
+    interviewCount: normalized.interviewCount,
+    selectionDuration: normalized.selectionDuration,
+    joinTiming: normalized.joinTiming,
     pendingContent: Prisma.DbNull,
   };
 }

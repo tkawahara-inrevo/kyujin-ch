@@ -44,6 +44,15 @@ export type JobPendingContent = {
   smokingPolicyIndoor: string | null;
   smokingPolicyOutdoor: string | null;
   smokingNote: string | null;
+  recruitmentBackground: string | null;
+  positionMission: string | null;
+  holidayPolicy: string | null;
+  trialPeriod: string | null;
+  fixedOvertime: string | null;
+  salaryRevision: string | null;
+  interviewCount: string | null;
+  selectionDuration: string | null;
+  joinTiming: string | null;
 };
 
 function asString(value: unknown) {
@@ -103,5 +112,14 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     smokingPolicyIndoor: asString(record.smokingPolicyIndoor),
     smokingPolicyOutdoor: asString(record.smokingPolicyOutdoor),
     smokingNote: asString(record.smokingNote),
+    recruitmentBackground: asString(record.recruitmentBackground),
+    positionMission: asString(record.positionMission),
+    holidayPolicy: asString(record.holidayPolicy),
+    trialPeriod: asString(record.trialPeriod),
+    fixedOvertime: asString(record.fixedOvertime),
+    salaryRevision: asString(record.salaryRevision),
+    interviewCount: asString(record.interviewCount),
+    selectionDuration: asString(record.selectionDuration),
+    joinTiming: asString(record.joinTiming),
   };
 }

@@ -273,12 +273,30 @@ export function PostApplyModal({ jobs }: Props) {
               <p className="mt-0.5 text-[17px] font-bold text-white">こちらにも応募しませんか?</p>
             </div>
 
-            {/* Card stack */}
+            {/* Card stack with side labels */}
             <div className="relative flex-1">
+              {/* Left label: 気になる */}
+              <div className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 px-1">
+                <div className="flex h-12 w-12 flex-col items-center justify-center rounded-full border-2 border-[#2f6cff] bg-white/90">
+                  <span className="text-[18px] leading-none text-[#2f6cff]">♡</span>
+                </div>
+                <span className="text-[9px] font-bold text-white">気になる</span>
+                <span className="text-[10px] font-bold text-white/60">←</span>
+              </div>
+
+              {/* Right label: 応募 */}
+              <div className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1 px-1">
+                <div className="flex h-12 w-12 flex-col items-center justify-center rounded-full bg-[#22c55e]">
+                  <span className="text-[18px] leading-none text-white">✓</span>
+                </div>
+                <span className="text-[9px] font-bold text-white">応募</span>
+                <span className="text-[10px] font-bold text-white/60">→</span>
+              </div>
+
               {/* Next card (peeking behind) */}
               {jobs[currentIndex + 1] && (
                 <div
-                  className="absolute inset-x-4 overflow-hidden rounded-[20px] bg-white shadow-lg"
+                  className="absolute inset-x-14 overflow-hidden rounded-[20px] bg-white shadow-lg"
                   style={{ top: 8, transform: "scale(0.96)", zIndex: 0 }}
                 >
                   <div className="relative aspect-[16/9] w-full bg-[#e8e8e8]">
@@ -295,7 +313,7 @@ export function PostApplyModal({ jobs }: Props) {
               )}
 
               {/* Current card */}
-              <div style={{ position: "relative", zIndex: 1 }}>
+              <div className="mx-14" style={{ position: "relative", zIndex: 1 }}>
                 <SwipeCard
                   key={currentIndex}
                   job={jobs[currentIndex]}
@@ -304,43 +322,39 @@ export function PostApplyModal({ jobs }: Props) {
               </div>
             </div>
 
-            {/* Action buttons + hints */}
-            <div className="shrink-0 px-6 pb-10 pt-4">
-              <div className="flex items-center justify-around">
+            {/* Action buttons */}
+            <div className="shrink-0 px-6 pb-10 pt-5">
+              <div className="flex items-center justify-between gap-3">
                 {/* Favorite button */}
                 <button
                   onClick={() => handleSwipe("favorite")}
                   disabled={isPending}
-                  className="flex h-16 w-16 flex-col items-center justify-center rounded-full bg-white shadow-lg transition active:scale-95"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-[14px] border-2 border-[#2f6cff] bg-white py-3.5 transition active:scale-95"
                 >
-                  <span className="text-[22px]">♡</span>
-                  <span className="text-[9px] font-bold text-[#2f6cff]">気になる</span>
+                  <span className="text-[16px] text-[#2f6cff]">♡</span>
+                  <span className="text-[13px] font-bold text-[#2f6cff]">気になる</span>
                 </button>
 
                 {/* Skip button */}
                 <button
                   onClick={() => handleSwipe("skip")}
                   disabled={isPending}
-                  className="flex h-14 w-14 flex-col items-center justify-center rounded-full bg-white/20 shadow-lg transition active:scale-95"
+                  className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-full bg-white/20 transition active:scale-95"
                 >
-                  <span className="text-[20px]">✕</span>
-                  <span className="text-[8px] font-bold text-white/80">スキップ</span>
+                  <span className="text-[16px] text-white/80">✕</span>
                 </button>
 
                 {/* Apply button */}
                 <button
                   onClick={() => handleSwipe("apply")}
                   disabled={isPending}
-                  className="flex h-16 w-16 flex-col items-center justify-center rounded-full bg-[#22c55e] shadow-lg transition active:scale-95"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-[14px] bg-[#22c55e] py-3.5 transition active:scale-95"
                 >
-                  <span className="text-[22px] text-white">✓</span>
-                  <span className="text-[9px] font-bold text-white">応募</span>
+                  <span className="text-[16px] text-white">✓</span>
+                  <span className="text-[13px] font-bold text-white">応募する</span>
                 </button>
               </div>
-
-              <p className="mt-4 text-center text-[10px] text-white/40">
-                左スワイプ: 気になる　　右スワイプ: 応募　　下スワイプ: スキップ
-              </p>
+              <p className="mt-3 text-center text-[10px] text-white/30">下スワイプ・中央ボタンでスキップ</p>
             </div>
           </>
         )}

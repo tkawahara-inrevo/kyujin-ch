@@ -61,15 +61,23 @@ export async function Header() {
                   href={item.href}
                   className="relative flex items-center gap-1.5 text-[13px] font-semibold text-[#444] hover:text-[#2f6cff]"
                 >
-                  <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
+                  <span className="relative">
+                    <Image src={item.icon} alt="" width={17} height={17} className="object-contain" />
+                    {item.href === "/messages" && (
+                      <UserMessageBadge className="absolute -right-2 -top-2 h-[16px] min-w-[16px] px-1 text-[10px]" />
+                    )}
+                  </span>
                   <span>{item.label}</span>
-                  {item.href === "/messages" && <UserMessageBadge className="-mt-3 ml-1" />}
                 </Link>
               ))}
               <HeaderAuthNav />
             </nav>
-            {/* Mobile: アイコンのみ */}
-            <div className="flex items-center gap-2 md:hidden">
+            {/* Mobile: メッセージ + ログアウト */}
+            <div className="flex items-center gap-1 md:hidden">
+              <Link href="/messages" className="relative p-1.5 text-[#444]">
+                <Image src="/assets/Chat_Circle.png" alt="メッセージ" width={22} height={22} className="object-contain" />
+                <UserMessageBadge className="absolute right-0 top-0 h-[16px] min-w-[16px] px-1 text-[10px]" />
+              </Link>
               <HeaderAuthNav />
             </div>
           </>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updatePrice, createPriceEntry, deletePriceEntry } from "@/app/actions/admin/prices";
+import { updatePrice, createPriceEntry, deletePriceEntry, renameCategory } from "@/app/actions/admin/prices";
 
 type Entry = {
   id: string;
@@ -37,17 +37,56 @@ function CategorySection({
   entries: Entry[];
 }) {
   const [showAdd, setShowAdd] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [categoryName, setCategoryName] = useState(category);
+  const [isPending, startTransition] = useTransition();
+
+  const handleRename = () => {
+    if (!categoryName.trim() || categoryName.trim() === category) {
+      setEditingName(false);
+      setCategoryName(category);
+      return;
+    }
+    startTransition(async () => {
+      await renameCategory(category, categoryName.trim());
+      setEditingName(false);
+    });
+  };
 
   return (
     <div className="overflow-hidden rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between bg-[#1e3a5f] px-5 py-3">
-        <h2 className="text-[14px] font-bold text-white">{category}</h2>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="rounded-md bg-white/20 px-3 py-1 text-[12px] font-medium text-white hover:bg-white/30"
-        >
-          {showAdd ? "キャンセル" : "+ 追加"}
-        </button>
+        {editingName ? (
+          <div className="flex flex-1 items-center gap-2 mr-3">
+            <input
+              type="text"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleRename(); if (e.key === "Escape") { setEditingName(false); setCategoryName(category); } }}
+              className="flex-1 rounded border border-white/40 bg-white/10 px-2 py-0.5 text-[14px] font-bold text-white outline-none focus:bg-white/20"
+              autoFocus
+            />
+            <button onClick={handleRename} disabled={isPending} className="rounded bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-white/30 disabled:opacity-50">
+              {isPending ? "..." : "保存"}
+            </button>
+            <button onClick={() => { setEditingName(false); setCategoryName(category); }} className="rounded bg-white/10 px-2.5 py-1 text-[11px] text-white hover:bg-white/20">
+              戻す
+            </button>
+          </div>
+        ) : (
+          <button onClick={() => setEditingName(true)} className="group flex items-center gap-2">
+            <h2 className="text-[14px] font-bold text-white group-hover:underline">{category}</h2>
+            <span className="text-[10px] text-white/50 group-hover:text-white/80">✎</span>
+          </button>
+        )}
+        {!editingName && (
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            className="rounded-md bg-white/20 px-3 py-1 text-[12px] font-medium text-white hover:bg-white/30"
+          >
+            {showAdd ? "キャンセル" : "+ 追加"}
+          </button>
+        )}
       </div>
 
       <table className="w-full text-[13px]">
@@ -74,6 +113,7 @@ function CategorySection({
 
 function PriceRow({ entry }: { entry: Entry }) {
   const [editing, setEditing] = useState(false);
+  const [subcategory, setSubcategory] = useState(entry.subcategory);
   const [experienced, setExperienced] = useState(String(entry.experiencedPrice));
   const [inexperienced, setInexperienced] = useState(
     entry.inexperiencedPrice ? String(entry.inexperiencedPrice) : ""
@@ -81,12 +121,13 @@ function PriceRow({ entry }: { entry: Entry }) {
   const [isPending, startTransition] = useTransition();
 
   const handleSave = () => {
+    if (!subcategory.trim()) return;
     const exp = parseInt(experienced);
     const inexp = inexperienced ? parseInt(inexperienced) : null;
     if (isNaN(exp)) return;
     if (inexperienced && isNaN(inexp!)) return;
     startTransition(async () => {
-      await updatePrice(entry.id, exp, inexp);
+      await updatePrice(entry.id, exp, inexp, subcategory.trim());
       setEditing(false);
     });
   };
@@ -101,7 +142,14 @@ function PriceRow({ entry }: { entry: Entry }) {
   if (editing) {
     return (
       <tr className="border-b border-[#f0f0f0] bg-[#fffbeb]">
-        <td className="px-5 py-2 text-[#555]">{entry.subcategory}</td>
+        <td className="px-5 py-2">
+          <input
+            type="text"
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+            className="w-full rounded border border-[#d1d5db] px-2 py-1 text-[13px]"
+          />
+        </td>
         <td className="px-5 py-2">
           <input
             type="number"
@@ -131,6 +179,7 @@ function PriceRow({ entry }: { entry: Entry }) {
             <button
               onClick={() => {
                 setEditing(false);
+                setSubcategory(entry.subcategory);
                 setExperienced(String(entry.experiencedPrice));
                 setInexperienced(entry.inexperiencedPrice ? String(entry.inexperiencedPrice) : "");
               }}

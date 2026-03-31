@@ -15,12 +15,19 @@ async function requireAdminAction() {
 export async function updatePrice(
   id: string,
   experiencedPrice: number,
-  inexperiencedPrice: number | null
+  inexperiencedPrice: number | null,
+  subcategory?: string,
+  category?: string
 ) {
   await requireAdminAction();
   await prisma.priceEntry.update({
     where: { id },
-    data: { experiencedPrice, inexperiencedPrice },
+    data: {
+      experiencedPrice,
+      inexperiencedPrice,
+      ...(subcategory !== undefined && { subcategory }),
+      ...(category !== undefined && { category }),
+    },
   });
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
@@ -45,6 +52,16 @@ export async function createPriceEntry(
       inexperiencedPrice,
       sortOrder: (maxSort._max.sortOrder ?? 0) + 1,
     },
+  });
+  revalidatePath("/admin/billing");
+  revalidatePath("/company/billing");
+}
+
+export async function renameCategory(oldCategory: string, newCategory: string) {
+  await requireAdminAction();
+  await prisma.priceEntry.updateMany({
+    where: { category: oldCategory },
+    data: { category: newCategory },
   });
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");

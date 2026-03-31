@@ -7,12 +7,13 @@ type ThumbnailUploadProps = {
   name: string;
   defaultValue?: string;
   onUploaded?: (url: string) => void;
+  hint?: string;
 };
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUploadProps) {
+export function ThumbnailUpload({ name, defaultValue, onUploaded, hint }: ThumbnailUploadProps) {
   const [preview, setPreview] = useState<string | null>(defaultValue || null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,6 +159,9 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUpl
               <p className="mt-1 text-[12px] text-[#999]">
                 JPEG / PNG / WebP / GIF (最大5MB、1600x800pxにリサイズ)
               </p>
+              {hint && (
+                <p className="mt-1.5 text-[12px] font-semibold text-[#2f6cff]">{hint}</p>
+              )}
             </>
           )}
         </div>

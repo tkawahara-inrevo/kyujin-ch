@@ -285,6 +285,7 @@ export default function CompanyJobNewPage() {
               <div className="rounded-[18px] border border-[#d9dfec] p-4">
                 <ThumbnailUpload
                   name="imageUrl"
+                  hint="推奨サイズ：横2 × 縦1（例：1600×800px）"
                   onUploaded={(url) => {
                     setImageUrl(url);
                   }}

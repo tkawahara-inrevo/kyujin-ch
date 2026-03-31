@@ -384,6 +384,7 @@ export function JobEditForm({
                 <ThumbnailUpload
                   name="imageUrl"
                   defaultValue={job.imageUrl ?? undefined}
+                  hint="推奨サイズ：横2 × 縦1（例：1600×800px）"
                   onUploaded={(url) => {
                     setImageUrl(url);
                   }}

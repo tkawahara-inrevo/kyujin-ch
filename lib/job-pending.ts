@@ -1,5 +1,16 @@
 import type { Prisma } from "@prisma/client";
 
+export type YouthYearStats = {
+  year: number;
+  newGradHired: string;
+  newGradLeft: string;
+  avgAge: string;
+  overtimeHours: string;
+  paidLeaveAvg: string;
+  parentalLeave: string;
+  births: string;
+};
+
 export type JobPendingContent = {
   title: string;
   description: string;
@@ -28,6 +39,11 @@ export type JobPendingContent = {
   employmentTypeDetail: string | null;
   targetType: string;
   graduationYear: number | null;
+  trainingInfo: string | null;
+  youthEmploymentStats: YouthYearStats[] | null;
+  smokingPolicyIndoor: string | null;
+  smokingPolicyOutdoor: string | null;
+  smokingNote: string | null;
 };
 
 function asString(value: unknown) {
@@ -82,5 +98,10 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     employmentTypeDetail: asString(record.employmentTypeDetail),
     targetType: asString(record.targetType) ?? "MID_CAREER",
     graduationYear: asNumber(record.graduationYear),
+    trainingInfo: asString(record.trainingInfo),
+    youthEmploymentStats: Array.isArray(record.youthEmploymentStats) ? record.youthEmploymentStats as YouthYearStats[] : null,
+    smokingPolicyIndoor: asString(record.smokingPolicyIndoor),
+    smokingPolicyOutdoor: asString(record.smokingPolicyOutdoor),
+    smokingNote: asString(record.smokingNote),
   };
 }

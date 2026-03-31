@@ -48,6 +48,22 @@ type JobData = {
   employmentTypeDetail?: string;
   targetType?: string;
   graduationYear?: number;
+  trainingInfo?: string;
+  youthEmploymentStats?: YouthYearStats[];
+  smokingPolicyIndoor?: string;
+  smokingPolicyOutdoor?: string;
+  smokingNote?: string;
+};
+
+export type YouthYearStats = {
+  year: number;
+  newGradHired: string;
+  newGradLeft: string;
+  avgAge: string;
+  overtimeHours: string;
+  paidLeaveAvg: string;
+  parentalLeave: string;
+  births: string;
 };
 
 function resolveReviewStatus(submissionMode: JobSubmissionMode): JobReviewStatus {
@@ -121,6 +137,11 @@ function normalizeJobData(data: JobData): JobPendingContent {
     employmentTypeDetail: data.employmentType === "OTHER" ? (data.employmentTypeDetail || null) : null,
     targetType: data.targetType || "MID_CAREER",
     graduationYear: data.targetType === "NEW_GRAD" && data.graduationYear ? data.graduationYear : null,
+    trainingInfo: data.trainingInfo || null,
+    youthEmploymentStats: data.youthEmploymentStats || null,
+    smokingPolicyIndoor: data.smokingPolicyIndoor || null,
+    smokingPolicyOutdoor: data.smokingPolicyOutdoor || null,
+    smokingNote: data.smokingNote || null,
   };
 }
 
@@ -159,6 +180,11 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     employmentTypeDetail: normalized.employmentTypeDetail,
     targetType: normalized.targetType,
     graduationYear: normalized.graduationYear,
+    trainingInfo: normalized.trainingInfo,
+    youthEmploymentStats: normalized.youthEmploymentStats ? normalized.youthEmploymentStats as unknown as Prisma.InputJsonValue : Prisma.DbNull,
+    smokingPolicyIndoor: normalized.smokingPolicyIndoor,
+    smokingPolicyOutdoor: normalized.smokingPolicyOutdoor,
+    smokingNote: normalized.smokingNote,
     pendingContent: Prisma.DbNull,
   };
 }

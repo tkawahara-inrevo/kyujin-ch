@@ -198,6 +198,15 @@ model Job {
   targetType            String    @default("MID_CAREER") // "NEW_GRAD" | "MID_CAREER"
   graduationYear        Int?      // 新卒の場合の卒業年度（例: 2027）
 
+  // 青少年雇用情報（若者雇用促進法）
+  trainingInfo          String?   // 研修の有無とその内容
+  youthEmploymentStats  Json?     // [{year, newGradHired, newGradLeft, avgAge, overtimeHours, paidLeaveAvg, parentalLeave, births}]
+
+  // 環境（受動喫煙対策）
+  smokingPolicyIndoor   String?   // 屋内の受動喫煙対策
+  smokingPolicyOutdoor  String?   // 屋外の受動喫煙対策
+  smokingNote           String?   // 特記事項
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

@@ -3,6 +3,7 @@ import { requireCompany } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
 import { prisma } from "@/lib/prisma";
 import { JobEditForm } from "./job-edit-form";
+import type { YouthYearStats } from "@/app/actions/company/jobs";
 
 export default async function CompanyJobEditPage({
   params,
@@ -24,13 +25,17 @@ export default async function CompanyJobEditPage({
   if (!job) return notFound();
 
   const pendingContent = parsePendingContent(job.pendingContent);
+  const rawJob = {
+    ...job,
+    youthEmploymentStats: Array.isArray(job.youthEmploymentStats) ? job.youthEmploymentStats as YouthYearStats[] : null,
+  };
   const formJob = pendingContent
     ? {
-        ...job,
+        ...rawJob,
         ...pendingContent,
         closingDate: pendingContent.closingDate ? new Date(pendingContent.closingDate) : null,
       }
-    : job;
+    : rawJob;
 
   return (
     <div className="p-6 lg:p-10">

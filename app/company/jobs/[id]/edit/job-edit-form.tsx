@@ -2,7 +2,7 @@
 
 import { isValidElement, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode } from "@/app/actions/company/jobs";
+import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode, type YouthYearStats } from "@/app/actions/company/jobs";
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
@@ -28,6 +28,34 @@ const TAG_OPTIONS = [
   "年間休日120日以上",
   "副業OK",
   "土日祝休み",
+];
+
+const CURRENT_YEARS = [new Date().getFullYear() + 1, new Date().getFullYear(), new Date().getFullYear() - 1];
+
+const EMPTY_YOUTH_STATS = (): YouthYearStats[] =>
+  CURRENT_YEARS.map((year) => ({
+    year,
+    newGradHired: "",
+    newGradLeft: "",
+    avgAge: "",
+    overtimeHours: "",
+    paidLeaveAvg: "",
+    parentalLeave: "",
+    births: "",
+  }));
+
+const SMOKING_INDOOR_OPTIONS = [
+  "敷地内禁煙",
+  "屋内全面禁煙",
+  "喫煙室あり（分煙）",
+  "喫煙可",
+  "その他",
+];
+
+const SMOKING_OUTDOOR_OPTIONS = [
+  "屋外喫煙所あり",
+  "屋外全面禁煙",
+  "その他",
 ];
 
 const EMPLOYMENT_PERIOD_OPTIONS = [
@@ -81,6 +109,11 @@ type Job = {
   graduationYear: number | null;
   categoryTagDetail?: string | null;
   employmentTypeDetail?: string | null;
+  trainingInfo?: string | null;
+  youthEmploymentStats?: YouthYearStats[] | null;
+  smokingPolicyIndoor?: string | null;
+  smokingPolicyOutdoor?: string | null;
+  smokingNote?: string | null;
 };
 
 export function JobEditForm({
@@ -124,6 +157,15 @@ export function JobEditForm({
   const [officeDetail, setOfficeDetail] = useState(workAddress);
   const [postalCode, setPostalCode] = useState("");
   const [postalLoading, setPostalLoading] = useState(false);
+  const [trainingInfo, setTrainingInfo] = useState(job.trainingInfo ?? "");
+  const [youthStats, setYouthStats] = useState<YouthYearStats[]>(
+    (job.youthEmploymentStats && job.youthEmploymentStats.length > 0)
+      ? job.youthEmploymentStats
+      : EMPTY_YOUTH_STATS()
+  );
+  const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState(job.smokingPolicyIndoor ?? "");
+  const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState(job.smokingPolicyOutdoor ?? "");
+  const [smokingNote, setSmokingNote] = useState(job.smokingNote ?? "");
   const [formValues, setFormValues] = useState<Record<string, string>>({
     title: job.title,
     description: job.description,
@@ -305,6 +347,11 @@ export function JobEditForm({
           employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
           targetType,
           graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
+          trainingInfo: trainingInfo || undefined,
+          youthEmploymentStats: youthStats.some((s) => Object.values(s).slice(1).some(Boolean)) ? youthStats : undefined,
+          smokingPolicyIndoor: smokingPolicyIndoor || undefined,
+          smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
+          smokingNote: smokingNote || undefined,
         },
         submissionMode,
       );
@@ -740,6 +787,99 @@ export function JobEditForm({
                 placeholder="例：ランチ補助、書籍購入補助、社内バー"
               />
               <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
+            </Field>
+          </Section>
+
+          <Section title="青少年雇用情報">
+            <p className="text-[13px] text-[#6b7280]">求人区分に応じて、企業全体の雇用形態ごとの情報を提供してください。</p>
+            <Field label="研修の有無とその内容">
+              <textarea
+                rows={3}
+                value={trainingInfo}
+                onChange={(e) => setTrainingInfo(e.target.value)}
+                className={textareaCls}
+                placeholder="例：入社後1ヶ月間のOJT研修あり。メンター制度を導入しており、先輩社員がサポートします。"
+              />
+            </Field>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr className="bg-[#f4f7ff]">
+                    <th className="w-[160px] border border-[#e0e7f0] px-3 py-2 text-left font-semibold text-[#3d4552]">項目</th>
+                    {youthStats.map((s) => (
+                      <th key={s.year} className="border border-[#e0e7f0] px-3 py-2 text-center font-semibold text-[#3d4552]">{s.year}年度</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      { key: "newGradHired", label: "新卒採用人数" },
+                      { key: "newGradLeft", label: "新卒離職者人数" },
+                      { key: "avgAge", label: "平均年齢" },
+                      { key: "overtimeHours", label: "平均所定外労働時間数" },
+                      { key: "paidLeaveAvg", label: "有給休暇の平均取得日数" },
+                      { key: "parentalLeave", label: "育児休業取得者数" },
+                      { key: "births", label: "出産者数" },
+                    ] as { key: keyof Omit<YouthYearStats, "year">; label: string }[]
+                  ).map(({ key, label }) => (
+                    <tr key={key} className="odd:bg-white even:bg-[#fafbfd]">
+                      <td className="border border-[#e0e7f0] px-3 py-2 font-medium text-[#4b5563]">{label}</td>
+                      {youthStats.map((s, i) => (
+                        <td key={s.year} className="border border-[#e0e7f0] px-2 py-1.5">
+                          <input
+                            type="text"
+                            value={s[key]}
+                            onChange={(e) => {
+                              const next = [...youthStats];
+                              next[i] = { ...next[i], [key]: e.target.value };
+                              setYouthStats(next);
+                            }}
+                            className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#2f6cff] placeholder:text-[#c0c8d8]"
+                            placeholder="例：3"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+
+          <Section title="環境">
+            <Field label="屋内の受動喫煙対策">
+              <select
+                value={smokingPolicyIndoor}
+                onChange={(e) => setSmokingPolicyIndoor(e.target.value)}
+                className={inputCls}
+              >
+                <option value="">選択してください</option>
+                {SMOKING_INDOOR_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="屋外の受動喫煙対策">
+              <select
+                value={smokingPolicyOutdoor}
+                onChange={(e) => setSmokingPolicyOutdoor(e.target.value)}
+                className={inputCls}
+              >
+                <option value="">選択してください</option>
+                {SMOKING_OUTDOOR_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="特記事項">
+              <textarea
+                rows={2}
+                value={smokingNote}
+                onChange={(e) => setSmokingNote(e.target.value)}
+                className={textareaCls}
+                placeholder="例：2025年4月より全館禁煙予定"
+              />
             </Field>
           </Section>
 

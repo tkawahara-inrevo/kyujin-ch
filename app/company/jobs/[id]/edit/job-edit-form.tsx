@@ -258,7 +258,6 @@ export function JobEditForm({
           benefits: mergedBenefits,
           selectionProcess: fd.get("selectionProcess") as string,
           workingHours: fd.get("workingHours") as string,
-          closingDate: fd.get("closingDate") as string,
           employmentPeriodType,
           region: selectedRegion,
           categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
@@ -448,9 +447,6 @@ export function JobEditForm({
               ) : null}
             </Field>
 
-            <Field label="掲載終了日">
-              <input name="closingDate" type="date" defaultValue={closingDateStr} className={inputCls} />
-            </Field>
           </Section>
 
           <Section title="仕事内容">

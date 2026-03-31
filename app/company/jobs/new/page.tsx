@@ -194,7 +194,6 @@ export default function CompanyJobNewPage() {
           officeDetail: fd.get("officeDetail") as string,
           workingHours: fd.get("workingHours") as string,
           selectionProcess: fd.get("selectionProcess") as string,
-          closingDate: fd.get("closingDate") as string,
           employmentPeriodType,
           imageUrl,
           tags: mergedTags,
@@ -349,9 +348,6 @@ export default function CompanyJobNewPage() {
               ) : null}
             </Field>
 
-            <Field label="掲載終了日">
-              <input name="closingDate" type="date" className={inputCls} />
-            </Field>
           </Section>
 
           <Section title="仕事内容">

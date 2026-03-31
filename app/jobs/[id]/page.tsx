@@ -168,7 +168,6 @@ export default async function JobDetailPage({
   const categoryLabel = formatCategory(job);
   const employmentLabel = formatEmployment(job);
   const salaryRange = formatSalaryRange(job.salaryMin, job.salaryMax);
-  const closingDateLabel = formatDate(job.closingDate);
   const workLocation = formatWorkLocation(job.location, job.officeDetail);
   const mapQuery = buildMapQuery(job.location, job.officeDetail);
   const employmentPeriodLabel = job.employmentPeriodType
@@ -276,7 +275,6 @@ export default async function JobDetailPage({
                   <RequirementRow label="最寄・アクセス" value={job.access} />
                   <RequirementRow label="勤務時間" value={job.workingHours} />
                   <RequirementRow label="雇用期間" value={employmentPeriodLabel} />
-                  <RequirementRow label="応募締切" value={closingDateLabel} />
                 </dl>
               </div>
 

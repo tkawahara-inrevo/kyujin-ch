@@ -387,7 +387,7 @@ export function JobEditForm({
         <form
           onSubmit={handleSubmit}
           onChange={(event) => readFormValues(event.currentTarget)}
-          className={`rounded-[24px] bg-white p-6 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-8 ${
+          className={`rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-6 ${
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
@@ -415,7 +415,7 @@ export function JobEditForm({
 
           <Section title="基本情報">
             <Field label="タイトル" required>
-              <input name="title" required defaultValue={job.title} className={inputCls} />
+              <input name="title" required defaultValue={job.title} className={inputCls} placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）" />
             </Field>
 
             <Field label="メイン画像">
@@ -514,20 +514,21 @@ export function JobEditForm({
               <textarea
                 name="description"
                 required
-                rows={6}
+                rows={5}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className={textareaCls}
+                placeholder="例：営業企画・マーケティング施策の立案から実行まで担当していただきます。チームは少人数で、裁量を持って幅広い業務に携わることができます。"
               />
             </Field>
             <Field label="応募条件">
-              <textarea name="requirements" rows={4} defaultValue={job.requirements ?? ""} className={textareaCls} />
+              <textarea name="requirements" rows={3} defaultValue={job.requirements ?? ""} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
             </Field>
             <Field label="向いている人">
-              <textarea name="desiredAptitude" rows={4} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} />
+              <textarea name="desiredAptitude" rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことに挑戦することが好きな方、チームワークを大切にできる方" />
             </Field>
             <Field label="おすすめの人">
-              <textarea name="recommendedFor" rows={4} defaultValue={job.recommendedFor ?? ""} className={textareaCls} />
+              <textarea name="recommendedFor" rows={3} defaultValue={job.recommendedFor ?? ""} className={textareaCls} placeholder="例：キャリアアップを目指したい方、安定した環境で長く働きたい方、副業・複業に興味のある方" />
             </Field>
           </Section>
 
@@ -608,32 +609,32 @@ export function JobEditForm({
             </Field>
 
             <Field label="最寄り・アクセス">
-              <input name="access" defaultValue={job.access ?? ""} className={inputCls} />
+              <input name="access" defaultValue={job.access ?? ""} className={inputCls} placeholder="例：JR渋谷駅 徒歩3分 / 地下鉄表参道駅 徒歩5分" />
             </Field>
           </Section>
 
           <Section title="給与">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="最低年収（万円）">
-                <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} />
+                <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} placeholder="例：300" />
               </Field>
               <Field label="最高年収（万円）">
-                <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} />
+                <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} placeholder="例：500" />
               </Field>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="月給表記">
-                <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} />
+                <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} placeholder="例：25万円〜40万円" />
               </Field>
               <Field label="年収表記">
-                <input name="annualSalary" defaultValue={job.annualSalary ?? ""} className={inputCls} />
+                <input name="annualSalary" defaultValue={job.annualSalary ?? ""} className={inputCls} placeholder="例：400万円〜600万円" />
               </Field>
             </div>
           </Section>
 
           <Section title="勤務条件">
             <Field label="勤務時間">
-              <input name="workingHours" defaultValue={job.workingHours ?? ""} className={inputCls} />
+              <input name="workingHours" defaultValue={job.workingHours ?? ""} className={inputCls} placeholder="例：9:00〜18:00（休憩60分）／フレックスタイム制（コアタイム10:00〜15:00）" />
             </Field>
             <Field label="雇用期間">
               <select
@@ -671,10 +672,11 @@ export function JobEditForm({
               </div>
               <textarea
                 name="selectionProcess"
-                rows={4}
+                rows={3}
                 value={selectionProcess}
                 onChange={(e) => setSelectionProcess(e.target.value)}
                 className={textareaCls}
+                placeholder="例：書類選考 → 一次面接（オンライン可） → 最終面接 → 内定&#10;※選考期間の目安：1〜2週間程度"
               />
             </Field>
           </Section>
@@ -826,15 +828,15 @@ export function JobEditForm({
 }
 
 const inputCls =
-  "w-full rounded-[12px] border border-[#d9dfec] bg-white px-4 py-3 text-[14px] text-[#2b2f38] outline-none transition placeholder:text-[#b2bac8] focus:border-[#2f6cff]";
+  "w-full rounded-[10px] border border-[#d9dfec] bg-white px-3 py-2.5 text-[14px] text-[#2b2f38] outline-none transition placeholder:text-[#c0c8d8] focus:border-[#2f6cff]";
 
-const textareaCls = `${inputCls} min-h-[120px] resize-y`;
+const textareaCls = `${inputCls} min-h-[90px] resize-y`;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-b border-[#e8edf5] pb-8 last:border-b-0 last:pb-0">
-      <h2 className="mb-5 text-[18px] font-bold text-[#2f6cff]">{title}</h2>
-      <div className="space-y-5">{children}</div>
+    <section className="border-b border-[#e8edf5] pb-6 last:border-b-0 last:pb-0">
+      <h2 className="mb-4 text-[16px] font-bold text-[#2f6cff]">{title}</h2>
+      <div className="space-y-4">{children}</div>
     </section>
   );
 }

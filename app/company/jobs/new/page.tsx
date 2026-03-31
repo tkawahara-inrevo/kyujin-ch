@@ -345,8 +345,75 @@ export default function CompanyJobNewPage() {
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
-          <Section title="ターゲット">
-            <Field label="対象" required>
+          <Section title="基本情報">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="雇用形態" required>
+                <select
+                  name="employmentType"
+                  required
+                  className={inputCls}
+                  value={employmentType}
+                  onChange={(event) => {
+                    setEmploymentType(event.target.value);
+                    if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
+                  }}
+                >
+                  {EMPLOYMENT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {employmentType === "OTHER" ? (
+                  <input
+                    name="employmentTypeDetail"
+                    value={employmentTypeDetail}
+                    onChange={(event) => setEmploymentTypeDetail(event.target.value)}
+                    className={`${inputCls} mt-3`}
+                    placeholder="雇用形態の詳細を入力"
+                  />
+                ) : null}
+              </Field>
+
+              <Field label="求人カテゴリ">
+                <select
+                  name="categoryTag"
+                  className={inputCls}
+                  value={categoryTag}
+                  onChange={(event) => {
+                    setCategoryTag(event.target.value);
+                    if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
+                  }}
+                >
+                  <option value="">選択してください</option>
+                  {CATEGORY_OPTIONS.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                {categoryTag === OTHER_CATEGORY_VALUE ? (
+                  <input
+                    name="categoryTagDetail"
+                    value={categoryTagDetail}
+                    onChange={(event) => setCategoryTagDetail(event.target.value)}
+                    className={`${inputCls} mt-3`}
+                    placeholder="カテゴリの詳細を入力"
+                  />
+                ) : null}
+              </Field>
+            </div>
+
+            <Field label="タイトル" required>
+              <input
+                name="title"
+                required
+                className={inputCls}
+                placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）"
+              />
+            </Field>
+
+            <Field label="ターゲット" required>
               <div className="flex flex-wrap gap-2.5">
                 <TargetButton active={targetType === "MID_CAREER"} onClick={() => setTargetType("MID_CAREER")}>
                   中途
@@ -365,17 +432,6 @@ export default function CompanyJobNewPage() {
                 ))}
               </div>
             </Field>
-          </Section>
-
-          <Section title="基本情報">
-            <Field label="タイトル" required>
-              <input
-                name="title"
-                required
-                className={inputCls}
-                placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）"
-              />
-            </Field>
 
             <Field label="メイン画像">
               <p className="mb-2 text-[13px] text-[#6b7280]">対応形式：jpg / png / webp（最大10MB）</p>
@@ -389,63 +445,6 @@ export default function CompanyJobNewPage() {
                 />
               </div>
             </Field>
-
-            <Field label="求人カテゴリ">
-              <select
-                name="categoryTag"
-                className={inputCls}
-                value={categoryTag}
-                onChange={(event) => {
-                  setCategoryTag(event.target.value);
-                  if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
-                }}
-              >
-                <option value="">選択してください</option>
-                {CATEGORY_OPTIONS.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              {categoryTag === OTHER_CATEGORY_VALUE ? (
-                <input
-                  name="categoryTagDetail"
-                  value={categoryTagDetail}
-                  onChange={(event) => setCategoryTagDetail(event.target.value)}
-                  className={`${inputCls} mt-3`}
-                  placeholder="カテゴリの詳細を入力"
-                />
-              ) : null}
-            </Field>
-
-            <Field label="雇用形態" required>
-              <select
-                name="employmentType"
-                required
-                className={inputCls}
-                value={employmentType}
-                onChange={(event) => {
-                  setEmploymentType(event.target.value);
-                  if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
-                }}
-              >
-                {EMPLOYMENT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {employmentType === "OTHER" ? (
-                <input
-                  name="employmentTypeDetail"
-                  value={employmentTypeDetail}
-                  onChange={(event) => setEmploymentTypeDetail(event.target.value)}
-                  className={`${inputCls} mt-3`}
-                  placeholder="雇用形態の詳細を入力"
-                />
-              ) : null}
-            </Field>
-
           </Section>
 
           <Section title="仕事内容">
@@ -482,11 +481,8 @@ export default function CompanyJobNewPage() {
             <Field label="応募条件">
               <textarea name="requirements" rows={3} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
             </Field>
-            <Field label="向いている人">
-              <textarea name="desiredAptitude" rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことに挑戦することが好きな方、チームワークを大切にできる方" />
-            </Field>
-            <Field label="おすすめの人">
-              <textarea name="recommendedFor" rows={3} className={textareaCls} placeholder="例：キャリアアップを目指したい方、安定した環境で長く働きたい方、副業・複業に興味のある方" />
+            <Field label="求める人物像">
+              <textarea name="desiredAptitude" rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
           </Section>
 
@@ -533,7 +529,7 @@ export default function CompanyJobNewPage() {
                 </select>
               </Field>
 
-              <Field label="勤務地">
+              <Field label="勤務地（都道府県）">
                 <select
                   name="location"
                   value={selectedLocation}
@@ -554,7 +550,7 @@ export default function CompanyJobNewPage() {
             <Field label="勤務地住所">
               <textarea
                 name="officeDetail"
-                rows={3}
+                rows={2}
                 value={officeDetail}
                 onChange={(e) => setOfficeDetail(e.target.value)}
                 className={textareaCls}
@@ -567,7 +563,7 @@ export default function CompanyJobNewPage() {
             </Field>
           </Section>
 
-          <Section title="給与">
+          <Section title="給与・勤務条件">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="最低年収（万円）">
                 <input name="salaryMin" type="number" className={inputCls} placeholder="例：300" />
@@ -576,36 +572,57 @@ export default function CompanyJobNewPage() {
                 <input name="salaryMax" type="number" className={inputCls} placeholder="例：500" />
               </Field>
             </div>
+            <Field label="給与詳細">
+              <input name="monthlySalary" className={inputCls} placeholder="例：月給25万円〜40万円 / 年収400万円〜600万円" />
+            </Field>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="月給表記">
-                <input name="monthlySalary" className={inputCls} placeholder="例：25万円〜40万円" />
+              <Field label="勤務時間">
+                <input name="workingHours" className={inputCls} placeholder="例：9:00〜18:00（休憩60分）" />
               </Field>
-              <Field label="年収表記">
-                <input name="annualSalary" className={inputCls} placeholder="例：400万円〜600万円" />
+              <Field label="雇用期間">
+                <select
+                  name="employmentPeriodType"
+                  className={inputCls}
+                  value={employmentPeriodType}
+                  onChange={(event) => setEmploymentPeriodType(event.target.value)}
+                >
+                  {EMPLOYMENT_PERIOD_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <Field label="休日・休暇">
+              <input
+                name="holidayPolicy"
+                className={inputCls}
+                placeholder="例：完全週休2日制（土日祝）、年間休日120日、有給休暇（入社半年後10日付与）"
+              />
+            </Field>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="試用期間">
+                <input name="trialPeriod" className={inputCls} placeholder="例：3ヶ月（条件変更なし）" />
+              </Field>
+              <Field label="固定残業代">
+                <input name="fixedOvertime" className={inputCls} placeholder="例：月30h分・5万円含む" />
+              </Field>
+              <Field label="昇給・賞与">
+                <input name="salaryRevision" className={inputCls} placeholder="例：昇給年1回、賞与年2回" />
               </Field>
             </div>
           </Section>
 
-          <Section title="勤務条件">
-            <Field label="勤務時間">
-              <input name="workingHours" className={inputCls} placeholder="例：9:00〜18:00（休憩60分）／フレックスタイム制（コアタイム10:00〜15:00）" />
+          <Section title="選考情報">
+            <Field label="募集背景">
+              <textarea
+                name="recruitmentBackground"
+                rows={2}
+                className={textareaCls}
+                placeholder="例：事業拡大に伴い、既存顧客対応と新規開拓を強化するため増員募集します。"
+              />
             </Field>
-
-            <Field label="雇用期間">
-              <select
-                name="employmentPeriodType"
-                className={inputCls}
-                value={employmentPeriodType}
-                onChange={(event) => setEmploymentPeriodType(event.target.value)}
-              >
-                {EMPLOYMENT_PERIOD_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
             <Field label="選考フロー">
               <div className="mb-2 flex items-center gap-2">
                 {!selectionProcess ? (
@@ -635,18 +652,78 @@ export default function CompanyJobNewPage() {
                 placeholder="例：書類選考 → 一次面接（オンライン可） → 最終面接 → 内定&#10;※選考期間の目安：1〜2週間程度"
               />
             </Field>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Field label="面接回数・方法">
+                <input name="interviewCount" className={inputCls} placeholder="例：2回（一次オンライン可）" />
+              </Field>
+              <Field label="選考期間の目安">
+                <input name="selectionDuration" className={inputCls} placeholder="例：応募から2週間程度" />
+              </Field>
+              <Field label="入社時期">
+                <input name="joinTiming" className={inputCls} placeholder="例：即日〜3ヶ月以内" />
+              </Field>
+            </div>
           </Section>
 
-          <Section title="募集背景・ポジション">
-            <Field label="募集背景">
+          <Section title="タグ・福利厚生">
+            <Field label="求人タグ">
+              <div className="flex flex-wrap gap-2">
+                {TAG_OPTIONS.map((tag) => (
+                  <label
+                    key={tag}
+                    className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
+                      selectedTags.includes(tag)
+                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
+                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="hidden"
+                      checked={selectedTags.includes(tag)}
+                      onChange={() => toggleItem(selectedTags, setSelectedTags, tag)}
+                    />
+                    {tag}
+                  </label>
+                ))}
+              </div>
               <textarea
-                name="recruitmentBackground"
-                rows={3}
-                className={textareaCls}
-                placeholder="例：事業拡大に伴い、既存顧客対応と新規開拓を強化するため増員募集します。"
+                value={customTags}
+                onChange={(event) => setCustomTags(event.target.value)}
+                className={`${textareaCls} mt-3`}
+                rows={2}
+                placeholder="独自タグ（例：海外出張あり、インセンティブあり）カンマ・改行区切り"
               />
             </Field>
-            <Field label="ポジションの役割">
+            <Field label="福利厚生">
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {SHARED_BENEFIT_OPTIONS.map((benefit) => (
+                  <label
+                    key={benefit}
+                    className="flex items-center gap-2 rounded-[12px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedBenefits.includes(benefit)}
+                      onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
+                      className="h-4 w-4 rounded border-[#c4cddd] text-[#2f6cff]"
+                    />
+                    {benefit}
+                  </label>
+                ))}
+              </div>
+              <textarea
+                value={customBenefits}
+                onChange={(event) => setCustomBenefits(event.target.value)}
+                className={`${textareaCls} mt-3`}
+                rows={2}
+                placeholder="独自の福利厚生（例：ランチ補助、書籍購入補助）カンマ・改行区切り"
+              />
+            </Field>
+          </Section>
+
+          <Section title="詳細情報（任意）">
+            <Field label="ポジションの役割・ミッション">
               <textarea
                 name="positionMission"
                 rows={3}
@@ -654,213 +731,89 @@ export default function CompanyJobNewPage() {
                 placeholder="例：チームの中心として提案活動をリードし、半年で売上基盤の構築を目指していただきます。"
               />
             </Field>
-          </Section>
-
-          <Section title="条件詳細">
-            <Field label="休日・休暇">
+            <Field label="研修・育成制度">
               <textarea
-                name="holidayPolicy"
-                rows={3}
-                className={textareaCls}
-                placeholder="例：完全週休2日制（土日祝）、年末年始、夏季、慶弔、有給休暇（入社半年後10日付与）"
-              />
-            </Field>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="試用期間">
-                <input
-                  name="trialPeriod"
-                  className={inputCls}
-                  placeholder="例：3ヶ月（条件変更なし）"
-                />
-              </Field>
-              <Field label="固定残業代">
-                <input
-                  name="fixedOvertime"
-                  className={inputCls}
-                  placeholder="例：月30時間分・50,000円を含む（超過分別途支給）"
-                />
-              </Field>
-            </div>
-            <Field label="昇給・賞与">
-              <input
-                name="salaryRevision"
-                className={inputCls}
-                placeholder="例：昇給年1回、賞与年2回（業績連動）"
-              />
-            </Field>
-          </Section>
-
-          <Section title="選考・入社時期">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="面接回数・方法">
-                <input
-                  name="interviewCount"
-                  className={inputCls}
-                  placeholder="例：2回（一次オンライン可）"
-                />
-              </Field>
-              <Field label="選考期間の目安">
-                <input
-                  name="selectionDuration"
-                  className={inputCls}
-                  placeholder="例：応募から2週間程度"
-                />
-              </Field>
-              <Field label="入社時期">
-                <input
-                  name="joinTiming"
-                  className={inputCls}
-                  placeholder="例：即日〜3ヶ月以内"
-                />
-              </Field>
-            </div>
-          </Section>
-
-          <Section title="求人タグ">
-            <div className="flex flex-wrap gap-2">
-              {TAG_OPTIONS.map((tag) => (
-                <label
-                  key={tag}
-                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
-                    selectedTags.includes(tag)
-                      ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
-                      : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={selectedTags.includes(tag)}
-                    onChange={() => toggleItem(selectedTags, setSelectedTags, tag)}
-                  />
-                  {tag}
-                </label>
-              ))}
-            </div>
-            <Field label="独自の求人タグ">
-              <textarea
-                value={customTags}
-                onChange={(event) => setCustomTags(event.target.value)}
-                className={textareaCls}
-                rows={3}
-                placeholder="例：海外出張あり、インセンティブあり"
-              />
-              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
-            </Field>
-          </Section>
-
-          <Section title="福利厚生">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {SHARED_BENEFIT_OPTIONS.map((benefit) => (
-                <label
-                  key={benefit}
-                  className="flex items-center gap-2 rounded-[12px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063]"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedBenefits.includes(benefit)}
-                    onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
-                    className="h-4 w-4 rounded border-[#c4cddd] text-[#2f6cff]"
-                  />
-                  {benefit}
-                </label>
-              ))}
-            </div>
-            <Field label="独自の福利厚生">
-              <textarea
-                value={customBenefits}
-                onChange={(event) => setCustomBenefits(event.target.value)}
-                className={textareaCls}
-                rows={3}
-                placeholder="例：ランチ補助、書籍購入補助、社内バー"
-              />
-              <p className="mt-2 text-[12px] text-[#7b8797]">カンマ区切り、読点、改行で複数入力できます</p>
-            </Field>
-          </Section>
-
-          <Section title="青少年雇用情報">
-            <p className="text-[13px] text-[#6b7280]">求人区分に応じて、企業全体の雇用形態ごとの情報を提供してください。</p>
-            <Field label="研修の有無とその内容">
-              <textarea
-                rows={3}
+                rows={2}
                 value={trainingInfo}
                 onChange={(e) => setTrainingInfo(e.target.value)}
                 className={textareaCls}
                 placeholder="例：入社後1ヶ月間のOJT研修あり。メンター制度を導入しており、先輩社員がサポートします。"
               />
             </Field>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px]">
-                <thead>
-                  <tr className="bg-[#f4f7ff]">
-                    <th className="w-[160px] border border-[#e0e7f0] px-3 py-2 text-left font-semibold text-[#3d4552]">項目</th>
-                    {youthStats.map((s) => (
-                      <th key={s.year} className="border border-[#e0e7f0] px-3 py-2 text-center font-semibold text-[#3d4552]">{s.year}年度</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(
-                    [
-                      { key: "newGradHired", label: "新卒採用人数" },
-                      { key: "newGradLeft", label: "新卒離職者人数" },
-                      { key: "avgAge", label: "平均年齢" },
-                      { key: "overtimeHours", label: "平均所定外労働時間数" },
-                      { key: "paidLeaveAvg", label: "有給休暇の平均取得日数" },
-                      { key: "parentalLeave", label: "育児休業取得者数" },
-                      { key: "births", label: "出産者数" },
-                    ] as { key: keyof Omit<YouthYearStats, "year">; label: string }[]
-                  ).map(({ key, label }) => (
-                    <tr key={key} className="odd:bg-white even:bg-[#fafbfd]">
-                      <td className="border border-[#e0e7f0] px-3 py-2 font-medium text-[#4b5563]">{label}</td>
-                      {youthStats.map((s, i) => (
-                        <td key={s.year} className="border border-[#e0e7f0] px-2 py-1.5">
-                          <input
-                            type="text"
-                            value={s[key]}
-                            onChange={(e) => {
-                              const next = [...youthStats];
-                              next[i] = { ...next[i], [key]: e.target.value };
-                              setYouthStats(next);
-                            }}
-                            className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#2f6cff] placeholder:text-[#c0c8d8]"
-                            placeholder="例：3"
-                          />
-                        </td>
+            <Field label="青少年雇用情報（若者雇用促進法）">
+              <p className="mb-3 text-[12px] text-[#6b7280]">任意。新卒採用がある場合は入力を推奨します。</p>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr className="bg-[#f4f7ff]">
+                      <th className="w-[160px] border border-[#e0e7f0] px-3 py-2 text-left font-semibold text-[#3d4552]">項目</th>
+                      {youthStats.map((s) => (
+                        <th key={s.year} className="border border-[#e0e7f0] px-3 py-2 text-center font-semibold text-[#3d4552]">{s.year}年度</th>
                       ))}
                     </tr>
+                  </thead>
+                  <tbody>
+                    {(
+                      [
+                        { key: "newGradHired", label: "新卒採用人数" },
+                        { key: "newGradLeft", label: "新卒離職者人数" },
+                        { key: "avgAge", label: "平均年齢" },
+                        { key: "overtimeHours", label: "平均所定外労働時間数" },
+                        { key: "paidLeaveAvg", label: "有給休暇の平均取得日数" },
+                        { key: "parentalLeave", label: "育児休業取得者数" },
+                        { key: "births", label: "出産者数" },
+                      ] as { key: keyof Omit<YouthYearStats, "year">; label: string }[]
+                    ).map(({ key, label }) => (
+                      <tr key={key} className="odd:bg-white even:bg-[#fafbfd]">
+                        <td className="border border-[#e0e7f0] px-3 py-2 font-medium text-[#4b5563]">{label}</td>
+                        {youthStats.map((s, i) => (
+                          <td key={s.year} className="border border-[#e0e7f0] px-2 py-1.5">
+                            <input
+                              type="text"
+                              value={s[key]}
+                              onChange={(e) => {
+                                const next = [...youthStats];
+                                next[i] = { ...next[i], [key]: e.target.value };
+                                setYouthStats(next);
+                              }}
+                              className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#2f6cff] placeholder:text-[#c0c8d8]"
+                              placeholder="—"
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Field>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="屋内の受動喫煙対策">
+                <select
+                  value={smokingPolicyIndoor}
+                  onChange={(e) => setSmokingPolicyIndoor(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="">選択してください</option>
+                  {SMOKING_INDOOR_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
                   ))}
-                </tbody>
-              </table>
+                </select>
+              </Field>
+              <Field label="屋外の受動喫煙対策">
+                <select
+                  value={smokingPolicyOutdoor}
+                  onChange={(e) => setSmokingPolicyOutdoor(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="">選択してください</option>
+                  {SMOKING_OUTDOOR_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </Field>
             </div>
-          </Section>
-
-          <Section title="環境">
-            <Field label="屋内の受動喫煙対策">
-              <select
-                value={smokingPolicyIndoor}
-                onChange={(e) => setSmokingPolicyIndoor(e.target.value)}
-                className={inputCls}
-              >
-                <option value="">選択してください</option>
-                {SMOKING_INDOOR_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="屋外の受動喫煙対策">
-              <select
-                value={smokingPolicyOutdoor}
-                onChange={(e) => setSmokingPolicyOutdoor(e.target.value)}
-                className={inputCls}
-              >
-                <option value="">選択してください</option>
-                {SMOKING_OUTDOOR_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="特記事項">
+            <Field label="受動喫煙対策・特記事項">
               <textarea
                 rows={2}
                 value={smokingNote}

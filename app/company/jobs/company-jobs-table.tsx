@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
+import { duplicateJob, toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
 
 type JobRow = {
   id: string;
@@ -131,6 +131,13 @@ export function CompanyJobsTable({
     });
   }
 
+  function handleDuplicate(job: JobRow) {
+    startTransition(async () => {
+      const newId = await duplicateJob(job.id);
+      router.push(`/company/jobs/${newId}/edit`);
+    });
+  }
+
   return (
     <>
       <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
@@ -187,6 +194,23 @@ export function CompanyJobsTable({
                       </div>
                     </div>
 
+                    <div className="mt-3 flex gap-2">
+                      <Link
+                        href={`/company/jobs/${job.id}/edit`}
+                        className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
+                      >
+                        編集
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleDuplicate(job)}
+                        disabled={isPending}
+                        className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition disabled:opacity-50"
+                      >
+                        複製
+                      </button>
+                    </div>
+
                     <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
                       <div>
                         <p className="text-[#98a2b3]">雇用形態</p>
@@ -238,12 +262,13 @@ export function CompanyJobsTable({
                 <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
                 <th className="w-[132px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
                 <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
+                <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
               </tr>
             </thead>
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">
+                  <td colSpan={7} className="px-4 py-12 text-center text-[#9aa3b2]">
                     条件に合う求人はありません
                   </td>
                 </tr>
@@ -286,6 +311,17 @@ export function CompanyJobsTable({
                       </td>
                       <td className="px-3 py-4 text-center">
                         <PublishToggle job={job} disabled={visibilityDisabled} onToggle={handleToggleVisibility} />
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicate(job)}
+                          disabled={isPending}
+                          title="複製して下書きを作成"
+                          className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition disabled:opacity-50"
+                        >
+                          複製
+                        </button>
                       </td>
                     </tr>
                   );

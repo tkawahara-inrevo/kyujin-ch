@@ -241,6 +241,31 @@ export async function updateJob(jobId: string, data: JobData, submissionMode: Jo
   revalidatePath("/jobs");
 }
 
+export async function duplicateJob(jobId: string): Promise<string> {
+  const companyId = await getCompanyId();
+  const original = await prisma.job.findFirst({
+    where: { id: jobId, companyId, isDeleted: false },
+  });
+  if (!original) throw new Error("Job not found");
+
+  const { id, createdAt, updatedAt, viewCount, reviewComment, pendingContent, youthEmploymentStats, ...rest } = original;
+  const newJob = await prisma.job.create({
+    data: {
+      ...rest,
+      title: `${original.title}（コピー）`,
+      reviewStatus: "DRAFT",
+      isPublished: false,
+      pendingContent: Prisma.DbNull,
+      reviewComment: null,
+      viewCount: 0,
+      youthEmploymentStats: youthEmploymentStats ?? Prisma.DbNull,
+    },
+  });
+
+  revalidatePath("/company/jobs");
+  return newJob.id;
+}
+
 export async function withdrawJobSubmission(jobId: string) {
   const companyId = await getCompanyId();
   const job = await prisma.job.findFirst({

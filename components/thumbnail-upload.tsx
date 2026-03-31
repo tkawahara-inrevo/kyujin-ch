@@ -28,8 +28,8 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUpl
         img.onload = () => {
           URL.revokeObjectURL(url);
           let { width, height } = img;
-          const MAX_W = 800;
-          const MAX_H = 600;
+          const MAX_W = 1600;
+          const MAX_H = 800;
           if (width > MAX_W || height > MAX_H) {
             const ratio = Math.min(MAX_W / width, MAX_H / height);
             width = Math.round(width * ratio);
@@ -156,7 +156,7 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded }: ThumbnailUpl
                 クリックまたはドラッグ&ドロップで画像をアップロード
               </p>
               <p className="mt-1 text-[12px] text-[#999]">
-                JPEG / PNG / WebP / GIF (最大5MB、800x600pxにリサイズ)
+                JPEG / PNG / WebP / GIF (最大5MB、1600x800pxにリサイズ)
               </p>
             </>
           )}

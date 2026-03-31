@@ -76,6 +76,7 @@ export default async function MessageDetailPage({ params }: MessageDetailPagePro
                 senderType: m.senderType,
                 senderId: m.senderId,
                 createdAt: m.createdAt,
+                isRead: m.isRead,
               }))}
               currentUserId={currentUser.id}
             />

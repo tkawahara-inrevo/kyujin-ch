@@ -17,6 +17,7 @@ type Message = {
   body: string;
   attachmentName?: string | null;
   createdAt: Date;
+  isRead: boolean;
 };
 
 export function MessageThreadPanel({
@@ -197,9 +198,16 @@ export function MessageThreadPanel({
                             </a>
                           ) : null}
                         </div>
-                        <p className={`mt-1 text-[12px] text-[#9aa3b2] ${isCompany ? "text-right" : "text-left"}`}>
-                          {new Date(message.createdAt).toLocaleString("ja-JP")}
-                        </p>
+                        <div className={`mt-1 flex items-center gap-1.5 ${isCompany ? "justify-end" : "justify-start"}`}>
+                          {isCompany && (
+                            <span className={`text-[11px] font-semibold ${message.isRead ? "text-[#2f6cff]" : "text-[#c0c8d8]"}`}>
+                              {message.isRead ? "既読" : "未読"}
+                            </span>
+                          )}
+                          <p className="text-[12px] text-[#9aa3b2]">
+                            {new Date(message.createdAt).toLocaleString("ja-JP")}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   );

@@ -18,6 +18,7 @@ type MessageItem = {
   senderType: string;
   senderId: string;
   createdAt: Date;
+  isRead: boolean;
 };
 
 type MessageThreadProps = {
@@ -132,6 +133,7 @@ export function MessageThread({
                   minute: "2-digit",
                 })}
                 mine={mine}
+                isRead={message.isRead}
               />
             );
           })}

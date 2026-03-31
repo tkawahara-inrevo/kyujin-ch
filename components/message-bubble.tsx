@@ -4,6 +4,7 @@ type MessageBubbleProps = {
   timestamp: string;
   attachmentName?: string | null;
   mine?: boolean;
+  isRead?: boolean;
 };
 
 export function MessageBubble({
@@ -12,6 +13,7 @@ export function MessageBubble({
   timestamp,
   attachmentName,
   mine = false,
+  isRead = false,
 }: MessageBubbleProps) {
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -40,11 +42,14 @@ export function MessageBubble({
             </a>
           )}
         </div>
-        <p
-          className={`mt-1 text-[11px] text-[#aaa] ${mine ? "text-right" : "text-left"}`}
-        >
-          {timestamp}
-        </p>
+        <div className={`mt-1 flex items-center gap-1.5 ${mine ? "justify-end" : "justify-start"}`}>
+          {mine && (
+            <span className={`text-[11px] font-semibold ${isRead ? "text-[#2f6cff]" : "text-[#c0c8d8]"}`}>
+              {isRead ? "既読" : "未読"}
+            </span>
+          )}
+          <p className="text-[11px] text-[#aaa]">{timestamp}</p>
+        </div>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ export default function CompanyJobNewPage() {
   const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState("");
   const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState("");
   const [smokingNote, setSmokingNote] = useState("");
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [customTags, setCustomTags] = useState("");

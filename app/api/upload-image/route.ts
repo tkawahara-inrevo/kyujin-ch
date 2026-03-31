@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { uploadToS3 } from "@/lib/s3";
+import { randomUUID } from "crypto";
+import path from "path";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -31,10 +34,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Convert to data URL for now (will switch to S3 later)
+  const ext = path.extname(file.name) || ".jpg";
+  const key = `images/${randomUUID()}${ext}`;
   const bytes = await file.arrayBuffer();
-  const base64 = Buffer.from(bytes).toString("base64");
-  const dataUrl = `data:${file.type};base64,${base64}`;
+  const url = await uploadToS3(key, Buffer.from(bytes), file.type);
 
-  return NextResponse.json({ url: dataUrl });
+  return NextResponse.json({ url });
 }

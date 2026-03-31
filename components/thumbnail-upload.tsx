@@ -87,7 +87,7 @@ export function ThumbnailUpload({ name, defaultValue, onUploaded, hint }: Thumbn
           setError("サーバーエラーが発生しました。時間をおいてお試しください。");
           return;
         }
-        if (!res.ok) {
+        if (!res.ok || !json.url) {
           setError(json.error || "アップロードに失敗しました");
           return;
         }

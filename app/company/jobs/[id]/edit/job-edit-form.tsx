@@ -6,7 +6,7 @@ import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode, ty
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
-import { AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
+import { ALL_PREFECTURES, AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import {
   BENEFIT_OPTIONS as SHARED_BENEFIT_OPTIONS,
   CATEGORY_OPTIONS,
@@ -58,12 +58,27 @@ const SMOKING_OUTDOOR_OPTIONS = [
   "その他",
 ];
 
-const EMPLOYMENT_PERIOD_OPTIONS = [
-  { value: "", label: "選択してください" },
-  { value: "indefinite", label: "期間の定めなし" },
-  { value: "fixed", label: "期間の定めあり" },
-  { value: "trial", label: "試用期間あり" },
-];
+function calcAnnualSalary(type: string, min: string, max: string): string {
+  const minN = Number(min) || 0;
+  const maxN = Number(max) || 0;
+  if (!minN && !maxN) return "";
+  let minA: number, maxA: number;
+  if (type === "annual") { minA = minN; maxA = maxN; }
+  else if (type === "monthly") { minA = minN * 12; maxA = maxN * 12; }
+  else if (type === "daily") { minA = minN * 240; maxA = maxN * 240; }
+  else { minA = minN * 8 * 240; maxA = maxN * 8 * 240; }
+  const fmt = (n: number) => n >= 10000 ? `${Math.round(n / 10000)}万円` : `${n.toLocaleString()}円`;
+  if (minN && maxN) return `${fmt(minA)}〜${fmt(maxA)}`;
+  if (minN) return `${fmt(minA)}〜`;
+  return `〜${fmt(maxA)}`;
+}
+
+const SALARY_PLACEHOLDER: Record<string, [string, string]> = {
+  annual:  ["例：3000000", "例：5000000"],
+  monthly: ["例：250000",  "例：350000"],
+  daily:   ["例：10000",   "例：25000"],
+  hourly:  ["例：1100",    "例：1500"],
+};
 
 const DESCRIPTION_TEMPLATE = `【主な業務内容】
 ・
@@ -131,6 +146,11 @@ type Job = {
   holidayType?: string | null;
   holidayFeatures?: string[];
   annualHolidayCount?: number | null;
+  bonus?: string | null;
+  trialSalaryType?: string | null;
+  trialSalaryMin?: number | null;
+  trialSalaryMax?: number | null;
+  trialAnnualSalary?: string | null;
 };
 
 export function JobEditForm({
@@ -182,11 +202,19 @@ export function JobEditForm({
   const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState(job.smokingPolicyIndoor ?? "");
   const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState(job.smokingPolicyOutdoor ?? "");
   const [smokingNote, setSmokingNote] = useState(job.smokingNote ?? "");
-  const [salaryType, setSalaryType] = useState(job.salaryType || "monthly");
+  const [salaryType, setSalaryType] = useState(job.salaryType || "annual");
+  const [salaryMinVal, setSalaryMinVal] = useState(job.salaryMin ? String(job.salaryMin) : "");
+  const [salaryMaxVal, setSalaryMaxVal] = useState(job.salaryMax ? String(job.salaryMax) : "");
+  const [annualSalaryText, setAnnualSalaryText] = useState(job.monthlySalary ?? "");
+  const [annualSalaryManual, setAnnualSalaryManual] = useState(!!job.monthlySalary);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(job.hasFixedOvertime ?? null);
   const [trialPeriodExists, setTrialPeriodExists] = useState<boolean | null>(job.trialPeriodExists ?? null);
-  const [trialPeriodMonths, setTrialPeriodMonths] = useState(job.trialPeriodMonths ?? 0);
-  const [trialPeriodWeeks, setTrialPeriodWeeks] = useState(job.trialPeriodWeeks ?? 0);
+  const [trialPeriodMonths, setTrialPeriodMonths] = useState(job.trialPeriodMonths ?? 3);
+  const [trialSalaryType, setTrialSalaryType] = useState(job.trialSalaryType || "annual");
+  const [trialSalaryMinVal, setTrialSalaryMinVal] = useState(job.trialSalaryMin ? String(job.trialSalaryMin) : "");
+  const [trialSalaryMaxVal, setTrialSalaryMaxVal] = useState(job.trialSalaryMax ? String(job.trialSalaryMax) : "");
+  const [trialAnnualSalary, setTrialAnnualSalary] = useState(job.trialAnnualSalary ?? "");
+  const [trialAnnualSalaryManual, setTrialAnnualSalaryManual] = useState(!!job.trialAnnualSalary);
   const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
   const [holidayFeatures, setHolidayFeatures] = useState<string[]>(job.holidayFeatures ?? []);
   const [annualHolidayCount, setAnnualHolidayCount] = useState(job.annualHolidayCount ? String(job.annualHolidayCount) : "");
@@ -198,24 +226,16 @@ export function JobEditForm({
     recommendedFor: job.recommendedFor ?? "",
     officeDetail: workAddress,
     access: job.access ?? "",
-    salaryMin: job.salaryMin ? String(job.salaryMin) : "",
-    salaryMax: job.salaryMax ? String(job.salaryMax) : "",
-    monthlySalary: job.monthlySalary ?? "",
-    annualSalary: job.annualSalary ?? "",
-    workingHours: job.workingHours ?? "",
     selectionProcess: job.selectionProcess ?? "",
     closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "",
     recruitmentBackground: job.recruitmentBackground ?? "",
-    positionMission: job.positionMission ?? "",
     holidayPolicy: job.holidayPolicy ?? "",
     trialPeriod: job.trialPeriod ?? "",
     fixedOvertime: job.fixedOvertime ?? "",
     salaryRevision: job.salaryRevision ?? "",
-    interviewCount: job.interviewCount ?? "",
-    selectionDuration: job.selectionDuration ?? "",
-    joinTiming: job.joinTiming ?? "",
+    bonus: job.bonus ?? "",
   });
-  const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
+  const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
 
   const parsedCustomBenefits = customBenefits
     .split(/[\n,、]/)
@@ -243,6 +263,18 @@ export function JobEditForm({
     };
   }, [showPreview, isWidePreview]);
 
+  useEffect(() => {
+    if (!annualSalaryManual) {
+      setAnnualSalaryText(calcAnnualSalary(salaryType, salaryMinVal, salaryMaxVal));
+    }
+  }, [salaryType, salaryMinVal, salaryMaxVal, annualSalaryManual]);
+
+  useEffect(() => {
+    if (!trialAnnualSalaryManual) {
+      setTrialAnnualSalary(calcAnnualSalary(trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal));
+    }
+  }, [trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal, trialAnnualSalaryManual]);
+
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
   }
@@ -263,11 +295,9 @@ export function JobEditForm({
       region: selectedRegion,
       officeDetail,
       access: formValues.access ?? "",
-      salaryMin: formValues.salaryMin ?? "",
-      salaryMax: formValues.salaryMax ?? "",
-      monthlySalary: formValues.monthlySalary ?? "",
-      annualSalary: formValues.annualSalary ?? "",
-      workingHours: formValues.workingHours ?? "",
+      salaryMin: salaryMinVal,
+      salaryMax: salaryMaxVal,
+      monthlySalary: annualSalaryText,
       selectionProcess,
       employmentPeriodType,
       tags: mergedTags,
@@ -275,14 +305,10 @@ export function JobEditForm({
       targetType,
       graduationYear,
       recruitmentBackground: formValues.recruitmentBackground ?? "",
-      positionMission: formValues.positionMission ?? "",
       holidayPolicy: formValues.holidayPolicy ?? "",
       trialPeriod: formValues.trialPeriod ?? "",
       fixedOvertime: formValues.fixedOvertime ?? "",
       salaryRevision: formValues.salaryRevision ?? "",
-      interviewCount: formValues.interviewCount ?? "",
-      selectionDuration: formValues.selectionDuration ?? "",
-      joinTiming: formValues.joinTiming ?? "",
     }),
     [
       formValues,
@@ -364,21 +390,19 @@ export function JobEditForm({
           description: fd.get("description") as string,
           employmentType,
           location: selectedLocation,
-          salaryMin: fd.get("salaryMin") ? Number(fd.get("salaryMin")) : undefined,
-          salaryMax: fd.get("salaryMax") ? Number(fd.get("salaryMax")) : undefined,
+          salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
+          salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
           categoryTag,
           tags: mergedTags,
           imageUrl,
           requirements: fd.get("requirements") as string,
           desiredAptitude: fd.get("desiredAptitude") as string,
           recommendedFor: fd.get("recommendedFor") as string,
-          monthlySalary: fd.get("monthlySalary") as string,
-          annualSalary: fd.get("annualSalary") as string,
+          monthlySalary: annualSalaryText || undefined,
           access: fd.get("access") as string,
           officeDetail: fd.get("officeDetail") as string,
           benefits: mergedBenefits,
           selectionProcess: fd.get("selectionProcess") as string,
-          workingHours: fd.get("workingHours") as string,
           employmentPeriodType,
           region: selectedRegion,
           categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
@@ -391,14 +415,18 @@ export function JobEditForm({
           smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
           smokingNote: smokingNote || undefined,
           recruitmentBackground: fd.get("recruitmentBackground") as string,
-          salaryRevision: fd.get("salaryRevision") as string,
           salaryType,
+          salaryRevision: fd.get("salaryRevision") as string,
+          bonus: salaryType !== "annual" ? fd.get("bonus") as string : undefined,
           hasFixedOvertime: hasFixedOvertime ?? undefined,
           fixedOvertime: hasFixedOvertime ? fd.get("fixedOvertime") as string : undefined,
           trialPeriodExists: trialPeriodExists ?? undefined,
           trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
-          trialPeriodWeeks: trialPeriodExists ? trialPeriodWeeks : undefined,
           trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
+          trialSalaryType: trialPeriodExists ? trialSalaryType : undefined,
+          trialSalaryMin: trialPeriodExists && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
+          trialSalaryMax: trialPeriodExists && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
+          trialAnnualSalary: trialPeriodExists ? (trialAnnualSalary || undefined) : undefined,
           holidayType,
           holidayFeatures,
           annualHolidayCount: annualHolidayCount ? Number(annualHolidayCount) : undefined,
@@ -696,8 +724,14 @@ export function JobEditForm({
                   name="location"
                   value={selectedLocation}
                   className={inputCls}
-                  onChange={(event) => setSelectedLocation(event.target.value)}
-                  disabled={!selectedRegion}
+                  onChange={(event) => {
+                    const pref = event.target.value;
+                    setSelectedLocation(pref);
+                    if (pref && !selectedRegion) {
+                      const area = Object.entries(PREFECTURES_BY_AREA).find(([, prefs]) => prefs.includes(pref))?.[0] ?? "";
+                      if (area) setSelectedRegion(area);
+                    }
+                  }}
                 >
                   <option value="">選択してください</option>
                   {availablePrefectures.map((prefecture) => (
@@ -706,6 +740,7 @@ export function JobEditForm({
                     </option>
                   ))}
                 </select>
+                {!selectedRegion && <p className="mt-1 text-[12px] text-[#7b8797]">都道府県を選ぶとエリアが自動入力されます</p>}
               </Field>
             </div>
 
@@ -728,13 +763,13 @@ export function JobEditForm({
           <Section title="給与">
             <Field label="給与タイプ" required>
               <div className="flex flex-wrap gap-4">
-                {(["monthly", "annual", "daily", "hourly"] as const).map((type) => (
+                {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
                   <label key={type} className="flex cursor-pointer items-center gap-2 text-[14px]">
                     <input
                       type="radio"
                       name="salaryTypeRadio"
                       checked={salaryType === type}
-                      onChange={() => setSalaryType(type)}
+                      onChange={() => { setSalaryType(type); setAnnualSalaryManual(false); }}
                       className="h-4 w-4 accent-[#2f6cff]"
                     />
                     {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
@@ -745,23 +780,51 @@ export function JobEditForm({
             <div className="grid gap-4 md:grid-cols-2">
               <Field label={salaryType === "monthly" ? "月給（下限）" : salaryType === "annual" ? "年俸（下限）" : salaryType === "daily" ? "日給（下限）" : "時給（下限）"}>
                 <div className="flex items-center gap-2">
-                  <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} placeholder="例：250000" />
+                  <input
+                    type="number"
+                    value={salaryMinVal}
+                    onChange={(e) => setSalaryMinVal(e.target.value)}
+                    className={inputCls}
+                    placeholder={SALARY_PLACEHOLDER[salaryType]?.[0] ?? ""}
+                  />
                   <span className="shrink-0 text-[13px] text-[#555]">円</span>
                 </div>
               </Field>
               <Field label={salaryType === "monthly" ? "月給（上限）" : salaryType === "annual" ? "年俸（上限）" : salaryType === "daily" ? "日給（上限）" : "時給（上限）"}>
                 <div className="flex items-center gap-2">
-                  <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} placeholder="例：350000" />
+                  <input
+                    type="number"
+                    value={salaryMaxVal}
+                    onChange={(e) => setSalaryMaxVal(e.target.value)}
+                    className={inputCls}
+                    placeholder={SALARY_PLACEHOLDER[salaryType]?.[1] ?? ""}
+                  />
                   <span className="shrink-0 text-[13px] text-[#555]">円</span>
                 </div>
               </Field>
             </div>
             <Field label="想定年収（テキスト表記）">
-              <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} placeholder="例：400万円〜600万円（経験・スキルにより決定）" />
+              <input
+                name="monthlySalary"
+                value={annualSalaryText}
+                onChange={(e) => { setAnnualSalaryText(e.target.value); setAnnualSalaryManual(true); }}
+                className={inputCls}
+                placeholder="例：400万円〜600万円（経験・スキルにより決定）"
+              />
+              {!annualSalaryManual && annualSalaryText && (
+                <p className="mt-1 text-[12px] text-[#7b8797]">給与の下限・上限から自動計算されています</p>
+              )}
             </Field>
-            <Field label="昇給・賞与">
-              <input name="salaryRevision" defaultValue={job.salaryRevision ?? ""} className={inputCls} placeholder="例：昇給年1回、賞与年2回（業績連動）" />
-            </Field>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="昇給">
+                <input name="salaryRevision" defaultValue={job.salaryRevision ?? ""} className={inputCls} placeholder="例：年1回（4月）" />
+              </Field>
+              {salaryType !== "annual" && (
+                <Field label="賞与">
+                  <input name="bonus" defaultValue={job.bonus ?? ""} className={inputCls} placeholder="例：年2回（6月・12月）業績連動" />
+                </Field>
+              )}
+            </div>
             <Field label="みなし残業制度">
               <div className="flex gap-6">
                 {([true, false] as const).map((val) => (
@@ -782,78 +845,101 @@ export function JobEditForm({
                 <input name="fixedOvertime" defaultValue={job.fixedOvertime ?? ""} className={inputCls} placeholder="例：月30時間分・50,000円を含む（超過分別途支給）" />
               </Field>
             )}
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="勤務時間">
-                <input name="workingHours" defaultValue={job.workingHours ?? ""} className={inputCls} placeholder="例：9:00〜18:00（休憩60分）" />
-              </Field>
-              <Field label="雇用期間">
-                <select
-                  name="employmentPeriodType"
-                  value={employmentPeriodType}
-                  onChange={(event) => setEmploymentPeriodType(event.target.value)}
-                  className={inputCls}
-                >
-                  {EMPLOYMENT_PERIOD_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            </div>
           </Section>
 
           <Section title="試用期間">
-            <Field label="試用期間" required>
-              <div className="flex gap-6">
+            <Field label="試用期間">
+              <div className="flex gap-4">
                 {([true, false] as const).map((val) => (
-                  <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[14px]">
-                    <input
-                      type="radio"
-                      checked={trialPeriodExists === val}
-                      onChange={() => setTrialPeriodExists(val)}
-                      className="h-4 w-4 accent-[#2f6cff]"
-                    />
+                  <button
+                    key={String(val)}
+                    type="button"
+                    onClick={() => setTrialPeriodExists(val)}
+                    className={`rounded-[10px] border px-5 py-2 text-[14px] font-medium transition ${
+                      trialPeriodExists === val
+                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
+                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
+                    }`}
+                  >
                     {val ? "あり" : "なし"}
-                  </label>
+                  </button>
                 ))}
               </div>
             </Field>
             {trialPeriodExists && (
               <>
+                <Field label="試用期間（月数）">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={24}
+                      value={trialPeriodMonths}
+                      onChange={(e) => setTrialPeriodMonths(Number(e.target.value))}
+                      className={`${inputCls} max-w-[100px]`}
+                    />
+                    <span className="text-[13px] text-[#555]">ヶ月</span>
+                  </div>
+                </Field>
+                <Field label="試用期間中の給与タイプ">
+                  <div className="flex flex-wrap gap-4">
+                    {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
+                      <label key={type} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input
+                          type="radio"
+                          checked={trialSalaryType === type}
+                          onChange={() => { setTrialSalaryType(type); setTrialAnnualSalaryManual(false); }}
+                          className="h-4 w-4 accent-[#2f6cff]"
+                        />
+                        {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
+                      </label>
+                    ))}
+                  </div>
+                </Field>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="試用期間の長さ">
-                    <div className="flex items-center gap-3">
-                      <select
-                        value={trialPeriodMonths}
-                        onChange={(e) => setTrialPeriodMonths(Number(e.target.value))}
-                        className={`${inputCls} w-24`}
-                      >
-                        {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                      <span className="text-[13px] text-[#555]">ヶ月</span>
-                      <select
-                        value={trialPeriodWeeks}
-                        onChange={(e) => setTrialPeriodWeeks(Number(e.target.value))}
-                        className={`${inputCls} w-24`}
-                      >
-                        {[0,1,2,3].map((w) => (
-                          <option key={w} value={w}>{w}</option>
-                        ))}
-                      </select>
-                      <span className="text-[13px] text-[#555]">週間</span>
+                  <Field label={trialSalaryType === "monthly" ? "試用中の月給（下限）" : trialSalaryType === "annual" ? "試用中の年俸（下限）" : trialSalaryType === "daily" ? "試用中の日給（下限）" : "試用中の時給（下限）"}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={trialSalaryMinVal}
+                        onChange={(e) => setTrialSalaryMinVal(e.target.value)}
+                        className={inputCls}
+                        placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[0] ?? ""}
+                      />
+                      <span className="shrink-0 text-[13px] text-[#555]">円</span>
+                    </div>
+                  </Field>
+                  <Field label={trialSalaryType === "monthly" ? "試用中の月給（上限）" : trialSalaryType === "annual" ? "試用中の年俸（上限）" : trialSalaryType === "daily" ? "試用中の日給（上限）" : "試用中の時給（上限）"}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={trialSalaryMaxVal}
+                        onChange={(e) => setTrialSalaryMaxVal(e.target.value)}
+                        className={inputCls}
+                        placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[1] ?? ""}
+                      />
+                      <span className="shrink-0 text-[13px] text-[#555]">円</span>
                     </div>
                   </Field>
                 </div>
-                <Field label="変更となる条件・備考">
+                <Field label="試用期間中の想定年収">
+                  <input
+                    value={trialAnnualSalary}
+                    onChange={(e) => { setTrialAnnualSalary(e.target.value); setTrialAnnualSalaryManual(true); }}
+                    className={inputCls}
+                    placeholder="例：300万円〜400万円"
+                  />
+                  {!trialAnnualSalaryManual && trialAnnualSalary && (
+                    <p className="mt-1 text-[12px] text-[#7b8797]">給与の下限・上限から自動計算されています</p>
+                  )}
+                </Field>
+                <Field label="変更となる条件">
                   <textarea
                     name="trialPeriod"
                     rows={2}
                     defaultValue={job.trialPeriod ?? ""}
                     className={textareaCls}
-                    placeholder="例：試用期間中は健康保険や退職金など、福利厚生の一部が制限される可能性があります。"
+                    placeholder={`例：試用期間中は以下の条件が適用されます\n・社会保険：加入（同条件）\n・退職金：対象外`}
                   />
                 </Field>
               </>

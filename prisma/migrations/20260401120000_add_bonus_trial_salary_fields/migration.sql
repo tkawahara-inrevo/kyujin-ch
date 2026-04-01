@@ -1,0 +1,5 @@
+ALTER TABLE "Job" ADD COLUMN "bonus" TEXT;
+ALTER TABLE "Job" ADD COLUMN "trialSalaryType" TEXT;
+ALTER TABLE "Job" ADD COLUMN "trialSalaryMin" INTEGER;
+ALTER TABLE "Job" ADD COLUMN "trialSalaryMax" INTEGER;
+ALTER TABLE "Job" ADD COLUMN "trialAnnualSalary" TEXT;

@@ -232,6 +232,15 @@ model Job {
   holidayFeatures       String[]  @default([])
   annualHolidayCount    Int?      // 年間休日数
 
+  // 昇給・賞与
+  bonus                 String?   // 賞与
+
+  // 試用期間中の給与
+  trialSalaryType       String?   // 試用期間中の給与タイプ
+  trialSalaryMin        Int?      // 試用期間中の給与下限
+  trialSalaryMax        Int?      // 試用期間中の給与上限
+  trialAnnualSalary     String?   // 試用期間中の想定年収（テキスト）
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

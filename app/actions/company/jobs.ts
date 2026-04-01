@@ -70,6 +70,11 @@ type JobData = {
   holidayType?: string;
   holidayFeatures?: string[];
   annualHolidayCount?: number;
+  bonus?: string;
+  trialSalaryType?: string;
+  trialSalaryMin?: number;
+  trialSalaryMax?: number;
+  trialAnnualSalary?: string;
 };
 
 export type YouthYearStats = {
@@ -176,6 +181,11 @@ function normalizeJobData(data: JobData): JobPendingContent {
     holidayType: data.holidayType || null,
     holidayFeatures: data.holidayFeatures || [],
     annualHolidayCount: data.annualHolidayCount ?? null,
+    bonus: data.bonus || null,
+    trialSalaryType: data.trialSalaryType || null,
+    trialSalaryMin: data.trialSalaryMin ?? null,
+    trialSalaryMax: data.trialSalaryMax ?? null,
+    trialAnnualSalary: data.trialAnnualSalary || null,
   };
 }
 
@@ -236,6 +246,11 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     holidayType: normalized.holidayType,
     holidayFeatures: normalized.holidayFeatures,
     annualHolidayCount: normalized.annualHolidayCount,
+    bonus: normalized.bonus,
+    trialSalaryType: normalized.trialSalaryType,
+    trialSalaryMin: normalized.trialSalaryMin,
+    trialSalaryMax: normalized.trialSalaryMax,
+    trialAnnualSalary: normalized.trialAnnualSalary,
     pendingContent: Prisma.DbNull,
   };
 }

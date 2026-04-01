@@ -61,6 +61,11 @@ export type JobPendingContent = {
   holidayType: string | null;
   holidayFeatures: string[];
   annualHolidayCount: number | null;
+  bonus: string | null;
+  trialSalaryType: string | null;
+  trialSalaryMin: number | null;
+  trialSalaryMax: number | null;
+  trialAnnualSalary: string | null;
 };
 
 function asString(value: unknown) {
@@ -137,5 +142,10 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     holidayType: asString(record.holidayType),
     holidayFeatures: asStringArray(record.holidayFeatures),
     annualHolidayCount: asNumber(record.annualHolidayCount),
+    bonus: asString(record.bonus),
+    trialSalaryType: asString(record.trialSalaryType),
+    trialSalaryMin: asNumber(record.trialSalaryMin),
+    trialSalaryMax: asNumber(record.trialSalaryMax),
+    trialAnnualSalary: asString(record.trialAnnualSalary),
   };
 }

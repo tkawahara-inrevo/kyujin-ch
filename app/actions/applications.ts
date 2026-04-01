@@ -24,6 +24,33 @@ const cardImages = [
   "/assets/Resume.png",
 ];
 
+// 無料期間（JST）: 2026/04/06 00:00:00 〜 2026/07/06 23:59:59.999
+const FREE_CAMPAIGN_START_UTC = Date.UTC(2026, 3, 5, 15, 0, 0, 0);
+const FREE_CAMPAIGN_END_UTC = Date.UTC(2026, 6, 6, 14, 59, 59, 999);
+
+function isFreeCampaignPeriod(now: Date) {
+  const ts = now.getTime();
+  return ts >= FREE_CAMPAIGN_START_UTC && ts <= FREE_CAMPAIGN_END_UTC;
+}
+
+async function resolveChargeAmount(categoryTag: string | null, now: Date) {
+  if (isFreeCampaignPeriod(now)) {
+    return 0;
+  }
+
+  let chargeAmount = 11000;
+  if (categoryTag) {
+    const priceEntry = await prisma.priceEntry.findFirst({
+      where: { subcategory: categoryTag },
+    });
+    if (priceEntry) {
+      chargeAmount = priceEntry.experiencedPrice;
+    }
+  }
+
+  return chargeAmount;
+}
+
 export async function submitApplication(jobId: string, motivation: string) {
   const user = await getCurrentUser();
 
@@ -44,15 +71,7 @@ export async function submitApplication(jobId: string, motivation: string) {
   const now = new Date();
   const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  let chargeAmount = 11000;
-  if (job.categoryTag) {
-    const priceEntry = await prisma.priceEntry.findFirst({
-      where: { subcategory: job.categoryTag },
-    });
-    if (priceEntry) {
-      chargeAmount = priceEntry.experiencedPrice;
-    }
-  }
+  const chargeAmount = await resolveChargeAmount(job.categoryTag, now);
 
   await prisma.$transaction(async (tx) => {
     const application = await tx.application.create({
@@ -129,15 +148,7 @@ export async function submitBulkApplications(jobIds: string[]) {
     const now = new Date();
     const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    let chargeAmount = 11000;
-    if (job.categoryTag) {
-      const priceEntry = await prisma.priceEntry.findFirst({
-        where: { subcategory: job.categoryTag },
-      });
-      if (priceEntry) {
-        chargeAmount = priceEntry.experiencedPrice;
-      }
-    }
+    const chargeAmount = await resolveChargeAmount(job.categoryTag, now);
 
     await prisma.$transaction(async (tx) => {
       const application = await tx.application.create({

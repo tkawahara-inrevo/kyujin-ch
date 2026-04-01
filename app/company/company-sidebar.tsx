@@ -1,10 +1,12 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+
+const SIDEBAR_VISIBILITY_KEY = "companySidebarVisible";
 
 const navItems = [
   { href: "/company/dashboard", label: "ダッシュボード", icon: "/assets/Graph.png" },
@@ -22,7 +24,6 @@ const navItems = [
     badgeType: "messages" as const,
   },
   { href: "/company/billing", label: "請求管理", icon: "/assets/List.png" },
-  { href: "/company/analytics", label: "分析", icon: "/assets/Graph.png" },
   { href: "/company/settings", label: "設定", icon: "/assets/Edit_Pencil_Line_02.png" },
 ];
 
@@ -31,6 +32,14 @@ export function CompanySidebar() {
   const [messageUnreadCount, setMessageUnreadCount] = useState(0);
   const [newApplicationCount, setNewApplicationCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDesktopVisible, setIsDesktopVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(SIDEBAR_VISIBILITY_KEY) !== "false";
+  });
+
+  useEffect(() => {
+    window.localStorage.setItem(SIDEBAR_VISIBILITY_KEY, String(isDesktopVisible));
+  }, [isDesktopVisible]);
 
   useEffect(() => {
     async function loadBadges() {
@@ -118,7 +127,7 @@ export function CompanySidebar() {
           onClick={() => signOut({ callbackUrl: "/company/login" })}
           className="flex w-full items-center gap-4 rounded-[12px] px-4 py-3 text-[15px] font-bold text-[#7a7f87] transition hover:bg-[#f5f7fb]"
         >
-          <span className="text-[22px]">⇦</span>
+          <span className="text-[22px]">↩</span>
           <span>ログアウト</span>
         </button>
       </div>
@@ -142,7 +151,7 @@ export function CompanySidebar() {
           className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]"
         >
           <Image src="/assets/Person.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
-          <span>求人ちゃんねる</span>
+          <span>企業ちゃんねる</span>
         </Link>
         <div className="w-10" />
       </div>
@@ -163,7 +172,7 @@ export function CompanySidebar() {
                 className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]"
               >
                 <Image src="/assets/Person.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
-                <span>求人ちゃんねる</span>
+                <span>企業ちゃんねる</span>
               </Link>
               <button
                 type="button"
@@ -179,15 +188,38 @@ export function CompanySidebar() {
         </div>
       ) : null}
 
-      <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white xl:flex">
-        <div className="flex h-[120px] items-center border-b border-[#edf0f5] px-8">
-          <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
-            <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
-            <span>求人ちゃんねる</span>
-          </Link>
-        </div>
-        {navContent}
-      </aside>
+      {!isDesktopVisible ? (
+        <button
+          type="button"
+          onClick={() => setIsDesktopVisible(true)}
+          className="fixed left-4 top-4 z-30 hidden h-10 items-center gap-2 rounded-[10px] border border-[#dbe4f2] bg-white px-3 text-[13px] font-bold text-[#2b2f38] shadow-[0_6px_18px_rgba(37,56,88,0.12)] xl:flex"
+          aria-label="サイドバーを表示"
+        >
+          <span className="text-[16px]">☰</span>
+          <span>メニュー</span>
+        </button>
+      ) : null}
+
+      {isDesktopVisible ? (
+        <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white xl:flex">
+          <div className="flex h-[120px] items-center justify-between border-b border-[#edf0f5] px-8">
+            <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
+              <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
+              <span>企業ちゃんねる</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsDesktopVisible(false)}
+              className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#e7ebf3] text-[#666] transition hover:bg-[#f5f7fb]"
+              aria-label="サイドバーを非表示"
+              title="サイドバーを非表示"
+            >
+              <span className="text-[16px]">←</span>
+            </button>
+          </div>
+          {navContent}
+        </aside>
+      ) : null}
     </>
   );
 }

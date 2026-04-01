@@ -89,6 +89,9 @@ export default async function CompanyBillingPage() {
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">請求管理</h1>
+      <p className="mt-3 rounded-[10px] border border-[#dbe7ff] bg-[#f3f7ff] px-4 py-3 text-[13px] font-medium text-[#2b4ea2]">
+        2026年4月6日〜2026年7月6日は無料期間のため、応募が発生しても請求は発生しません。
+      </p>
 
       <MonthSwitcher
         initialMonth={initialMonth}

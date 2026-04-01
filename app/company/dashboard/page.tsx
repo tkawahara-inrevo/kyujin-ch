@@ -30,6 +30,16 @@ function KpiCard({
   );
 }
 
+type NoticeItem = {
+  id: string;
+  type: "message" | "application";
+  createdAt: Date;
+  jobTitle: string;
+  userName: string;
+  href: string;
+  isUnread: boolean;
+};
+
 export default async function CompanyDashboardPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
@@ -44,43 +54,94 @@ export default async function CompanyDashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const currentBillingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  const [monthlyApps, publishedJobs, unreadMessages, recentApps, currentMonthCharges, lifetimeCharges] =
-    await Promise.all([
-      prisma.application.count({
-        where: { job: { companyId: company.id }, createdAt: { gte: startOfMonth } },
-      }),
-      prisma.job.count({
-        where: { companyId: company.id, reviewStatus: "PUBLISHED", isDeleted: false },
-      }),
-      prisma.message.count({
-        where: {
-          isRead: false,
-          senderType: "USER",
-          conversation: { application: { job: { companyId: company.id } } },
+  const [
+    monthlyApps,
+    publishedJobs,
+    unreadMessages,
+    recentApplications,
+    recentUnreadMessages,
+    currentMonthCharges,
+    lifetimeCharges,
+  ] = await Promise.all([
+    prisma.application.count({
+      where: { job: { companyId: company.id }, createdAt: { gte: startOfMonth } },
+    }),
+    prisma.job.count({
+      where: { companyId: company.id, reviewStatus: "PUBLISHED", isDeleted: false },
+    }),
+    prisma.message.count({
+      where: {
+        isRead: false,
+        senderType: "USER",
+        conversation: { application: { job: { companyId: company.id } } },
+      },
+    }),
+    prisma.application.findMany({
+      where: { job: { companyId: company.id } },
+      include: { user: true, job: true },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
+    prisma.message.findMany({
+      where: {
+        isRead: false,
+        senderType: "USER",
+        conversation: { application: { job: { companyId: company.id } } },
+      },
+      include: {
+        conversation: {
+          include: {
+            application: {
+              include: {
+                job: true,
+                user: true,
+              },
+            },
+          },
         },
-      }),
-      prisma.application.findMany({
-        where: { job: { companyId: company.id } },
-        include: { user: true, job: true },
-        orderBy: { createdAt: "desc" },
-        take: 6,
-      }),
-      prisma.charge.aggregate({
-        where: {
-          isValid: true,
-          billingMonth: currentBillingMonth,
-          application: { job: { companyId: company.id } },
-        },
-        _sum: { amount: true },
-      }),
-      prisma.charge.aggregate({
-        where: {
-          isValid: true,
-          application: { job: { companyId: company.id } },
-        },
-        _sum: { amount: true },
-      }),
-    ]);
+      },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+    }),
+    prisma.charge.aggregate({
+      where: {
+        isValid: true,
+        billingMonth: currentBillingMonth,
+        application: { job: { companyId: company.id } },
+      },
+      _sum: { amount: true },
+    }),
+    prisma.charge.aggregate({
+      where: {
+        isValid: true,
+        application: { job: { companyId: company.id } },
+      },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const notices: NoticeItem[] = [
+    ...recentUnreadMessages.map((message) => ({
+      id: `message-${message.id}`,
+      type: "message" as const,
+      createdAt: message.createdAt,
+      jobTitle: message.conversation.application.job.title,
+      userName: message.conversation.application.user.name ?? "応募者",
+      href: `/company/messages?applicationId=${message.conversation.applicationId}`,
+      isUnread: true,
+    })),
+    ...recentApplications.map((application) => ({
+      id: `application-${application.id}`,
+      type: "application" as const,
+      createdAt: application.createdAt,
+      jobTitle: application.job.title,
+      userName: application.user.name ?? "応募者",
+      href: `/company/applicants/${application.id}`,
+      isUnread: application.companyViewedAt === null,
+    })),
+  ]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 10);
 
   return (
     <div className="px-6 py-8 md:px-12 md:py-10">
@@ -116,79 +177,56 @@ export default async function CompanyDashboardPage() {
 
       <section className="mt-12">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-[24px] font-bold text-[#2b2f38]">最新の応募</h2>
-          <Link href="/company/applicants" className="text-[15px] font-bold text-[#2b2f38] hover:opacity-70">
+          <h2 className="text-[24px] font-bold text-[#2b2f38]">お知らせ</h2>
+          <Link href="/company/messages" className="text-[15px] font-bold text-[#2b2f38] hover:opacity-70">
             すべて見る →
           </Link>
         </div>
 
         <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-          <div className="xl:hidden">
-            {recentApps.length === 0 ? (
-              <div className="px-4 py-10 text-center text-[#9aa3b2]">まだ応募はありません</div>
-            ) : (
-              <div className="divide-y divide-[#edf0f5]">
-                {recentApps.map((application) => (
-                  <Link
-                    key={application.id}
-                    href={`/company/applicants/${application.id}`}
-                    className="block px-4 py-4 transition hover:bg-[#fafcff]"
-                  >
-                    <p className="truncate text-[15px] font-bold text-[#333]">{application.user.name}</p>
-                    <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
-                      {application.job.title}
+          {notices.length === 0 ? (
+            <div className="px-4 py-10 text-center text-[#9aa3b2]">新しいお知らせはありません</div>
+          ) : (
+            <div className="divide-y divide-[#edf0f5]">
+              {notices.map((notice) => (
+                <Link
+                  key={notice.id}
+                  href={notice.href}
+                  className={`block px-4 py-4 transition hover:bg-[#fafcff] md:px-6 ${
+                    notice.isUnread ? "bg-[#f9fbff]" : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p
+                      className={`text-[14px] font-bold md:text-[15px] ${
+                        notice.isUnread ? "text-[#2b2f38]" : "text-[#4b5565]"
+                      }`}
+                    >
+                      {notice.type === "message"
+                        ? `新着メッセージがあります（求人名：${notice.jobTitle}）`
+                        : `新規応募がありました（求人名：${notice.jobTitle}）`}
                     </p>
-                    <p className="mt-3 text-[12px] text-[#98a2b3]">
-                      応募日 {application.createdAt.toLocaleDateString("ja-JP")}
+                    <p className="shrink-0 text-[12px] font-medium text-[#98a2b3]">
+                      {notice.createdAt.toLocaleDateString("ja-JP")}{" "}
+                      {notice.createdAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
                     </p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="hidden xl:block">
-            <table className="w-full table-fixed text-left text-[14px]">
-              <thead>
-                <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                  <th className="w-[104px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
-                  <th className="px-4 py-4 font-bold">応募求人</th>
-                  <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">応募日</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentApps.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="px-4 py-10 text-center text-[#9aa3b2]">
-                      まだ応募はありません
-                    </td>
-                  </tr>
-                ) : (
-                  recentApps.map((application) => (
-                    <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
-                      <td className="px-4 py-4 font-bold text-[#333]">
-                        <Link
-                          href={`/company/applicants/${application.id}`}
-                          className="block truncate hover:text-[#2f6cff]"
-                          title={application.user.name ?? ""}
-                        >
-                          {application.user.name}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 text-[#333]">
-                        <span className="block truncate" title={application.job.title}>
-                          {application.job.title}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4 text-[#666]">
-                        {application.createdAt.toLocaleDateString("ja-JP")}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    {notice.isUnread ? (
+                      <span className="rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
+                        NEW
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-[#e6ebf4] px-2 py-0.5 text-[10px] font-bold text-[#6b7280]">
+                        確認済み
+                      </span>
+                    )}
+                    <p className="text-[13px] text-[#667085]">{notice.userName}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

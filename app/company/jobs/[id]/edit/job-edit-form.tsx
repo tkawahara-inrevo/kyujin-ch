@@ -123,6 +123,14 @@ type Job = {
   interviewCount?: string | null;
   selectionDuration?: string | null;
   joinTiming?: string | null;
+  salaryType?: string | null;
+  hasFixedOvertime?: boolean | null;
+  trialPeriodExists?: boolean | null;
+  trialPeriodMonths?: number | null;
+  trialPeriodWeeks?: number | null;
+  holidayType?: string | null;
+  holidayFeatures?: string[];
+  annualHolidayCount?: number | null;
 };
 
 export function JobEditForm({
@@ -145,7 +153,6 @@ export function JobEditForm({
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
     job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
   );
-  const [customTags, setCustomTags] = useState(job.tags.filter((tag) => !TAG_OPTIONS.includes(tag)).join("、"));
   const [customBenefits, setCustomBenefits] = useState(
     job.benefits.filter((benefit) => !benefitOptions.includes(benefit)).join("、"),
   );
@@ -175,6 +182,14 @@ export function JobEditForm({
   const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState(job.smokingPolicyIndoor ?? "");
   const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState(job.smokingPolicyOutdoor ?? "");
   const [smokingNote, setSmokingNote] = useState(job.smokingNote ?? "");
+  const [salaryType, setSalaryType] = useState(job.salaryType || "monthly");
+  const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(job.hasFixedOvertime ?? null);
+  const [trialPeriodExists, setTrialPeriodExists] = useState<boolean | null>(job.trialPeriodExists ?? null);
+  const [trialPeriodMonths, setTrialPeriodMonths] = useState(job.trialPeriodMonths ?? 0);
+  const [trialPeriodWeeks, setTrialPeriodWeeks] = useState(job.trialPeriodWeeks ?? 0);
+  const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
+  const [holidayFeatures, setHolidayFeatures] = useState<string[]>(job.holidayFeatures ?? []);
+  const [annualHolidayCount, setAnnualHolidayCount] = useState(job.annualHolidayCount ? String(job.annualHolidayCount) : "");
   const [formValues, setFormValues] = useState<Record<string, string>>({
     title: job.title,
     description: job.description,
@@ -202,15 +217,11 @@ export function JobEditForm({
   });
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : [];
 
-  const parsedCustomTags = customTags
-    .split(/[\n,、]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
   const parsedCustomBenefits = customBenefits
     .split(/[\n,、]/)
-    .map((item) => item.trim())
+    .map((item: string) => item.trim())
     .filter(Boolean);
-  const mergedTags = Array.from(new Set([...selectedTags, ...parsedCustomTags]));
+  const mergedTags = selectedTags;
   const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
 
   useEffect(() => {
@@ -380,14 +391,18 @@ export function JobEditForm({
           smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
           smokingNote: smokingNote || undefined,
           recruitmentBackground: fd.get("recruitmentBackground") as string,
-          positionMission: fd.get("positionMission") as string,
-          holidayPolicy: fd.get("holidayPolicy") as string,
-          trialPeriod: fd.get("trialPeriod") as string,
-          fixedOvertime: fd.get("fixedOvertime") as string,
           salaryRevision: fd.get("salaryRevision") as string,
-          interviewCount: fd.get("interviewCount") as string,
-          selectionDuration: fd.get("selectionDuration") as string,
-          joinTiming: fd.get("joinTiming") as string,
+          salaryType,
+          hasFixedOvertime: hasFixedOvertime ?? undefined,
+          fixedOvertime: hasFixedOvertime ? fd.get("fixedOvertime") as string : undefined,
+          trialPeriodExists: trialPeriodExists ?? undefined,
+          trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
+          trialPeriodWeeks: trialPeriodExists ? trialPeriodWeeks : undefined,
+          trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
+          holidayType,
+          holidayFeatures,
+          annualHolidayCount: annualHolidayCount ? Number(annualHolidayCount) : undefined,
+          holidayPolicy: fd.get("holidayPolicy") as string,
         },
         submissionMode,
       );
@@ -609,6 +624,28 @@ export function JobEditForm({
             <Field label="求める人物像">
               <textarea name="desiredAptitude" rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
+            <Field label="求人タグ">
+              <div className="flex flex-wrap gap-2">
+                {TAG_OPTIONS.map((tag) => (
+                  <label
+                    key={tag}
+                    className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
+                      selectedTags.includes(tag)
+                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
+                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="hidden"
+                      checked={selectedTags.includes(tag)}
+                      onChange={() => toggleItem(selectedTags, setSelectedTags, tag)}
+                    />
+                    {tag}
+                  </label>
+                ))}
+              </div>
+            </Field>
           </Section>
 
           <Section title="勤務地">
@@ -688,18 +725,63 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="給与・勤務条件">
+          <Section title="給与">
+            <Field label="給与タイプ" required>
+              <div className="flex flex-wrap gap-4">
+                {(["monthly", "annual", "daily", "hourly"] as const).map((type) => (
+                  <label key={type} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                    <input
+                      type="radio"
+                      name="salaryTypeRadio"
+                      checked={salaryType === type}
+                      onChange={() => setSalaryType(type)}
+                      className="h-4 w-4 accent-[#2f6cff]"
+                    />
+                    {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
+                  </label>
+                ))}
+              </div>
+            </Field>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="最低年収（万円）">
-                <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} placeholder="例：300" />
+              <Field label={salaryType === "monthly" ? "月給（下限）" : salaryType === "annual" ? "年俸（下限）" : salaryType === "daily" ? "日給（下限）" : "時給（下限）"}>
+                <div className="flex items-center gap-2">
+                  <input name="salaryMin" type="number" defaultValue={job.salaryMin ?? ""} className={inputCls} placeholder="例：250000" />
+                  <span className="shrink-0 text-[13px] text-[#555]">円</span>
+                </div>
               </Field>
-              <Field label="最高年収（万円）">
-                <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} placeholder="例：500" />
+              <Field label={salaryType === "monthly" ? "月給（上限）" : salaryType === "annual" ? "年俸（上限）" : salaryType === "daily" ? "日給（上限）" : "時給（上限）"}>
+                <div className="flex items-center gap-2">
+                  <input name="salaryMax" type="number" defaultValue={job.salaryMax ?? ""} className={inputCls} placeholder="例：350000" />
+                  <span className="shrink-0 text-[13px] text-[#555]">円</span>
+                </div>
               </Field>
             </div>
-            <Field label="給与詳細">
-              <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} placeholder="例：月給25万円〜40万円 / 年収400万円〜600万円" />
+            <Field label="想定年収（テキスト表記）">
+              <input name="monthlySalary" defaultValue={job.monthlySalary ?? ""} className={inputCls} placeholder="例：400万円〜600万円（経験・スキルにより決定）" />
             </Field>
+            <Field label="昇給・賞与">
+              <input name="salaryRevision" defaultValue={job.salaryRevision ?? ""} className={inputCls} placeholder="例：昇給年1回、賞与年2回（業績連動）" />
+            </Field>
+            <Field label="みなし残業制度">
+              <div className="flex gap-6">
+                {([true, false] as const).map((val) => (
+                  <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                    <input
+                      type="radio"
+                      checked={hasFixedOvertime === val}
+                      onChange={() => setHasFixedOvertime(val)}
+                      className="h-4 w-4 accent-[#2f6cff]"
+                    />
+                    {val ? "あり" : "なし"}
+                  </label>
+                ))}
+              </div>
+            </Field>
+            {hasFixedOvertime && (
+              <Field label="みなし残業代の詳細">
+                <input name="fixedOvertime" defaultValue={job.fixedOvertime ?? ""} className={inputCls} placeholder="例：月30時間分・50,000円を含む（超過分別途支給）" />
+              </Field>
+            )}
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="勤務時間">
                 <input name="workingHours" defaultValue={job.workingHours ?? ""} className={inputCls} placeholder="例：9:00〜18:00（休憩60分）" />
@@ -719,25 +801,116 @@ export function JobEditForm({
                 </select>
               </Field>
             </div>
-            <Field label="休日・休暇">
-              <input
-                name="holidayPolicy"
-                defaultValue={job.holidayPolicy ?? ""}
+          </Section>
+
+          <Section title="試用期間">
+            <Field label="試用期間" required>
+              <div className="flex gap-6">
+                {([true, false] as const).map((val) => (
+                  <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                    <input
+                      type="radio"
+                      checked={trialPeriodExists === val}
+                      onChange={() => setTrialPeriodExists(val)}
+                      className="h-4 w-4 accent-[#2f6cff]"
+                    />
+                    {val ? "あり" : "なし"}
+                  </label>
+                ))}
+              </div>
+            </Field>
+            {trialPeriodExists && (
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="試用期間の長さ">
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={trialPeriodMonths}
+                        onChange={(e) => setTrialPeriodMonths(Number(e.target.value))}
+                        className={`${inputCls} w-24`}
+                      >
+                        {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                      <span className="text-[13px] text-[#555]">ヶ月</span>
+                      <select
+                        value={trialPeriodWeeks}
+                        onChange={(e) => setTrialPeriodWeeks(Number(e.target.value))}
+                        className={`${inputCls} w-24`}
+                      >
+                        {[0,1,2,3].map((w) => (
+                          <option key={w} value={w}>{w}</option>
+                        ))}
+                      </select>
+                      <span className="text-[13px] text-[#555]">週間</span>
+                    </div>
+                  </Field>
+                </div>
+                <Field label="変更となる条件・備考">
+                  <textarea
+                    name="trialPeriod"
+                    rows={2}
+                    defaultValue={job.trialPeriod ?? ""}
+                    className={textareaCls}
+                    placeholder="例：試用期間中は健康保険や退職金など、福利厚生の一部が制限される可能性があります。"
+                  />
+                </Field>
+              </>
+            )}
+          </Section>
+
+          <Section title="休日休暇">
+            <Field label="休みの取り方" required>
+              <select
+                value={holidayType}
+                onChange={(e) => setHolidayType(e.target.value)}
                 className={inputCls}
-                placeholder="例：完全週休2日制（土日祝）、年間休日120日、有給休暇（入社半年後10日付与）"
+              >
+                <option value="">選択してください</option>
+                {["完全週休2日制", "週休2日制（月1〜2回土曜出勤）", "週休2日制（その他）", "週休制（週1日）", "勤務▲休制", "週▲休制"].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="年間休日">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={annualHolidayCount}
+                  onChange={(e) => setAnnualHolidayCount(e.target.value)}
+                  className={`${inputCls} max-w-[120px]`}
+                  placeholder="120"
+                />
+                <span className="text-[13px] text-[#555]">日</span>
+              </div>
+            </Field>
+            <Field label="休日休暇の特徴">
+              <div className="flex flex-wrap gap-2">
+                {["年間休日120日以上", "夏季休暇", "年末年始休暇"].map((feat) => (
+                  <label key={feat} className="flex cursor-pointer items-center gap-2 rounded-[10px] border border-[#e6ebf5] px-3 py-2 text-[13px]">
+                    <input
+                      type="checkbox"
+                      checked={holidayFeatures.includes(feat)}
+                      onChange={() => setHolidayFeatures((prev) =>
+                        prev.includes(feat) ? prev.filter((f) => f !== feat) : [...prev, feat]
+                      )}
+                      className="h-4 w-4 accent-[#2f6cff]"
+                    />
+                    {feat}
+                  </label>
+                ))}
+              </div>
+            </Field>
+            <Field label="休日休暇の詳細">
+              <textarea
+                name="holidayPolicy"
+                rows={3}
+                defaultValue={job.holidayPolicy ?? ""}
+                className={textareaCls}
+                placeholder="例：◇出産・育児休暇&#10;◇慶弔休暇&#10;◇有給休暇（入社半年後10日付与）"
               />
             </Field>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="試用期間">
-                <input name="trialPeriod" defaultValue={job.trialPeriod ?? ""} className={inputCls} placeholder="例：3ヶ月（条件変更なし）" />
-              </Field>
-              <Field label="固定残業代">
-                <input name="fixedOvertime" defaultValue={job.fixedOvertime ?? ""} className={inputCls} placeholder="例：月30h分・5万円含む" />
-              </Field>
-              <Field label="昇給・賞与">
-                <input name="salaryRevision" defaultValue={job.salaryRevision ?? ""} className={inputCls} placeholder="例：昇給年1回、賞与年2回" />
-              </Field>
-            </div>
           </Section>
 
           <Section title="選考情報">
@@ -779,49 +952,9 @@ export function JobEditForm({
                 placeholder="例：書類選考 → 一次面接（オンライン可） → 最終面接 → 内定&#10;※選考期間の目安：1〜2週間程度"
               />
             </Field>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="面接回数・方法">
-                <input name="interviewCount" defaultValue={job.interviewCount ?? ""} className={inputCls} placeholder="例：2回（一次オンライン可）" />
-              </Field>
-              <Field label="選考期間の目安">
-                <input name="selectionDuration" defaultValue={job.selectionDuration ?? ""} className={inputCls} placeholder="例：応募から2週間程度" />
-              </Field>
-              <Field label="入社時期">
-                <input name="joinTiming" defaultValue={job.joinTiming ?? ""} className={inputCls} placeholder="例：即日〜3ヶ月以内" />
-              </Field>
-            </div>
           </Section>
 
-          <Section title="タグ・福利厚生">
-            <Field label="求人タグ">
-              <div className="flex flex-wrap gap-2">
-                {TAG_OPTIONS.map((tag) => (
-                  <label
-                    key={tag}
-                    className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
-                      selectedTags.includes(tag)
-                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
-                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={selectedTags.includes(tag)}
-                      onChange={() => toggleItem(selectedTags, setSelectedTags, tag)}
-                    />
-                    {tag}
-                  </label>
-                ))}
-              </div>
-              <textarea
-                value={customTags}
-                onChange={(event) => setCustomTags(event.target.value)}
-                className={`${textareaCls} mt-3`}
-                rows={2}
-                placeholder="独自タグ（例：海外出張あり、インセンティブあり）カンマ・改行区切り"
-              />
-            </Field>
+          <Section title="福利厚生">
             <Field label="福利厚生">
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {SHARED_BENEFIT_OPTIONS.map((benefit) => (

@@ -53,6 +53,14 @@ export type JobPendingContent = {
   interviewCount: string | null;
   selectionDuration: string | null;
   joinTiming: string | null;
+  salaryType: string | null;
+  hasFixedOvertime: boolean | null;
+  trialPeriodExists: boolean | null;
+  trialPeriodMonths: number | null;
+  trialPeriodWeeks: number | null;
+  holidayType: string | null;
+  holidayFeatures: string[];
+  annualHolidayCount: number | null;
 };
 
 function asString(value: unknown) {
@@ -121,5 +129,13 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     interviewCount: asString(record.interviewCount),
     selectionDuration: asString(record.selectionDuration),
     joinTiming: asString(record.joinTiming),
+    salaryType: asString(record.salaryType),
+    hasFixedOvertime: typeof record.hasFixedOvertime === "boolean" ? record.hasFixedOvertime : null,
+    trialPeriodExists: typeof record.trialPeriodExists === "boolean" ? record.trialPeriodExists : null,
+    trialPeriodMonths: asNumber(record.trialPeriodMonths),
+    trialPeriodWeeks: asNumber(record.trialPeriodWeeks),
+    holidayType: asString(record.holidayType),
+    holidayFeatures: asStringArray(record.holidayFeatures),
+    annualHolidayCount: asNumber(record.annualHolidayCount),
   };
 }

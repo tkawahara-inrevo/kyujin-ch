@@ -62,6 +62,14 @@ type JobData = {
   interviewCount?: string;
   selectionDuration?: string;
   joinTiming?: string;
+  salaryType?: string;
+  hasFixedOvertime?: boolean;
+  trialPeriodExists?: boolean;
+  trialPeriodMonths?: number;
+  trialPeriodWeeks?: number;
+  holidayType?: string;
+  holidayFeatures?: string[];
+  annualHolidayCount?: number;
 };
 
 export type YouthYearStats = {
@@ -160,6 +168,14 @@ function normalizeJobData(data: JobData): JobPendingContent {
     interviewCount: data.interviewCount || null,
     selectionDuration: data.selectionDuration || null,
     joinTiming: data.joinTiming || null,
+    salaryType: data.salaryType || null,
+    hasFixedOvertime: data.hasFixedOvertime ?? null,
+    trialPeriodExists: data.trialPeriodExists ?? null,
+    trialPeriodMonths: data.trialPeriodMonths ?? null,
+    trialPeriodWeeks: data.trialPeriodWeeks ?? null,
+    holidayType: data.holidayType || null,
+    holidayFeatures: data.holidayFeatures || [],
+    annualHolidayCount: data.annualHolidayCount ?? null,
   };
 }
 
@@ -212,6 +228,14 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     interviewCount: normalized.interviewCount,
     selectionDuration: normalized.selectionDuration,
     joinTiming: normalized.joinTiming,
+    salaryType: normalized.salaryType,
+    hasFixedOvertime: normalized.hasFixedOvertime,
+    trialPeriodExists: normalized.trialPeriodExists,
+    trialPeriodMonths: normalized.trialPeriodMonths,
+    trialPeriodWeeks: normalized.trialPeriodWeeks,
+    holidayType: normalized.holidayType,
+    holidayFeatures: normalized.holidayFeatures,
+    annualHolidayCount: normalized.annualHolidayCount,
     pendingContent: Prisma.DbNull,
   };
 }

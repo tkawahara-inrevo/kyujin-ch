@@ -210,13 +210,27 @@ model Job {
   // engage寄せ: 掲載品質向上のための追加項目
   recruitmentBackground String?   // 募集背景
   positionMission       String?   // ポジションの役割・ミッション
-  holidayPolicy         String?   // 休日・休暇
-  trialPeriod           String?   // 試用期間
-  fixedOvertime         String?   // 固定残業代
+  holidayPolicy         String?   // 休日・休暇テキスト
+  trialPeriod           String?   // 試用期間・変更となる条件
+  fixedOvertime         String?   // みなし残業代の詳細
   salaryRevision        String?   // 昇給・賞与
   interviewCount        String?   // 面接回数・方法
   selectionDuration     String?   // 選考期間の目安
   joinTiming            String?   // 入社時期
+
+  // 給与詳細
+  salaryType            String?   // 月給/年俸/日給/時給
+  hasFixedOvertime      Boolean?  // みなし残業制度あり/なし
+
+  // 試用期間（構造化）
+  trialPeriodExists     Boolean?  // 試用期間あり/なし
+  trialPeriodMonths     Int?      // 試用期間（ヶ月）
+  trialPeriodWeeks      Int?      // 試用期間（週）
+
+  // 休日休暇
+  holidayType           String?   // 完全週休2日制 etc.
+  holidayFeatures       String[]  @default([])
+  annualHolidayCount    Int?      // 年間休日数
 
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]

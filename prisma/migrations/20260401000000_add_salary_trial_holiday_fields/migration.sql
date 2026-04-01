@@ -1,0 +1,8 @@
+ALTER TABLE "Job" ADD COLUMN "salaryType" TEXT;
+ALTER TABLE "Job" ADD COLUMN "hasFixedOvertime" BOOLEAN;
+ALTER TABLE "Job" ADD COLUMN "trialPeriodExists" BOOLEAN;
+ALTER TABLE "Job" ADD COLUMN "trialPeriodMonths" INTEGER;
+ALTER TABLE "Job" ADD COLUMN "trialPeriodWeeks" INTEGER;
+ALTER TABLE "Job" ADD COLUMN "holidayType" TEXT;
+ALTER TABLE "Job" ADD COLUMN "holidayFeatures" TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE "Job" ADD COLUMN "annualHolidayCount" INTEGER;

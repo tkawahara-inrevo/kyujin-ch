@@ -227,6 +227,11 @@ model Job {
   trialPeriodExists     Boolean?  // 試用期間あり/なし
   trialPeriodMonths     Int?      // 試用期間（ヶ月）
   trialPeriodWeeks      Int?      // 試用期間（週）
+  trialPeriodDays       Int?      // 試用期間（日数）
+  trialEmploymentSame   Boolean?  // 試用期間中の雇用形態: 本採用時と同じ
+  trialEmploymentType   String?   // 試用期間中の雇用形態（異なる場合）
+  trialWorkingHours     Int?      // 試用期間中の想定労働時間（月）
+  trialSalarySame       Boolean?  // 試用期間中の給与: 本採用時と同じ
 
   // 休日休暇
   holidayType           String?   // 完全週休2日制 etc.

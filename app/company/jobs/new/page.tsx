@@ -158,11 +158,15 @@ export default function CompanyJobNewPage() {
   const [trialSalaryType, setTrialSalaryType] = useState("annual");
   const [trialSalaryMinVal, setTrialSalaryMinVal] = useState("");
   const [trialSalaryMaxVal, setTrialSalaryMaxVal] = useState("");
-  const [trialAnnualSalary, setTrialAnnualSalary] = useState("");
-  const [trialAnnualSalaryManual, setTrialAnnualSalaryManual] = useState(false);
+  const [trialAnnualSalaryMinNum, setTrialAnnualSalaryMinNum] = useState("");
+  const [trialAnnualSalaryMaxNum, setTrialAnnualSalaryMaxNum] = useState("");
+  const [trialAnnualNumManual, setTrialAnnualNumManual] = useState(false);
+  const [trialPeriodDays, setTrialPeriodDays] = useState(0);
+  const [trialEmploymentSame, setTrialEmploymentSame] = useState<boolean | null>(null);
+  const [trialEmploymentType, setTrialEmploymentType] = useState("");
+  const [trialWorkingHours, setTrialWorkingHours] = useState("");
+  const [trialSalarySame, setTrialSalarySame] = useState<boolean | null>(null);
   const [holidayType, setHolidayType] = useState("");
-  const [holidayFeatures, setHolidayFeatures] = useState<string[]>([]);
-  const [annualHolidayCount, setAnnualHolidayCount] = useState("");
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
   const mergedTags = selectedTags;
@@ -199,26 +203,35 @@ export default function CompanyJobNewPage() {
   }, [salaryType, salaryMinVal, salaryMaxVal, annualNumManual]);
 
   useEffect(() => {
-    if (!trialAnnualSalaryManual) {
-      setTrialAnnualSalary(calcAnnualSalary(trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal));
+    if (!trialAnnualNumManual) {
+      setTrialAnnualSalaryMinNum(computeAnnualNum(trialSalaryType, trialSalaryMinVal));
+      setTrialAnnualSalaryMaxNum(computeAnnualNum(trialSalaryType, trialSalaryMaxVal));
     }
-  }, [trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal, trialAnnualSalaryManual]);
+  }, [trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal, trialAnnualNumManual]);
 
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
   }
 
+  const fmtAnnual = (n: string) => {
+    const num = Number(n);
+    if (!num) return "";
+    return num >= 10000 ? `${Math.round(num / 10000)}万円` : `${num.toLocaleString()}円`;
+  };
+
   const annualSalaryText = useMemo(() => {
     if (!annualSalaryMinNum && !annualSalaryMaxNum) return "";
-    const fmt = (n: string) => {
-      const num = Number(n);
-      if (!num) return "";
-      return num >= 10000 ? `${Math.round(num / 10000)}万円` : `${num.toLocaleString()}円`;
-    };
-    if (annualSalaryMinNum && annualSalaryMaxNum) return `${fmt(annualSalaryMinNum)}〜${fmt(annualSalaryMaxNum)}`;
-    if (annualSalaryMinNum) return `${fmt(annualSalaryMinNum)}〜`;
-    return `〜${fmt(annualSalaryMaxNum)}`;
+    if (annualSalaryMinNum && annualSalaryMaxNum) return `${fmtAnnual(annualSalaryMinNum)}〜${fmtAnnual(annualSalaryMaxNum)}`;
+    if (annualSalaryMinNum) return `${fmtAnnual(annualSalaryMinNum)}〜`;
+    return `〜${fmtAnnual(annualSalaryMaxNum)}`;
   }, [annualSalaryMinNum, annualSalaryMaxNum]);
+
+  const trialAnnualSalaryText = useMemo(() => {
+    if (!trialAnnualSalaryMinNum && !trialAnnualSalaryMaxNum) return "";
+    if (trialAnnualSalaryMinNum && trialAnnualSalaryMaxNum) return `${fmtAnnual(trialAnnualSalaryMinNum)}〜${fmtAnnual(trialAnnualSalaryMaxNum)}`;
+    if (trialAnnualSalaryMinNum) return `${fmtAnnual(trialAnnualSalaryMinNum)}〜`;
+    return `〜${fmtAnnual(trialAnnualSalaryMaxNum)}`;
+  }, [trialAnnualSalaryMinNum, trialAnnualSalaryMaxNum]);
 
   const previewData = useMemo<JobPreviewData>(
     () => ({
@@ -376,15 +389,18 @@ export default function CompanyJobNewPage() {
           }) : undefined,
           trialPeriodExists: trialPeriodExists ?? undefined,
           trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
+          trialPeriodDays: trialPeriodExists && trialPeriodDays ? trialPeriodDays : undefined,
+          trialEmploymentSame: trialPeriodExists ? (trialEmploymentSame ?? undefined) : undefined,
+          trialEmploymentType: trialPeriodExists && trialEmploymentSame === false ? trialEmploymentType || undefined : undefined,
+          trialWorkingHours: trialPeriodExists && trialWorkingHours ? Number(trialWorkingHours) : undefined,
+          trialSalarySame: trialPeriodExists ? (trialSalarySame ?? undefined) : undefined,
+          trialSalaryType: trialPeriodExists && trialSalarySame === false ? trialSalaryType : undefined,
+          trialSalaryMin: trialPeriodExists && trialSalarySame === false && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
+          trialSalaryMax: trialPeriodExists && trialSalarySame === false && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
+          trialAnnualSalary: trialPeriodExists && trialSalarySame === false ? (trialAnnualSalaryText || undefined) : undefined,
           trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
-          trialSalaryType: trialPeriodExists ? trialSalaryType : undefined,
-          trialSalaryMin: trialPeriodExists && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
-          trialSalaryMax: trialPeriodExists && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
-          trialAnnualSalary: trialPeriodExists ? (trialAnnualSalary || undefined) : undefined,
           holidayType,
-          holidayFeatures,
-          annualHolidayCount: annualHolidayCount ? Number(annualHolidayCount) : undefined,
-          holidayPolicy: fd.get("holidayPolicy") as string,
+          holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
         },
         submissionMode,
       );
@@ -731,19 +747,13 @@ export default function CompanyJobNewPage() {
             {/* 年俸・月給のみ: みなし残業制度 */}
             {(salaryType === "annual" || salaryType === "monthly") && (
               <Field label="みなし残業制度" required>
-                <div className="space-y-3">
-                  <div className="space-y-1 text-[13px] text-[#eb0937]">
-                    <p>1日の実働時間が8時間以上の場合、みなし残業代は以下の式を満たす必要があります。</p>
-                    <p>みなし残業代÷（固定残業時間×1.25）≥最低賃金額(時間額)</p>
-                  </div>
-                  <div className="flex gap-6">
-                    {([true, false] as const).map((val) => (
-                      <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                        <input type="radio" checked={hasFixedOvertime === val} onChange={() => setHasFixedOvertime(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
-                        {val ? "あり" : "なし"}
-                      </label>
-                    ))}
-                  </div>
+                <div className="flex gap-6">
+                  {([true, false] as const).map((val) => (
+                    <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                      <input type="radio" checked={hasFixedOvertime === val} onChange={() => setHasFixedOvertime(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                      {val ? "あり" : "なし"}
+                    </label>
+                  ))}
                 </div>
               </Field>
             )}
@@ -751,6 +761,10 @@ export default function CompanyJobNewPage() {
             {/* みなし残業 詳細サブフォーム */}
             {(salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime && (
               <div className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] p-4 space-y-5">
+                <div className="space-y-1 text-[13px] text-[#eb0937]">
+                  <p>1日の実働時間が8時間以上の場合、みなし残業代は以下の式を満たす必要があります。</p>
+                  <p>みなし残業代÷（固定残業時間×1.25）≥最低賃金額(時間額)</p>
+                </div>
                 {/* みなし残業代 */}
                 <div>
                   <p className="mb-2 text-[14px] font-bold text-[#333]">みなし残業代<span className="ml-1 text-[#eb0937]">*必須</span></p>
@@ -834,91 +848,123 @@ export default function CompanyJobNewPage() {
 
           <Section title="試用期間">
             <Field label="試用期間">
-              <div className="flex gap-4">
+              <div className="flex gap-6">
                 {([true, false] as const).map((val) => (
-                  <button
-                    key={String(val)}
-                    type="button"
-                    onClick={() => setTrialPeriodExists(val)}
-                    className={`rounded-[10px] border px-5 py-2 text-[14px] font-medium transition ${
-                      trialPeriodExists === val
-                        ? "border-[#1d63e3] bg-[#eef2ff] text-[#1d63e3]"
-                        : "border-[#ccc] bg-white text-[#333] hover:border-[#1d63e3]"
-                    }`}
-                  >
+                  <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                    <input type="radio" checked={trialPeriodExists === val} onChange={() => setTrialPeriodExists(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                     {val ? "あり" : "なし"}
-                  </button>
+                  </label>
                 ))}
               </div>
             </Field>
             {trialPeriodExists && (
               <>
-                <Field label="試用期間（月数）">
-                  <div className="flex items-center gap-2">
+                <Field label="試用期間の長さ">
+                  <div className="flex items-center gap-3">
                     <input
                       type="number"
-                      min={1}
+                      min={0}
                       max={24}
                       value={trialPeriodMonths}
                       onChange={(e) => setTrialPeriodMonths(Number(e.target.value))}
-                      className={`${inputCls} max-w-[100px]`}
+                      className={`${inputCls} max-w-[80px]`}
                     />
-                    <span className="text-[13px] text-[#555]">ヶ月</span>
+                    <span className="shrink-0 text-[14px] text-[#555]">か月</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={trialPeriodDays || ""}
+                      onChange={(e) => setTrialPeriodDays(Number(e.target.value))}
+                      className={`${inputCls} max-w-[80px]`}
+                    />
+                    <span className="shrink-0 text-[14px] text-[#555]">日</span>
                   </div>
                 </Field>
-                <Field label="試用期間中の給与タイプ">
-                  <div className="flex flex-wrap gap-4">
-                    {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
-                      <label key={type} className="flex cursor-pointer items-center gap-2 text-[14px]">
-                        <input
-                          type="radio"
-                          checked={trialSalaryType === type}
-                          onChange={() => { setTrialSalaryType(type); setTrialAnnualSalaryManual(false); }}
-                          className="h-4 w-4 accent-[#1d63e3]"
-                        />
-                        {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
+
+                <Field label="試用期間中の雇用形態">
+                  <div className="flex gap-6">
+                    {([true, false] as const).map((val) => (
+                      <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                        <input type="radio" checked={trialEmploymentSame === val} onChange={() => setTrialEmploymentSame(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                        {val ? "本採用時と同じ" : "異なる"}
                       </label>
                     ))}
                   </div>
-                </Field>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label={trialSalaryType === "monthly" ? "試用中の月給（下限）" : trialSalaryType === "annual" ? "試用中の年俸（下限）" : trialSalaryType === "daily" ? "試用中の日給（下限）" : "試用中の時給（下限）"}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={trialSalaryMinVal}
-                        onChange={(e) => setTrialSalaryMinVal(e.target.value)}
-                        className={inputCls}
-                        placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[0] ?? ""}
-                      />
-                      <span className="shrink-0 text-[13px] text-[#555]">円</span>
+                  {trialEmploymentSame === false && (
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                      {EMPLOYMENT_OPTIONS.map((opt) => (
+                        <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                          <input type="radio" checked={trialEmploymentType === opt.value} onChange={() => setTrialEmploymentType(opt.value)} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                          {opt.label}
+                        </label>
+                      ))}
                     </div>
-                  </Field>
-                  <Field label={trialSalaryType === "monthly" ? "試用中の月給（上限）" : trialSalaryType === "annual" ? "試用中の年俸（上限）" : trialSalaryType === "daily" ? "試用中の日給（上限）" : "試用中の時給（上限）"}>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={trialSalaryMaxVal}
-                        onChange={(e) => setTrialSalaryMaxVal(e.target.value)}
-                        className={inputCls}
-                        placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[1] ?? ""}
-                      />
-                      <span className="shrink-0 text-[13px] text-[#555]">円</span>
-                    </div>
-                  </Field>
-                </div>
-                <Field label="試用期間中の想定年収">
-                  <input
-                    value={trialAnnualSalary}
-                    onChange={(e) => { setTrialAnnualSalary(e.target.value); setTrialAnnualSalaryManual(true); }}
-                    className={inputCls}
-                    placeholder="例：300万円〜400万円"
-                  />
-                  {!trialAnnualSalaryManual && trialAnnualSalary && (
-                    <p className="mt-1 text-[12px] text-[#7b8797]">給与の下限・上限から自動計算されています</p>
                   )}
                 </Field>
-                <Field label="変更となる条件">
+
+                <Field label="試用期間中の想定労働時間" required>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 text-[14px] text-[#555]">1か月あたり</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={trialWorkingHours}
+                      onChange={(e) => setTrialWorkingHours(e.target.value)}
+                      className={`${inputCls} max-w-[100px]`}
+                      placeholder="160"
+                    />
+                    <span className="shrink-0 text-[14px] text-[#555]">時間</span>
+                  </div>
+                  {hasFixedOvertime && (
+                    <p className="mt-1 text-[12px] text-[#eb0937]">みなし残業制度がある場合は想定労働時間の入力が必要です</p>
+                  )}
+                </Field>
+
+                <Field label="試用期間中の給与">
+                  <div className="flex gap-6">
+                    {([true, false] as const).map((val) => (
+                      <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                        <input type="radio" checked={trialSalarySame === val} onChange={() => setTrialSalarySame(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                        {val ? "本採用時と同じ" : "異なる"}
+                      </label>
+                    ))}
+                  </div>
+                  {trialSalarySame === false && (
+                    <div className="mt-4 space-y-4">
+                      <div className="flex flex-wrap gap-6">
+                        {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
+                          <label key={type} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                            <input type="radio" checked={trialSalaryType === type} onChange={() => { setTrialSalaryType(type); setTrialAnnualNumManual(false); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                            {type === "annual" ? "年俸" : type === "monthly" ? "月給" : type === "daily" ? "日給" : "時給"}
+                          </label>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input type="number" value={trialSalaryMinVal} onChange={(e) => setTrialSalaryMinVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[0] ?? ""} />
+                        <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
+                        <input type="number" value={trialSalaryMaxVal} onChange={(e) => setTrialSalaryMaxVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[1] ?? ""} />
+                        <span className="shrink-0 text-[14px] text-[#555]">円</span>
+                      </div>
+                      {trialSalaryType === "monthly" && (
+                        <div>
+                          <p className="mb-1 text-[13px] font-medium text-[#333]">試用期間中の想定年収</p>
+                          <div className="flex items-center gap-2">
+                            <input type="number" value={trialAnnualSalaryMinNum} onChange={(e) => { setTrialAnnualSalaryMinNum(e.target.value); setTrialAnnualNumManual(true); }} className={inputCls} placeholder="例：4200000" />
+                            <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
+                            <input type="number" value={trialAnnualSalaryMaxNum} onChange={(e) => { setTrialAnnualSalaryMaxNum(e.target.value); setTrialAnnualNumManual(true); }} className={inputCls} placeholder="例：4800000" />
+                            <span className="shrink-0 text-[14px] text-[#555]">円</span>
+                          </div>
+                          {!trialAnnualNumManual && trialAnnualSalaryText && (
+                            <p className="mt-1 text-[12px] text-[#7b8797]">給与の下限・上限から自動計算: {trialAnnualSalaryText}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Field>
+
+                <Field label="そのほか変更となる条件">
                   <textarea
                     name="trialPeriod"
                     rows={2}
@@ -930,56 +976,28 @@ export default function CompanyJobNewPage() {
             )}
           </Section>
 
-          <Section title="休日休暇">
+          <Section title="休日・休暇">
+            <div className="text-[14px] text-[#eb0937]">週1日以上の休日休暇が法律で決まっています。</div>
             <Field label="休みの取り方" required>
-              <select
-                value={holidayType}
-                onChange={(e) => setHolidayType(e.target.value)}
-                className={inputCls}
-              >
-                <option value="">選択してください</option>
-                {["完全週休2日制", "週休2日制（月1〜2回土曜出勤）", "週休2日制（その他）", "週休制（週1日）", "勤務▲休制", "週▲休制"].map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="年間休日">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={annualHolidayCount}
-                  onChange={(e) => setAnnualHolidayCount(e.target.value)}
-                  className={`${inputCls} max-w-[120px]`}
-                  placeholder="120"
-                />
-                <span className="text-[13px] text-[#555]">日</span>
-              </div>
-            </Field>
-            <Field label="休日休暇の特徴">
-              <div className="flex flex-wrap gap-2">
-                {["年間休日120日以上", "夏季休暇", "年末年始休暇"].map((feat) => (
-                  <label key={feat} className="flex cursor-pointer items-center gap-2 rounded-[10px] border border-[#e6ebf5] px-3 py-2 text-[13px]">
-                    <input
-                      type="checkbox"
-                      checked={holidayFeatures.includes(feat)}
-                      onChange={() => setHolidayFeatures((prev) =>
-                        prev.includes(feat) ? prev.filter((f) => f !== feat) : [...prev, feat]
-                      )}
-                      className="h-4 w-4 accent-[#1d63e3]"
-                    />
-                    {feat}
+              <div className="flex flex-wrap gap-6">
+                {(["完全週休2日制", "週休2日制", "週休制", "そのほか"] as const).map((opt) => (
+                  <label key={opt} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                    <input type="radio" checked={holidayType === opt} onChange={() => setHolidayType(opt)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                    {opt}
                   </label>
                 ))}
               </div>
             </Field>
-            <Field label="休日休暇の詳細">
-              <textarea
-                name="holidayPolicy"
-                rows={3}
-                className={textareaCls}
-                placeholder="例：◇出産・育児休暇&#10;◇慶弔休暇&#10;◇有給休暇（入社半年後10日付与）"
-              />
-            </Field>
+            {holidayType === "そのほか" && (
+              <Field label="休日・休暇の詳細">
+                <textarea
+                  name="holidayPolicy"
+                  rows={3}
+                  className={textareaCls}
+                  placeholder="例：◇出産・育児休暇&#10;◇慶弔休暇&#10;◇有給休暇（入社半年後10日付与）"
+                />
+              </Field>
+            )}
           </Section>
 
           <Section title="選考情報">

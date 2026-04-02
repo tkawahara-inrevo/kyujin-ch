@@ -60,6 +60,11 @@ export type JobPendingContent = {
   trialPeriodExists: boolean | null;
   trialPeriodMonths: number | null;
   trialPeriodWeeks: number | null;
+  trialPeriodDays: number | null;
+  trialEmploymentSame: boolean | null;
+  trialEmploymentType: string | null;
+  trialWorkingHours: number | null;
+  trialSalarySame: boolean | null;
   holidayType: string | null;
   holidayFeatures: string[];
   annualHolidayCount: number | null;
@@ -143,6 +148,11 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     trialPeriodExists: typeof record.trialPeriodExists === "boolean" ? record.trialPeriodExists : null,
     trialPeriodMonths: asNumber(record.trialPeriodMonths),
     trialPeriodWeeks: asNumber(record.trialPeriodWeeks),
+    trialPeriodDays: asNumber(record.trialPeriodDays),
+    trialEmploymentSame: typeof record.trialEmploymentSame === "boolean" ? record.trialEmploymentSame : null,
+    trialEmploymentType: asString(record.trialEmploymentType),
+    trialWorkingHours: asNumber(record.trialWorkingHours),
+    trialSalarySame: typeof record.trialSalarySame === "boolean" ? record.trialSalarySame : null,
     holidayType: asString(record.holidayType),
     holidayFeatures: asStringArray(record.holidayFeatures),
     annualHolidayCount: asNumber(record.annualHolidayCount),

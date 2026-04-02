@@ -70,6 +70,11 @@ type JobData = {
   trialPeriodExists?: boolean;
   trialPeriodMonths?: number;
   trialPeriodWeeks?: number;
+  trialPeriodDays?: number;
+  trialEmploymentSame?: boolean;
+  trialEmploymentType?: string;
+  trialWorkingHours?: number;
+  trialSalarySame?: boolean;
   holidayType?: string;
   holidayFeatures?: string[];
   annualHolidayCount?: number;
@@ -183,6 +188,11 @@ function normalizeJobData(data: JobData): JobPendingContent {
     trialPeriodExists: data.trialPeriodExists ?? null,
     trialPeriodMonths: data.trialPeriodMonths ?? null,
     trialPeriodWeeks: data.trialPeriodWeeks ?? null,
+    trialPeriodDays: data.trialPeriodDays ?? null,
+    trialEmploymentSame: data.trialEmploymentSame ?? null,
+    trialEmploymentType: data.trialEmploymentType || null,
+    trialWorkingHours: data.trialWorkingHours ?? null,
+    trialSalarySame: data.trialSalarySame ?? null,
     holidayType: data.holidayType || null,
     holidayFeatures: data.holidayFeatures || [],
     annualHolidayCount: data.annualHolidayCount ?? null,

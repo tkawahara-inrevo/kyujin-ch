@@ -382,75 +382,8 @@ export default function CompanyJobNewPage() {
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
-          <Section title="基本情報">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="雇用形態" required>
-                <select
-                  name="employmentType"
-                  required
-                  className={inputCls}
-                  value={employmentType}
-                  onChange={(event) => {
-                    setEmploymentType(event.target.value);
-                    if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
-                  }}
-                >
-                  {EMPLOYMENT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                {employmentType === "OTHER" ? (
-                  <input
-                    name="employmentTypeDetail"
-                    value={employmentTypeDetail}
-                    onChange={(event) => setEmploymentTypeDetail(event.target.value)}
-                    className={`${inputCls} mt-3`}
-                    placeholder="雇用形態の詳細を入力"
-                  />
-                ) : null}
-              </Field>
-
-              <Field label="求人カテゴリ">
-                <select
-                  name="categoryTag"
-                  className={inputCls}
-                  value={categoryTag}
-                  onChange={(event) => {
-                    setCategoryTag(event.target.value);
-                    if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
-                  }}
-                >
-                  <option value="">選択してください</option>
-                  {CATEGORY_OPTIONS.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                {categoryTag === OTHER_CATEGORY_VALUE ? (
-                  <input
-                    name="categoryTagDetail"
-                    value={categoryTagDetail}
-                    onChange={(event) => setCategoryTagDetail(event.target.value)}
-                    className={`${inputCls} mt-3`}
-                    placeholder="カテゴリの詳細を入力"
-                  />
-                ) : null}
-              </Field>
-            </div>
-
-            <Field label="タイトル" required>
-              <input
-                name="title"
-                required
-                className={inputCls}
-                placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）"
-              />
-            </Field>
-
-            <Field label="ターゲット" required>
+          <Section title="ターゲット">
+            <Field label="対象" required>
               <div className="flex flex-wrap gap-2.5">
                 <TargetButton active={targetType === "MID_CAREER"} onClick={() => setTargetType("MID_CAREER")}>
                   中途
@@ -469,6 +402,17 @@ export default function CompanyJobNewPage() {
                 ))}
               </div>
             </Field>
+          </Section>
+
+          <Section title="基本情報">
+            <Field label="タイトル" required>
+              <input
+                name="title"
+                required
+                className={inputCls}
+                placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）"
+              />
+            </Field>
 
             <Field label="メイン画像">
               <p className="mb-2 text-[13px] text-[#6b7280]">対応形式：jpg / png / webp（最大10MB）</p>
@@ -481,6 +425,62 @@ export default function CompanyJobNewPage() {
                   }}
                 />
               </div>
+            </Field>
+
+            <Field label="求人カテゴリ">
+              <select
+                name="categoryTag"
+                className={inputCls}
+                value={categoryTag}
+                onChange={(event) => {
+                  setCategoryTag(event.target.value);
+                  if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
+                }}
+              >
+                <option value="">選択してください</option>
+                {CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              {categoryTag === OTHER_CATEGORY_VALUE ? (
+                <input
+                  name="categoryTagDetail"
+                  value={categoryTagDetail}
+                  onChange={(event) => setCategoryTagDetail(event.target.value)}
+                  className={`${inputCls} mt-3`}
+                  placeholder="カテゴリの詳細を入力"
+                />
+              ) : null}
+            </Field>
+
+            <Field label="雇用形態" required>
+              <select
+                name="employmentType"
+                required
+                className={inputCls}
+                value={employmentType}
+                onChange={(event) => {
+                  setEmploymentType(event.target.value);
+                  if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
+                }}
+              >
+                {EMPLOYMENT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {employmentType === "OTHER" ? (
+                <input
+                  name="employmentTypeDetail"
+                  value={employmentTypeDetail}
+                  onChange={(event) => setEmploymentTypeDetail(event.target.value)}
+                  className={`${inputCls} mt-3`}
+                  placeholder="雇用形態の詳細を入力"
+                />
+              ) : null}
             </Field>
           </Section>
 

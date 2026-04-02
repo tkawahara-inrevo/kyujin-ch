@@ -122,7 +122,20 @@ export function CompanySidebar() {
         </ul>
       </nav>
 
-      <div className="border-t border-[#edf0f5] px-7 py-6">
+      <div className="border-t border-[#edf0f5] px-7 pt-5">
+        <button
+          type="button"
+          onClick={() => setIsDesktopVisible(false)}
+          className="hidden w-full items-center justify-center gap-2 rounded-[12px] border border-[#dbe4f2] px-4 py-3 text-[14px] font-bold text-[#5f6b7a] transition hover:bg-[#f7f9fd] xl:flex"
+          aria-label="サイドバーを非表示"
+          title="サイドバーを非表示"
+        >
+          <span className="text-[16px]">←</span>
+          <span>サイドバーを非表示</span>
+        </button>
+      </div>
+
+      <div className="px-7 py-6">
         <button
           onClick={() => signOut({ callbackUrl: "/company/login" })}
           className="flex w-full items-center gap-4 rounded-[12px] px-4 py-3 text-[15px] font-bold text-[#7a7f87] transition hover:bg-[#f5f7fb]"
@@ -151,7 +164,7 @@ export function CompanySidebar() {
           className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]"
         >
           <Image src="/assets/Person.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
-          <span>企業ちゃんねる</span>
+          <span className="whitespace-nowrap">企業ちゃんねる</span>
         </Link>
         <div className="w-10" />
       </div>
@@ -172,7 +185,7 @@ export function CompanySidebar() {
                 className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]"
               >
                 <Image src="/assets/Person.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
-                <span>企業ちゃんねる</span>
+                <span className="whitespace-nowrap">企業ちゃんねる</span>
               </Link>
               <button
                 type="button"
@@ -202,20 +215,11 @@ export function CompanySidebar() {
 
       {isDesktopVisible ? (
         <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white xl:flex">
-          <div className="flex h-[120px] items-center justify-between border-b border-[#edf0f5] px-8">
+          <div className="flex h-[120px] items-center border-b border-[#edf0f5] px-8">
             <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
               <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
-              <span>企業ちゃんねる</span>
+              <span className="whitespace-nowrap">企業ちゃんねる</span>
             </Link>
-            <button
-              type="button"
-              onClick={() => setIsDesktopVisible(false)}
-              className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[#e7ebf3] text-[#666] transition hover:bg-[#f5f7fb]"
-              aria-label="サイドバーを非表示"
-              title="サイドバーを非表示"
-            >
-              <span className="text-[16px]">←</span>
-            </button>
           </div>
           {navContent}
         </aside>

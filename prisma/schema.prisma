@@ -93,6 +93,7 @@ model User {
   reviews      Review[]
   sessions     Session[]
   inquiries    Inquiry[]
+  columnPosts  ColumnPost[] @relation("ColumnAuthor")
   company      Company?   @relation("CompanyUser")
 }
 
@@ -421,4 +422,22 @@ model Inquiry {
 
   @@index([status, createdAt])
   @@index([category, createdAt])
+}
+
+model ColumnPost {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String?
+  body        String
+  thumbnailUrl String?
+  tags        String[] @default([])
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  authorId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author User? @relation("ColumnAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([isPublished, publishedAt, createdAt])
 }

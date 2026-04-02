@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,11 +9,12 @@ const navItems = [
   { href: "/admin/dashboard", label: "ダッシュボード", icon: "📊" },
   { href: "/admin/companies", label: "企業一覧", icon: "🏢" },
   { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤" },
-  { href: "/admin/jobs", label: "求人一覧", icon: "🧾" },
+  { href: "/admin/jobs", label: "求人一覧", icon: "📄" },
+  { href: "/admin/columns", label: "コラム管理", icon: "📝" },
   { href: "/admin/billing", label: "請求単価管理", icon: "💳" },
   { href: "/admin/invoices", label: "請求一覧", icon: "🧮" },
   { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠" },
-  { href: "/admin/inquiries", label: "お問い合わせ", icon: "✉" },
+  { href: "/admin/inquiries", label: "問い合わせ", icon: "📨" },
   { href: "/admin/analytics", label: "分析", icon: "📈" },
 ];
 

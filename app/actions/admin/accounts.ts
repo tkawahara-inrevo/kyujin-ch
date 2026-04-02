@@ -6,6 +6,7 @@ import { buildContactFullName } from "@/lib/company-account";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
 async function requireAdmin() {
   const session = await auth();
@@ -62,7 +63,7 @@ export async function issueCompanyAccount(data: {
   const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
   const fullName = buildContactFullName(lastName, firstName);
 
-  const company = await prisma.$transaction(async (tx) => {
+  const company = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const user = await tx.user.create({
       data: {
         name: fullName,

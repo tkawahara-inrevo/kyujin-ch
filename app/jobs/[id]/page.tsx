@@ -97,22 +97,10 @@ function formatWorkLocation(location?: string | null, officeDetail?: string | nu
   return `${base} ${detail}`;
 }
 
-function SectionBody({ title, body }: { title: string; body?: string | null }) {
-  if (!body) return null;
-  return (
-    <div className="px-6 py-6">
-      <h2 className="text-[16px] font-bold text-[#1a1a1a]">{title}</h2>
-      <div className="mt-3 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
-        {body}
-      </div>
-    </div>
-  );
-}
-
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="bg-[#2f6cff] px-6 py-3">
-      <h2 className="text-[14px] font-bold text-white">{title}</h2>
+    <div className="bg-[#2f6cff] px-5 py-1.5">
+      <h2 className="text-[13px] font-bold text-white">{title}</h2>
     </div>
   );
 }
@@ -120,9 +108,9 @@ function SectionHeader({ title }: { title: string }) {
 function InfoRow({ label, value, children }: { label: string; value?: string | null; children?: React.ReactNode }) {
   if (!value && !children) return null;
   return (
-    <div className="flex gap-4 border-b border-[#f0f0f0] py-3.5 last:border-0">
-      <dt className="w-[110px] shrink-0 text-[12px] font-semibold text-[#888]">{label}</dt>
-      <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.7] text-[#333]">
+    <div className="flex gap-5 border-b border-[#f0f0f0] py-4 last:border-0">
+      <dt className="w-[96px] shrink-0 text-[12px] font-semibold text-[#6b7280]">{label}</dt>
+      <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.9] text-[#333]">
         {children ?? value}
       </dd>
     </div>
@@ -296,14 +284,20 @@ export default async function JobDetailPage({
 
             {/* ── テキストセクション ── */}
             <div className="mt-5 overflow-hidden rounded-[18px] border border-[#e5e5e5] bg-white divide-y divide-[#f0f0f0]">
-              <SectionBody title="仕事内容" body={job.description} />
-              <SectionBody title="応募条件" body={job.requirements} />
-              <SectionBody title="求める人物像" body={job.desiredAptitude} />
+              {/* 概要 */}
+              <div>
+                <SectionHeader title="概要" />
+                <dl className="px-5">
+                  <InfoRow label="仕事内容" value={job.description} />
+                  <InfoRow label="応募条件" value={job.requirements} />
+                  <InfoRow label="求める人物像" value={job.desiredAptitude} />
+                </dl>
+              </div>
 
               {/* 募集要項（基本情報） */}
               <div>
                 <SectionHeader title="募集要項" />
-                <dl className="px-6">
+                <dl className="px-5">
                   <InfoRow label="雇用形態" value={employmentLabel} />
                   <InfoRow label="対象" value={formatTarget(job)} />
                   <InfoRow label="カテゴリ" value={categoryLabel} />
@@ -315,7 +309,7 @@ export default async function JobDetailPage({
               {/* 雇用情報（給与） */}
               <div>
                 <SectionHeader title="雇用情報" />
-                <dl className="px-6">
+                <dl className="px-5">
                   <InfoRow label="給与" value={salaryRange} />
                   {j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
                   <InfoRow label="昇給" value={j.salaryRevision} />
@@ -335,7 +329,7 @@ export default async function JobDetailPage({
               {j.trialPeriodExists != null && (
                 <div>
                   <SectionHeader title="試用期間" />
-                  <dl className="px-6">
+                  <dl className="px-5">
                     <InfoRow label="試用期間">
                       {j.trialPeriodExists
                         ? `あり（${j.trialPeriodMonths ?? ""}ヶ月）`
@@ -359,7 +353,7 @@ export default async function JobDetailPage({
               {(j.holidayType || j.holidayPolicy || (j.holidayFeatures && j.holidayFeatures.length > 0)) && (
                 <div>
                   <SectionHeader title="休日休暇" />
-                  <dl className="px-6">
+                  <dl className="px-5">
                     <InfoRow label="休みの取り方" value={j.holidayType} />
                     {j.annualHolidayCount && (
                       <InfoRow label="年間休日" value={`${j.annualHolidayCount}日`} />
@@ -399,7 +393,7 @@ export default async function JobDetailPage({
               {/* 選考情報 */}
               <div>
                 <SectionHeader title="選考情報" />
-                <dl className="px-6">
+                <dl className="px-5">
                   <InfoRow label="募集背景" value={j.recruitmentBackground} />
                 </dl>
                 {job.selectionProcess && (

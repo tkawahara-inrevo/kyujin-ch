@@ -121,6 +121,7 @@ export default function CompanyJobNewPage() {
   const [description, setDescription] = useState("");
   const [selectionProcess, setSelectionProcess] = useState("");
   const [officeDetail, setOfficeDetail] = useState("");
+  const [streetAddrVal, setStreetAddrVal] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [postalLoading, setPostalLoading] = useState(false);
   const [trainingInfo, setTrainingInfo] = useState("");
@@ -268,8 +269,8 @@ export default function CompanyJobNewPage() {
         const area = Object.entries(PREFECTURES_BY_AREA).find(([, prefs]) => prefs.includes(address1))?.[0] ?? "";
         if (area) setSelectedRegion(area);
         setSelectedLocation(address1);
-        const fullAddr = [address1, address2, address3].filter(Boolean).join("");
-        setOfficeDetail((prev) => prev || fullAddr);
+        const cityPart = [address2, address3].filter(Boolean).join("");
+        setOfficeDetail((prev) => prev || cityPart);
       }
     } catch {
       // ignore
@@ -326,7 +327,8 @@ export default function CompanyJobNewPage() {
           desiredAptitude: fd.get("desiredAptitude") as string,
           recommendedFor: fd.get("recommendedFor") as string,
           access: fd.get("access") as string,
-          officeDetail: fd.get("officeDetail") as string,
+          officeName: fd.get("officeName") as string || undefined,
+          officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
           selectionProcess: fd.get("selectionProcess") as string,
           imageUrl,
           tags: mergedTags,
@@ -569,86 +571,81 @@ export default function CompanyJobNewPage() {
           </Section>
 
           <Section title="勤務地">
-            <Field label="郵便番号">
-              <div className="flex items-center gap-3">
+            <Field label="郵便番号" required>
+              <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={postalCode}
                   onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9]/g, "");
+                    const val = e.target.value.replace(/[^0-9-]/g, "");
                     setPostalCode(val);
-                    if (val.length === 7) handlePostalCode(val);
+                    const digits = val.replace(/-/g, "");
+                    if (digits.length === 7) handlePostalCode(digits);
                   }}
-                  className={`${inputCls} max-w-[180px]`}
-                  placeholder="例：1500001"
-                  maxLength={7}
+                  className={inputCls}
+                  placeholder="例）123-4568"
+                  maxLength={8}
                 />
-                {postalLoading && <span className="text-[13px] text-[#888]">検索中...</span>}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const digits = postalCode.replace(/-/g, "");
+                    if (digits.length === 7) handlePostalCode(digits);
+                  }}
+                  className="shrink-0 rounded-[5px] bg-[#1d63e3] px-3 py-[5px] text-[13px] font-bold text-white hover:opacity-90 transition"
+                >
+                  {postalLoading ? "検索中..." : "自動入力"}
+                </button>
               </div>
-              <p className="mt-1.5 text-[12px] text-[#7b8797]">7桁入力でエリア・都道府県を自動入力します</p>
             </Field>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="エリア">
-                <select
-                  name="region"
-                  value={selectedRegion}
-                  className={inputCls}
-                  onChange={(event) => {
-                    const nextRegion = event.target.value;
-                    setSelectedRegion(nextRegion);
-                    if (!(PREFECTURES_BY_AREA[nextRegion] ?? []).includes(selectedLocation)) {
-                      setSelectedLocation("");
-                    }
-                  }}
-                >
-                  <option value="">選択してください</option>
-                  {AREA_OPTIONS.map((area) => (
-                    <option key={area} value={area}>
-                      {area}
-                    </option>
-                  ))}
-                </select>
-              </Field>
+            <Field label="都道府県" required>
+              <select
+                name="location"
+                value={selectedLocation}
+                className={inputCls}
+                onChange={(event) => {
+                  const pref = event.target.value;
+                  setSelectedLocation(pref);
+                  const area = Object.entries(PREFECTURES_BY_AREA).find(([, prefs]) => prefs.includes(pref))?.[0] ?? "";
+                  if (area) setSelectedRegion(area);
+                }}
+              >
+                <option value="">選択してください</option>
+                {ALL_PREFECTURES.map((prefecture) => (
+                  <option key={prefecture} value={prefecture}>
+                    {prefecture}
+                  </option>
+                ))}
+              </select>
+            </Field>
 
-              <Field label="勤務地（都道府県）">
-                <select
-                  name="location"
-                  value={selectedLocation}
-                  className={inputCls}
-                  onChange={(event) => {
-                    const pref = event.target.value;
-                    setSelectedLocation(pref);
-                    if (pref && !selectedRegion) {
-                      const area = Object.entries(PREFECTURES_BY_AREA).find(([, prefs]) => prefs.includes(pref))?.[0] ?? "";
-                      if (area) setSelectedRegion(area);
-                    }
-                  }}
-                >
-                  <option value="">選択してください</option>
-                  {availablePrefectures.map((prefecture) => (
-                    <option key={prefecture} value={prefecture}>
-                      {prefecture}
-                    </option>
-                  ))}
-                </select>
-                {!selectedRegion && <p className="mt-1 text-[12px] text-[#7b8797]">都道府県を選ぶとエリアが自動入力されます</p>}
-              </Field>
-            </div>
-
-            <Field label="勤務地住所">
-              <textarea
-                name="officeDetail"
-                rows={2}
+            <Field label="市町村" required>
+              <input
+                type="text"
                 value={officeDetail}
                 onChange={(e) => setOfficeDetail(e.target.value)}
-                className={textareaCls}
-                placeholder="例：渋谷スクランブルスクエア 12F / 千代田区丸の内1-1-1"
+                className={inputCls}
+                placeholder="例）福岡県福岡市博多区"
               />
             </Field>
 
-            <Field label="最寄り・アクセス">
-              <input name="access" className={inputCls} placeholder="例：JR渋谷駅 徒歩3分 / 地下鉄表参道駅 徒歩5分" />
+            <Field label="以降の住所">
+              <input
+                type="text"
+                value={streetAddrVal}
+                onChange={(e) => setStreetAddrVal(e.target.value)}
+                className={inputCls}
+                placeholder="例）1-1-1 渋谷スクランブルスクエア 12F"
+              />
+            </Field>
+
+            <Field label="勤務地名称">
+              <input name="officeName" className={inputCls} placeholder="例：本社/渋谷オフィス" />
+            </Field>
+
+            <Field label="アクセス">
+              <input name="access" className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
             </Field>
           </Section>
 

@@ -487,14 +487,14 @@ export function JobEditForm({
           onClick={() => {
             setShowPreview((prev) => !prev);
           }}
-          className="inline-flex rounded-[14px] bg-[#2f6cff] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
+          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
         >
           {isWidePreview ? (showPreview ? "プレビューを閉じる" : "プレビューを開く") : "プレビューを確認"}
         </button>
       </div>
 
       {validationError ? (
-        <div className="mt-5 rounded-[14px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
+        <div className="mt-5 rounded-[10px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
           {validationError}
         </div>
       ) : null}
@@ -513,7 +513,7 @@ export function JobEditForm({
         <form
           onSubmit={handleSubmit}
           onChange={(event) => readFormValues(event.currentTarget)}
-          className={`rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)] md:p-6 ${
+          className={`rounded-[10px] bg-white p-[30px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex flex-col gap-5 ${
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
@@ -622,7 +622,7 @@ export function JobEditForm({
                   <button
                     type="button"
                     onClick={() => setDescription(DESCRIPTION_TEMPLATE)}
-                    className="rounded-[10px] border border-[#2f6cff] bg-[#eef4ff] px-4 py-2 text-[13px] font-bold text-[#2f6cff] hover:bg-[#dde9ff] transition"
+                    className="rounded-[5px] bg-[#1d63e3] px-[10px] py-[5px] text-[12px] font-bold text-white hover:opacity-90 transition"
                   >
                     テンプレートを使って素早く入力 →
                   </button>
@@ -659,8 +659,8 @@ export function JobEditForm({
                     key={tag}
                     className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
                       selectedTags.includes(tag)
-                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
-                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
+                        ? "border-[#1d63e3] bg-[#eef2ff] text-[#1d63e3]"
+                        : "border-[#ccc] bg-white text-[#333] hover:border-[#1d63e3]"
                     }`}
                   >
                     <input
@@ -770,7 +770,7 @@ export function JobEditForm({
                       name="salaryTypeRadio"
                       checked={salaryType === type}
                       onChange={() => { setSalaryType(type); setAnnualSalaryManual(false); }}
-                      className="h-4 w-4 accent-[#2f6cff]"
+                      className="h-4 w-4 accent-[#1d63e3]"
                     />
                     {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
                   </label>
@@ -833,7 +833,7 @@ export function JobEditForm({
                       type="radio"
                       checked={hasFixedOvertime === val}
                       onChange={() => setHasFixedOvertime(val)}
-                      className="h-4 w-4 accent-[#2f6cff]"
+                      className="h-4 w-4 accent-[#1d63e3]"
                     />
                     {val ? "あり" : "なし"}
                   </label>
@@ -857,8 +857,8 @@ export function JobEditForm({
                     onClick={() => setTrialPeriodExists(val)}
                     className={`rounded-[10px] border px-5 py-2 text-[14px] font-medium transition ${
                       trialPeriodExists === val
-                        ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]"
-                        : "border-[#d7dce6] bg-white text-[#5f6977] hover:border-[#9fb6ff]"
+                        ? "border-[#1d63e3] bg-[#eef2ff] text-[#1d63e3]"
+                        : "border-[#ccc] bg-white text-[#333] hover:border-[#1d63e3]"
                     }`}
                   >
                     {val ? "あり" : "なし"}
@@ -889,7 +889,7 @@ export function JobEditForm({
                           type="radio"
                           checked={trialSalaryType === type}
                           onChange={() => { setTrialSalaryType(type); setTrialAnnualSalaryManual(false); }}
-                          className="h-4 w-4 accent-[#2f6cff]"
+                          className="h-4 w-4 accent-[#1d63e3]"
                         />
                         {type === "monthly" ? "月給" : type === "annual" ? "年俸" : type === "daily" ? "日給" : "時給"}
                       </label>
@@ -981,7 +981,7 @@ export function JobEditForm({
                       onChange={() => setHolidayFeatures((prev) =>
                         prev.includes(feat) ? prev.filter((f) => f !== feat) : [...prev, feat]
                       )}
-                      className="h-4 w-4 accent-[#2f6cff]"
+                      className="h-4 w-4 accent-[#1d63e3]"
                     />
                     {feat}
                   </label>
@@ -1015,7 +1015,7 @@ export function JobEditForm({
                   <button
                     type="button"
                     onClick={() => setSelectionProcess(SELECTION_PROCESS_TEMPLATE)}
-                    className="rounded-[10px] border border-[#2f6cff] bg-[#eef4ff] px-4 py-2 text-[13px] font-bold text-[#2f6cff] hover:bg-[#dde9ff] transition"
+                    className="rounded-[5px] bg-[#1d63e3] px-[10px] py-[5px] text-[12px] font-bold text-white hover:opacity-90 transition"
                   >
                     テンプレートを使って素早く入力 →
                   </button>
@@ -1052,7 +1052,7 @@ export function JobEditForm({
                       type="checkbox"
                       checked={selectedBenefits.includes(benefit)}
                       onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
-                      className="h-4 w-4 rounded border-[#c4cddd] text-[#2f6cff]"
+                      className="h-4 w-4 rounded border-[#c4cddd] text-[#1d63e3]"
                     />
                     {benefit}
                   </label>
@@ -1105,7 +1105,7 @@ export function JobEditForm({
                                 next[i] = { ...next[i], [key]: e.target.value };
                                 setYouthStats(next);
                               }}
-                              className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#2f6cff] placeholder:text-[#c0c8d8]"
+                              className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#1d63e3] placeholder:text-[#c0c8d8]"
                               placeholder="—"
                             />
                           </td>
@@ -1159,7 +1159,7 @@ export function JobEditForm({
                 type="submit"
                 data-mode="review"
                 disabled={isSubmitting}
-                className="rounded-[14px] bg-[#2f6cff] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+                className="rounded-[10px] bg-[#1d63e3] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {pendingAction === "review" ? "送信中..." : "審査に提出"}
               </button>
@@ -1169,7 +1169,7 @@ export function JobEditForm({
                 type="submit"
                 data-mode="draft"
                 disabled={isSubmitting}
-                className="rounded-[14px] border border-[#c8d6f6] bg-white px-8 py-3.5 text-[15px] font-bold text-[#2f6cff] transition hover:bg-[#f7faff] disabled:opacity-50"
+                className="rounded-[10px] border border-[#ccc] bg-white px-8 py-3.5 text-[15px] font-bold text-[#1d63e3] transition hover:bg-[#f7faff] disabled:opacity-50"
               >
                 {pendingAction === "draft" ? "保存中..." : "下書き保存"}
               </button>
@@ -1179,7 +1179,7 @@ export function JobEditForm({
                 type="button"
                 onClick={handleWithdraw}
                 disabled={isSubmitting}
-                className="rounded-[14px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3.5 text-[15px] font-bold text-[#b7791f] transition hover:bg-[#fff3d8] disabled:opacity-50"
+                className="rounded-[10px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3.5 text-[15px] font-bold text-[#b7791f] transition hover:bg-[#fff3d8] disabled:opacity-50"
               >
                 {pendingAction === "withdraw" ? "取り下げ中..." : "審査を取り下げる"}
               </button>
@@ -1187,7 +1187,7 @@ export function JobEditForm({
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-[14px] border border-[#d6dde9] bg-white px-8 py-3.5 text-[15px] font-medium text-[#5b6472] transition hover:bg-[#f6f8fb]"
+              className="rounded-[10px] border border-[#d6dde9] bg-white px-8 py-3.5 text-[15px] font-medium text-[#5b6472] transition hover:bg-[#f6f8fb]"
             >
               キャンセル
             </button>
@@ -1195,7 +1195,7 @@ export function JobEditForm({
               type="button"
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="ml-auto rounded-[14px] border border-[#ff3158] px-6 py-3.5 text-[15px] font-bold text-[#ff3158] transition hover:bg-[#fff5f7] disabled:opacity-50"
+              className="ml-auto rounded-[10px] border border-[#ff3158] px-6 py-3.5 text-[15px] font-bold text-[#ff3158] transition hover:bg-[#fff5f7] disabled:opacity-50"
             >
               {pendingAction === "delete" ? "削除中..." : "削除"}
             </button>
@@ -1238,15 +1238,15 @@ export function JobEditForm({
 }
 
 const inputCls =
-  "w-full rounded-[10px] border border-[#d9dfec] bg-white px-3 py-2.5 text-[14px] text-[#2b2f38] outline-none transition placeholder:text-[#c0c8d8] focus:border-[#2f6cff]";
+  "w-full rounded-[5px] border border-[#ccc] bg-[#fafafa] px-[10px] py-[5px] text-[14px] text-[#333] outline-none transition placeholder:text-[#ccc] focus:border-[#1d63e3]";
 
-const textareaCls = `${inputCls} min-h-[90px] resize-y`;
+const textareaCls = `${inputCls} min-h-[100px] resize-y`;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-b border-[#e8edf5] pb-6 last:border-b-0 last:pb-0">
-      <h2 className="mb-4 text-[16px] font-bold text-[#2f6cff]">{title}</h2>
-      <div className="space-y-4">{children}</div>
+    <section className="border-b border-[#ccc] pb-5 last:border-b-0 last:pb-0">
+      <h2 className="mb-3 text-[20px] font-semibold leading-[1.2] tracking-[-0.4px] text-[#1d63e3]">{title}</h2>
+      <div className="space-y-[10px]">{children}</div>
     </section>
   );
 }
@@ -1262,9 +1262,9 @@ function Field({ label, required, children }: { label: string; required?: boolea
 
   return (
     <div>
-      <label className="mb-2 block text-[15px] font-semibold text-[#3d4552]">
+      <label className="mb-1.5 block text-[14px] font-bold text-[#333]">
         {label === "勤務地名称" ? "勤務地住所" : label === "勤務地詳細" ? "勤務地補足" : label}
-        {required ? <span className="ml-1 text-[#ff3158]">必須</span> : null}
+        {required ? <span className="ml-1 text-[#eb0937]">*必須</span> : <span className="ml-1 text-[#999] text-[12px] font-normal">任意</span>}
       </label>
       {children}
     </div>
@@ -1284,8 +1284,8 @@ function TargetButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[10px] border px-5 py-3 text-[15px] font-semibold transition ${
-        active ? "border-[#2f6cff] bg-[#eef4ff] text-[#2f6cff]" : "border-[#d7dce6] bg-white text-[#5f6977]"
+      className={`rounded-[5px] border px-4 py-2 text-[14px] font-semibold transition ${
+        active ? "border-[#1d63e3] bg-[#1d63e3] text-white" : "border-[#ccc] bg-[#fafafa] text-[#333] hover:border-[#1d63e3]"
       }`}
     >
       {children}

@@ -27,7 +27,7 @@ export async function Header() {
           <Link href="/" className="flex items-center gap-1.5 md:gap-2">
             <div className="relative h-[24px] w-[24px] shrink-0 md:h-[30px] md:w-[30px]">
               <Image
-                src="/assets/Person.png"
+                src="/favicon-32.png"
                 alt=""
                 fill
                 className="object-contain"

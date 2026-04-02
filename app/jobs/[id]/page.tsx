@@ -1,3 +1,4 @@
+import type React from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
@@ -56,11 +57,17 @@ function formatCategory(job: {
   return job.categoryTag ?? null;
 }
 
-function formatSalaryRange(min?: number | null, max?: number | null) {
+const SALARY_TYPE_LABELS: Record<string, string> = {
+  annual: "年俸", monthly: "月給", daily: "日給", hourly: "時給",
+};
+
+function formatSalaryRange(type: string | null, min?: number | null, max?: number | null) {
+  const label = type ? (SALARY_TYPE_LABELS[type] ?? "") : "";
+  const fmt = (n: number) => `${n.toLocaleString()}円`;
   if (!min && !max) return null;
-  if (min && max) return `年収 ${min}万〜${max}万円`;
-  if (min) return `年収 ${min}万円〜`;
-  return `年収 〜${max}万円`;
+  if (min && max) return `${label} ${fmt(min)}〜${fmt(max)}`;
+  if (min) return `${label} ${fmt(min)}〜`;
+  return `${label} 〜${fmt(max!)}`;
 }
 
 function formatDate(date?: Date | null) {
@@ -102,12 +109,22 @@ function SectionBody({ title, body }: { title: string; body?: string | null }) {
   );
 }
 
-function RequirementRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null;
+function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="flex gap-4 py-3.5">
-      <dt className="w-[100px] shrink-0 text-[12px] font-semibold text-[#888]">{label}</dt>
-      <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.7] text-[#333]">{value}</dd>
+    <div className="bg-[#2f6cff] px-6 py-3">
+      <h2 className="text-[14px] font-bold text-white">{title}</h2>
+    </div>
+  );
+}
+
+function InfoRow({ label, value, children }: { label: string; value?: string | null; children?: React.ReactNode }) {
+  if (!value && !children) return null;
+  return (
+    <div className="flex gap-4 border-b border-[#f0f0f0] py-3.5 last:border-0">
+      <dt className="w-[110px] shrink-0 text-[12px] font-semibold text-[#888]">{label}</dt>
+      <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.7] text-[#333]">
+        {children ?? value}
+      </dd>
     </div>
   );
 }
@@ -167,12 +184,36 @@ export default async function JobDetailPage({
 
   const categoryLabel = formatCategory(job);
   const employmentLabel = formatEmployment(job);
-  const salaryRange = formatSalaryRange(job.salaryMin, job.salaryMax);
+  const salaryRange = formatSalaryRange(
+    (job as { salaryType?: string | null }).salaryType ?? null,
+    job.salaryMin,
+    job.salaryMax,
+  );
   const workLocation = formatWorkLocation(job.location, job.officeDetail);
   const mapQuery = buildMapQuery(job.location, job.officeDetail);
-  const employmentPeriodLabel = job.employmentPeriodType
-    ? EMPLOYMENT_PERIOD_LABELS[job.employmentPeriodType] ?? job.employmentPeriodType
-    : null;
+
+  // 新フィールド（型キャスト）
+  const j = job as typeof job & {
+    salaryType?: string | null;
+    monthlySalary?: string | null;
+    salaryRevision?: string | null;
+    bonus?: string | null;
+    hasFixedOvertime?: boolean | null;
+    fixedOvertime?: string | null;
+    trialPeriodExists?: boolean | null;
+    trialPeriodMonths?: number | null;
+    trialSalaryType?: string | null;
+    trialSalaryMin?: number | null;
+    trialSalaryMax?: number | null;
+    trialAnnualSalary?: string | null;
+    trialPeriod?: string | null;
+    holidayType?: string | null;
+    holidayFeatures?: string[];
+    annualHolidayCount?: number | null;
+    holidayPolicy?: string | null;
+    recruitmentBackground?: string | null;
+  };
+  const trialSalaryRange = formatSalaryRange(j.trialSalaryType ?? null, j.trialSalaryMin, j.trialSalaryMax);
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
@@ -257,56 +298,118 @@ export default async function JobDetailPage({
             <div className="mt-5 overflow-hidden rounded-[18px] border border-[#e5e5e5] bg-white divide-y divide-[#f0f0f0]">
               <SectionBody title="仕事内容" body={job.description} />
               <SectionBody title="応募条件" body={job.requirements} />
-              <SectionBody title="こんな方に向いています" body={job.desiredAptitude} />
-              <SectionBody title="こんな方におすすめ" body={job.recommendedFor} />
+              <SectionBody title="求める人物像" body={job.desiredAptitude} />
 
-              {/* 募集要項 */}
-              <div className="px-6 py-6">
-                <h2 className="text-[16px] font-bold text-[#1a1a1a]">募集要項</h2>
-                <dl className="mt-3 divide-y divide-[#f5f5f5]">
-                  <RequirementRow label="雇用形態" value={employmentLabel} />
-                  <RequirementRow label="対象" value={formatTarget(job)} />
-                  <RequirementRow label="カテゴリ" value={categoryLabel} />
-                  <RequirementRow label="想定年収" value={salaryRange} />
-                  <RequirementRow label="月給" value={job.monthlySalary} />
-                  <RequirementRow label="年収" value={job.annualSalary} />
-                  <RequirementRow label="勤務地エリア" value={job.region} />
-                  <RequirementRow label="勤務地" value={workLocation} />
-                  <RequirementRow label="最寄・アクセス" value={job.access} />
-                  <RequirementRow label="勤務時間" value={job.workingHours} />
-                  <RequirementRow label="雇用期間" value={employmentPeriodLabel} />
+              {/* 募集要項（基本情報） */}
+              <div>
+                <SectionHeader title="募集要項" />
+                <dl className="px-6">
+                  <InfoRow label="雇用形態" value={employmentLabel} />
+                  <InfoRow label="対象" value={formatTarget(job)} />
+                  <InfoRow label="カテゴリ" value={categoryLabel} />
+                  <InfoRow label="勤務地" value={workLocation} />
+                  <InfoRow label="最寄・アクセス" value={job.access} />
                 </dl>
               </div>
 
+              {/* 雇用情報（給与） */}
+              <div>
+                <SectionHeader title="雇用情報" />
+                <dl className="px-6">
+                  <InfoRow label="給与" value={salaryRange} />
+                  {j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
+                  <InfoRow label="昇給" value={j.salaryRevision} />
+                  {j.salaryType !== "annual" && <InfoRow label="賞与" value={j.bonus} />}
+                  {j.hasFixedOvertime != null && (
+                    <InfoRow label="みなし残業">
+                      <span>{j.hasFixedOvertime ? "あり" : "なし"}</span>
+                      {j.hasFixedOvertime && j.fixedOvertime && (
+                        <p className="mt-1 text-[12px] text-[#666]">{j.fixedOvertime}</p>
+                      )}
+                    </InfoRow>
+                  )}
+                </dl>
+              </div>
+
+              {/* 試用期間 */}
+              {j.trialPeriodExists != null && (
+                <div>
+                  <SectionHeader title="試用期間" />
+                  <dl className="px-6">
+                    <InfoRow label="試用期間">
+                      {j.trialPeriodExists
+                        ? `あり（${j.trialPeriodMonths ?? ""}ヶ月）`
+                        : "なし"}
+                    </InfoRow>
+                    {j.trialPeriodExists && (
+                      <>
+                        {(trialSalaryRange || j.trialAnnualSalary) && (
+                          <InfoRow label="試用中の給与" value={j.trialAnnualSalary || trialSalaryRange} />
+                        )}
+                        {j.trialPeriod && (
+                          <InfoRow label="変更となる条件" value={j.trialPeriod} />
+                        )}
+                      </>
+                    )}
+                  </dl>
+                </div>
+              )}
+
+              {/* 休日休暇 */}
+              {(j.holidayType || j.holidayPolicy || (j.holidayFeatures && j.holidayFeatures.length > 0)) && (
+                <div>
+                  <SectionHeader title="休日休暇" />
+                  <dl className="px-6">
+                    <InfoRow label="休みの取り方" value={j.holidayType} />
+                    {j.annualHolidayCount && (
+                      <InfoRow label="年間休日" value={`${j.annualHolidayCount}日`} />
+                    )}
+                    {j.holidayFeatures && j.holidayFeatures.length > 0 && (
+                      <InfoRow label="特徴">
+                        <div className="flex flex-wrap gap-1.5">
+                          {j.holidayFeatures.map((f) => (
+                            <span key={f} className="rounded-full bg-[#eef4ff] px-2.5 py-0.5 text-[12px] text-[#2f6cff]">{f}</span>
+                          ))}
+                        </div>
+                      </InfoRow>
+                    )}
+                    <InfoRow label="詳細" value={j.holidayPolicy} />
+                  </dl>
+                </div>
+              )}
+
               {/* 福利厚生 */}
-              <div className="px-6 py-6">
-                <h2 className="text-[16px] font-bold text-[#1a1a1a]">福利厚生・制度</h2>
-                <div className="mt-3">
+              <div>
+                <SectionHeader title="福利厚生" />
+                <div className="px-6 py-4">
                   {job.benefits.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {job.benefits.map((benefit) => (
-                        <span
-                          key={benefit}
-                          className="rounded-full bg-[#f1f5f9] px-3 py-1.5 text-[12px] font-semibold text-[#475569]"
-                        >
+                        <span key={benefit} className="rounded-full bg-[#f1f5f9] px-3 py-1.5 text-[12px] font-semibold text-[#475569]">
                           {benefit}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[14px] text-[#94a3b8]">福利厚生・制度は現在確認中です。</p>
+                    <p className="text-[13px] text-[#94a3b8]">現在確認中です。</p>
                   )}
                 </div>
               </div>
 
-              {/* 選考フロー */}
-              <div className="px-6 py-6">
-                <h2 className="text-[16px] font-bold text-[#1a1a1a]">選考フロー</h2>
-                <div className="mt-3 whitespace-pre-line text-[14px] leading-[1.9] text-[#4b4b4b]">
-                  {job.selectionProcess ?? (
-                    <span className="text-[#94a3b8]">選考フローは現在確認中です。</span>
-                  )}
-                </div>
+              {/* 選考情報 */}
+              <div>
+                <SectionHeader title="選考情報" />
+                <dl className="px-6">
+                  <InfoRow label="募集背景" value={j.recruitmentBackground} />
+                </dl>
+                {job.selectionProcess && (
+                  <div className="border-t border-[#f0f0f0] px-6 py-4">
+                    <p className="text-[12px] font-semibold text-[#888]">選考フロー</p>
+                    <div className="mt-2 whitespace-pre-line text-[13px] leading-[1.9] text-[#333]">
+                      {job.selectionProcess}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

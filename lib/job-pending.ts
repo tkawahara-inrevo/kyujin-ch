@@ -26,6 +26,8 @@ export type JobPendingContent = {
   recommendedFor: string | null;
   monthlySalary: string | null;
   annualSalary: string | null;
+  annualPaymentMethod: string | null;
+  annualPaymentNote: string | null;
   access: string | null;
   officeName: string | null;
   officeDetail: string | null;
@@ -107,6 +109,8 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     recommendedFor: asString(record.recommendedFor),
     monthlySalary: asString(record.monthlySalary),
     annualSalary: asString(record.annualSalary),
+    annualPaymentMethod: asString(record.annualPaymentMethod),
+    annualPaymentNote: asString(record.annualPaymentNote),
     access: asString(record.access),
     officeName: asString(record.officeName),
     officeDetail: asString(record.officeDetail),

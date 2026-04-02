@@ -36,6 +36,8 @@ type JobData = {
   recommendedFor?: string;
   monthlySalary?: string;
   annualSalary?: string;
+  annualPaymentMethod?: string;
+  annualPaymentNote?: string;
   access?: string;
   officeName?: string;
   officeDetail?: string;
@@ -147,6 +149,8 @@ function normalizeJobData(data: JobData): JobPendingContent {
     recommendedFor: data.recommendedFor || null,
     monthlySalary: data.monthlySalary || null,
     annualSalary: data.annualSalary || null,
+    annualPaymentMethod: data.annualPaymentMethod || null,
+    annualPaymentNote: data.annualPaymentNote || null,
     access: data.access || null,
     officeName: data.officeName || null,
     officeDetail: normalizeOfficeDetail(normalizedLocation.location ?? undefined, data.officeDetail),

@@ -141,6 +141,18 @@ export default function CompanyJobNewPage() {
   const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState("");
   const [annualNumManual, setAnnualNumManual] = useState(false);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
+  const [annualPaymentMethod, setAnnualPaymentMethod] = useState("monthly");
+  const [annualPaymentNote, setAnnualPaymentNote] = useState("");
+  const [fixedOvertimePayType, setFixedOvertimePayType] = useState<"fixed"|"range"|"minimum">("fixed");
+  const [fixedOvertimePayFixed, setFixedOvertimePayFixed] = useState("");
+  const [fixedOvertimePayMin, setFixedOvertimePayMin] = useState("");
+  const [fixedOvertimePayMax, setFixedOvertimePayMax] = useState("");
+  const [fixedOvertimePayFloor, setFixedOvertimePayFloor] = useState("");
+  const [fixedOvertimeHoursType, setFixedOvertimeHoursType] = useState<"fixed"|"range">("fixed");
+  const [fixedOvertimeHoursFixed, setFixedOvertimeHoursFixed] = useState("");
+  const [fixedOvertimeHoursMin, setFixedOvertimeHoursMin] = useState("");
+  const [fixedOvertimeHoursMax, setFixedOvertimeHoursMax] = useState("");
+  const [overtimeExcessPaid, setOvertimeExcessPaid] = useState(false);
   const [trialPeriodExists, setTrialPeriodExists] = useState<boolean | null>(null);
   const [trialPeriodMonths, setTrialPeriodMonths] = useState(3);
   const [trialSalaryType, setTrialSalaryType] = useState("annual");
@@ -347,8 +359,21 @@ export default function CompanyJobNewPage() {
           monthlySalary: annualSalaryText || undefined,
           salaryRevision: fd.get("salaryRevision") as string,
           bonus: salaryType !== "annual" ? fd.get("bonus") as string : undefined,
-          hasFixedOvertime: hasFixedOvertime ?? undefined,
-          fixedOvertime: hasFixedOvertime ? fd.get("fixedOvertime") as string : undefined,
+          annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
+          annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
+          hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
+          fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
+            payType: fixedOvertimePayType,
+            payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
+            payMin: fixedOvertimePayMin ? Number(fixedOvertimePayMin) : null,
+            payMax: fixedOvertimePayMax ? Number(fixedOvertimePayMax) : null,
+            payFloor: fixedOvertimePayFloor ? Number(fixedOvertimePayFloor) : null,
+            hoursType: fixedOvertimeHoursType,
+            hoursFixed: fixedOvertimeHoursFixed ? Number(fixedOvertimeHoursFixed) : null,
+            hoursMin: fixedOvertimeHoursMin ? Number(fixedOvertimeHoursMin) : null,
+            hoursMax: fixedOvertimeHoursMax ? Number(fixedOvertimeHoursMax) : null,
+            excessPaid: overtimeExcessPaid,
+          }) : undefined,
           trialPeriodExists: trialPeriodExists ?? undefined,
           trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
           trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
@@ -652,12 +677,7 @@ export default function CompanyJobNewPage() {
           <Section title="給与">
             <div className="space-y-0.5 text-[14px] text-[#eb0937]">
               <p>最低賃金を下回る時給は法令によって禁止されています。</p>
-              <a
-                href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/minimumichiran/"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 hover:underline"
-              >
+              <a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/minimumichiran/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:underline">
                 地域別最低賃金の全国一覧（厚生労働省）
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-[14px] w-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               </a>
@@ -666,13 +686,7 @@ export default function CompanyJobNewPage() {
             <div className="flex flex-wrap gap-6">
               {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
                 <label key={type} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                  <input
-                    type="radio"
-                    name="salaryTypeRadio"
-                    checked={salaryType === type}
-                    onChange={() => { setSalaryType(type); setAnnualNumManual(false); }}
-                    className="h-[18px] w-[18px] accent-[#1d63e3]"
-                  />
+                  <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setAnnualNumManual(false); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                   {type === "annual" ? "年俸" : type === "monthly" ? "月給" : type === "daily" ? "日給" : "時給"}
                 </label>
               ))}
@@ -680,72 +694,142 @@ export default function CompanyJobNewPage() {
 
             <Field label={salaryType === "annual" ? "年俸" : salaryType === "monthly" ? "月給" : salaryType === "daily" ? "日給" : "時給"} required>
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={salaryMinVal}
-                  onChange={(e) => setSalaryMinVal(e.target.value)}
-                  className={inputCls}
-                  placeholder={SALARY_PLACEHOLDER[salaryType]?.[0] ?? ""}
-                />
+                <input type="number" value={salaryMinVal} onChange={(e) => setSalaryMinVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[salaryType]?.[0] ?? ""} />
                 <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
-                <input
-                  type="number"
-                  value={salaryMaxVal}
-                  onChange={(e) => setSalaryMaxVal(e.target.value)}
-                  className={inputCls}
-                  placeholder={SALARY_PLACEHOLDER[salaryType]?.[1] ?? ""}
-                />
+                <input type="number" value={salaryMaxVal} onChange={(e) => setSalaryMaxVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[salaryType]?.[1] ?? ""} />
                 <span className="shrink-0 text-[14px] text-[#555]">円</span>
               </div>
             </Field>
 
-            {salaryType !== "annual" && (
+            {/* 年俸のみ: 支払い方法 */}
+            {salaryType === "annual" && (
+              <Field label="支払い方法" required>
+                <div className="space-y-2">
+                  {(["monthly", "other"] as const).map((method) => (
+                    <label key={method} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                      <input type="radio" checked={annualPaymentMethod === method} onChange={() => setAnnualPaymentMethod(method)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                      {method === "monthly" ? "年俸の1/12を毎月支給" : "そのほか"}
+                    </label>
+                  ))}
+                  <textarea value={annualPaymentNote} onChange={(e) => setAnnualPaymentNote(e.target.value)} rows={3} className={textareaCls} placeholder="支払い方法の詳細を入力してください" />
+                </div>
+              </Field>
+            )}
+
+            {/* 月給のみ: 想定年収 */}
+            {salaryType === "monthly" && (
               <Field label="想定年収" required>
                 <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={annualSalaryMinNum}
-                    onChange={(e) => { setAnnualSalaryMinNum(e.target.value); setAnnualNumManual(true); }}
-                    className={inputCls}
-                    placeholder="例：4200000"
-                  />
+                  <input type="number" value={annualSalaryMinNum} onChange={(e) => { setAnnualSalaryMinNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4200000" />
                   <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
-                  <input
-                    type="number"
-                    value={annualSalaryMaxNum}
-                    onChange={(e) => { setAnnualSalaryMaxNum(e.target.value); setAnnualNumManual(true); }}
-                    className={inputCls}
-                    placeholder="例：4800000"
-                  />
+                  <input type="number" value={annualSalaryMaxNum} onChange={(e) => { setAnnualSalaryMaxNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4800000" />
                   <span className="shrink-0 text-[14px] text-[#555]">円</span>
                 </div>
               </Field>
             )}
 
-            <Field label="みなし残業制度" required>
-              <div className="flex gap-6">
-                {([true, false] as const).map((val) => (
-                  <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                    <input
-                      type="radio"
-                      checked={hasFixedOvertime === val}
-                      onChange={() => setHasFixedOvertime(val)}
-                      className="h-[18px] w-[18px] accent-[#1d63e3]"
-                    />
-                    {val ? "あり" : "なし"}
-                  </label>
-                ))}
-              </div>
-            </Field>
+            {/* 年俸・月給のみ: みなし残業制度 */}
+            {(salaryType === "annual" || salaryType === "monthly") && (
+              <Field label="みなし残業制度" required>
+                <div className="space-y-3">
+                  <div className="space-y-1 text-[13px] text-[#eb0937]">
+                    <p>1日の実働時間が8時間以上の場合、みなし残業代は以下の式を満たす必要があります。</p>
+                    <p>みなし残業代÷（固定残業時間×1.25）≥最低賃金額(時間額)</p>
+                  </div>
+                  <div className="flex gap-6">
+                    {([true, false] as const).map((val) => (
+                      <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                        <input type="radio" checked={hasFixedOvertime === val} onChange={() => setHasFixedOvertime(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                        {val ? "あり" : "なし"}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </Field>
+            )}
 
-            <Field label="備考">
-              <textarea
-                name="fixedOvertime"
-                rows={4}
-                className={textareaCls}
-                placeholder="みなし残業代の詳細など、給与に関する補足を入力してください"
-              />
-            </Field>
+            {/* みなし残業 詳細サブフォーム */}
+            {(salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime && (
+              <div className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] p-4 space-y-5">
+                {/* みなし残業代 */}
+                <div>
+                  <p className="mb-2 text-[14px] font-bold text-[#333]">みなし残業代<span className="ml-1 text-[#eb0937]">*必須</span></p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "fixed"} onChange={() => setFixedOvertimePayType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        固定額を表示
+                      </label>
+                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "fixed" ? "opacity-40 pointer-events-none" : ""}`}>
+                        <input type="number" value={fixedOvertimePayFixed} onChange={(e) => setFixedOvertimePayFixed(e.target.value)} disabled={fixedOvertimePayType !== "fixed"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円/月</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "range"} onChange={() => setFixedOvertimePayType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        範囲を指定
+                      </label>
+                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "range" ? "opacity-40 pointer-events-none" : ""}`}>
+                        <input type="number" value={fixedOvertimePayMin} onChange={(e) => setFixedOvertimePayMin(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円〜</span>
+                        <input type="number" value={fixedOvertimePayMax} onChange={(e) => setFixedOvertimePayMax(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="60000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "minimum"} onChange={() => setFixedOvertimePayType("minimum")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        最低額を表示
+                      </label>
+                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "minimum" ? "opacity-40 pointer-events-none" : ""}`}>
+                        <input type="number" value={fixedOvertimePayFloor} onChange={(e) => setFixedOvertimePayFloor(e.target.value)} disabled={fixedOvertimePayType !== "minimum"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円以上/月</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* みなし残業時間 */}
+                <div>
+                  <p className="mb-2 text-[14px] font-bold text-[#333]">みなし残業時間<span className="ml-1 text-[#eb0937]">*必須</span></p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimeHoursType === "fixed"} onChange={() => setFixedOvertimeHoursType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        固定時間を表示
+                      </label>
+                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimeHoursType !== "fixed" ? "opacity-40 pointer-events-none" : ""}`}>
+                        <input type="number" value={fixedOvertimeHoursFixed} onChange={(e) => setFixedOvertimeHoursFixed(e.target.value)} disabled={fixedOvertimeHoursType !== "fixed"} className={inputCls} placeholder="10" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimeHoursType === "range"} onChange={() => setFixedOvertimeHoursType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        範囲を指定
+                      </label>
+                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimeHoursType !== "range" ? "opacity-40 pointer-events-none" : ""}`}>
+                        <input type="number" value={fixedOvertimeHoursMin} onChange={(e) => setFixedOvertimeHoursMin(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="10" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間〜</span>
+                        <input type="number" value={fixedOvertimeHoursMax} onChange={(e) => setFixedOvertimeHoursMax(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="20" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 超過分の全支給 */}
+                <div>
+                  <p className="mb-1 text-[14px] font-bold text-[#333]">超過分の全支給について<span className="ml-1 text-[#eb0937]">*必須</span></p>
+                  <p className="mb-2 text-[13px] text-[#eb0937]">みなし時間分を超過して勤務した分の給与は全額支払う義務があります。</p>
+                  <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                    <input type="checkbox" checked={overtimeExcessPaid} onChange={(e) => setOvertimeExcessPaid(e.target.checked)} className="h-4 w-4 accent-[#1d63e3]" />
+                    みなし残業時間を超過した分は全額支給する
+                  </label>
+                </div>
+              </div>
+            )}
           </Section>
 
           <Section title="試用期間">

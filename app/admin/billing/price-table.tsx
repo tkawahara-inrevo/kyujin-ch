@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updatePrice, createPriceEntry, deletePriceEntry, renameCategory, reorderEntry, reorderCategory } from "@/app/actions/admin/prices";
+import { updatePrice, createPriceEntry, deletePriceEntry, renameCategory, reorderEntry, reorderCategories } from "@/app/actions/admin/prices";
 
 type Entry = {
   id: string;
@@ -19,29 +19,115 @@ export default function PriceTable({
   grouped: Record<string, Entry[]>;
   categories: string[];
 }) {
-  const [isPending, startTransition] = useTransition();
-
-  function handleReorderCategory(category: string, direction: "up" | "down") {
-    startTransition(async () => {
-      await reorderCategory(category, direction);
-    });
-  }
+  const [showSortModal, setShowSortModal] = useState(false);
 
   return (
     <div className="mt-6 space-y-6">
-      {categories.map((category, index) => (
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowSortModal(true)}
+          className="rounded-[10px] border border-[#d0d7e6] bg-white px-4 py-2 text-[13px] font-bold text-[#1e3a5f] shadow-sm hover:bg-[#f4f7fb] transition"
+        >
+          カテゴリを並べ替え
+        </button>
+      </div>
+
+      {categories.map((category) => (
         <CategorySection
           key={category}
           category={category}
           entries={grouped[category]}
-          canMoveUp={index > 0}
-          canMoveDown={index < categories.length - 1}
-          onMoveUp={() => handleReorderCategory(category, "up")}
-          onMoveDown={() => handleReorderCategory(category, "down")}
-          isReordering={isPending}
         />
       ))}
+
       <AddCategoryForm />
+
+      {showSortModal && (
+        <CategorySortModal
+          categories={categories}
+          onClose={() => setShowSortModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function CategorySortModal({
+  categories,
+  onClose,
+}: {
+  categories: string[];
+  onClose: () => void;
+}) {
+  const [order, setOrder] = useState<string[]>([...categories]);
+  const [isPending, startTransition] = useTransition();
+
+  function move(index: number, direction: "up" | "down") {
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= order.length) return;
+    const next = [...order];
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+    setOrder(next);
+  }
+
+  function handleSave() {
+    startTransition(async () => {
+      await reorderCategories(order);
+      onClose();
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-[480px] rounded-[16px] bg-white p-6 shadow-2xl">
+        <h2 className="text-[18px] font-bold text-[#1e3a5f]">カテゴリの並べ替え</h2>
+        <p className="mt-1 text-[12px] text-[#888]">▲▼ で順序を変更し、保存してください</p>
+
+        <div className="mt-4 space-y-2">
+          {order.map((cat, index) => (
+            <div
+              key={cat}
+              className="flex items-center gap-3 rounded-[10px] border border-[#e5e7eb] bg-[#f8fafc] px-4 py-3"
+            >
+              <div className="flex flex-col gap-0.5">
+                <button
+                  onClick={() => move(index, "up")}
+                  disabled={index === 0}
+                  className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#666] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => move(index, "down")}
+                  disabled={index === order.length - 1}
+                  className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#666] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  ▼
+                </button>
+              </div>
+              <span className="flex-1 text-[14px] font-semibold text-[#2b2f38]">{cat}</span>
+              <span className="text-[12px] text-[#aaa]">{index + 1}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            disabled={isPending}
+            className="rounded-[10px] border border-[#d0d7e6] px-5 py-2.5 text-[13px] font-bold text-[#667085] hover:bg-[#f4f7fb] disabled:opacity-50"
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isPending}
+            className="rounded-[10px] bg-[#1e3a5f] px-5 py-2.5 text-[13px] font-bold text-white hover:bg-[#16304f] disabled:opacity-60"
+          >
+            {isPending ? "保存中..." : "保存"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -49,19 +135,9 @@ export default function PriceTable({
 function CategorySection({
   category,
   entries,
-  canMoveUp,
-  canMoveDown,
-  onMoveUp,
-  onMoveDown,
-  isReordering,
 }: {
   category: string;
   entries: Entry[];
-  canMoveUp: boolean;
-  canMoveDown: boolean;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  isReordering: boolean;
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -83,49 +159,39 @@ function CategorySection({
   return (
     <div className="overflow-hidden rounded-[12px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-between bg-[#1e3a5f] px-5 py-3">
-        <div className="flex flex-1 items-center gap-2 mr-3 min-w-0">
-          <div className="flex flex-col gap-0.5">
+        {editingName ? (
+          <div className="flex flex-1 items-center gap-2 mr-3">
+            <input
+              type="text"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleRename();
+                if (e.key === "Escape") { setEditingName(false); setCategoryName(category); }
+              }}
+              className="flex-1 rounded border border-white/40 bg-white/10 px-2 py-0.5 text-[14px] font-bold text-white outline-none focus:bg-white/20"
+              autoFocus
+            />
             <button
-              onClick={onMoveUp}
-              disabled={!canMoveUp || isReordering}
-              className="flex h-4 w-5 items-center justify-center rounded text-[10px] text-white/60 hover:bg-white/20 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
-              title="カテゴリを上へ"
+              onClick={handleRename}
+              disabled={isPending}
+              className="rounded bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-white/30 disabled:opacity-50"
             >
-              ▲
+              {isPending ? "..." : "保存"}
             </button>
             <button
-              onClick={onMoveDown}
-              disabled={!canMoveDown || isReordering}
-              className="flex h-4 w-5 items-center justify-center rounded text-[10px] text-white/60 hover:bg-white/20 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed"
-              title="カテゴリを下へ"
+              onClick={() => { setEditingName(false); setCategoryName(category); }}
+              className="rounded bg-white/10 px-2.5 py-1 text-[11px] text-white hover:bg-white/20"
             >
-              ▼
+              戻す
             </button>
           </div>
-          {editingName ? (
-            <div className="flex flex-1 items-center gap-2">
-              <input
-                type="text"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleRename(); if (e.key === "Escape") { setEditingName(false); setCategoryName(category); } }}
-                className="flex-1 rounded border border-white/40 bg-white/10 px-2 py-0.5 text-[14px] font-bold text-white outline-none focus:bg-white/20"
-                autoFocus
-              />
-              <button onClick={handleRename} disabled={isPending} className="rounded bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-white/30 disabled:opacity-50">
-                {isPending ? "..." : "保存"}
-              </button>
-              <button onClick={() => { setEditingName(false); setCategoryName(category); }} className="rounded bg-white/10 px-2.5 py-1 text-[11px] text-white hover:bg-white/20">
-                戻す
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setEditingName(true)} className="group flex items-center gap-2">
-              <h2 className="text-[14px] font-bold text-white group-hover:underline">{category}</h2>
-              <span className="text-[10px] text-white/50 group-hover:text-white/80">✎</span>
-            </button>
-          )}
-        </div>
+        ) : (
+          <button onClick={() => setEditingName(true)} className="group flex flex-1 items-center gap-2 mr-3">
+            <h2 className="text-[14px] font-bold text-white group-hover:underline">{category}</h2>
+            <span className="text-[10px] text-white/50 group-hover:text-white/80">✎</span>
+          </button>
+        )}
         {!editingName && (
           <button
             onClick={() => setShowAdd(!showAdd)}
@@ -203,8 +269,8 @@ function PriceRow({ entry, canMoveUp, canMoveDown }: { entry: Entry; canMoveUp: 
       <tr className="border-b border-[#f0f0f0] bg-[#fffbeb]">
         <td className="px-2 py-2 text-center">
           <div className="flex flex-col gap-0.5 items-center">
-            <button onClick={() => handleReorder("up")} disabled={!canMoveUp || isPending} className="text-[10px] text-[#aaa] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▲</button>
-            <button onClick={() => handleReorder("down")} disabled={!canMoveDown || isPending} className="text-[10px] text-[#aaa] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▼</button>
+            <button onClick={() => handleReorder("up")} disabled={!canMoveUp || isPending} className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#aaa] hover:bg-[#e5e7eb] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▲</button>
+            <button onClick={() => handleReorder("down")} disabled={!canMoveDown || isPending} className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#aaa] hover:bg-[#e5e7eb] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▼</button>
           </div>
         </td>
         <td className="px-5 py-2">
@@ -262,8 +328,8 @@ function PriceRow({ entry, canMoveUp, canMoveDown }: { entry: Entry; canMoveUp: 
     <tr className="border-b border-[#f0f0f0] hover:bg-[#fafbff]">
       <td className="px-2 py-2.5 text-center">
         <div className="flex flex-col gap-0.5 items-center">
-          <button onClick={() => handleReorder("up")} disabled={!canMoveUp || isPending} className="text-[10px] text-[#aaa] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▲</button>
-          <button onClick={() => handleReorder("down")} disabled={!canMoveDown || isPending} className="text-[10px] text-[#aaa] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▼</button>
+          <button onClick={() => handleReorder("up")} disabled={!canMoveUp || isPending} className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#aaa] hover:bg-[#e5e7eb] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▲</button>
+          <button onClick={() => handleReorder("down")} disabled={!canMoveDown || isPending} className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#aaa] hover:bg-[#e5e7eb] hover:text-[#555] disabled:opacity-20 disabled:cursor-not-allowed">▼</button>
         </div>
       </td>
       <td className="px-5 py-2.5 text-[#555]">{entry.subcategory}</td>
@@ -367,7 +433,7 @@ function AddCategoryForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-[12px] border-2 border-dashed border-[#d1d5db] px-5 py-4 text-[13px] font-medium text-[#888] hover:border-[#2f6cff] hover:text-[#2f6cff]"
+        className="w-full rounded-[12px] border-2 border-dashed border-[#d1d5db] px-5 py-4 text-[13px] font-medium text-[#888] hover:border-[#2f6cff] hover:text-[#2f6cff]"
       >
         + 新しいカテゴリを追加
       </button>

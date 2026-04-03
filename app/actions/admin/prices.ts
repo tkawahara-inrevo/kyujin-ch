@@ -40,19 +40,31 @@ export async function createPriceEntry(
   inexperiencedPrice: number | null
 ) {
   await requireAdminAction();
-  const maxSort = await prisma.priceEntry.aggregate({
+
+  // カテゴリ内の最大sortOrderを取得して末尾に追加
+  const siblings = await prisma.priceEntry.findMany({
     where: { category },
-    _max: { sortOrder: true },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
   });
-  await prisma.priceEntry.create({
-    data: {
-      category,
-      subcategory,
-      experiencedPrice,
-      inexperiencedPrice,
-      sortOrder: (maxSort._max.sortOrder ?? 0) + 1,
-    },
-  });
+  // 既存エントリのsortOrderを正規化してから新エントリを末尾に追加
+  const nextSortOrder = siblings.length;
+
+  await prisma.$transaction([
+    ...siblings.map((e, i) =>
+      prisma.priceEntry.update({ where: { id: e.id }, data: { sortOrder: i } })
+    ),
+    prisma.priceEntry.create({
+      data: {
+        category,
+        subcategory,
+        experiencedPrice,
+        inexperiencedPrice,
+        sortOrder: nextSortOrder,
+        categorySortOrder: siblings[0]?.categorySortOrder ?? 0,
+      },
+    }),
+  ]);
+
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
 }
@@ -74,65 +86,49 @@ export async function deletePriceEntry(id: string) {
   revalidatePath("/company/billing");
 }
 
+// 職種の並べ替え（カテゴリ内の順序を配列の順番で一括保存）
 export async function reorderEntry(id: string, direction: "up" | "down") {
   await requireAdminAction();
 
   const entry = await prisma.priceEntry.findUnique({ where: { id } });
   if (!entry) return;
 
+  // 安定したソート順で取得（sortOrder が同値でも id で一意に決まる）
   const siblings = await prisma.priceEntry.findMany({
     where: { category: entry.category },
-    orderBy: { sortOrder: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
   });
 
   const index = siblings.findIndex((e) => e.id === id);
   const swapIndex = direction === "up" ? index - 1 : index + 1;
-  if (swapIndex < 0 || swapIndex >= siblings.length) return;
+  if (index < 0 || swapIndex < 0 || swapIndex >= siblings.length) return;
 
-  const sibling = siblings[swapIndex];
-  await prisma.$transaction([
-    prisma.priceEntry.update({ where: { id: entry.id }, data: { sortOrder: sibling.sortOrder } }),
-    prisma.priceEntry.update({ where: { id: sibling.id }, data: { sortOrder: entry.sortOrder } }),
-  ]);
+  // 配列の順序を入れ替えてから全エントリのsortOrderを連番で保存
+  const newOrder = [...siblings];
+  [newOrder[index], newOrder[swapIndex]] = [newOrder[swapIndex], newOrder[index]];
+
+  await prisma.$transaction(
+    newOrder.map((e, i) =>
+      prisma.priceEntry.update({ where: { id: e.id }, data: { sortOrder: i } })
+    )
+  );
 
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
 }
 
-export async function reorderCategory(category: string, direction: "up" | "down") {
+// カテゴリの並べ替え（カテゴリ名の配列順で一括保存）
+export async function reorderCategories(orderedCategories: string[]) {
   await requireAdminAction();
 
-  // Get all distinct categories with their categorySortOrder (use first entry's value)
-  const allEntries = await prisma.priceEntry.findMany({
-    orderBy: [{ categorySortOrder: "asc" }, { category: "asc" }],
-  });
-
-  // Build ordered category list (deduplicated)
-  const seen = new Set<string>();
-  const categoryOrder: Array<{ name: string; sortOrder: number }> = [];
-  for (const e of allEntries) {
-    if (!seen.has(e.category)) {
-      seen.add(e.category);
-      categoryOrder.push({ name: e.category, sortOrder: e.categorySortOrder });
-    }
-  }
-
-  const index = categoryOrder.findIndex((c) => c.name === category);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-  if (index < 0 || swapIndex < 0 || swapIndex >= categoryOrder.length) return;
-
-  const swapCategory = categoryOrder[swapIndex];
-  // Swap categorySortOrder values between the two categories
-  await prisma.$transaction([
-    prisma.priceEntry.updateMany({
-      where: { category },
-      data: { categorySortOrder: swapCategory.sortOrder },
-    }),
-    prisma.priceEntry.updateMany({
-      where: { category: swapCategory.name },
-      data: { categorySortOrder: categoryOrder[index].sortOrder },
-    }),
-  ]);
+  await prisma.$transaction(
+    orderedCategories.map((category, index) =>
+      prisma.priceEntry.updateMany({
+        where: { category },
+        data: { categorySortOrder: index },
+      })
+    )
+  );
 
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");

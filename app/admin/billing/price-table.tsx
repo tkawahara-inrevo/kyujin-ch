@@ -110,14 +110,14 @@ function CategorySortModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="flex w-full max-w-[480px] flex-col rounded-[16px] bg-white shadow-2xl" style={{ maxHeight: "80vh" }}>
+      <div className="flex w-full max-w-[480px] flex-col rounded-[16px] bg-white shadow-2xl" style={{ maxHeight: "90vh" }}>
         <div className="shrink-0 px-6 pt-6 pb-4">
           <h2 className="text-[18px] font-bold text-[#1e3a5f]">カテゴリの並べ替え</h2>
           <p className="mt-1 text-[12px] text-[#888]">ドラッグまたは ▲▼ で順序を変更し、保存してください</p>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6">
-          <div className="space-y-2 pb-2">
+          <div className="space-y-1 pb-2">
             {order.map((cat, index) => (
               <div
                 key={cat}
@@ -126,7 +126,7 @@ function CategorySortModal({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={() => handleDrop(index)}
                 onDragEnd={handleDragEnd}
-                className={`flex cursor-grab items-center gap-3 rounded-[10px] border px-4 py-3 transition-colors active:cursor-grabbing select-none ${
+                className={`flex cursor-grab items-center gap-2 rounded-[8px] border px-3 py-1.5 transition-colors active:cursor-grabbing select-none ${
                   dragIndex === index
                     ? "opacity-40 border-[#d0d7e6] bg-[#f8fafc]"
                     : dragOverIndex === index
@@ -134,21 +134,21 @@ function CategorySortModal({
                       : "border-[#e5e7eb] bg-[#f8fafc] hover:border-[#d0d7e6]"
                 }`}
               >
-                <span className="shrink-0 text-[16px] text-[#ccc]">⠿</span>
-                <span className="flex-1 text-[14px] font-semibold text-[#2b2f38]">{cat}</span>
-                <span className="shrink-0 text-[12px] text-[#aaa]">{index + 1}</span>
-                <div className="flex shrink-0 flex-col gap-0.5">
+                <span className="shrink-0 text-[13px] text-[#ccc]">⠿</span>
+                <span className="shrink-0 w-5 text-center text-[11px] text-[#bbb]">{index + 1}</span>
+                <span className="flex-1 text-[13px] font-medium text-[#2b2f38] truncate">{cat}</span>
+                <div className="flex shrink-0 items-center gap-0.5">
                   <button
                     onClick={() => move(index, "up")}
                     disabled={index === 0}
-                    className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                    className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
                   >
                     ▲
                   </button>
                   <button
                     onClick={() => move(index, "down")}
                     disabled={index === order.length - 1}
-                    className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                    className="flex h-5 w-5 items-center justify-center rounded text-[10px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
                   >
                     ▼
                   </button>

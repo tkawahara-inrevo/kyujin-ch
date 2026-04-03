@@ -40,6 +40,7 @@ export async function submitCompanyRequest(formData: {
   firstName: string;
   email: string;
   phone: string;
+  address?: string;
 }): Promise<CompanyRequestResult> {
   const corporateNumber = formData.corporateNumber.replace(/[^\d]/g, "");
   const companyName = formData.companyName.trim();
@@ -47,6 +48,7 @@ export async function submitCompanyRequest(formData: {
   const firstName = formData.firstName.trim();
   const email = formData.email.trim().toLowerCase();
   const phone = formData.phone.trim();
+  const address = formData.address?.trim() || "";
 
   // --- バリデーション ---
   if (!/^\d{13}$/.test(corporateNumber)) {
@@ -90,6 +92,7 @@ export async function submitCompanyRequest(formData: {
   const companyInfo =
     `会社名: ${companyName}\n` +
     `法人番号: ${corporateNumber}\n` +
+    `本社所在地: ${address}\n` +
     `担当者: ${lastName} ${firstName}\n` +
     `メールアドレス: ${email}\n` +
     `電話番号: ${phone}`;

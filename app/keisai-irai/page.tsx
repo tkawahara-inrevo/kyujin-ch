@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { submitCompanyRequest } from "@/app/actions/public/company-request";
 
-export default function CompanyRequestPage() {
+export default function KeisaiIraiPage() {
   const [fields, setFields] = useState({
-    corporateNumber: "",
     companyName: "",
     lastName: "",
     firstName: "",
-    email: "",
     phone: "",
+    email: "",
+    corporateNumber: "",
+    address: "",
   });
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,11 +42,10 @@ export default function CompanyRequestPage() {
 
   if (result === "issued") {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-md w-full text-center">
-          <div className="text-4xl mb-4">✅</div>
-          <h1 className="text-xl font-bold text-gray-800 mb-3">アカウントを発行しました</h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
+      <main className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-lg w-full text-center py-16">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">アカウントを発行しました</h1>
+          <p className="text-gray-500 text-sm leading-relaxed">
             ご登録いただいたメールアドレスに、ログイン情報をお送りしました。
             <br />
             メールをご確認のうえ、ログインしてください。
@@ -57,11 +57,10 @@ export default function CompanyRequestPage() {
 
   if (result === "contact_later") {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-md w-full text-center">
-          <div className="text-4xl mb-4">📩</div>
-          <h1 className="text-xl font-bold text-gray-800 mb-3">掲載依頼を受け付けました</h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
+      <main className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-lg w-full text-center py-16">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">掲載依頼を受け付けました</h1>
+          <p className="text-gray-500 text-sm leading-relaxed">
             内容を確認のうえ、担当者より改めてご連絡いたします。
             <br />
             今しばらくお待ちください。
@@ -72,52 +71,35 @@ export default function CompanyRequestPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-lg w-full">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">求人掲載依頼</h1>
-        <p className="text-sm text-gray-500 mb-8">
-          以下のフォームに必要事項をご入力のうえ、送信してください。
-          <br />
-          法人番号をもとに会社名が確認できた場合、自動でアカウントを発行します。
+    <main className="min-h-screen bg-white px-4 py-14">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-[28px] font-bold text-gray-900 text-center mb-4">
+          求人掲載依頼はこちら
+        </h1>
+        <p className="text-center text-sm text-blue-500 mb-10">
+          求人の掲載を希望する方は下記フォームに情報を記入してください
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <Field label="法人番号" required>
-            <input
-              type="text"
-              name="corporateNumber"
-              value={fields.corporateNumber}
-              onChange={handleChange}
-              placeholder="1234567890123"
-              maxLength={13}
-              inputMode="numeric"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            <p className="text-xs text-gray-400 mt-1">ハイフンなしの13桁</p>
-          </Field>
-
           <Field label="会社名" required>
             <input
               type="text"
               name="companyName"
               value={fields.companyName}
               onChange={handleChange}
-              placeholder="株式会社〇〇"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               required
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <Field label="姓" required>
               <input
                 type="text"
                 name="lastName"
                 value={fields.lastName}
                 onChange={handleChange}
-                placeholder="山田"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 required
               />
             </Field>
@@ -127,34 +109,57 @@ export default function CompanyRequestPage() {
                 name="firstName"
                 value={fields.firstName}
                 onChange={handleChange}
-                placeholder="太郎"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 required
               />
             </Field>
           </div>
 
-          <Field label="メールアドレス" required>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="電話番号" required>
+              <input
+                type="tel"
+                name="phone"
+                value={fields.phone}
+                onChange={handleChange}
+                inputMode="tel"
+                className={inputClass}
+                required
+              />
+            </Field>
+            <Field label="メールアドレス" required>
+              <input
+                type="email"
+                name="email"
+                value={fields.email}
+                onChange={handleChange}
+                className={inputClass}
+                required
+              />
+            </Field>
+          </div>
+
+          <Field label="法人番号" required>
             <input
-              type="email"
-              name="email"
-              value={fields.email}
+              type="text"
+              name="corporateNumber"
+              value={fields.corporateNumber}
               onChange={handleChange}
-              placeholder="info@example.com"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="ハイフンなしの13桁"
+              maxLength={13}
+              inputMode="numeric"
+              className={inputClass}
               required
             />
           </Field>
 
-          <Field label="電話番号" required>
+          <Field label="本社所在地" required>
             <input
-              type="tel"
-              name="phone"
-              value={fields.phone}
+              type="text"
+              name="address"
+              value={fields.address}
               onChange={handleChange}
-              placeholder="03-0000-0000"
-              inputMode="tel"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               required
             />
           </Field>
@@ -165,18 +170,23 @@ export default function CompanyRequestPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg py-3 text-sm transition-colors"
-          >
-            {isPending ? "送信中..." : "送信する"}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="bg-[#f07050] hover:bg-[#e05f40] disabled:bg-[#f0a090] text-white font-semibold rounded-lg px-8 py-2.5 text-sm transition-colors"
+            >
+              {isPending ? "送信中..." : "送信"}
+            </button>
+          </div>
         </form>
       </div>
     </main>
   );
 }
+
+const inputClass =
+  "w-full bg-[#eef3f8] border-0 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400";
 
 function Field({
   label,
@@ -191,7 +201,7 @@ function Field({
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {children}
     </div>

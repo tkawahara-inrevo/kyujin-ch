@@ -42,10 +42,14 @@ export async function lookupCorporateNumber(
   const url = `https://info.gbiz.go.jp/hojin/v1/hojin/${digits}`;
   let res: Response;
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     res = await fetch(url, {
       headers: { "X-hojinInfo-api-token": token },
       next: { revalidate: 0 },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
   } catch {
     return null;
   }

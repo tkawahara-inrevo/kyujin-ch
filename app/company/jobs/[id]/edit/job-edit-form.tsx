@@ -454,6 +454,16 @@ export function JobEditForm({
       return;
     }
 
+    if (trialPeriodExists === null) {
+      setValidationError("試用期間のあり・なしを選択してください");
+      return;
+    }
+
+    if (mergedBenefits.length === 0) {
+      setValidationError("福利厚生を1つ以上選択してください");
+      return;
+    }
+
     if (selectedRegion && !selectedLocation) {
       setValidationError("勤務地を選択してください");
       return;
@@ -992,7 +1002,7 @@ export function JobEditForm({
           </Section>
 
           <Section title="試用期間">
-            <Field label="試用期間">
+            <Field label="試用期間" required>
               <div className="flex gap-6">
                 {([true, false] as const).map((val) => (
                   <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -1173,7 +1183,7 @@ export function JobEditForm({
           </Section>
 
           <Section title="福利厚生">
-            <Field label="福利厚生">
+            <Field label="福利厚生" required>
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {(SHARED_BENEFIT_OPTIONS as readonly string[]).slice(0, 12).map((benefit) => (
                   <label

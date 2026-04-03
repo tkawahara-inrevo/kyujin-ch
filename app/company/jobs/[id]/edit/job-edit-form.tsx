@@ -436,14 +436,16 @@ export function JobEditForm({
   }
 
   const mountedRef = useRef(false);
+  const justSavedRef = useRef(false);
   useEffect(() => {
-    // Mark as mounted after first render so subsequent state changes mark dirty
     const id = setTimeout(() => { mountedRef.current = true; }, 0);
     return () => clearTimeout(id);
   }, []);
 
   function markDirty() {
-    if (mountedRef.current) { setIsDirty(true); setDraftSaved(false); }
+    if (!mountedRef.current || justSavedRef.current) return;
+    setIsDirty(true);
+    setDraftSaved(false);
   }
 
   function readFormValues(form: HTMLFormElement) {
@@ -463,6 +465,7 @@ export function JobEditForm({
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
     if (!titleVal.trim()) {
+      setValidationError("タイトルの入力は必須です");
       titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       titleRef.current?.focus();
       return;
@@ -582,8 +585,10 @@ export function JobEditForm({
       );
 
       if (submissionMode === "draft") {
+        justSavedRef.current = true;
         setDraftSaved(true);
         setIsDirty(false);
+        setTimeout(() => { justSavedRef.current = false; }, 100);
       } else {
         router.push("/company/jobs");
       }

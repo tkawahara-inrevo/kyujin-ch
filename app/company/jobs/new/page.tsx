@@ -333,6 +333,7 @@ export default function CompanyJobNewPage() {
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
     if (!titleVal.trim()) {
+      setValidationError("タイトルの入力は必須です");
       titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       titleRef.current?.focus();
       return;

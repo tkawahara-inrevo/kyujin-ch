@@ -625,13 +625,13 @@ export function JobEditForm({
         ) : null}
       </div>
 
-      <div className="sticky top-0 z-30 mt-4 flex justify-end bg-[#f3f4f6] py-2">
+      <div className="fixed bottom-6 right-6 z-30">
         <button
           type="button"
           onClick={() => {
             setShowPreview((prev) => !prev);
           }}
-          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition hover:opacity-90"
+          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3 text-[15px] font-bold text-white shadow-[0_4px_16px_rgba(29,99,227,0.4)] transition hover:opacity-90"
         >
           {isWidePreview ? (showPreview ? "プレビューを閉じる" : "プレビューを開く") : "プレビューを確認"}
         </button>

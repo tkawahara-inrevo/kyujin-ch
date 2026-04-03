@@ -437,6 +437,7 @@ export function JobEditForm({
   }
 
   const formRef = useRef<HTMLFormElement>(null);
+  const validationErrorRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(false);
   const justSavedRef = useRef(false);
   useEffect(() => {
@@ -452,6 +453,13 @@ export function JobEditForm({
     }
     setIsDirty(true);
     setDraftSaved(false);
+  }
+
+  function showError(msg: string) {
+    setValidationError(msg);
+    setTimeout(() => {
+      validationErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
   }
 
   function readFormValues(form: HTMLFormElement) {
@@ -547,7 +555,8 @@ export function JobEditForm({
       setIsDirty(false);
     } catch (err) {
       console.error(err);
-      setValidationError("保存に失敗しました。もう一度お試しください。");
+      const msg = err instanceof Error ? err.message : "保存に失敗しました。もう一度お試しください。";
+      showError(`下書き保存に失敗しました：${msg}`);
     } finally {
       setPendingAction(null);
     }
@@ -567,52 +576,52 @@ export function JobEditForm({
     }
 
     if (!categoryTag) {
-      setValidationError("求人カテゴリを選択してください");
+      showError("求人カテゴリを選択してください");
       return;
     }
 
     if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
-      setValidationError("カテゴリ「その他」の詳細を入力してください");
+      showError("カテゴリ「その他」の詳細を入力してください");
       return;
     }
 
     if (description.length < 200) {
-      setValidationError("仕事内容は200文字以上入力してください");
+      showError("仕事内容は200文字以上入力してください");
       return;
     }
 
     if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
-      setValidationError("雇用形態「その他」の詳細を入力してください");
+      showError("雇用形態「その他」の詳細を入力してください");
       return;
     }
 
     if (!selectionProcess.trim()) {
-      setValidationError("選考フローを入力してください");
+      showError("選考フローを入力してください");
       return;
     }
 
     if (trialPeriodExists === null) {
-      setValidationError("試用期間のあり・なしを選択してください");
+      showError("試用期間のあり・なしを選択してください");
       return;
     }
 
     if (trialPeriodExists && trialEmploymentSame === null) {
-      setValidationError("試用期間中の雇用形態を選択してください");
+      showError("試用期間中の雇用形態を選択してください");
       return;
     }
 
     if (trialPeriodExists && trialSalarySame === null) {
-      setValidationError("試用期間中の給与を選択してください");
+      showError("試用期間中の給与を選択してください");
       return;
     }
 
     if (mergedBenefits.length === 0) {
-      setValidationError("福利厚生を1つ以上選択してください");
+      showError("福利厚生を1つ以上選択してください");
       return;
     }
 
     if (selectedRegion && !selectedLocation) {
-      setValidationError("勤務地を選択してください");
+      showError("勤務地を選択してください");
       return;
     }
 
@@ -623,7 +632,8 @@ export function JobEditForm({
       router.push("/company/jobs");
     } catch (err) {
       console.error(err);
-      setValidationError("送信に失敗しました。もう一度お試しください。");
+      const msg = err instanceof Error ? err.message : "もう一度お試しください。";
+      showError(`送信に失敗しました：${msg}`);
     } finally {
       setPendingAction(null);
     }
@@ -682,7 +692,7 @@ export function JobEditForm({
       </div>
 
       {validationError ? (
-        <div className="mt-5 rounded-[10px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
+        <div ref={validationErrorRef} className="mt-5 rounded-[10px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
           {validationError}
         </div>
       ) : null}

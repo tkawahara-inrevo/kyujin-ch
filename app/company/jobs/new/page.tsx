@@ -14,6 +14,12 @@ import {
   OTHER_CATEGORY_VALUE,
 } from "@/lib/job-options";
 import type { YouthYearStats } from "@/app/actions/company/jobs";
+import {
+  WorkingHoursSection,
+  workingHoursStateToData,
+  DEFAULT_WORKING_HOURS_STATE,
+  type WorkingHoursState,
+} from "@/app/company/jobs/_components/working-hours-section";
 
 const TAG_OPTIONS = [
   "未経験歓迎",
@@ -178,6 +184,7 @@ export default function CompanyJobNewPage() {
   const [trialEmploymentType, setTrialEmploymentType] = useState("");
   const [trialWorkingHours, setTrialWorkingHours] = useState("");
   const [trialSalarySame, setTrialSalarySame] = useState<boolean | null>(null);
+  const [workingHours, setWorkingHours] = useState<WorkingHoursState>(DEFAULT_WORKING_HOURS_STATE);
   const [holidayType, setHolidayType] = useState("");
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
@@ -458,6 +465,7 @@ export default function CompanyJobNewPage() {
           trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
           holidayType,
           holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+          ...workingHoursStateToData(workingHours),
         },
         submissionMode,
       );
@@ -914,6 +922,15 @@ export default function CompanyJobNewPage() {
                 </div>
               </div>
             )}
+          </Section>
+
+          <Section title="勤務時間">
+            <Field label="勤務時間" required>
+              <WorkingHoursSection
+                value={workingHours}
+                onChange={(updates) => setWorkingHours((prev) => ({ ...prev, ...updates }))}
+              />
+            </Field>
           </Section>
 
           <Section title="試用期間">

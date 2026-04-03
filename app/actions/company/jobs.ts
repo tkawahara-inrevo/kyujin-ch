@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { EmploymentType, Prisma, type JobReviewStatus } from "@prisma/client";
-import { parsePendingContent, toPendingContentJson, type JobPendingContent } from "@/lib/job-pending";
+import { parsePendingContent, toPendingContentJson, type JobPendingContent, type WorkingHoursDetail } from "@/lib/job-pending";
 import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { isJobPublished } from "@/lib/job-review";
@@ -84,6 +84,8 @@ type JobData = {
   trialSalaryMin?: number;
   trialSalaryMax?: number;
   trialAnnualSalary?: string;
+  workingHoursType?: string;
+  workingHoursDetail?: WorkingHoursDetail;
 };
 
 export type YouthYearStats = {
@@ -203,6 +205,8 @@ function normalizeJobData(data: JobData): JobPendingContent {
     trialSalaryMin: data.trialSalaryMin ?? null,
     trialSalaryMax: data.trialSalaryMax ?? null,
     trialAnnualSalary: data.trialAnnualSalary || null,
+    workingHoursType: data.workingHoursType || null,
+    workingHoursDetail: data.workingHoursDetail || null,
   };
 }
 
@@ -276,6 +280,8 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     trialSalaryMin: normalized.trialSalaryMin,
     trialSalaryMax: normalized.trialSalaryMax,
     trialAnnualSalary: normalized.trialAnnualSalary,
+    workingHoursType: normalized.workingHoursType,
+    workingHoursDetail: normalized.workingHoursDetail ? normalized.workingHoursDetail as unknown as Prisma.InputJsonValue : Prisma.DbNull,
     pendingContent: Prisma.DbNull,
   };
 }

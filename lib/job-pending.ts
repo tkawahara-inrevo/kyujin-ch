@@ -11,6 +11,36 @@ export type YouthYearStats = {
   births: string;
 };
 
+export type WorkingHoursDetail = {
+  // 固定時間制: 想定勤務時間
+  scheduledStartHour: number | null;
+  scheduledStartMin: number | null;
+  scheduledEndHour: number | null;
+  scheduledEndMin: number | null;
+  // 固定時間制 + シフト制: 実働時間 / 裁量労働制: みなし労働時間
+  maxWorkHour: number | null;
+  maxWorkMin: number | null;
+  separateContract: boolean;
+  // フレックスタイム制: コアタイム
+  hasCoretime: boolean | null;
+  coretimeStartHour: number | null;
+  coretimeStartMin: number | null;
+  coretimeEndHour: number | null;
+  coretimeEndMin: number | null;
+  // フレックスタイム制: 標準労働時間
+  standardWorkPeriod: string | null;
+  standardWorkHour: number | null;
+  standardWorkMin: number | null;
+  // 裁量労働制: 制度
+  discretionaryType: string | null;
+  // 変形労働制: 平均労働時間
+  variablePeriod: string | null;
+  variableWorkHour: number | null;
+  variableWorkMin: number | null;
+  // 備考（全タイプ共通）
+  note: string;
+};
+
 export type JobPendingContent = {
   title: string;
   description: string;
@@ -74,6 +104,8 @@ export type JobPendingContent = {
   trialSalaryMin: number | null;
   trialSalaryMax: number | null;
   trialAnnualSalary: string | null;
+  workingHoursType: string | null;
+  workingHoursDetail: WorkingHoursDetail | null;
 };
 
 function asString(value: unknown) {
@@ -163,5 +195,33 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     trialSalaryMin: asNumber(record.trialSalaryMin),
     trialSalaryMax: asNumber(record.trialSalaryMax),
     trialAnnualSalary: asString(record.trialAnnualSalary),
+    workingHoursType: asString(record.workingHoursType),
+    workingHoursDetail: (() => {
+      const d = record.workingHoursDetail;
+      if (!d || typeof d !== "object" || Array.isArray(d)) return null;
+      const r = d as Record<string, unknown>;
+      return {
+        scheduledStartHour: asNumber(r.scheduledStartHour),
+        scheduledStartMin: asNumber(r.scheduledStartMin),
+        scheduledEndHour: asNumber(r.scheduledEndHour),
+        scheduledEndMin: asNumber(r.scheduledEndMin),
+        maxWorkHour: asNumber(r.maxWorkHour),
+        maxWorkMin: asNumber(r.maxWorkMin),
+        separateContract: typeof r.separateContract === "boolean" ? r.separateContract : false,
+        hasCoretime: typeof r.hasCoretime === "boolean" ? r.hasCoretime : null,
+        coretimeStartHour: asNumber(r.coretimeStartHour),
+        coretimeStartMin: asNumber(r.coretimeStartMin),
+        coretimeEndHour: asNumber(r.coretimeEndHour),
+        coretimeEndMin: asNumber(r.coretimeEndMin),
+        standardWorkPeriod: asString(r.standardWorkPeriod),
+        standardWorkHour: asNumber(r.standardWorkHour),
+        standardWorkMin: asNumber(r.standardWorkMin),
+        discretionaryType: asString(r.discretionaryType),
+        variablePeriod: asString(r.variablePeriod),
+        variableWorkHour: asNumber(r.variableWorkHour),
+        variableWorkMin: asNumber(r.variableWorkMin),
+        note: asString(r.note) ?? "",
+      } satisfies WorkingHoursDetail;
+    })(),
   };
 }

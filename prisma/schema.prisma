@@ -252,6 +252,10 @@ model Job {
   trialSalaryMax        Int?      // 試用期間中の給与上限
   trialAnnualSalary     String?   // 試用期間中の想定年収（テキスト）
 
+  // 勤務時間
+  workingHoursType      String?   // 固定時間制 | シフト制 | フレックスタイム制 | 裁量労働制 | 変形労働制 | 勤務時間を指定しない
+  workingHoursDetail    Json?     // 構造化された勤務時間データ
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]

@@ -54,6 +54,8 @@ export async function approveJob(jobId: string) {
             employmentTypeDetail: pendingContent.employmentTypeDetail,
             targetType: pendingContent.targetType,
             graduationYear: pendingContent.graduationYear,
+            workingHoursType: pendingContent.workingHoursType,
+            workingHoursDetail: pendingContent.workingHoursDetail ? pendingContent.workingHoursDetail as unknown as Prisma.InputJsonValue : Prisma.DbNull,
             pendingContent: Prisma.DbNull,
           }
         : {}),

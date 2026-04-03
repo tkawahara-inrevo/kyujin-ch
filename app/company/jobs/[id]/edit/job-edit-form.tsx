@@ -14,6 +14,14 @@ import {
   OTHER_CATEGORY_VALUE,
 } from "@/lib/job-options";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
+import {
+  WorkingHoursSection,
+  workingHoursStateFromDetail,
+  workingHoursStateToData,
+  DEFAULT_WORKING_HOURS_STATE,
+  type WorkingHoursState,
+} from "@/app/company/jobs/_components/working-hours-section";
+import type { WorkingHoursDetail } from "@/lib/job-pending";
 
 const TAG_OPTIONS = [
   "未経験歓迎",
@@ -177,6 +185,8 @@ type Job = {
   trialEmploymentType?: string | null;
   trialWorkingHours?: number | null;
   trialSalarySame?: boolean | null;
+  workingHoursType?: string | null;
+  workingHoursDetail?: WorkingHoursDetail | null;
 };
 
 export function JobEditForm({
@@ -266,6 +276,9 @@ export function JobEditForm({
   const [trialAnnualSalaryMinNum, setTrialAnnualSalaryMinNum] = useState(() => computeAnnualNum(job.trialSalaryType || "annual", job.trialSalaryMin ? String(job.trialSalaryMin) : ""));
   const [trialAnnualSalaryMaxNum, setTrialAnnualSalaryMaxNum] = useState(() => computeAnnualNum(job.trialSalaryType || "annual", job.trialSalaryMax ? String(job.trialSalaryMax) : ""));
   const [trialAnnualNumManual, setTrialAnnualNumManual] = useState(!!job.trialAnnualSalary);
+  const [workingHours, setWorkingHours] = useState<WorkingHoursState>(() =>
+    workingHoursStateFromDetail(job.workingHoursType, job.workingHoursDetail as WorkingHoursDetail | null ?? null)
+  );
   const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
   const [formValues, setFormValues] = useState<Record<string, string>>({
     title: job.title,
@@ -544,6 +557,7 @@ export function JobEditForm({
       trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
       holidayType,
       holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+      ...workingHoursStateToData(workingHours),
     };
   }
 
@@ -1111,6 +1125,15 @@ export function JobEditForm({
                 </div>
               </div>
             )}
+          </Section>
+
+          <Section title="勤務時間">
+            <Field label="勤務時間" required>
+              <WorkingHoursSection
+                value={workingHours}
+                onChange={(updates) => { setWorkingHours((prev) => ({ ...prev, ...updates })); markDirty(); }}
+              />
+            </Field>
           </Section>
 
           <Section title="試用期間">

@@ -2,7 +2,7 @@
 
 import { isValidElement, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode, type YouthYearStats } from "@/app/actions/company/jobs";
+import { createJob, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
@@ -14,15 +14,13 @@ import {
   EMPLOYMENT_OPTIONS,
   OTHER_CATEGORY_VALUE,
 } from "@/lib/job-options";
-import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
+import type { YouthYearStats } from "@/app/actions/company/jobs";
 import {
   WorkingHoursSection,
-  workingHoursStateFromDetail,
   workingHoursStateToData,
   DEFAULT_WORKING_HOURS_STATE,
   type WorkingHoursState,
 } from "@/app/company/jobs/_components/working-hours-section";
-import type { WorkingHoursDetail } from "@/lib/job-pending";
 
 const TAG_OPTIONS = [
   "未経験歓迎",
@@ -67,6 +65,28 @@ const SMOKING_OUTDOOR_OPTIONS = [
   "その他",
 ];
 
+const DESCRIPTION_TEMPLATE = `【仕事概要】
+○○（会社名、部署名、店舗名など）にて、○○（職種）のお仕事をお任せします。●●●●を商材として扱い、顧客層は主に△△△です。□□□□な価値を提供し、やりがいに繋がる仕事です。
+
+【仕事の流れ】
+＜仕事の流れ＞
+▼●●●●から●●●●が割り振られます
+▼●●●●を確認し、●●●●から●●●●●●をします
+▼●●●●●●●●した情報をフォーマットに従って登録
+
+※1日の担当件数は●●件程度。1件のヒアリング・作成はいずれも●●分～●●分程度です。
+※業務はマニュアルに沿って行なうため、未経験の方もご安心ください。
+
+【一緒に働くメンバー】
+部署には●●名が所属しており、男女比は●：●。平均年齢層は●●～●●代です。先輩たちの前職は△△△や△△△など様々。□□□□のお仕事が初めてだったメンバーもたくさん活躍中です。
+
+【入社後の独り立ちまでの流れ】
+入社後は●●●●の習得はもちろん、●●●●●●や、●●●●など、●●●●●●の基礎から教えていきます。未経験の方もご安心ください。`;
+
+const SELECTION_PROCESS_TEMPLATE = `書類選考 → 一次面接（オンライン可） → 最終面接 → 内定
+
+※選考期間の目安：1〜2週間程度`;
+
 function calcAnnualSalary(type: string, min: string, max: string): string {
   const minN = Number(min) || 0;
   const maxN = Number(max) || 0;
@@ -98,221 +118,85 @@ const SALARY_PLACEHOLDER: Record<string, [string, string]> = {
   hourly:  ["例：1100",    "例：1500"],
 };
 
-const DESCRIPTION_TEMPLATE = `【仕事概要】
-○○（会社名、部署名、店舗名など）にて、○○（職種）のお仕事をお任せします。●●●●を商材として扱い、顧客層は主に△△△です。□□□□な価値を提供し、やりがいに繋がる仕事です。
-
-【仕事の流れ】
-＜仕事の流れ＞
-▼●●●●から●●●●が割り振られます
-▼●●●●を確認し、●●●●から●●●●●●をします
-▼●●●●●●●●した情報をフォーマットに従って登録
-
-※1日の担当件数は●●件程度。1件のヒアリング・作成はいずれも●●分～●●分程度です。
-※業務はマニュアルに沿って行なうため、未経験の方もご安心ください。
-
-【一緒に働くメンバー】
-部署には●●名が所属しており、男女比は●：●。平均年齢層は●●～●●代です。先輩たちの前職は△△△や△△△など様々。□□□□のお仕事が初めてだったメンバーもたくさん活躍中です。
-
-【入社後の独り立ちまでの流れ】
-入社後は●●●●の習得はもちろん、●●●●●●や、●●●●など、●●●●●●の基礎から教えていきます。未経験の方もご安心ください。`;
-
-const SELECTION_PROCESS_TEMPLATE = `書類選考 → 一次面接（オンライン可） → 最終面接 → 内定
-
-※選考期間の目安：1〜2週間程度`;
-
-type Job = {
-  id: string;
-  title: string;
-  description: string;
-  employmentType: string;
-  location: string | null;
-  salaryMin: number | null;
-  salaryMax: number | null;
-  categoryTag: string | null;
-  tags: string[];
-  reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED";
-  reviewComment?: string | null;
-  imageUrl: string | null;
-  requirements: string | null;
-  desiredAptitude: string | null;
-  recommendedFor: string | null;
-  monthlySalary: string | null;
-  annualSalary: string | null;
-  access: string | null;
-  officeName: string | null;
-  officeDetail: string | null;
-  postalCode?: string | null;
-  benefits: string[];
-  selectionProcess: string | null;
-  workingHours: string | null;
-  closingDate: Date | null;
-  employmentPeriodType: string | null;
-  region: string | null;
-  targetType: string;
-  graduationYear: number | null;
-  categoryTagDetail?: string | null;
-  employmentTypeDetail?: string | null;
-  trainingInfo?: string | null;
-  youthEmploymentStats?: YouthYearStats[] | null;
-  smokingPolicyIndoor?: string | null;
-  smokingPolicyOutdoor?: string | null;
-  smokingNote?: string | null;
-  recruitmentBackground?: string | null;
-  positionMission?: string | null;
-  holidayPolicy?: string | null;
-  trialPeriod?: string | null;
-  fixedOvertime?: string | null;
-  salaryRevision?: string | null;
-  interviewCount?: string | null;
-  selectionDuration?: string | null;
-  joinTiming?: string | null;
-  salaryType?: string | null;
-  hasFixedOvertime?: boolean | null;
-  annualPaymentMethod?: string | null;
-  annualPaymentNote?: string | null;
-  trialPeriodExists?: boolean | null;
-  trialPeriodMonths?: number | null;
-  trialPeriodWeeks?: number | null;
-  holidayType?: string | null;
-  holidayFeatures?: string[];
-  annualHolidayCount?: number | null;
-  bonus?: string | null;
-  trialSalaryType?: string | null;
-  trialSalaryMin?: number | null;
-  trialSalaryMax?: number | null;
-  trialAnnualSalary?: string | null;
-  trialPeriodDays?: number | null;
-  trialEmploymentSame?: boolean | null;
-  trialEmploymentType?: string | null;
-  trialWorkingHours?: number | null;
-  trialSalarySame?: boolean | null;
-  workingHoursType?: string | null;
-  workingHoursDetail?: WorkingHoursDetail | null;
-  jobSubcategory?: string | null;
-};
-
-export function JobEditForm({
-  job,
-  hasPublishedVersion,
-  hasPendingVersion,
-  subcategoryMap,
-}: {
-  job: Job;
-  hasPublishedVersion: boolean;
-  hasPendingVersion: boolean;
-  subcategoryMap: Record<string, string[]>;
-}) {
+export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, string[]> }) {
   const categoryOptions = Object.keys(subcategoryMap).length > 0 ? Object.keys(subcategoryMap) : [...CATEGORY_OPTIONS];
   const router = useRouter();
-  const [currentReviewStatus, setCurrentReviewStatus] = useState(job.reviewStatus);
-  const benefitOptions = SHARED_BENEFIT_OPTIONS as readonly string[];
-  const [pendingAction, setPendingAction] = useState<"review" | "draft" | "withdraw" | "delete" | null>(null);
+  const [pendingAction, setPendingAction] = useState<JobSubmissionMode | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
+  const gradYears = getActiveGraduationYears();
+  const [targetType, setTargetType] = useState("MID_CAREER");
+  const [graduationYear, setGraduationYear] = useState(gradYears[0]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [categoryTag, setCategoryTag] = useState("");
+  const [categoryTagDetail, setCategoryTagDetail] = useState("");
+  const [jobSubcategory, setJobSubcategory] = useState("");
+  const [employmentType, setEmploymentType] = useState("FULL_TIME");
+  const [employmentTypeDetail, setEmploymentTypeDetail] = useState("");
+  const [employmentPeriodType, setEmploymentPeriodType] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [titleVal, setTitleVal] = useState("");
+  const titleRef = useRef<HTMLInputElement>(null);
+  const [description, setDescription] = useState("");
+  const [selectionProcess, setSelectionProcess] = useState("");
+  const [officeDetail, setOfficeDetail] = useState("");
+  const [streetAddrVal, setStreetAddrVal] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [postalLoading, setPostalLoading] = useState(false);
+  const [trainingInfo, setTrainingInfo] = useState("");
+  const [youthStats, setYouthStats] = useState<YouthYearStats[]>(EMPTY_YOUTH_STATS());
+  const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState("");
+  const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState("");
+  const [smokingNote, setSmokingNote] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [showBenefitModal, setShowBenefitModal] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
-  const [draftSaved, setDraftSaved] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
-  const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
-    job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
-  );
-  const [customBenefits, setCustomBenefits] = useState(
-    job.benefits.filter((benefit) => !benefitOptions.includes(benefit)).join("、"),
-  );
-  const gradYears = getActiveGraduationYears();
-  const [targetType, setTargetType] = useState(job.targetType || "MID_CAREER");
-  const [graduationYear, setGraduationYear] = useState(job.graduationYear || gradYears[0]);
-  const [imageUrl, setImageUrl] = useState(job.imageUrl || "");
-  const [categoryTag, setCategoryTag] = useState(job.categoryTag || "");
-  const [categoryTagDetail, setCategoryTagDetail] = useState(job.categoryTagDetail || "");
-  const [jobSubcategory, setJobSubcategory] = useState(job.jobSubcategory || "");
-  const [employmentType, setEmploymentType] = useState(job.employmentType || "FULL_TIME");
-  const [employmentTypeDetail, setEmploymentTypeDetail] = useState(job.employmentTypeDetail || "");
-  const [employmentPeriodType, setEmploymentPeriodType] = useState(job.employmentPeriodType || "");
-  const [selectedRegion, setSelectedRegion] = useState(job.region || "");
-  const [selectedLocation, setSelectedLocation] = useState(job.location || "");
-  const [titleVal, setTitleVal] = useState(job.title);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const [description, setDescription] = useState(job.description);
-  const [selectionProcess, setSelectionProcess] = useState(job.selectionProcess ?? "");
-  const [officeDetail, setOfficeDetail] = useState(job.officeDetail ?? "");
-  const [streetAddrVal, setStreetAddrVal] = useState("");
-  const [postalCode, setPostalCode] = useState(job.postalCode ?? "");
-  const [postalLoading, setPostalLoading] = useState(false);
-  const [trainingInfo, setTrainingInfo] = useState(job.trainingInfo ?? "");
-  const [youthStats, setYouthStats] = useState<YouthYearStats[]>(
-    (job.youthEmploymentStats && job.youthEmploymentStats.length > 0)
-      ? job.youthEmploymentStats
-      : EMPTY_YOUTH_STATS()
-  );
-  const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState(job.smokingPolicyIndoor ?? "");
-  const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState(job.smokingPolicyOutdoor ?? "");
-  const [smokingNote, setSmokingNote] = useState(job.smokingNote ?? "");
-  const [salaryType, setSalaryType] = useState(job.salaryType || "annual");
-  const [salaryMinVal, setSalaryMinVal] = useState(job.salaryMin ? String(job.salaryMin) : "");
-  const [salaryMaxVal, setSalaryMaxVal] = useState(job.salaryMax ? String(job.salaryMax) : "");
-  const [annualSalaryMinNum, setAnnualSalaryMinNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMin ? String(job.salaryMin) : ""));
-  const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMax ? String(job.salaryMax) : ""));
+  const [customBenefits, setCustomBenefits] = useState("");
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [salaryType, setSalaryType] = useState("annual");
+  const [salaryMinVal, setSalaryMinVal] = useState("");
+  const [salaryMaxVal, setSalaryMaxVal] = useState("");
+  const [annualSalaryMinNum, setAnnualSalaryMinNum] = useState("");
+  const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState("");
   const [annualNumManual, setAnnualNumManual] = useState(false);
-  const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(job.hasFixedOvertime ?? null);
-  const [bonusExists, setBonusExists] = useState<boolean | null>(
-    job.bonus === "あり" ? true : job.bonus === "なし" ? false : null
-  );
-  const [annualPaymentMethod, setAnnualPaymentMethod] = useState(job.annualPaymentMethod ?? "monthly");
-  const [annualPaymentNote, setAnnualPaymentNote] = useState(job.annualPaymentNote ?? "");
-  const parsedFO = (() => { try { return job.fixedOvertime ? JSON.parse(job.fixedOvertime) : null; } catch { return null; } })();
-  const [fixedOvertimePayType, setFixedOvertimePayType] = useState<"fixed"|"range"|"minimum">(parsedFO?.payType ?? "fixed");
-  const [fixedOvertimePayFixed, setFixedOvertimePayFixed] = useState(parsedFO?.payFixed ? String(parsedFO.payFixed) : "");
-  const [fixedOvertimePayMin, setFixedOvertimePayMin] = useState(parsedFO?.payMin ? String(parsedFO.payMin) : "");
-  const [fixedOvertimePayMax, setFixedOvertimePayMax] = useState(parsedFO?.payMax ? String(parsedFO.payMax) : "");
-  const [fixedOvertimePayFloor, setFixedOvertimePayFloor] = useState(parsedFO?.payFloor ? String(parsedFO.payFloor) : "");
-  const [fixedOvertimeHoursType, setFixedOvertimeHoursType] = useState<"fixed"|"range">(parsedFO?.hoursType ?? "fixed");
-  const [fixedOvertimeHoursFixed, setFixedOvertimeHoursFixed] = useState(parsedFO?.hoursFixed ? String(parsedFO.hoursFixed) : "");
-  const [fixedOvertimeHoursMin, setFixedOvertimeHoursMin] = useState(parsedFO?.hoursMin ? String(parsedFO.hoursMin) : "");
-  const [fixedOvertimeHoursMax, setFixedOvertimeHoursMax] = useState(parsedFO?.hoursMax ? String(parsedFO.hoursMax) : "");
-  const [overtimeExcessPaid, setOvertimeExcessPaid] = useState(parsedFO?.excessPaid ?? false);
-  const [trialPeriodExists, setTrialPeriodExists] = useState<boolean | null>(job.trialPeriodExists ?? null);
-  const [trialPeriodMonths, setTrialPeriodMonths] = useState(job.trialPeriodMonths ?? 3);
-  const [trialPeriodDays, setTrialPeriodDays] = useState(job.trialPeriodDays ?? 0);
-  const [trialEmploymentSame, setTrialEmploymentSame] = useState<boolean | null>(job.trialEmploymentSame ?? null);
-  const [trialEmploymentType, setTrialEmploymentType] = useState(job.trialEmploymentType ?? "");
-  const [trialWorkingHours, setTrialWorkingHours] = useState(job.trialWorkingHours ? String(job.trialWorkingHours) : "");
-  const [trialSalarySame, setTrialSalarySame] = useState<boolean | null>(job.trialSalarySame ?? null);
-  const [trialSalaryType, setTrialSalaryType] = useState(job.trialSalaryType || "annual");
-  const [trialSalaryMinVal, setTrialSalaryMinVal] = useState(job.trialSalaryMin ? String(job.trialSalaryMin) : "");
-  const [trialSalaryMaxVal, setTrialSalaryMaxVal] = useState(job.trialSalaryMax ? String(job.trialSalaryMax) : "");
-  const [trialAnnualSalaryMinNum, setTrialAnnualSalaryMinNum] = useState(() => computeAnnualNum(job.trialSalaryType || "annual", job.trialSalaryMin ? String(job.trialSalaryMin) : ""));
-  const [trialAnnualSalaryMaxNum, setTrialAnnualSalaryMaxNum] = useState(() => computeAnnualNum(job.trialSalaryType || "annual", job.trialSalaryMax ? String(job.trialSalaryMax) : ""));
-  const [trialAnnualNumManual, setTrialAnnualNumManual] = useState(!!job.trialAnnualSalary);
-  const [workingHours, setWorkingHours] = useState<WorkingHoursState>(() =>
-    workingHoursStateFromDetail(job.workingHoursType, job.workingHoursDetail as WorkingHoursDetail | null ?? null)
-  );
-  const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
-  const [formValues, setFormValues] = useState<Record<string, string>>({
-    title: job.title,
-    description: job.description,
-    requirements: job.requirements ?? "",
-    desiredAptitude: job.desiredAptitude ?? "",
-    recommendedFor: job.recommendedFor ?? "",
-    officeDetail: job.officeDetail ?? "",
-    access: job.access ?? "",
-    selectionProcess: job.selectionProcess ?? "",
-    closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "",
-    recruitmentBackground: job.recruitmentBackground ?? "",
-    holidayPolicy: job.holidayPolicy ?? "",
-    trialPeriod: job.trialPeriod ?? "",
-    fixedOvertime: job.fixedOvertime ?? "",
-    salaryRevision: job.salaryRevision ?? "",
-    bonus: job.bonus ?? "",
-  });
-  const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
+  const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
+  const [bonusExists, setBonusExists] = useState<boolean | null>(null);
+  const [annualPaymentMethod, setAnnualPaymentMethod] = useState("monthly");
+  const [annualPaymentNote, setAnnualPaymentNote] = useState("");
+  const [fixedOvertimePayType, setFixedOvertimePayType] = useState<"fixed"|"range"|"minimum">("fixed");
+  const [fixedOvertimePayFixed, setFixedOvertimePayFixed] = useState("");
+  const [fixedOvertimePayMin, setFixedOvertimePayMin] = useState("");
+  const [fixedOvertimePayMax, setFixedOvertimePayMax] = useState("");
+  const [fixedOvertimePayFloor, setFixedOvertimePayFloor] = useState("");
+  const [fixedOvertimeHoursType, setFixedOvertimeHoursType] = useState<"fixed"|"range">("fixed");
+  const [fixedOvertimeHoursFixed, setFixedOvertimeHoursFixed] = useState("");
+  const [fixedOvertimeHoursMin, setFixedOvertimeHoursMin] = useState("");
+  const [fixedOvertimeHoursMax, setFixedOvertimeHoursMax] = useState("");
+  const [overtimeExcessPaid, setOvertimeExcessPaid] = useState(false);
+  const [trialPeriodExists, setTrialPeriodExists] = useState<boolean | null>(null);
+  const [trialPeriodMonths, setTrialPeriodMonths] = useState(3);
+  const [trialSalaryType, setTrialSalaryType] = useState("annual");
+  const [trialSalaryMinVal, setTrialSalaryMinVal] = useState("");
+  const [trialSalaryMaxVal, setTrialSalaryMaxVal] = useState("");
+  const [trialAnnualSalaryMinNum, setTrialAnnualSalaryMinNum] = useState("");
+  const [trialAnnualSalaryMaxNum, setTrialAnnualSalaryMaxNum] = useState("");
+  const [trialAnnualNumManual, setTrialAnnualNumManual] = useState(false);
+  const [trialPeriodDays, setTrialPeriodDays] = useState(0);
+  const [trialEmploymentSame, setTrialEmploymentSame] = useState<boolean | null>(null);
+  const [trialEmploymentType, setTrialEmploymentType] = useState("");
+  const [trialWorkingHours, setTrialWorkingHours] = useState("");
+  const [trialSalarySame, setTrialSalarySame] = useState<boolean | null>(null);
+  const [workingHours, setWorkingHours] = useState<WorkingHoursState>(DEFAULT_WORKING_HOURS_STATE);
+  const [holidayType, setHolidayType] = useState("");
 
+  const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
+  const mergedTags = selectedTags;
   const parsedCustomBenefits = customBenefits
     .split(/[\n,、]/)
     .map((item: string) => item.trim())
     .filter(Boolean);
-  const mergedTags = selectedTags;
   const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
 
   useEffect(() => {
@@ -348,23 +232,8 @@ export function JobEditForm({
     }
   }, [trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal, trialAnnualNumManual]);
 
-  // Mark dirty when any UI-driven state changes (after mount)
-  useEffect(() => { markDirty(); }, [
-    titleVal, description, targetType, graduationYear, imageUrl, categoryTag, categoryTagDetail,
-    employmentType, employmentTypeDetail, employmentPeriodType, selectedLocation, selectedRegion,
-    officeDetail, streetAddrVal, salaryType, salaryMinVal, salaryMaxVal, annualSalaryMinNum,
-    annualSalaryMaxNum, annualPaymentMethod, annualPaymentNote, hasFixedOvertime,
-    fixedOvertimePayType, fixedOvertimePayFixed, fixedOvertimePayMin, fixedOvertimePayMax,
-    fixedOvertimePayFloor, fixedOvertimeHoursType, fixedOvertimeHoursFixed, fixedOvertimeHoursMin,
-    fixedOvertimeHoursMax, overtimeExcessPaid, trialPeriodExists, trialPeriodMonths, trialPeriodDays,
-    trialEmploymentSame, trialEmploymentType, trialWorkingHours, trialSalarySame, trialSalaryType,
-    trialSalaryMinVal, trialSalaryMaxVal, holidayType, smokingPolicyIndoor, smokingPolicyOutdoor,
-    smokingNote, trainingInfo, selectedBenefits, customBenefits, selectedTags, selectionProcess,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
-
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
-    markDirty();
   }
 
   const fmtAnnual = (n: string) => {
@@ -458,41 +327,6 @@ export function JobEditForm({
     }
   }
 
-  const formRef = useRef<HTMLFormElement>(null);
-  const validationErrorRef = useRef<HTMLDivElement>(null);
-  const mountedRef = useRef(false);
-  const justSavedRef = useRef(false);
-  useEffect(() => {
-    const id = setTimeout(() => { mountedRef.current = true; }, 0);
-    return () => clearTimeout(id);
-  }, []);
-
-  function markDirty() {
-    if (!mountedRef.current) return;
-    if (justSavedRef.current) {
-      justSavedRef.current = false;
-      return;
-    }
-    setIsDirty(true);
-    setDraftSaved(false);
-  }
-
-  function parseServerError(err: unknown): string {
-    if (!(err instanceof Error)) return "予期せぬエラーが発生しました。時間をおいて再度お試しください。";
-    const msg = err.message;
-    if (msg.includes("omitted in production") || msg.includes("Server Components render") || msg.includes("digest")) {
-      return "サーバーエラーが発生しました。入力内容を確認し、時間をおいて再度お試しください。";
-    }
-    return msg;
-  }
-
-  function showError(msg: string) {
-    setValidationError(msg);
-    setTimeout(() => {
-      validationErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
-  }
-
   function readFormValues(form: HTMLFormElement) {
     setFormValues(
       Object.fromEntries(
@@ -501,108 +335,13 @@ export function JobEditForm({
     );
   }
 
-  function buildJobData(fd: FormData) {
-    return {
-      title: fd.get("title") as string,
-      description: fd.get("description") as string,
-      employmentType,
-      location: selectedLocation,
-      salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
-      salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
-      categoryTag,
-      tags: mergedTags,
-      imageUrl,
-      requirements: fd.get("requirements") as string,
-      desiredAptitude: fd.get("desiredAptitude") as string,
-      recommendedFor: fd.get("recommendedFor") as string,
-      monthlySalary: annualSalaryText || undefined,
-      access: fd.get("access") as string,
-      officeName: fd.get("officeName") as string || undefined,
-      officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
-      postalCode: postalCode || undefined,
-      benefits: mergedBenefits,
-      selectionProcess: fd.get("selectionProcess") as string,
-      employmentPeriodType,
-      region: selectedRegion,
-      categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
-      employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
-      targetType,
-      graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
-      trainingInfo: trainingInfo || undefined,
-      youthEmploymentStats: youthStats.some((s) => Object.values(s).slice(1).some(Boolean)) ? youthStats : undefined,
-      smokingPolicyIndoor: smokingPolicyIndoor || undefined,
-      smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
-      smokingNote: smokingNote || undefined,
-      recruitmentBackground: fd.get("recruitmentBackground") as string,
-      salaryType,
-      salaryRevision: fd.get("salaryRevision") as string,
-      bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
-      annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
-      annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
-      hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
-      fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
-        payType: fixedOvertimePayType,
-        payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
-        payMin: fixedOvertimePayMin ? Number(fixedOvertimePayMin) : null,
-        payMax: fixedOvertimePayMax ? Number(fixedOvertimePayMax) : null,
-        payFloor: fixedOvertimePayFloor ? Number(fixedOvertimePayFloor) : null,
-        hoursType: fixedOvertimeHoursType,
-        hoursFixed: fixedOvertimeHoursFixed ? Number(fixedOvertimeHoursFixed) : null,
-        hoursMin: fixedOvertimeHoursMin ? Number(fixedOvertimeHoursMin) : null,
-        hoursMax: fixedOvertimeHoursMax ? Number(fixedOvertimeHoursMax) : null,
-        excessPaid: overtimeExcessPaid,
-      }) : undefined,
-      trialPeriodExists: trialPeriodExists ?? undefined,
-      trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
-      trialPeriodDays: trialPeriodExists && trialPeriodDays ? trialPeriodDays : undefined,
-      trialEmploymentSame: trialPeriodExists ? (trialEmploymentSame ?? undefined) : undefined,
-      trialEmploymentType: trialPeriodExists && trialEmploymentSame === false ? trialEmploymentType || undefined : undefined,
-      trialWorkingHours: trialPeriodExists && trialWorkingHours ? Number(trialWorkingHours) : undefined,
-      trialSalarySame: trialPeriodExists ? (trialSalarySame ?? undefined) : undefined,
-      trialSalaryType: trialPeriodExists && trialSalarySame === false ? trialSalaryType : undefined,
-      trialSalaryMin: trialPeriodExists && trialSalarySame === false && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
-      trialSalaryMax: trialPeriodExists && trialSalarySame === false && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
-      trialAnnualSalary: trialPeriodExists && trialSalarySame === false ? (trialAnnualSalaryText || undefined) : undefined,
-      trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
-      holidayType,
-      holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
-      jobSubcategory: jobSubcategory || undefined,
-      ...workingHoursStateToData(workingHours),
-    };
-  }
-
-  async function handleDraftSave() {
-    setValidationError(null);
-    if (!titleVal.trim()) {
-      setValidationError("タイトルの入力は必須です");
-      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      titleRef.current?.focus();
-      return;
-    }
-    const fd = new FormData(formRef.current!);
-    setPendingAction("draft");
-    try {
-      const result = await updateJob(job.id, buildJobData(fd), "draft");
-      if (!result.ok) {
-        showError(`下書き保存に失敗しました：${result.error}`);
-        return;
-      }
-      justSavedRef.current = true;
-      setDraftSaved(true);
-      setIsDirty(false);
-    } catch (err) {
-      console.error(err);
-      showError(`下書き保存に失敗しました：${parseServerError(err)}`);
-    } finally {
-      setPendingAction(null);
-    }
-  }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setValidationError(null);
 
     const fd = new FormData(event.currentTarget);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
     if (!titleVal.trim()) {
       setValidationError("タイトルの入力は必須です");
@@ -611,124 +350,154 @@ export function JobEditForm({
       return;
     }
 
-    if (!categoryTag) {
-      showError("求人カテゴリを選択してください");
-      return;
-    }
-
-    if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
-      showError("カテゴリ「その他」の詳細を入力してください");
-      return;
-    }
-
-    if (description.length < 200) {
-      showError("仕事内容は200文字以上入力してください");
-      return;
-    }
-
-    if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
-      showError("雇用形態「その他」の詳細を入力してください");
-      return;
-    }
-
-    if (!selectionProcess.trim()) {
-      showError("選考フローを入力してください");
-      return;
-    }
-
-    if (trialPeriodExists === null) {
-      showError("試用期間のあり・なしを選択してください");
-      return;
-    }
-
-    if (trialPeriodExists && trialEmploymentSame === null) {
-      showError("試用期間中の雇用形態を選択してください");
-      return;
-    }
-
-    if (trialPeriodExists && trialSalarySame === null) {
-      showError("試用期間中の給与を選択してください");
-      return;
-    }
-
-    if (mergedBenefits.length === 0) {
-      showError("福利厚生を1つ以上選択してください");
-      return;
-    }
-
-    if (selectedRegion && !selectedLocation) {
-      showError("勤務地を選択してください");
-      return;
-    }
-
-    if (!smokingPolicyIndoor) {
-      showError("屋内の受動喫煙対策を選択してください");
-      return;
-    }
-
-    if (!smokingPolicyOutdoor) {
-      showError("屋外の受動喫煙対策を選択してください");
-      return;
-    }
-
-    setPendingAction("review");
-
-    try {
-      const result = await updateJob(job.id, buildJobData(fd), "review");
-      if (!result.ok) {
-        showError(`送信に失敗しました：${result.error}`);
+    if (submissionMode !== "draft") {
+      if (!categoryTag) {
+        setValidationError("求人カテゴリを選択してください");
         return;
       }
-      router.push("/company/jobs");
-    } catch (err) {
-      console.error(err);
-      showError(`送信に失敗しました：${parseServerError(err)}`);
-    } finally {
-      setPendingAction(null);
-    }
-  }
 
-  async function handleDelete() {
-    if (!confirm("この求人を削除しますか？")) return;
-    setPendingAction("delete");
+      if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
+        setValidationError("求人カテゴリの詳細を入力してください");
+        return;
+      }
+
+      if (description.length < 200) {
+        setValidationError("仕事内容は200文字以上入力してください");
+        return;
+      }
+
+      if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
+        setValidationError("雇用形態の詳細を入力してください");
+        return;
+      }
+
+      if (!selectionProcess.trim()) {
+        setValidationError("選考フローを入力してください");
+        return;
+      }
+
+      if (trialPeriodExists === null) {
+        setValidationError("試用期間のあり・なしを選択してください");
+        return;
+      }
+
+      if (trialPeriodExists && trialEmploymentSame === null) {
+        setValidationError("試用期間中の雇用形態を選択してください");
+        return;
+      }
+
+      if (trialPeriodExists && trialSalarySame === null) {
+        setValidationError("試用期間中の給与を選択してください");
+        return;
+      }
+
+      if (mergedBenefits.length === 0) {
+        setValidationError("福利厚生を1つ以上選択してください");
+        return;
+      }
+
+      if (selectedRegion && !selectedLocation) {
+        setValidationError("勤務地を選択してください");
+        return;
+      }
+
+      if (!smokingPolicyIndoor) {
+        setValidationError("屋内の受動喫煙対策を選択してください");
+        return;
+      }
+
+      if (!smokingPolicyOutdoor) {
+        setValidationError("屋外の受動喫煙対策を選択してください");
+        return;
+      }
+    }
+
+    setPendingAction(submissionMode);
+
     try {
-      await deleteJob(job.id);
-      router.push("/company/jobs");
+      const jobId = await createJob(
+        {
+          title: fd.get("title") as string,
+          description: fd.get("description") as string,
+          employmentType,
+          categoryTag,
+          categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
+          employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
+          region: selectedRegion,
+          location: selectedLocation,
+          requirements: fd.get("requirements") as string,
+          desiredAptitude: fd.get("desiredAptitude") as string,
+          recommendedFor: fd.get("recommendedFor") as string,
+          access: fd.get("access") as string,
+          officeName: fd.get("officeName") as string || undefined,
+          officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
+          postalCode: postalCode || undefined,
+          selectionProcess: fd.get("selectionProcess") as string,
+          imageUrl,
+          tags: mergedTags,
+          benefits: mergedBenefits,
+          targetType,
+          graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
+          trainingInfo: trainingInfo || undefined,
+          youthEmploymentStats: youthStats.some((s) => Object.values(s).slice(1).some(Boolean)) ? youthStats : undefined,
+          smokingPolicyIndoor: smokingPolicyIndoor || undefined,
+          smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
+          smokingNote: smokingNote || undefined,
+          recruitmentBackground: fd.get("recruitmentBackground") as string,
+          salaryType,
+          salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
+          salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
+          monthlySalary: annualSalaryText || undefined,
+          salaryRevision: fd.get("salaryRevision") as string,
+          bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
+          annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
+          annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
+          hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
+          fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
+            payType: fixedOvertimePayType,
+            payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
+            payMin: fixedOvertimePayMin ? Number(fixedOvertimePayMin) : null,
+            payMax: fixedOvertimePayMax ? Number(fixedOvertimePayMax) : null,
+            payFloor: fixedOvertimePayFloor ? Number(fixedOvertimePayFloor) : null,
+            hoursType: fixedOvertimeHoursType,
+            hoursFixed: fixedOvertimeHoursFixed ? Number(fixedOvertimeHoursFixed) : null,
+            hoursMin: fixedOvertimeHoursMin ? Number(fixedOvertimeHoursMin) : null,
+            hoursMax: fixedOvertimeHoursMax ? Number(fixedOvertimeHoursMax) : null,
+            excessPaid: overtimeExcessPaid,
+          }) : undefined,
+          trialPeriodExists: trialPeriodExists ?? undefined,
+          trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
+          trialPeriodDays: trialPeriodExists && trialPeriodDays ? trialPeriodDays : undefined,
+          trialEmploymentSame: trialPeriodExists ? (trialEmploymentSame ?? undefined) : undefined,
+          trialEmploymentType: trialPeriodExists && trialEmploymentSame === false ? trialEmploymentType || undefined : undefined,
+          trialWorkingHours: trialPeriodExists && trialWorkingHours ? Number(trialWorkingHours) : undefined,
+          trialSalarySame: trialPeriodExists ? (trialSalarySame ?? undefined) : undefined,
+          trialSalaryType: trialPeriodExists && trialSalarySame === false ? trialSalaryType : undefined,
+          trialSalaryMin: trialPeriodExists && trialSalarySame === false && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
+          trialSalaryMax: trialPeriodExists && trialSalarySame === false && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
+          trialAnnualSalary: trialPeriodExists && trialSalarySame === false ? (trialAnnualSalaryText || undefined) : undefined,
+          trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
+          holidayType,
+          holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+          jobSubcategory: jobSubcategory || undefined,
+          ...workingHoursStateToData(workingHours),
+        },
+        submissionMode,
+      );
+
+      router.push(submissionMode === "draft" ? `/company/jobs/${jobId}/edit` : "/company/jobs");
     } finally {
       setPendingAction(null);
     }
   }
-
-  async function handleWithdraw() {
-    if (!confirm("審査申請を取り下げますか？")) return;
-    setPendingAction("withdraw");
-    try {
-      await withdrawJobSubmission(job.id);
-      setCurrentReviewStatus(hasPublishedVersion ? "PUBLISHED" : "DRAFT");
-      router.refresh();
-    } finally {
-      setPendingAction(null);
-    }
-  }
-
-  const closingDateStr = job.closingDate ? new Date(job.closingDate).toISOString().split("T")[0] : "";
 
   const isSubmitting = pendingAction !== null;
-  const canWithdraw = currentReviewStatus === "PENDING_REVIEW";
-  const showDraftSave = !canWithdraw && !hasPublishedVersion;
 
   return (
-    <>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[currentReviewStatus]}`}>
-          {JOB_REVIEW_STATUS_LABELS[currentReviewStatus]}
-        </span>
-        {job.reviewComment ? <span className="whitespace-pre-line text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
-        {hasPendingVersion ? (
-          <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#2563eb]">差し替え審査データあり</span>
-        ) : null}
-      </div>
-
+    <div className="mx-auto max-w-[1920px] px-4 py-8 md:px-6 md:py-10 xl:px-8 2xl:px-10">
+      <h1 className="text-[30px] font-bold leading-none tracking-tight text-[#2c2f36] md:text-[34px]">
+        求人を作成する
+      </h1>
       <div className="fixed bottom-6 right-6 z-30">
         <button
           type="button"
@@ -742,14 +511,8 @@ export function JobEditForm({
       </div>
 
       {validationError ? (
-        <div ref={validationErrorRef} className="mt-5 rounded-[10px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
+        <div className="mt-5 rounded-[10px] border border-[#ff5e7d] bg-[#fff5f7] px-4 py-3 text-[14px] text-[#ff3158]">
           {validationError}
-        </div>
-      ) : null}
-
-      {hasPublishedVersion ? (
-        <div className="mt-4 rounded-[12px] border border-[#dbe4ff] bg-[#f4f7ff] px-4 py-4 text-[13px] leading-[1.8] text-[#587199]">
-          公開中の求人を編集して審査に提出すると、現在の掲載内容はそのまま残り、審査完了後に新しい内容へ自動で差し替わります。
         </div>
       ) : null}
 
@@ -759,10 +522,9 @@ export function JobEditForm({
         }`}
       >
         <form
-          ref={formRef}
           noValidate
           onSubmit={handleSubmit}
-          onChange={(event) => { readFormValues(event.currentTarget); markDirty(); }}
+          onChange={(event) => readFormValues(event.currentTarget)}
           className={`rounded-[10px] bg-white p-[30px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex flex-col gap-5 ${
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
@@ -810,7 +572,6 @@ export function JobEditForm({
               <div className="rounded-[18px] border border-[#d9dfec] p-4">
                 <ThumbnailUpload
                   name="imageUrl"
-                  defaultValue={job.imageUrl ?? undefined}
                   hint="推奨サイズ：横2 × 縦1（例：1600×800px）"
                   onUploaded={(url) => {
                     setImageUrl(url);
@@ -928,10 +689,10 @@ export function JobEditForm({
               )}
             </Field>
             <Field label="応募条件" required>
-              <textarea name="requirements" required rows={3} defaultValue={job.requirements ?? ""} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
+              <textarea name="requirements" required rows={3} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
             </Field>
             <Field label="求める人物像" required>
-              <textarea name="desiredAptitude" required rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
+              <textarea name="desiredAptitude" required rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
             <Field label="求人タグ">
               <div className="flex flex-wrap gap-2">
@@ -1028,11 +789,11 @@ export function JobEditForm({
             </Field>
 
             <Field label="勤務地名称">
-              <input name="officeName" defaultValue={job.officeName ?? ""} className={inputCls} placeholder="例：本社/渋谷オフィス" />
+              <input name="officeName" className={inputCls} placeholder="例：本社/渋谷オフィス" />
             </Field>
 
             <Field label="アクセス">
-              <input name="access" defaultValue={job.access ?? ""} className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
+              <input name="access" className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
             </Field>
           </Section>
 
@@ -1068,6 +829,7 @@ export function JobEditForm({
               )}
             </Field>
 
+            {/* 年俸のみ: 支払い方法 */}
             {salaryType === "annual" && (
               <Field label="支払い方法" required>
                 <div className="space-y-2">
@@ -1082,6 +844,7 @@ export function JobEditForm({
               </Field>
             )}
 
+            {/* 月給のみ: 想定年収 */}
             {salaryType === "monthly" && (
               <Field label="想定年収" required>
                 <div className="flex items-center gap-2">
@@ -1093,6 +856,7 @@ export function JobEditForm({
               </Field>
             )}
 
+            {/* 年俸・月給のみ: みなし残業制度 */}
             {(salaryType === "annual" || salaryType === "monthly") && (
               <Field label="みなし残業制度" required>
                 <div className="flex gap-6">
@@ -1106,54 +870,82 @@ export function JobEditForm({
               </Field>
             )}
 
+            {/* みなし残業 詳細サブフォーム */}
             {(salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime && (
               <div className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] p-4 space-y-5">
                 <div className="space-y-1 text-[13px] text-[#eb0937]">
                   <p>1日の実働時間が8時間以上の場合、みなし残業代は以下の式を満たす必要があります。</p>
                   <p>みなし残業代÷（固定残業時間×1.25）≥最低賃金額(時間額)</p>
                 </div>
+                {/* みなし残業代 */}
                 <div>
                   <p className="mb-2 text-[14px] font-bold text-[#333]">みなし残業代<span className="ml-1 text-[#eb0937]">*必須</span></p>
                   <div className="space-y-3">
                     <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]"><input type="radio" checked={fixedOvertimePayType === "fixed"} onChange={() => setFixedOvertimePayType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />固定額を表示</label>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "fixed"} onChange={() => setFixedOvertimePayType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        固定額を表示
+                      </label>
                       <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "fixed" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimePayFixed} onChange={(e) => setFixedOvertimePayFixed(e.target.value)} disabled={fixedOvertimePayType !== "fixed"} className={inputCls} placeholder="30000" /><span className="shrink-0 text-[13px] text-[#555]">円/月</span>
+                        <input type="number" value={fixedOvertimePayFixed} onChange={(e) => setFixedOvertimePayFixed(e.target.value)} disabled={fixedOvertimePayType !== "fixed"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円/月</span>
                       </div>
                     </div>
                     <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]"><input type="radio" checked={fixedOvertimePayType === "range"} onChange={() => setFixedOvertimePayType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />範囲を指定</label>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "range"} onChange={() => setFixedOvertimePayType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        範囲を指定
+                      </label>
                       <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "range" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimePayMin} onChange={(e) => setFixedOvertimePayMin(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="30000" /><span className="shrink-0 text-[13px] text-[#555]">円〜</span>
-                        <input type="number" value={fixedOvertimePayMax} onChange={(e) => setFixedOvertimePayMax(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="60000" /><span className="shrink-0 text-[13px] text-[#555]">円</span>
+                        <input type="number" value={fixedOvertimePayMin} onChange={(e) => setFixedOvertimePayMin(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円〜</span>
+                        <input type="number" value={fixedOvertimePayMax} onChange={(e) => setFixedOvertimePayMax(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="60000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円</span>
                       </div>
                     </div>
                     <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]"><input type="radio" checked={fixedOvertimePayType === "minimum"} onChange={() => setFixedOvertimePayType("minimum")} className="h-[16px] w-[16px] accent-[#1d63e3]" />最低額を表示</label>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimePayType === "minimum"} onChange={() => setFixedOvertimePayType("minimum")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        最低額を表示
+                      </label>
                       <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "minimum" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimePayFloor} onChange={(e) => setFixedOvertimePayFloor(e.target.value)} disabled={fixedOvertimePayType !== "minimum"} className={inputCls} placeholder="30000" /><span className="shrink-0 text-[13px] text-[#555]">円以上/月</span>
+                        <input type="number" value={fixedOvertimePayFloor} onChange={(e) => setFixedOvertimePayFloor(e.target.value)} disabled={fixedOvertimePayType !== "minimum"} className={inputCls} placeholder="30000" />
+                        <span className="shrink-0 text-[13px] text-[#555]">円以上/月</span>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {/* みなし残業時間 */}
                 <div>
                   <p className="mb-2 text-[14px] font-bold text-[#333]">みなし残業時間<span className="ml-1 text-[#eb0937]">*必須</span></p>
                   <div className="space-y-3">
                     <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]"><input type="radio" checked={fixedOvertimeHoursType === "fixed"} onChange={() => setFixedOvertimeHoursType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />固定時間を表示</label>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimeHoursType === "fixed"} onChange={() => setFixedOvertimeHoursType("fixed")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        固定時間を表示
+                      </label>
                       <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimeHoursType !== "fixed" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimeHoursFixed} onChange={(e) => setFixedOvertimeHoursFixed(e.target.value)} disabled={fixedOvertimeHoursType !== "fixed"} className={inputCls} placeholder="10" /><span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
+                        <input type="number" value={fixedOvertimeHoursFixed} onChange={(e) => setFixedOvertimeHoursFixed(e.target.value)} disabled={fixedOvertimeHoursType !== "fixed"} className={inputCls} placeholder="10" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
                       </div>
                     </div>
                     <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]"><input type="radio" checked={fixedOvertimeHoursType === "range"} onChange={() => setFixedOvertimeHoursType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />範囲を指定</label>
+                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                        <input type="radio" checked={fixedOvertimeHoursType === "range"} onChange={() => setFixedOvertimeHoursType("range")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
+                        範囲を指定
+                      </label>
                       <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimeHoursType !== "range" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimeHoursMin} onChange={(e) => setFixedOvertimeHoursMin(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="10" /><span className="shrink-0 text-[13px] text-[#555]">時間〜</span>
-                        <input type="number" value={fixedOvertimeHoursMax} onChange={(e) => setFixedOvertimeHoursMax(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="20" /><span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
+                        <input type="number" value={fixedOvertimeHoursMin} onChange={(e) => setFixedOvertimeHoursMin(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="10" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間〜</span>
+                        <input type="number" value={fixedOvertimeHoursMax} onChange={(e) => setFixedOvertimeHoursMax(e.target.value)} disabled={fixedOvertimeHoursType !== "range"} className={inputCls} placeholder="20" />
+                        <span className="shrink-0 text-[13px] text-[#555]">時間/月</span>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {/* 超過分の全支給 */}
                 <div>
                   <p className="mb-1 text-[14px] font-bold text-[#333]">超過分の全支給について<span className="ml-1 text-[#eb0937]">*必須</span></p>
                   <p className="mb-2 text-[13px] text-[#eb0937]">みなし時間分を超過して勤務した分の給与は全額支払う義務があります。</p>
@@ -1184,7 +976,7 @@ export function JobEditForm({
             <Field label="勤務時間" required>
               <WorkingHoursSection
                 value={workingHours}
-                onChange={(updates) => { setWorkingHours((prev) => ({ ...prev, ...updates })); markDirty(); }}
+                onChange={(updates) => setWorkingHours((prev) => ({ ...prev, ...updates }))}
               />
             </Field>
           </Section>
@@ -1311,7 +1103,6 @@ export function JobEditForm({
                   <textarea
                     name="trialPeriod"
                     rows={2}
-                    defaultValue={job.trialPeriod ?? ""}
                     className={textareaCls}
                     placeholder={`例：試用期間中は以下の条件が適用されます\n・社会保険：加入（同条件）\n・退職金：対象外`}
                   />
@@ -1337,7 +1128,6 @@ export function JobEditForm({
                 <textarea
                   name="holidayPolicy"
                   rows={3}
-                  defaultValue={job.holidayPolicy ?? ""}
                   className={textareaCls}
                   placeholder="例：◇出産・育児休暇&#10;◇慶弔休暇&#10;◇有給休暇（入社半年後10日付与）"
                 />
@@ -1489,40 +1279,23 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <div className="flex flex-wrap items-center gap-3 pt-8">
-            {!canWithdraw ? (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="rounded-[10px] bg-[#1d63e3] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-              >
-                {pendingAction === "review" ? "送信中..." : "審査に提出"}
-              </button>
-            ) : null}
-            {showDraftSave ? (
-              <button
-                type="button"
-                onClick={handleDraftSave}
-                disabled={isSubmitting || (draftSaved && !isDirty)}
-                className={`rounded-[10px] border px-8 py-3.5 text-[15px] font-bold transition ${
-                  draftSaved && !isDirty
-                    ? "border-[#a8d5a2] bg-[#f0faf0] text-[#4a9e3f] cursor-default"
-                    : "border-[#ccc] bg-white text-[#1d63e3] hover:bg-[#f7faff] disabled:opacity-50"
-                }`}
-              >
-                {pendingAction === "draft" ? "保存中..." : draftSaved && !isDirty ? "下書き保存済み" : "下書き保存"}
-              </button>
-            ) : null}
-            {canWithdraw ? (
-              <button
-                type="button"
-                onClick={handleWithdraw}
-                disabled={isSubmitting}
-                className="rounded-[10px] border border-[#f5c36b] bg-[#fff8ea] px-6 py-3.5 text-[15px] font-bold text-[#b7791f] transition hover:bg-[#fff3d8] disabled:opacity-50"
-              >
-                {pendingAction === "withdraw" ? "取り下げ中..." : "審査を取り下げる"}
-              </button>
-            ) : null}
+          <div className="flex flex-wrap gap-3 pt-8">
+            <button
+              type="submit"
+              data-mode="review"
+              disabled={isSubmitting}
+              className="rounded-[10px] bg-[#1d63e3] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+            >
+              {pendingAction === "review" ? "送信中..." : "審査に提出"}
+            </button>
+            <button
+              type="submit"
+              data-mode="draft"
+              disabled={isSubmitting}
+              className="rounded-[10px] border border-[#ccc] bg-white px-8 py-3.5 text-[15px] font-bold text-[#1d63e3] transition hover:bg-[#f7faff] disabled:opacity-50"
+            >
+              {pendingAction === "draft" ? "保存中..." : "下書き保存"}
+            </button>
             <button
               type="button"
               onClick={() => router.back()}
@@ -1530,25 +1303,17 @@ export function JobEditForm({
             >
               キャンセル
             </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isSubmitting}
-              className="ml-auto rounded-[10px] border border-[#ff3158] px-6 py-3.5 text-[15px] font-bold text-[#ff3158] transition hover:bg-[#fff5f7] disabled:opacity-50"
-            >
-              {pendingAction === "delete" ? "削除中..." : "削除"}
-            </button>
           </div>
         </form>
 
         {showPreview && isWidePreview ? (
-          <div className="hidden self-start 2xl:block">
+          <aside className="hidden self-start 2xl:block">
             <div className="sticky top-6 rounded-[24px] bg-white p-5 shadow-[0_2px_12px_rgba(27,52,90,0.06)]">
               <div className="max-h-[calc(100vh-72px)] overflow-y-auto">
                 <JobPreview data={previewData} />
               </div>
             </div>
-          </div>
+          </aside>
         ) : null}
       </div>
       {showBenefitModal && (
@@ -1613,7 +1378,7 @@ export function JobEditForm({
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
 
@@ -1631,7 +1396,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   if (
     isValidElement<{ type?: string }>(children) &&
     children.type === "input" &&

@@ -106,6 +106,7 @@ export type JobPendingContent = {
   trialAnnualSalary: string | null;
   workingHoursType: string | null;
   workingHoursDetail: WorkingHoursDetail | null;
+  jobSubcategory: string | null;
 };
 
 function asString(value: unknown) {
@@ -196,6 +197,7 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     trialSalaryMax: asNumber(record.trialSalaryMax),
     trialAnnualSalary: asString(record.trialAnnualSalary),
     workingHoursType: asString(record.workingHoursType),
+    jobSubcategory: asString(record.jobSubcategory),
     workingHoursDetail: (() => {
       const d = record.workingHoursDetail;
       if (!d || typeof d !== "object" || Array.isArray(d)) return null;

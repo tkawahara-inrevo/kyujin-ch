@@ -6,7 +6,7 @@ export default async function AdminBillingPage() {
   await requireAdmin();
 
   const priceEntries = await prisma.priceEntry.findMany({
-    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+    orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
   });
 
   // Group by category

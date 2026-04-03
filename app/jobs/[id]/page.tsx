@@ -301,6 +301,7 @@ export default async function JobDetailPage({
                   <InfoRow label="雇用形態" value={employmentLabel} />
                   <InfoRow label="対象" value={formatTarget(job)} />
                   <InfoRow label="カテゴリ" value={categoryLabel} />
+                  <InfoRow label="職種" value={job.jobSubcategory} />
                   <InfoRow label="勤務地" value={workLocation} />
                   <InfoRow label="最寄・アクセス" value={job.access} />
                 </dl>

@@ -251,6 +251,9 @@ model Job {
   annualPaymentMethod   String?   // "monthly" | "other"
   annualPaymentNote     String?   // 支払い方法の補足
 
+  // 職種（PriceEntryのsubcategoryに対応）
+  jobSubcategory        String?   // 職種
+
   // 試用期間中の給与
   trialSalaryType       String?   // 試用期間中の給与タイプ
   trialSalaryMin        Int?      // 試用期間中の給与下限
@@ -360,10 +363,11 @@ model PriceEntry {
   experiencedPrice   Int     // 経験者料金
   inexperiencedPrice Int?    // 未経験者料金 (nullable)
   sortOrder          Int     @default(0)
+  categorySortOrder  Int     @default(0)  // カテゴリ自体の並び順
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  @@index([category, sortOrder])
+  @@index([categorySortOrder, sortOrder])
 }
 
 // ---- 課金・請求・分析 ----

@@ -25,7 +25,19 @@ export default async function CompanyJobEditPage({
 
   if (!job) return notFound();
 
-  const pendingContent = parsePendingContent(job.pendingContent);
+  const [pendingContent, priceEntries] = await Promise.all([
+    Promise.resolve(parsePendingContent(job.pendingContent)),
+    prisma.priceEntry.findMany({
+      orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
+    }),
+  ]);
+
+  const subcategoryMap: Record<string, string[]> = {};
+  for (const entry of priceEntries) {
+    if (!subcategoryMap[entry.category]) subcategoryMap[entry.category] = [];
+    subcategoryMap[entry.category].push(entry.subcategory);
+  }
+
   const rawJob = {
     ...job,
     youthEmploymentStats: Array.isArray(job.youthEmploymentStats) ? job.youthEmploymentStats as YouthYearStats[] : null,
@@ -44,7 +56,7 @@ export default async function CompanyJobEditPage({
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">求人を編集する</h1>
-      <JobEditForm job={formJob} hasPublishedVersion={job.isPublished} hasPendingVersion={!!pendingContent} />
+      <JobEditForm job={formJob} hasPublishedVersion={job.isPublished} hasPendingVersion={!!pendingContent} subcategoryMap={subcategoryMap} />
     </div>
   );
 }

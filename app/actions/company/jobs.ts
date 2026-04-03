@@ -86,6 +86,7 @@ type JobData = {
   trialAnnualSalary?: string;
   workingHoursType?: string;
   workingHoursDetail?: WorkingHoursDetail;
+  jobSubcategory?: string;
 };
 
 export type YouthYearStats = {
@@ -207,6 +208,7 @@ function normalizeJobData(data: JobData): JobPendingContent {
     trialAnnualSalary: data.trialAnnualSalary || null,
     workingHoursType: data.workingHoursType || null,
     workingHoursDetail: data.workingHoursDetail || null,
+    jobSubcategory: data.jobSubcategory || null,
   };
 }
 
@@ -282,6 +284,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     trialAnnualSalary: normalized.trialAnnualSalary,
     workingHoursType: normalized.workingHoursType,
     workingHoursDetail: normalized.workingHoursDetail ? normalized.workingHoursDetail as unknown as Prisma.InputJsonValue : Prisma.DbNull,
+    jobSubcategory: normalized.jobSubcategory,
     pendingContent: Prisma.DbNull,
   };
 }

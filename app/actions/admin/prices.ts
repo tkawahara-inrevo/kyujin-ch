@@ -73,3 +73,67 @@ export async function deletePriceEntry(id: string) {
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
 }
+
+export async function reorderEntry(id: string, direction: "up" | "down") {
+  await requireAdminAction();
+
+  const entry = await prisma.priceEntry.findUnique({ where: { id } });
+  if (!entry) return;
+
+  const siblings = await prisma.priceEntry.findMany({
+    where: { category: entry.category },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  const index = siblings.findIndex((e) => e.id === id);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= siblings.length) return;
+
+  const sibling = siblings[swapIndex];
+  await prisma.$transaction([
+    prisma.priceEntry.update({ where: { id: entry.id }, data: { sortOrder: sibling.sortOrder } }),
+    prisma.priceEntry.update({ where: { id: sibling.id }, data: { sortOrder: entry.sortOrder } }),
+  ]);
+
+  revalidatePath("/admin/billing");
+  revalidatePath("/company/billing");
+}
+
+export async function reorderCategory(category: string, direction: "up" | "down") {
+  await requireAdminAction();
+
+  // Get all distinct categories with their categorySortOrder (use first entry's value)
+  const allEntries = await prisma.priceEntry.findMany({
+    orderBy: [{ categorySortOrder: "asc" }, { category: "asc" }],
+  });
+
+  // Build ordered category list (deduplicated)
+  const seen = new Set<string>();
+  const categoryOrder: Array<{ name: string; sortOrder: number }> = [];
+  for (const e of allEntries) {
+    if (!seen.has(e.category)) {
+      seen.add(e.category);
+      categoryOrder.push({ name: e.category, sortOrder: e.categorySortOrder });
+    }
+  }
+
+  const index = categoryOrder.findIndex((c) => c.name === category);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+  if (index < 0 || swapIndex < 0 || swapIndex >= categoryOrder.length) return;
+
+  const swapCategory = categoryOrder[swapIndex];
+  // Swap categorySortOrder values between the two categories
+  await prisma.$transaction([
+    prisma.priceEntry.updateMany({
+      where: { category },
+      data: { categorySortOrder: swapCategory.sortOrder },
+    }),
+    prisma.priceEntry.updateMany({
+      where: { category: swapCategory.name },
+      data: { categorySortOrder: categoryOrder[index].sortOrder },
+    }),
+  ]);
+
+  revalidatePath("/admin/billing");
+  revalidatePath("/company/billing");
+}

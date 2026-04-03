@@ -61,6 +61,8 @@ function CategorySortModal({
 }) {
   const [order, setOrder] = useState<string[]>([...categories]);
   const [isPending, startTransition] = useTransition();
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   function move(index: number, direction: "up" | "down") {
     const swapIndex = direction === "up" ? index - 1 : index + 1;
@@ -68,6 +70,35 @@ function CategorySortModal({
     const next = [...order];
     [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
     setOrder(next);
+  }
+
+  function handleDragStart(index: number) {
+    setDragIndex(index);
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === index) return;
+    setDragOverIndex(index);
+  }
+
+  function handleDrop(index: number) {
+    if (dragIndex === null || dragIndex === index) {
+      setDragIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+    const next = [...order];
+    const [removed] = next.splice(dragIndex, 1);
+    next.splice(index, 0, removed);
+    setOrder(next);
+    setDragIndex(null);
+    setDragOverIndex(null);
+  }
+
+  function handleDragEnd() {
+    setDragIndex(null);
+    setDragOverIndex(null);
   }
 
   function handleSave() {
@@ -79,39 +110,55 @@ function CategorySortModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-[480px] rounded-[16px] bg-white p-6 shadow-2xl">
-        <h2 className="text-[18px] font-bold text-[#1e3a5f]">カテゴリの並べ替え</h2>
-        <p className="mt-1 text-[12px] text-[#888]">▲▼ で順序を変更し、保存してください</p>
-
-        <div className="mt-4 space-y-2">
-          {order.map((cat, index) => (
-            <div
-              key={cat}
-              className="flex items-center gap-3 rounded-[10px] border border-[#e5e7eb] bg-[#f8fafc] px-4 py-3"
-            >
-              <div className="flex flex-col gap-0.5">
-                <button
-                  onClick={() => move(index, "up")}
-                  disabled={index === 0}
-                  className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#666] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
-                >
-                  ▲
-                </button>
-                <button
-                  onClick={() => move(index, "down")}
-                  disabled={index === order.length - 1}
-                  className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#666] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
-                >
-                  ▼
-                </button>
-              </div>
-              <span className="flex-1 text-[14px] font-semibold text-[#2b2f38]">{cat}</span>
-              <span className="text-[12px] text-[#aaa]">{index + 1}</span>
-            </div>
-          ))}
+      <div className="flex w-full max-w-[480px] flex-col rounded-[16px] bg-white shadow-2xl" style={{ maxHeight: "80vh" }}>
+        <div className="shrink-0 px-6 pt-6 pb-4">
+          <h2 className="text-[18px] font-bold text-[#1e3a5f]">カテゴリの並べ替え</h2>
+          <p className="mt-1 text-[12px] text-[#888]">ドラッグまたは ▲▼ で順序を変更し、保存してください</p>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6">
+          <div className="space-y-2 pb-2">
+            {order.map((cat, index) => (
+              <div
+                key={cat}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={() => handleDrop(index)}
+                onDragEnd={handleDragEnd}
+                className={`flex cursor-grab items-center gap-3 rounded-[10px] border px-4 py-3 transition-colors active:cursor-grabbing select-none ${
+                  dragIndex === index
+                    ? "opacity-40 border-[#d0d7e6] bg-[#f8fafc]"
+                    : dragOverIndex === index
+                      ? "border-[#2f6cff] bg-[#eef4ff]"
+                      : "border-[#e5e7eb] bg-[#f8fafc] hover:border-[#d0d7e6]"
+                }`}
+              >
+                <span className="shrink-0 text-[16px] text-[#ccc]">⠿</span>
+                <span className="flex-1 text-[14px] font-semibold text-[#2b2f38]">{cat}</span>
+                <span className="shrink-0 text-[12px] text-[#aaa]">{index + 1}</span>
+                <div className="flex shrink-0 flex-col gap-0.5">
+                  <button
+                    onClick={() => move(index, "up")}
+                    disabled={index === 0}
+                    className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    onClick={() => move(index, "down")}
+                    disabled={index === order.length - 1}
+                    className="flex h-5 w-5 items-center justify-center rounded text-[11px] text-[#999] hover:bg-[#e5e7eb] disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    ▼
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="shrink-0 border-t border-[#f0f0f0] px-6 py-4 flex justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isPending}

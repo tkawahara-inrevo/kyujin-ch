@@ -361,6 +361,11 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
         return;
       }
 
+      if (subcategoryMap[categoryTag]?.length > 0 && !jobSubcategory) {
+        setValidationError("職種を選択してください");
+        return;
+      }
+
       if (description.length < 200) {
         setValidationError("仕事内容は200文字以上入力してください");
         return;
@@ -610,14 +615,14 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
             </Field>
 
             {categoryTag && subcategoryMap[categoryTag]?.length > 0 ? (
-              <Field label="職種">
+              <Field label="職種" required>
                 <select
                   name="jobSubcategory"
                   className={inputCls}
                   value={jobSubcategory}
                   onChange={(event) => setJobSubcategory(event.target.value)}
                 >
-                  <option value="">選択してください（任意）</option>
+                  <option value="">選択してください</option>
                   {subcategoryMap[categoryTag].map((sub) => (
                     <option key={sub} value={sub}>
                       {sub}

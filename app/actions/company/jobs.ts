@@ -290,47 +290,59 @@ export async function createJob(data: JobData, submissionMode: JobSubmissionMode
   return job.id;
 }
 
-export async function updateJob(jobId: string, data: JobData, submissionMode: JobSubmissionMode) {
-  const companyId = await getCompanyId();
-  const job = await prisma.job.findFirst({
-    where: { id: jobId, companyId, isDeleted: false },
-    select: {
-      id: true,
-      reviewStatus: true,
-      isPublished: true,
-      pendingContent: true,
-      reviewComment: true,
-    },
-  });
-  if (!job) throw new Error("Job not found");
-
-  const normalized = normalizeJobData(data);
-  const hasPendingVersion = !!parsePendingContent(job.pendingContent);
-  const hasPublishedVersion = job.isPublished || job.reviewStatus === "PUBLISHED" || hasPendingVersion;
-
-  if (hasPublishedVersion) {
-    await prisma.job.update({
-      where: { id: jobId, companyId },
-      data: {
-        pendingContent: toPendingContentJson(normalized),
-        reviewStatus: submissionMode === "review" ? "PENDING_REVIEW" : job.reviewStatus,
-        reviewComment: submissionMode === "review" ? null : job.reviewComment,
+export async function updateJob(
+  jobId: string,
+  data: JobData,
+  submissionMode: JobSubmissionMode,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const companyId = await getCompanyId();
+    const job = await prisma.job.findFirst({
+      where: { id: jobId, companyId, isDeleted: false },
+      select: {
+        id: true,
+        reviewStatus: true,
         isPublished: true,
+        pendingContent: true,
+        reviewComment: true,
       },
     });
-  } else {
-    await prisma.job.update({
-      where: { id: jobId, companyId },
-      data: toLiveJobPrismaData(data, submissionMode),
-    });
-  }
+    if (!job) return { ok: false, error: "求人が見つかりません" };
 
-  revalidatePath("/company/jobs");
-  revalidatePath(`/company/jobs/${jobId}/edit`);
-  revalidatePath("/admin/jobs");
-  revalidatePath(`/admin/jobs/${jobId}`);
-  revalidatePath("/");
-  revalidatePath("/jobs");
+    const normalized = normalizeJobData(data);
+    const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+    const hasPublishedVersion = job.isPublished || job.reviewStatus === "PUBLISHED" || hasPendingVersion;
+
+    if (hasPublishedVersion) {
+      await prisma.job.update({
+        where: { id: jobId, companyId },
+        data: {
+          pendingContent: toPendingContentJson(normalized),
+          reviewStatus: submissionMode === "review" ? "PENDING_REVIEW" : job.reviewStatus,
+          reviewComment: submissionMode === "review" ? null : job.reviewComment,
+          isPublished: true,
+        },
+      });
+    } else {
+      await prisma.job.update({
+        where: { id: jobId, companyId },
+        data: toLiveJobPrismaData(data, submissionMode),
+      });
+    }
+
+    revalidatePath("/company/jobs");
+    revalidatePath(`/company/jobs/${jobId}/edit`);
+    revalidatePath("/admin/jobs");
+    revalidatePath(`/admin/jobs/${jobId}`);
+    revalidatePath("/");
+    revalidatePath("/jobs");
+
+    return { ok: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "不明なエラーが発生しました";
+    console.error("[updateJob]", err);
+    return { ok: false, error: message };
+  }
 }
 
 export async function duplicateJob(jobId: string): Promise<string> {

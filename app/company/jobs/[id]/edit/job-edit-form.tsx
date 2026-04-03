@@ -558,7 +558,11 @@ export function JobEditForm({
     const fd = new FormData(formRef.current!);
     setPendingAction("draft");
     try {
-      await updateJob(job.id, buildJobData(fd), "draft");
+      const result = await updateJob(job.id, buildJobData(fd), "draft");
+      if (!result.ok) {
+        showError(`下書き保存に失敗しました：${result.error}`);
+        return;
+      }
       justSavedRef.current = true;
       setDraftSaved(true);
       setIsDirty(false);
@@ -636,7 +640,11 @@ export function JobEditForm({
     setPendingAction("review");
 
     try {
-      await updateJob(job.id, buildJobData(fd), "review");
+      const result = await updateJob(job.id, buildJobData(fd), "review");
+      if (!result.ok) {
+        showError(`送信に失敗しました：${result.error}`);
+        return;
+      }
       router.push("/company/jobs");
     } catch (err) {
       console.error(err);

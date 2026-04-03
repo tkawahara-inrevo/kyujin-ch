@@ -178,6 +178,11 @@ export default function KeisaiIraiPage() {
             >
               {isPending ? "送信中..." : "送信"}
             </button>
+            {isPending && (
+              <p className="mt-3 text-xs text-gray-400">
+                法人情報を確認しています。完了まで数十秒かかる場合があります。そのままお待ちください。
+              </p>
+            )}
           </div>
         </form>
       </div>

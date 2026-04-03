@@ -673,6 +673,7 @@ export function JobEditForm({
 
   const isSubmitting = pendingAction !== null;
   const canWithdraw = currentReviewStatus === "PENDING_REVIEW";
+  const showDraftSave = !canWithdraw && !hasPublishedVersion;
 
   return (
     <>
@@ -1412,7 +1413,7 @@ export function JobEditForm({
                 {pendingAction === "review" ? "送信中..." : "審査に提出"}
               </button>
             ) : null}
-            {!canWithdraw ? (
+            {showDraftSave ? (
               <button
                 type="button"
                 onClick={handleDraftSave}

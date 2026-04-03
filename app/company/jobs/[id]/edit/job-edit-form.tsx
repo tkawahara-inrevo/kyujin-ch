@@ -436,6 +436,7 @@ export function JobEditForm({
     }
   }
 
+  const formRef = useRef<HTMLFormElement>(null);
   const mountedRef = useRef(false);
   const justSavedRef = useRef(false);
   useEffect(() => {
@@ -461,13 +462,102 @@ export function JobEditForm({
     );
   }
 
+  function buildJobData(fd: FormData) {
+    return {
+      title: fd.get("title") as string,
+      description: fd.get("description") as string,
+      employmentType,
+      location: selectedLocation,
+      salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
+      salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
+      categoryTag,
+      tags: mergedTags,
+      imageUrl,
+      requirements: fd.get("requirements") as string,
+      desiredAptitude: fd.get("desiredAptitude") as string,
+      recommendedFor: fd.get("recommendedFor") as string,
+      monthlySalary: annualSalaryText || undefined,
+      access: fd.get("access") as string,
+      officeName: fd.get("officeName") as string || undefined,
+      officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
+      postalCode: postalCode || undefined,
+      benefits: mergedBenefits,
+      selectionProcess: fd.get("selectionProcess") as string,
+      employmentPeriodType,
+      region: selectedRegion,
+      categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
+      employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
+      targetType,
+      graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
+      trainingInfo: trainingInfo || undefined,
+      youthEmploymentStats: youthStats.some((s) => Object.values(s).slice(1).some(Boolean)) ? youthStats : undefined,
+      smokingPolicyIndoor: smokingPolicyIndoor || undefined,
+      smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
+      smokingNote: smokingNote || undefined,
+      recruitmentBackground: fd.get("recruitmentBackground") as string,
+      salaryType,
+      salaryRevision: fd.get("salaryRevision") as string,
+      bonus: salaryType !== "annual" ? fd.get("bonus") as string : undefined,
+      annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
+      annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
+      hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
+      fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
+        payType: fixedOvertimePayType,
+        payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
+        payMin: fixedOvertimePayMin ? Number(fixedOvertimePayMin) : null,
+        payMax: fixedOvertimePayMax ? Number(fixedOvertimePayMax) : null,
+        payFloor: fixedOvertimePayFloor ? Number(fixedOvertimePayFloor) : null,
+        hoursType: fixedOvertimeHoursType,
+        hoursFixed: fixedOvertimeHoursFixed ? Number(fixedOvertimeHoursFixed) : null,
+        hoursMin: fixedOvertimeHoursMin ? Number(fixedOvertimeHoursMin) : null,
+        hoursMax: fixedOvertimeHoursMax ? Number(fixedOvertimeHoursMax) : null,
+        excessPaid: overtimeExcessPaid,
+      }) : undefined,
+      trialPeriodExists: trialPeriodExists ?? undefined,
+      trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
+      trialPeriodDays: trialPeriodExists && trialPeriodDays ? trialPeriodDays : undefined,
+      trialEmploymentSame: trialPeriodExists ? (trialEmploymentSame ?? undefined) : undefined,
+      trialEmploymentType: trialPeriodExists && trialEmploymentSame === false ? trialEmploymentType || undefined : undefined,
+      trialWorkingHours: trialPeriodExists && trialWorkingHours ? Number(trialWorkingHours) : undefined,
+      trialSalarySame: trialPeriodExists ? (trialSalarySame ?? undefined) : undefined,
+      trialSalaryType: trialPeriodExists && trialSalarySame === false ? trialSalaryType : undefined,
+      trialSalaryMin: trialPeriodExists && trialSalarySame === false && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
+      trialSalaryMax: trialPeriodExists && trialSalarySame === false && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
+      trialAnnualSalary: trialPeriodExists && trialSalarySame === false ? (trialAnnualSalaryText || undefined) : undefined,
+      trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
+      holidayType,
+      holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+    };
+  }
+
+  async function handleDraftSave() {
+    setValidationError(null);
+    if (!titleVal.trim()) {
+      setValidationError("タイトルの入力は必須です");
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      titleRef.current?.focus();
+      return;
+    }
+    const fd = new FormData(formRef.current!);
+    setPendingAction("draft");
+    try {
+      await updateJob(job.id, buildJobData(fd), "draft");
+      justSavedRef.current = true;
+      setDraftSaved(true);
+      setIsDirty(false);
+    } catch (err) {
+      console.error(err);
+      setValidationError("保存に失敗しました。もう一度お試しください。");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setValidationError(null);
 
     const fd = new FormData(event.currentTarget);
-    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
     if (!titleVal.trim()) {
       setValidationError("タイトルの入力は必須です");
@@ -476,137 +566,64 @@ export function JobEditForm({
       return;
     }
 
-    if (submissionMode !== "draft") {
-      if (!categoryTag) {
-        setValidationError("求人カテゴリを選択してください");
-        return;
-      }
-
-      if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
-        setValidationError("カテゴリ「その他」の詳細を入力してください");
-        return;
-      }
-
-      if (description.length < 200) {
-        setValidationError("仕事内容は200文字以上入力してください");
-        return;
-      }
-
-      if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
-        setValidationError("雇用形態「その他」の詳細を入力してください");
-        return;
-      }
-
-      if (!selectionProcess.trim()) {
-        setValidationError("選考フローを入力してください");
-        return;
-      }
-
-      if (trialPeriodExists === null) {
-        setValidationError("試用期間のあり・なしを選択してください");
-        return;
-      }
-
-      if (trialPeriodExists && trialEmploymentSame === null) {
-        setValidationError("試用期間中の雇用形態を選択してください");
-        return;
-      }
-
-      if (trialPeriodExists && trialSalarySame === null) {
-        setValidationError("試用期間中の給与を選択してください");
-        return;
-      }
-
-      if (mergedBenefits.length === 0) {
-        setValidationError("福利厚生を1つ以上選択してください");
-        return;
-      }
-
-      if (selectedRegion && !selectedLocation) {
-        setValidationError("勤務地を選択してください");
-        return;
-      }
+    if (!categoryTag) {
+      setValidationError("求人カテゴリを選択してください");
+      return;
     }
-    setPendingAction(submissionMode);
+
+    if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
+      setValidationError("カテゴリ「その他」の詳細を入力してください");
+      return;
+    }
+
+    if (description.length < 200) {
+      setValidationError("仕事内容は200文字以上入力してください");
+      return;
+    }
+
+    if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
+      setValidationError("雇用形態「その他」の詳細を入力してください");
+      return;
+    }
+
+    if (!selectionProcess.trim()) {
+      setValidationError("選考フローを入力してください");
+      return;
+    }
+
+    if (trialPeriodExists === null) {
+      setValidationError("試用期間のあり・なしを選択してください");
+      return;
+    }
+
+    if (trialPeriodExists && trialEmploymentSame === null) {
+      setValidationError("試用期間中の雇用形態を選択してください");
+      return;
+    }
+
+    if (trialPeriodExists && trialSalarySame === null) {
+      setValidationError("試用期間中の給与を選択してください");
+      return;
+    }
+
+    if (mergedBenefits.length === 0) {
+      setValidationError("福利厚生を1つ以上選択してください");
+      return;
+    }
+
+    if (selectedRegion && !selectedLocation) {
+      setValidationError("勤務地を選択してください");
+      return;
+    }
+
+    setPendingAction("review");
 
     try {
-      await updateJob(
-        job.id,
-        {
-          title: fd.get("title") as string,
-          description: fd.get("description") as string,
-          employmentType,
-          location: selectedLocation,
-          salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
-          salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
-          categoryTag,
-          tags: mergedTags,
-          imageUrl,
-          requirements: fd.get("requirements") as string,
-          desiredAptitude: fd.get("desiredAptitude") as string,
-          recommendedFor: fd.get("recommendedFor") as string,
-          monthlySalary: annualSalaryText || undefined,
-          access: fd.get("access") as string,
-          officeName: fd.get("officeName") as string || undefined,
-          officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
-          postalCode: postalCode || undefined,
-          benefits: mergedBenefits,
-          selectionProcess: fd.get("selectionProcess") as string,
-          employmentPeriodType,
-          region: selectedRegion,
-          categoryTagDetail: categoryTag === OTHER_CATEGORY_VALUE ? categoryTagDetail : undefined,
-          employmentTypeDetail: employmentType === "OTHER" ? employmentTypeDetail : undefined,
-          targetType,
-          graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
-          trainingInfo: trainingInfo || undefined,
-          youthEmploymentStats: youthStats.some((s) => Object.values(s).slice(1).some(Boolean)) ? youthStats : undefined,
-          smokingPolicyIndoor: smokingPolicyIndoor || undefined,
-          smokingPolicyOutdoor: smokingPolicyOutdoor || undefined,
-          smokingNote: smokingNote || undefined,
-          recruitmentBackground: fd.get("recruitmentBackground") as string,
-          salaryType,
-          salaryRevision: fd.get("salaryRevision") as string,
-          bonus: salaryType !== "annual" ? fd.get("bonus") as string : undefined,
-          annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
-          annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
-          hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
-          fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
-            payType: fixedOvertimePayType,
-            payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
-            payMin: fixedOvertimePayMin ? Number(fixedOvertimePayMin) : null,
-            payMax: fixedOvertimePayMax ? Number(fixedOvertimePayMax) : null,
-            payFloor: fixedOvertimePayFloor ? Number(fixedOvertimePayFloor) : null,
-            hoursType: fixedOvertimeHoursType,
-            hoursFixed: fixedOvertimeHoursFixed ? Number(fixedOvertimeHoursFixed) : null,
-            hoursMin: fixedOvertimeHoursMin ? Number(fixedOvertimeHoursMin) : null,
-            hoursMax: fixedOvertimeHoursMax ? Number(fixedOvertimeHoursMax) : null,
-            excessPaid: overtimeExcessPaid,
-          }) : undefined,
-          trialPeriodExists: trialPeriodExists ?? undefined,
-          trialPeriodMonths: trialPeriodExists ? trialPeriodMonths : undefined,
-          trialPeriodDays: trialPeriodExists && trialPeriodDays ? trialPeriodDays : undefined,
-          trialEmploymentSame: trialPeriodExists ? (trialEmploymentSame ?? undefined) : undefined,
-          trialEmploymentType: trialPeriodExists && trialEmploymentSame === false ? trialEmploymentType || undefined : undefined,
-          trialWorkingHours: trialPeriodExists && trialWorkingHours ? Number(trialWorkingHours) : undefined,
-          trialSalarySame: trialPeriodExists ? (trialSalarySame ?? undefined) : undefined,
-          trialSalaryType: trialPeriodExists && trialSalarySame === false ? trialSalaryType : undefined,
-          trialSalaryMin: trialPeriodExists && trialSalarySame === false && trialSalaryMinVal ? Number(trialSalaryMinVal) : undefined,
-          trialSalaryMax: trialPeriodExists && trialSalarySame === false && trialSalaryMaxVal ? Number(trialSalaryMaxVal) : undefined,
-          trialAnnualSalary: trialPeriodExists && trialSalarySame === false ? (trialAnnualSalaryText || undefined) : undefined,
-          trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
-          holidayType,
-          holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
-        },
-        submissionMode,
-      );
-
-      if (submissionMode === "draft") {
-        justSavedRef.current = true;
-        setDraftSaved(true);
-        setIsDirty(false);
-      } else {
-        router.push("/company/jobs");
-      }
+      await updateJob(job.id, buildJobData(fd), "review");
+      router.push("/company/jobs");
+    } catch (err) {
+      console.error(err);
+      setValidationError("送信に失敗しました。もう一度お試しください。");
     } finally {
       setPendingAction(null);
     }
@@ -682,6 +699,7 @@ export function JobEditForm({
         }`}
       >
         <form
+          ref={formRef}
           noValidate
           onSubmit={handleSubmit}
           onChange={(event) => { readFormValues(event.currentTarget); markDirty(); }}
@@ -1371,7 +1389,6 @@ export function JobEditForm({
             {!canWithdraw ? (
               <button
                 type="submit"
-                data-mode="review"
                 disabled={isSubmitting}
                 className="rounded-[10px] bg-[#1d63e3] px-8 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-50"
               >
@@ -1380,8 +1397,8 @@ export function JobEditForm({
             ) : null}
             {!canWithdraw ? (
               <button
-                type="submit"
-                data-mode="draft"
+                type="button"
+                onClick={handleDraftSave}
                 disabled={isSubmitting || (draftSaved && !isDirty)}
                 className={`rounded-[10px] border px-8 py-3.5 text-[15px] font-bold transition ${
                   draftSaved && !isDirty

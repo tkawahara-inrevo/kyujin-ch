@@ -24,19 +24,23 @@ import {
 } from "@/app/company/jobs/_components/working-hours-section";
 import type { WorkingHoursDetail } from "@/lib/job-pending";
 
+const HOLIDAY_TAGS = ["完全週休2日制", "年間休日120日以上", "土日祝休み"] as const;
+const LOCATION_TAGS = ["転勤なし"] as const;
+const REQUIREMENT_TAGS = ["職種未経験OK", "業種未経験OK", "学歴不問"] as const;
+const SELECTION_TAGS = ["オンライン面談可"] as const;
+
 const TAG_OPTIONS = [
   "未経験歓迎",
-  "リモートワーク",
+  "リモート可",
   "新卒歓迎",
-  "フレックスタイム",
+  "フレックス可",
   "急募",
-  "中途採用",
   "資格取得支援",
-  "大手企業",
+  "上場企業",
   "ベンチャー",
-  "年間休日120日以上",
   "副業OK",
-  "土日祝休み",
+  "産休・育休取得実績あり",
+  "服装自由",
 ];
 
 const CURRENT_YEARS = [new Date().getFullYear() + 1, new Date().getFullYear(), new Date().getFullYear() - 1];
@@ -213,7 +217,8 @@ export function JobEditForm({
   const [isDirty, setIsDirty] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
+  const ALL_TAG_OPTIONS = [...TAG_OPTIONS, ...HOLIDAY_TAGS, ...LOCATION_TAGS, ...REQUIREMENT_TAGS, ...SELECTION_TAGS];
+  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => ALL_TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
     job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
   );
@@ -938,6 +943,7 @@ export function JobEditForm({
             <Field label="求める人物像" required>
               <textarea name="desiredAptitude" required rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
+            <SectionTags label="応募要件の特徴" tags={REQUIREMENT_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
             <Field label="求人タグ">
               <div className="flex flex-wrap gap-2">
                 {TAG_OPTIONS.map((tag) => (
@@ -1032,13 +1038,10 @@ export function JobEditForm({
               />
             </Field>
 
-            <Field label="勤務地名称">
-              <input name="officeName" defaultValue={job.officeName ?? ""} className={inputCls} placeholder="例：本社/渋谷オフィス" />
-            </Field>
-
             <Field label="アクセス">
               <input name="access" defaultValue={job.access ?? ""} className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
             </Field>
+            <SectionTags tags={LOCATION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
           <Section title="給与">
@@ -1060,6 +1063,9 @@ export function JobEditForm({
             </div>
 
             <Field label={salaryType === "annual" ? "年俸" : salaryType === "monthly" ? "月給" : salaryType === "daily" ? "日給" : "時給"} required>
+              {salaryType === "monthly" && (
+                <p className="mb-1.5 text-[12px] text-[#eb0937]">みなし残業代を含んだ金額を記載ください</p>
+              )}
               <div className="flex items-center gap-2">
                 <input type="number" value={salaryMinVal} onChange={(e) => setSalaryMinVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[salaryType]?.[0] ?? ""} />
                 <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
@@ -1329,7 +1335,7 @@ export function JobEditForm({
             <div className="text-[14px] text-[#eb0937]">週1日以上の休日休暇が法律で決まっています。</div>
             <Field label="休みの取り方" required>
               <div className="flex flex-wrap gap-6">
-                {(["完全週休2日制", "週休2日制", "週休制", "そのほか"] as const).map((opt) => (
+                {(["完全週休2日制", "週休2日制", "そのほか"] as const).map((opt) => (
                   <label key={opt} className="flex cursor-pointer items-center gap-2 text-[15px]">
                     <input type="radio" checked={holidayType === opt} onChange={() => setHolidayType(opt)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                     {opt}
@@ -1348,6 +1354,7 @@ export function JobEditForm({
                 />
               </Field>
             )}
+            <SectionTags tags={HOLIDAY_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
           <Section title="選考情報">
@@ -1373,6 +1380,7 @@ export function JobEditForm({
                 placeholder="例：書類選考 → 一次面接（オンライン可） → 最終面接 → 内定&#10;※選考期間の目安：1〜2週間程度"
               />
             </Field>
+            <SectionTags tags={SELECTION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
           <Section title="福利厚生">
@@ -1626,6 +1634,39 @@ const inputCls =
   "w-full rounded-[5px] border border-[#ccc] bg-[#fafafa] px-[10px] py-[5px] text-[14px] text-[#333] outline-none transition placeholder:text-[#ccc] focus:border-[#1d63e3]";
 
 const textareaCls = `${inputCls} min-h-[100px] resize-y`;
+
+function SectionTags({
+  label = "特徴",
+  tags,
+  selectedTags,
+  onToggle,
+}: {
+  label?: string;
+  tags: readonly string[];
+  selectedTags: string[];
+  onToggle: (tag: string) => void;
+}) {
+  return (
+    <div className="mt-1">
+      <p className="mb-1.5 text-[13px] font-bold text-[#333]">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <label
+            key={tag}
+            className={`cursor-pointer rounded-full border px-3 py-1.5 text-[13px] font-medium transition ${
+              selectedTags.includes(tag)
+                ? "border-[#1d63e3] bg-[#eef2ff] text-[#1d63e3]"
+                : "border-[#ccc] bg-white text-[#333] hover:border-[#1d63e3]"
+            }`}
+          >
+            <input type="checkbox" className="hidden" checked={selectedTags.includes(tag)} onChange={() => onToggle(tag)} />
+            {tag}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

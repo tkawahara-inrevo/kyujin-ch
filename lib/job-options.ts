@@ -24,11 +24,8 @@ export const CATEGORY_OPTIONS = [
 
 export const EMPLOYMENT_OPTIONS = [
   { value: "FULL_TIME", label: "正社員" },
-  { value: "PART_TIME", label: "パート" },
   { value: "CONTRACT", label: "契約社員" },
-  { value: "TEMPORARY", label: "派遣" },
-  { value: "INTERN", label: "インターン" },
-  { value: "OTHER", label: "その他" },
+  { value: "TEMPORARY", label: "派遣社員" },
 ] as const;
 
 export const EMPLOYMENT_FILTER_OPTIONS = [

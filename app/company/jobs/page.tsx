@@ -79,7 +79,7 @@ export default async function CompanyJobsPage({
         <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">求人管理</h1>
         <Link
           href="/company/jobs/new"
-          className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold text-white transition hover:opacity-90"
+          className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold !text-white transition hover:opacity-90"
         >
           求人を作成する
         </Link>

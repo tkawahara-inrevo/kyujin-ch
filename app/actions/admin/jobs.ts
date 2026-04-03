@@ -43,6 +43,7 @@ export async function approveJob(jobId: string) {
             access: pendingContent.access,
             officeName: pendingContent.officeName,
             officeDetail: pendingContent.officeDetail,
+            postalCode: pendingContent.postalCode,
             benefits: pendingContent.benefits,
             selectionProcess: pendingContent.selectionProcess,
             workingHours: pendingContent.workingHours,

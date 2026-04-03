@@ -186,6 +186,7 @@ model Job {
   access                String?   // アクセス
   officeName            String?   // 勤務地名称
   officeDetail          String?   // 勤務地名称詳細
+  postalCode            String?   // 郵便番号
   benefits              String[]  // 福利厚生
   selectionProcess      String?   // 選考プロセス
   workingHours          String?   // 勤務時間

@@ -132,6 +132,7 @@ type Job = {
   access: string | null;
   officeName: string | null;
   officeDetail: string | null;
+  postalCode?: string | null;
   benefits: string[];
   selectionProcess: string | null;
   workingHours: string | null;
@@ -221,7 +222,7 @@ export function JobEditForm({
   const [selectionProcess, setSelectionProcess] = useState(job.selectionProcess ?? "");
   const [officeDetail, setOfficeDetail] = useState(job.officeDetail ?? "");
   const [streetAddrVal, setStreetAddrVal] = useState("");
-  const [postalCode, setPostalCode] = useState("");
+  const [postalCode, setPostalCode] = useState(job.postalCode ?? "");
   const [postalLoading, setPostalLoading] = useState(false);
   const [trainingInfo, setTrainingInfo] = useState(job.trainingInfo ?? "");
   const [youthStats, setYouthStats] = useState<YouthYearStats[]>(
@@ -443,7 +444,11 @@ export function JobEditForm({
   }, []);
 
   function markDirty() {
-    if (!mountedRef.current || justSavedRef.current) return;
+    if (!mountedRef.current) return;
+    if (justSavedRef.current) {
+      justSavedRef.current = false;
+      return;
+    }
     setIsDirty(true);
     setDraftSaved(false);
   }
@@ -502,6 +507,16 @@ export function JobEditForm({
         return;
       }
 
+      if (trialPeriodExists && trialEmploymentSame === null) {
+        setValidationError("試用期間中の雇用形態を選択してください");
+        return;
+      }
+
+      if (trialPeriodExists && trialSalarySame === null) {
+        setValidationError("試用期間中の給与を選択してください");
+        return;
+      }
+
       if (mergedBenefits.length === 0) {
         setValidationError("福利厚生を1つ以上選択してください");
         return;
@@ -534,6 +549,7 @@ export function JobEditForm({
           access: fd.get("access") as string,
           officeName: fd.get("officeName") as string || undefined,
           officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
+          postalCode: postalCode || undefined,
           benefits: mergedBenefits,
           selectionProcess: fd.get("selectionProcess") as string,
           employmentPeriodType,
@@ -588,7 +604,6 @@ export function JobEditForm({
         justSavedRef.current = true;
         setDraftSaved(true);
         setIsDirty(false);
-        setTimeout(() => { justSavedRef.current = false; }, 100);
       } else {
         router.push("/company/jobs");
       }

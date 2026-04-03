@@ -370,6 +370,16 @@ export default function CompanyJobNewPage() {
         return;
       }
 
+      if (trialPeriodExists && trialEmploymentSame === null) {
+        setValidationError("試用期間中の雇用形態を選択してください");
+        return;
+      }
+
+      if (trialPeriodExists && trialSalarySame === null) {
+        setValidationError("試用期間中の給与を選択してください");
+        return;
+      }
+
       if (mergedBenefits.length === 0) {
         setValidationError("福利厚生を1つ以上選択してください");
         return;
@@ -400,6 +410,7 @@ export default function CompanyJobNewPage() {
           access: fd.get("access") as string,
           officeName: fd.get("officeName") as string || undefined,
           officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
+          postalCode: postalCode || undefined,
           selectionProcess: fd.get("selectionProcess") as string,
           imageUrl,
           tags: mergedTags,

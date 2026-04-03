@@ -216,6 +216,7 @@ export function JobEditForm({
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
   const [titleVal, setTitleVal] = useState(job.title);
+  const titleRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState(job.description);
   const [selectionProcess, setSelectionProcess] = useState(job.selectionProcess ?? "");
   const [officeDetail, setOfficeDetail] = useState(job.officeDetail ?? "");
@@ -461,6 +462,12 @@ export function JobEditForm({
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
+    if (!titleVal.trim()) {
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      titleRef.current?.focus();
+      return;
+    }
+
     if (submissionMode !== "draft") {
       if (!categoryTag) {
         setValidationError("求人カテゴリを選択してください");
@@ -655,6 +662,7 @@ export function JobEditForm({
         }`}
       >
         <form
+          noValidate
           onSubmit={handleSubmit}
           onChange={(event) => { readFormValues(event.currentTarget); markDirty(); }}
           className={`rounded-[10px] bg-white p-[30px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex flex-col gap-5 ${
@@ -686,8 +694,8 @@ export function JobEditForm({
           <Section title="基本情報">
             <Field label="タイトル" required>
               <input
+                ref={titleRef}
                 name="title"
-                required
                 maxLength={50}
                 value={titleVal}
                 onChange={(e) => setTitleVal(e.target.value)}

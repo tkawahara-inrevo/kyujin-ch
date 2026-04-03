@@ -1,6 +1,6 @@
 "use client";
 
-import { isValidElement, useEffect, useMemo, useState } from "react";
+import { isValidElement, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createJob, type JobSubmissionMode } from "@/app/actions/company/jobs";
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
@@ -128,6 +128,7 @@ export default function CompanyJobNewPage() {
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [titleVal, setTitleVal] = useState("");
+  const titleRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState("");
   const [selectionProcess, setSelectionProcess] = useState("");
   const [officeDetail, setOfficeDetail] = useState("");
@@ -331,6 +332,12 @@ export default function CompanyJobNewPage() {
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
 
+    if (!titleVal.trim()) {
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      titleRef.current?.focus();
+      return;
+    }
+
     if (submissionMode !== "draft") {
       if (!categoryTag) {
         setValidationError("求人カテゴリを選択してください");
@@ -376,7 +383,7 @@ export default function CompanyJobNewPage() {
     setPendingAction(submissionMode);
 
     try {
-      await createJob(
+      const jobId = await createJob(
         {
           title: fd.get("title") as string,
           description: fd.get("description") as string,
@@ -443,7 +450,7 @@ export default function CompanyJobNewPage() {
         submissionMode,
       );
 
-      router.push("/company/jobs");
+      router.push(submissionMode === "draft" ? `/company/jobs/${jobId}/edit` : "/company/jobs");
     } finally {
       setPendingAction(null);
     }
@@ -480,6 +487,7 @@ export default function CompanyJobNewPage() {
         }`}
       >
         <form
+          noValidate
           onSubmit={handleSubmit}
           onChange={(event) => readFormValues(event.currentTarget)}
           className={`rounded-[10px] bg-white p-[30px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex flex-col gap-5 ${
@@ -511,8 +519,8 @@ export default function CompanyJobNewPage() {
           <Section title="基本情報">
             <Field label="タイトル" required>
               <input
+                ref={titleRef}
                 name="title"
-                required
                 maxLength={50}
                 value={titleVal}
                 onChange={(e) => setTitleVal(e.target.value)}

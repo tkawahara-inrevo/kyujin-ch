@@ -270,13 +270,14 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
   };
 }
 
-export async function createJob(data: JobData, submissionMode: JobSubmissionMode) {
+export async function createJob(data: JobData, submissionMode: JobSubmissionMode): Promise<string> {
   const companyId = await getCompanyId();
-  await prisma.job.create({
+  const job = await prisma.job.create({
     data: { companyId, ...toLiveJobPrismaData(data, submissionMode) },
   });
   revalidatePath("/company/jobs");
   revalidatePath("/admin/jobs");
+  return job.id;
 }
 
 export async function updateJob(jobId: string, data: JobData, submissionMode: JobSubmissionMode) {

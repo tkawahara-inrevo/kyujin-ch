@@ -32,7 +32,7 @@ function KpiCard({
 
 type NoticeItem = {
   id: string;
-  type: "message" | "application";
+  type: "message" | "application" | "review_approved" | "review_returned";
   createdAt: Date;
   jobTitle: string;
   userName: string;
@@ -62,6 +62,7 @@ export default async function CompanyDashboardPage() {
     recentUnreadMessages,
     currentMonthCharges,
     lifetimeCharges,
+    recentReviewedJobs,
   ] = await Promise.all([
     prisma.application.count({
       where: { job: { companyId: company.id }, createdAt: { gte: startOfMonth } },
@@ -118,6 +119,17 @@ export default async function CompanyDashboardPage() {
       },
       _sum: { amount: true },
     }),
+    prisma.job.findMany({
+      where: {
+        companyId: company.id,
+        isDeleted: false,
+        reviewStatus: { in: ["PUBLISHED", "RETURNED"] },
+        reviewStatusChangedAt: { not: null },
+      },
+      select: { id: true, title: true, reviewStatus: true, reviewStatusChangedAt: true },
+      orderBy: { reviewStatusChangedAt: "desc" },
+      take: 8,
+    }),
   ]);
 
   const notices: NoticeItem[] = [
@@ -138,6 +150,15 @@ export default async function CompanyDashboardPage() {
       userName: application.user.name ?? "応募者",
       href: `/company/applicants/${application.id}`,
       isUnread: application.companyViewedAt === null,
+    })),
+    ...recentReviewedJobs.map((job) => ({
+      id: `review-${job.id}`,
+      type: (job.reviewStatus === "PUBLISHED" ? "review_approved" : "review_returned") as NoticeItem["type"],
+      createdAt: job.reviewStatusChangedAt!,
+      jobTitle: job.title,
+      userName: "",
+      href: `/company/jobs/${job.id}/edit`,
+      isUnread: true,
     })),
   ]
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -204,7 +225,11 @@ export default async function CompanyDashboardPage() {
                     >
                       {notice.type === "message"
                         ? `新着メッセージがあります（求人名：${notice.jobTitle}）`
-                        : `新規応募がありました（求人名：${notice.jobTitle}）`}
+                        : notice.type === "review_approved"
+                          ? `求人が承認されました（求人名：${notice.jobTitle}）`
+                          : notice.type === "review_returned"
+                            ? `求人が差し戻されました（求人名：${notice.jobTitle}）`
+                            : `新規応募がありました（求人名：${notice.jobTitle}）`}
                     </p>
                     <p className="shrink-0 text-[12px] font-medium text-[#98a2b3]">
                       {notice.createdAt.toLocaleDateString("ja-JP")}{" "}

@@ -62,6 +62,7 @@ export async function approveJob(jobId: string) {
       reviewStatus: "PUBLISHED",
       isPublished: true,
       reviewComment: null,
+      reviewStatusChangedAt: new Date(),
     },
   });
 
@@ -90,6 +91,7 @@ export async function returnJob(jobId: string, reviewComment?: string) {
       reviewStatus: "RETURNED",
       isPublished: hasPendingVersion,
       reviewComment: reviewComment?.trim() || "差し戻し理由を確認してください",
+      reviewStatusChangedAt: new Date(),
     },
   });
 

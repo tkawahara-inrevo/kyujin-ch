@@ -171,8 +171,9 @@ model Job {
   employmentType EmploymentType @default(FULL_TIME)
   isPublished    Boolean        @default(true)
   isDeleted      Boolean        @default(false)
-  reviewStatus   JobReviewStatus @default(DRAFT)
-  reviewComment  String?
+  reviewStatus          JobReviewStatus @default(DRAFT)
+  reviewComment         String?
+  reviewStatusChangedAt DateTime?
   pendingContent Json?
   viewCount      Int            @default(0)
   categoryTag    String?

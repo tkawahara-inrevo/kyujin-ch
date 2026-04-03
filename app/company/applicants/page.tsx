@@ -76,28 +76,40 @@ export default async function CompanyApplicantsPage({
             <div className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</div>
           ) : (
             <div className="divide-y divide-[#edf0f5]">
-              {applications.map((application) => (
-                <Link
-                  key={application.id}
-                  href={`/company/applicants/${application.id}`}
-                  className="block px-4 py-4 transition hover:bg-[#fafcff]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[15px] font-bold text-[#333]">{application.user.name}</p>
-                      <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
-                        {application.job.title}
-                      </p>
+              {applications.map((application) => {
+                const isUnread = application.companyViewedAt === null;
+                return (
+                  <Link
+                    key={application.id}
+                    href={`/company/applicants/${application.id}`}
+                    className={`block px-4 py-4 transition hover:bg-[#fafcff] ${isUnread ? "bg-[#f9fbff]" : ""}`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          {isUnread && (
+                            <span className="shrink-0 rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
+                              NEW
+                            </span>
+                          )}
+                          <p className={`truncate text-[15px] font-bold ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}>
+                            {application.user.name}
+                          </p>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
+                          {application.job.title}
+                        </p>
+                      </div>
+                      <div className="shrink-0">
+                        <StatusBadge status={application.status} />
+                      </div>
                     </div>
-                    <div className="shrink-0">
-                      <StatusBadge status={application.status} />
-                    </div>
-                  </div>
-                  <p className="mt-3 text-[12px] text-[#98a2b3]">
-                    応募日 {application.createdAt.toLocaleDateString("ja-JP")}
-                  </p>
-                </Link>
-              ))}
+                    <p className="mt-3 text-[12px] text-[#98a2b3]">
+                      応募日 {application.createdAt.toLocaleDateString("ja-JP")}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -120,30 +132,38 @@ export default async function CompanyApplicantsPage({
                   </td>
                 </tr>
               ) : (
-                applications.map((application) => (
-                  <tr key={application.id} className="border-b border-[#edf0f5] last:border-b-0">
-                    <td className="px-4 py-4 font-bold text-[#333]">
-                      <Link
-                        href={`/company/applicants/${application.id}`}
-                        className="block truncate hover:text-[#2f6cff]"
-                        title={application.user.name ?? ""}
-                      >
-                        {application.user.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 text-[#333]">
-                      <span className="block truncate" title={application.job.title}>
-                        {application.job.title}
-                      </span>
-                    </td>
-                    <td className="px-3 py-4 text-center">
-                      <StatusBadge status={application.status} />
-                    </td>
-                    <td className="px-3 py-4 text-center text-[#666]">
-                      {application.createdAt.toLocaleDateString("ja-JP")}
-                    </td>
-                  </tr>
-                ))
+                applications.map((application) => {
+                  const isUnread = application.companyViewedAt === null;
+                  return (
+                    <tr key={application.id} className={`border-b border-[#edf0f5] last:border-b-0 ${isUnread ? "bg-[#f9fbff]" : ""}`}>
+                      <td className="px-4 py-4 font-bold">
+                        <Link
+                          href={`/company/applicants/${application.id}`}
+                          className={`flex items-center gap-2 truncate hover:text-[#2f6cff] ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
+                          title={application.user.name ?? ""}
+                        >
+                          {isUnread && (
+                            <span className="shrink-0 rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
+                              NEW
+                            </span>
+                          )}
+                          <span className="truncate">{application.user.name}</span>
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4 text-[#333]">
+                        <span className="block truncate" title={application.job.title}>
+                          {application.job.title}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <StatusBadge status={application.status} />
+                      </td>
+                      <td className="px-3 py-4 text-center text-[#666]">
+                        {application.createdAt.toLocaleDateString("ja-JP")}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

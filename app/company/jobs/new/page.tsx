@@ -9,6 +9,7 @@ import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-
 import { ALL_PREFECTURES, AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import {
   BENEFIT_OPTIONS as SHARED_BENEFIT_OPTIONS,
+  PRIMARY_BENEFIT_OPTIONS,
   CATEGORY_OPTIONS,
   EMPLOYMENT_OPTIONS,
   OTHER_CATEGORY_VALUE,
@@ -394,6 +395,16 @@ export default function CompanyJobNewPage() {
 
       if (selectedRegion && !selectedLocation) {
         setValidationError("勤務地を選択してください");
+        return;
+      }
+
+      if (!smokingPolicyIndoor) {
+        setValidationError("屋内の受動喫煙対策を選択してください");
+        return;
+      }
+
+      if (!smokingPolicyOutdoor) {
+        setValidationError("屋外の受動喫煙対策を選択してください");
         return;
       }
     }
@@ -1115,7 +1126,7 @@ export default function CompanyJobNewPage() {
           <Section title="福利厚生">
             <Field label="福利厚生" required>
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                {(SHARED_BENEFIT_OPTIONS as readonly string[]).slice(0, 12).map((benefit) => (
+                {(PRIMARY_BENEFIT_OPTIONS as readonly string[]).map((benefit) => (
                   <label
                     key={benefit}
                     className="flex items-center gap-2 rounded-[12px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063]"
@@ -1124,28 +1135,30 @@ export default function CompanyJobNewPage() {
                       type="checkbox"
                       checked={selectedBenefits.includes(benefit)}
                       onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
-                      className="h-4 w-4 rounded border-[#c4cddd] text-[#1d63e3]"
+                      className="h-4 w-4 rounded border-[#c4cddd] accent-[#1d63e3]"
                     />
                     {benefit}
                   </label>
                 ))}
               </div>
-              <div className="mt-3 flex items-center justify-between">
+              <div className="mt-3">
                 <button
                   type="button"
                   onClick={() => setShowBenefitModal(true)}
                   className="rounded-[8px] border border-[#1d63e3] px-4 py-2 text-[13px] font-medium text-[#1d63e3] hover:bg-[#eef2ff] transition"
                 >
-                  福利厚生一覧を見る
-                  {mergedBenefits.length > 0 && (
-                    <span className="ml-2 rounded-full bg-[#1d63e3] px-2 py-0.5 text-[11px] text-white">{mergedBenefits.length}件選択中</span>
+                  その他の福利厚生を選ぶ
+                  {mergedBenefits.filter((b) => !(PRIMARY_BENEFIT_OPTIONS as readonly string[]).includes(b) && (SHARED_BENEFIT_OPTIONS as readonly string[]).includes(b)).length > 0 && (
+                    <span className="ml-2 rounded-full bg-[#1d63e3] px-2 py-0.5 text-[11px] text-white">
+                      {mergedBenefits.filter((b) => !(PRIMARY_BENEFIT_OPTIONS as readonly string[]).includes(b) && (SHARED_BENEFIT_OPTIONS as readonly string[]).includes(b)).length}件
+                    </span>
                   )}
                 </button>
               </div>
             </Field>
           </Section>
 
-          <Section title="青少年雇用情報（若者雇用促進法）">
+          {targetType === "NEW_GRAD" && <Section title="青少年雇用情報（若者雇用促進法）">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-[13px]">
                 <thead>
@@ -1189,11 +1202,11 @@ export default function CompanyJobNewPage() {
                 </tbody>
               </table>
             </div>
-          </Section>
+          </Section>}
 
           <Section title="受動喫煙対策">
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="屋内の受動喫煙対策">
+              <Field label="屋内の受動喫煙対策" required>
                 <select
                   value={smokingPolicyIndoor}
                   onChange={(e) => setSmokingPolicyIndoor(e.target.value)}
@@ -1205,7 +1218,7 @@ export default function CompanyJobNewPage() {
                   ))}
                 </select>
               </Field>
-              <Field label="屋外の受動喫煙対策">
+              <Field label="屋外の受動喫煙対策" required>
                 <select
                   value={smokingPolicyOutdoor}
                   onChange={(e) => setSmokingPolicyOutdoor(e.target.value)}

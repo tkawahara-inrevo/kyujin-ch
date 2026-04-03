@@ -1,6 +1,6 @@
 "use client";
 
-import { isValidElement, useEffect, useMemo, useState } from "react";
+import { isValidElement, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode, type YouthYearStats } from "@/app/actions/company/jobs";
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
@@ -194,6 +194,8 @@ export function JobEditForm({
   const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [showBenefitModal, setShowBenefitModal] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
@@ -322,8 +324,23 @@ export function JobEditForm({
     }
   }, [trialSalaryType, trialSalaryMinVal, trialSalaryMaxVal, trialAnnualNumManual]);
 
+  // Mark dirty when any UI-driven state changes (after mount)
+  useEffect(() => { markDirty(); }, [
+    titleVal, description, targetType, graduationYear, imageUrl, categoryTag, categoryTagDetail,
+    employmentType, employmentTypeDetail, employmentPeriodType, selectedLocation, selectedRegion,
+    officeDetail, streetAddrVal, salaryType, salaryMinVal, salaryMaxVal, annualSalaryMinNum,
+    annualSalaryMaxNum, annualPaymentMethod, annualPaymentNote, hasFixedOvertime,
+    fixedOvertimePayType, fixedOvertimePayFixed, fixedOvertimePayMin, fixedOvertimePayMax,
+    fixedOvertimePayFloor, fixedOvertimeHoursType, fixedOvertimeHoursFixed, fixedOvertimeHoursMin,
+    fixedOvertimeHoursMax, overtimeExcessPaid, trialPeriodExists, trialPeriodMonths, trialPeriodDays,
+    trialEmploymentSame, trialEmploymentType, trialWorkingHours, trialSalarySame, trialSalaryType,
+    trialSalaryMinVal, trialSalaryMaxVal, holidayType, smokingPolicyIndoor, smokingPolicyOutdoor,
+    smokingNote, trainingInfo, selectedBenefits, customBenefits, selectedTags, selectionProcess,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function toggleItem(list: string[], setList: (value: string[]) => void, item: string) {
     setList(list.includes(item) ? list.filter((entry) => entry !== item) : [...list, item]);
+    markDirty();
   }
 
   const fmtAnnual = (n: string) => {
@@ -415,6 +432,17 @@ export function JobEditForm({
     } finally {
       setPostalLoading(false);
     }
+  }
+
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    // Mark as mounted after first render so subsequent state changes mark dirty
+    const id = setTimeout(() => { mountedRef.current = true; }, 0);
+    return () => clearTimeout(id);
+  }, []);
+
+  function markDirty() {
+    if (mountedRef.current) { setIsDirty(true); setDraftSaved(false); }
   }
 
   function readFormValues(form: HTMLFormElement) {
@@ -544,7 +572,12 @@ export function JobEditForm({
         submissionMode,
       );
 
-      router.push("/company/jobs");
+      if (submissionMode === "draft") {
+        setDraftSaved(true);
+        setIsDirty(false);
+      } else {
+        router.push("/company/jobs");
+      }
     } finally {
       setPendingAction(null);
     }
@@ -590,13 +623,13 @@ export function JobEditForm({
         ) : null}
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="sticky top-0 z-30 mt-4 flex justify-end bg-[#f3f4f6] py-2">
         <button
           type="button"
           onClick={() => {
             setShowPreview((prev) => !prev);
           }}
-          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
+          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition hover:opacity-90"
         >
           {isWidePreview ? (showPreview ? "プレビューを閉じる" : "プレビューを開く") : "プレビューを確認"}
         </button>
@@ -621,7 +654,7 @@ export function JobEditForm({
       >
         <form
           onSubmit={handleSubmit}
-          onChange={(event) => readFormValues(event.currentTarget)}
+          onChange={(event) => { readFormValues(event.currentTarget); markDirty(); }}
           className={`rounded-[10px] bg-white p-[30px] shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex flex-col gap-5 ${
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
@@ -1314,10 +1347,14 @@ export function JobEditForm({
               <button
                 type="submit"
                 data-mode="draft"
-                disabled={isSubmitting}
-                className="rounded-[10px] border border-[#ccc] bg-white px-8 py-3.5 text-[15px] font-bold text-[#1d63e3] transition hover:bg-[#f7faff] disabled:opacity-50"
+                disabled={isSubmitting || (draftSaved && !isDirty)}
+                className={`rounded-[10px] border px-8 py-3.5 text-[15px] font-bold transition ${
+                  draftSaved && !isDirty
+                    ? "border-[#a8d5a2] bg-[#f0faf0] text-[#4a9e3f] cursor-default"
+                    : "border-[#ccc] bg-white text-[#1d63e3] hover:bg-[#f7faff] disabled:opacity-50"
+                }`}
               >
-                {pendingAction === "draft" ? "保存中..." : "下書き保存"}
+                {pendingAction === "draft" ? "保存中..." : draftSaved && !isDirty ? "下書き保存済み" : "下書き保存"}
               </button>
             ) : null}
             {canWithdraw ? (

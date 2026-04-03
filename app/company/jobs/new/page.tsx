@@ -451,16 +451,16 @@ export default function CompanyJobNewPage() {
 
   return (
     <div className="mx-auto max-w-[1920px] px-4 py-8 md:px-6 md:py-10 xl:px-8 2xl:px-10">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-[30px] font-bold leading-none tracking-tight text-[#2c2f36] md:text-[34px]">
-          求人を作成する
-        </h1>
+      <h1 className="text-[30px] font-bold leading-none tracking-tight text-[#2c2f36] md:text-[34px]">
+        求人を作成する
+      </h1>
+      <div className="sticky top-0 z-30 mt-4 flex justify-end bg-[#f3f4f6] py-2">
         <button
           type="button"
           onClick={() => {
             setShowPreview((prev) => !prev);
           }}
-          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
+          className="inline-flex rounded-[10px] bg-[#1d63e3] px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition hover:opacity-90"
         >
           {isWidePreview ? (showPreview ? "プレビューを閉じる" : "プレビューを開く") : "プレビューを確認"}
         </button>

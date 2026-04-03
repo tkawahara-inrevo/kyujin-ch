@@ -87,24 +87,19 @@ export async function submitCompanyRequest(formData: {
     console.error("gBizINFO lookup error:", err);
   }
 
-  const slackBaseText =
-    `📋 *掲載依頼が届きました*\n` +
-    `• 会社名（申請）: ${companyName}\n` +
-    `• 法人番号: ${corporateNumber}\n` +
-    `• gBizINFO取得名: ${gbizName ?? "取得失敗"}\n` +
-    `• 名前一致: ${nameMatched ? "✅ 一致" : "❌ 不一致"}\n` +
-    `• 担当者: ${lastName} ${firstName}\n` +
-    `• メール: ${email}\n` +
-    `• 電話: ${phone}`;
+  const companyInfo =
+    `会社名: ${companyName}\n` +
+    `法人番号: ${corporateNumber}\n` +
+    `担当者: ${lastName} ${firstName}\n` +
+    `メールアドレス: ${email}\n` +
+    `電話番号: ${phone}`;
 
   if (!gbizName || !nameMatched) {
-    // 会社名が確認できなかった or 不一致 → 別途連絡メール
-    await Promise.allSettled([
-      postToSlack(slackBaseText + "\n→ 自動発行 *スキップ* → 担当者が別途連絡します"),
-      sendTransactionalEmail({
-        to: email,
-        subject: "【求人ちゃんねる】掲載依頼を受け付けました",
-        html: `
+    // 会社名が確認できなかった or 不一致 → NCメール送付 → Slack通知
+    await sendTransactionalEmail({
+      to: email,
+      subject: "【求人ちゃんねる】掲載依頼を受け付けました",
+      html: `
 <p>${lastName} ${firstName} 様</p>
 <p>この度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。</p>
 <p>お申し込みいただいた内容を確認しております。<br>
@@ -119,10 +114,15 @@ export async function submitCompanyRequest(formData: {
 <p>今しばらくお待ちください。</p>
 <br>
 <p>求人ちゃんねる 運営事務局</p>
-        `.trim(),
-        text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\nお申し込みいただいた内容を確認しております。内容確認後、担当者より改めてご連絡いたします。\n\n【ご申請内容】\n会社名: ${companyName}\n法人番号: ${corporateNumber}\n担当者: ${lastName} ${firstName}\n電話番号: ${phone}\n\n今しばらくお待ちください。\n\n求人ちゃんねる 運営事務局`,
-      }),
-    ]);
+      `.trim(),
+      text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\nお申し込みいただいた内容を確認しております。内容確認後、担当者より改めてご連絡いたします。\n\n【ご申請内容】\n${companyInfo}\n\n今しばらくお待ちください。\n\n求人ちゃんねる 運営事務局`,
+    });
+
+    await postToSlack(
+      `以下の企業から掲載依頼がありましたが、法人番号から企業名を確認できなかったのでNGで返しました。\n` +
+      `---\n${companyInfo}\n---`
+    );
+
     return { status: "contact_later" };
   }
 
@@ -171,15 +171,11 @@ export async function submitCompanyRequest(formData: {
 
   const loginUrl = `${process.env.NEXTAUTH_URL ?? "https://kyujin-ch.jp"}/company/login`;
 
-  await Promise.allSettled([
-    postToSlack(
-      slackBaseText +
-        `\n→ ✅ アカウント自動発行完了\n• ログインURL: ${loginUrl}\n• ユーザー名: ${username}`
-    ),
-    sendTransactionalEmail({
-      to: email,
-      subject: "【求人ちゃんねる】アカウントが発行されました",
-      html: `
+  // メール送付 → Slack通知
+  await sendTransactionalEmail({
+    to: email,
+    subject: "【求人ちゃんねる】アカウントが発行されました",
+    html: `
 <p>${lastName} ${firstName} 様</p>
 <p>この度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。</p>
 <p>法人情報が確認できましたので、企業アカウントを発行いたしました。<br>
@@ -193,10 +189,14 @@ export async function submitCompanyRequest(formData: {
 <p>初回ログイン後、パスワードを変更してください。</p>
 <br>
 <p>求人ちゃんねる 運営事務局</p>
-      `.trim(),
-      text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\nユーザー名: ${username}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
-    }),
-  ]);
+    `.trim(),
+    text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\nユーザー名: ${username}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
+  });
+
+  await postToSlack(
+    `以下の企業のアカウントを自動発行しました\n` +
+    `---\n${companyInfo}\n---`
+  );
 
   return { status: "issued", companyId, temporaryPassword };
 }

@@ -159,7 +159,7 @@ export function TopHero({
   function renderAreaSelect() {
     return (
       <div>
-        <label className="mb-1 block text-[11px] font-bold text-white">繧ｨ繝ｪ繧｢</label>
+        <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
         <select
           value={area}
           onChange={(e) => {
@@ -171,7 +171,7 @@ export function TopHero({
           }}
           className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
         >
-          <option value="">縺吶∋縺ｦ</option>
+          <option value="">すべて</option>
           {AREA_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -185,14 +185,14 @@ export function TopHero({
   function renderPrefectureSelect() {
     return (
       <div>
-        <label className="mb-1 block text-[11px] font-bold text-white">驛ｽ驕灘ｺ懃恁</label>
+        <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
         <select
           value={prefecture}
           onChange={(e) => setPrefecture(e.target.value)}
           disabled={!area}
           className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]"
         >
-          <option value="">縺吶∋縺ｦ</option>
+          <option value="">すべて</option>
           {prefectureOptions.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -216,7 +216,7 @@ export function TopHero({
                   : "bg-[#f5f5f5] text-[#aaa]"
               }`}
             >
-              蟆ｱ閨ｷ譛譁ｰ諠・ｱ
+              最新情報
             </Link>
             <button
               onClick={() => router.push("/?tab=search")}
@@ -226,7 +226,7 @@ export function TopHero({
                   : "bg-[#f5f5f5] text-[#aaa]"
               }`}
             >
-              豎ゆｺｺ繧呈爾縺・            </button>
+              仕事を探す            </button>
           </div>
         )}
 
@@ -236,22 +236,22 @@ export function TopHero({
               <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
                 <div className="min-w-[180px] flex-1">
                   <label className="mb-1 block text-[11px] font-bold text-white">
-                    繧ｭ繝ｼ繝ｯ繝ｼ繝峨°繧画爾縺・                  </label>
+                    キーワードで探す                  </label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="繧ｭ繝・メ繝ｳ縲√お繝ｳ繧ｸ繝九い"
+                    placeholder="キッチン、エンジニア"
                     className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                   />
                 </div>
                 <div className="min-w-[140px]">
-                  <label className="mb-1 block text-[11px] font-bold text-white">繧ｫ繝・ざ繝ｪ</label>
+                  <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                   >
-                    <option value="">縺吶∋縺ｦ</option>
+                    <option value="">すべて</option>
                     {CATEGORY_OPTIONS.map((option) => (
                       <option key={option} value={option}>
                         {option}
@@ -264,7 +264,7 @@ export function TopHero({
                     type="submit"
                     className={`rounded-[8px] bg-white px-8 py-2.5 text-[13px] font-bold ${actionTextColor} hover:opacity-90`}
                   >
-                    讀懃ｴ｢
+                    検索
                   </button>
                   <button
                     type="button"
@@ -274,7 +274,7 @@ export function TopHero({
                     }}
                     className={`rounded-[8px] border-2 border-white px-8 py-2.5 text-[13px] font-bold text-white hover:bg-white ${hoverTextColor}`}
                   >
-                    繝ｪ繧ｻ繝・ヨ
+                    リセット
                   </button>
                 </div>
               </div>
@@ -284,11 +284,11 @@ export function TopHero({
               <div className="space-y-4 md:hidden">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-white">
-                    繧ｭ繝ｼ繝ｯ繝ｼ繝峨°繧画爾縺・                  </label>
+                    キーワードで探す                  </label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="繧ｭ繝・メ繝ｳ縲√お繝ｳ繧ｸ繝九い"
+                    placeholder="キッチン、エンジニア"
                     className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                   />
                 </div>
@@ -298,7 +298,7 @@ export function TopHero({
                   onClick={() => setMobileFiltersOpen((prev) => !prev)}
                   className="flex w-full items-center justify-between rounded-[8px] border border-white/70 bg-white/10 px-3 py-2.5 text-[13px] font-bold text-white"
                 >
-                  <span>{hasAdvancedFilters ? "譚｡莉ｶ繧貞､画峩縺吶ｋ" : "譚｡莉ｶ繧定ｿｽ蜉縺吶ｋ"}</span>
+                  <span>{hasAdvancedFilters ? "条件を変更する" : "条件を追加する"}</span>
                   <span className="text-[16px] leading-none">
                     {mobileFiltersOpen ? "−" : "+"}
                   </span>
@@ -308,14 +308,14 @@ export function TopHero({
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <label className="mb-1 block text-[11px] font-bold text-white">
-                        繧ｫ繝・ざ繝ｪ
+                        カテゴリ
                       </label>
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
                         className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                       >
-                        <option value="">縺吶∋縺ｦ</option>
+                        <option value="">すべて</option>
                         {CATEGORY_OPTIONS.map((option) => (
                           <option key={option} value={option}>
                             {option}
@@ -326,7 +326,7 @@ export function TopHero({
 
                     <div>
                       <label className="mb-1 block text-[11px] font-bold text-white">
-                        髮・畑蠖｢諷・                      </label>
+                        雇用形態                      </label>
                       <select
                         value={employmentType}
                         onChange={(e) => setEmploymentType(e.target.value)}
@@ -350,14 +350,14 @@ export function TopHero({
                     type="submit"
                     className={`rounded-[8px] bg-white py-2.5 text-[13px] font-bold ${actionTextColor}`}
                   >
-                    讀懃ｴ｢
+                    検索
                   </button>
                   <button
                     type="button"
                     onClick={handleReset}
                     className={`rounded-[8px] border-2 border-white py-2.5 text-[13px] font-bold text-white hover:bg-white ${hoverTextColor}`}
                   >
-                    繝ｪ繧ｻ繝・ヨ
+                    リセット
                   </button>
                 </div>
               </div>
@@ -366,23 +366,23 @@ export function TopHero({
                 <div className="grid grid-cols-6 gap-3">
                   <div className="col-span-2">
                     <label className="mb-1 block text-[11px] font-bold text-white">
-                      繧ｭ繝ｼ繝ｯ繝ｼ繝峨°繧画爾縺・                    </label>
+                      キーワードで探す                    </label>
                     <input
                       value={q}
                       onChange={(e) => setQ(e.target.value)}
-                      placeholder="繧ｭ繝・メ繝ｳ縲√お繝ｳ繧ｸ繝九い"
+                      placeholder="キッチン、エンジニア"
                       className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-[11px] font-bold text-white">繧ｫ繝・ざ繝ｪ</label>
+                    <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
                     >
-                      <option value="">縺吶∋縺ｦ</option>
+                      <option value="">すべて</option>
                       {CATEGORY_OPTIONS.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -415,14 +415,14 @@ export function TopHero({
                     type="submit"
                     className={`rounded-[8px] bg-white px-10 py-2.5 text-[14px] font-bold ${actionTextColor} hover:opacity-90`}
                   >
-                    讀懃ｴ｢
+                    検索
                   </button>
                   <button
                     type="button"
                     onClick={handleReset}
                     className={`rounded-[8px] border-2 border-white px-10 py-2.5 text-[14px] font-bold text-white hover:bg-white ${hoverTextColor}`}
                   >
-                    繝ｪ繧ｻ繝・ヨ
+                    リセット
                   </button>
                 </div>
               </div>

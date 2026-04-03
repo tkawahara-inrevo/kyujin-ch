@@ -312,7 +312,6 @@ export default async function JobDetailPage({
                 <dl className="px-5">
                   <InfoRow label="給与" value={salaryRange} />
                   {j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
-                  <InfoRow label="昇給" value={j.salaryRevision} />
                   {j.salaryType !== "annual" && <InfoRow label="賞与" value={j.bonus} />}
                   {j.hasFixedOvertime != null && (
                     <InfoRow label="みなし残業">
@@ -350,23 +349,11 @@ export default async function JobDetailPage({
               )}
 
               {/* 休日休暇 */}
-              {(j.holidayType || j.holidayPolicy || (j.holidayFeatures && j.holidayFeatures.length > 0)) && (
+              {(j.holidayType || j.holidayPolicy) && (
                 <div>
                   <SectionHeader title="休日休暇" />
                   <dl className="px-5">
                     <InfoRow label="休みの取り方" value={j.holidayType} />
-                    {j.annualHolidayCount && (
-                      <InfoRow label="年間休日" value={`${j.annualHolidayCount}日`} />
-                    )}
-                    {j.holidayFeatures && j.holidayFeatures.length > 0 && (
-                      <InfoRow label="特徴">
-                        <div className="flex flex-wrap gap-1.5">
-                          {j.holidayFeatures.map((f) => (
-                            <span key={f} className="rounded-full bg-[#eef4ff] px-2.5 py-0.5 text-[12px] text-[#2f6cff]">{f}</span>
-                          ))}
-                        </div>
-                      </InfoRow>
-                    )}
                     <InfoRow label="詳細" value={j.holidayPolicy} />
                   </dl>
                 </div>
@@ -393,9 +380,6 @@ export default async function JobDetailPage({
               {/* 選考情報 */}
               <div>
                 <SectionHeader title="選考情報" />
-                <dl className="px-5">
-                  <InfoRow label="募集背景" value={j.recruitmentBackground} />
-                </dl>
                 {job.selectionProcess && (
                   <div className="border-t border-[#f0f0f0] px-6 py-4">
                     <p className="text-[12px] font-semibold text-[#888]">選考フロー</p>

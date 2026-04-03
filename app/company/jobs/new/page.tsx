@@ -160,6 +160,7 @@ export default function CompanyJobNewPage() {
   const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState("");
   const [annualNumManual, setAnnualNumManual] = useState(false);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
+  const [bonusExists, setBonusExists] = useState<boolean | null>(null);
   const [annualPaymentMethod, setAnnualPaymentMethod] = useState("monthly");
   const [annualPaymentNote, setAnnualPaymentNote] = useState("");
   const [fixedOvertimePayType, setFixedOvertimePayType] = useState<"fixed"|"range"|"minimum">("fixed");
@@ -446,7 +447,7 @@ export default function CompanyJobNewPage() {
           salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
           monthlySalary: annualSalaryText || undefined,
           salaryRevision: fd.get("salaryRevision") as string,
-          bonus: salaryType !== "annual" ? fd.get("bonus") as string : undefined,
+          bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
           annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
           annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
           hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
@@ -932,6 +933,20 @@ export default function CompanyJobNewPage() {
                   </label>
                 </div>
               </div>
+            )}
+
+            {/* 賞与（年俸以外） */}
+            {salaryType !== "annual" && (
+              <Field label="賞与" required>
+                <div className="flex gap-6">
+                  {([true, false] as const).map((val) => (
+                    <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                      <input type="radio" checked={bonusExists === val} onChange={() => setBonusExists(val)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                      {val ? "あり" : "なし"}
+                    </label>
+                  ))}
+                </div>
+              </Field>
             )}
           </Section>
 

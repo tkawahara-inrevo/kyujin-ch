@@ -358,7 +358,7 @@ export async function duplicateJob(jobId: string): Promise<string> {
   });
   if (!original) throw new Error("Job not found");
 
-  const { id, createdAt, updatedAt, viewCount, reviewComment, pendingContent, youthEmploymentStats, ...rest } = original;
+  const { id, createdAt, updatedAt, viewCount, reviewComment, pendingContent, youthEmploymentStats, workingHoursDetail, ...rest } = original;
   const newJob = await prisma.job.create({
     data: {
       ...rest,
@@ -369,6 +369,7 @@ export async function duplicateJob(jobId: string): Promise<string> {
       reviewComment: null,
       viewCount: 0,
       youthEmploymentStats: youthEmploymentStats ?? Prisma.DbNull,
+      workingHoursDetail: workingHoursDetail ?? Prisma.DbNull,
     },
   });
 

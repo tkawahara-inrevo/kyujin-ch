@@ -47,7 +47,10 @@ export default async function CompanySettingsPage() {
           companyName={company.name}
           description={company.description || ""}
           websiteUrl={company.websiteUrl || ""}
-          location={company.location || ""}
+          postalCode={company.postalCode || ""}
+          prefecture={company.prefecture || ""}
+          city={company.city || ""}
+          addressLine={company.addressLine || ""}
           contactName={company.companyUser?.name || ""}
           phone={company.companyUser?.phone || ""}
         />

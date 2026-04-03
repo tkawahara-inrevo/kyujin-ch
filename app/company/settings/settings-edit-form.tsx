@@ -2,12 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { updateCompanySettings } from "@/app/actions/company/settings";
+import { ALL_PREFECTURES } from "@/lib/job-locations";
 
 type Props = {
   companyName: string;
   description: string;
   websiteUrl: string;
-  location: string;
+  postalCode: string;
+  prefecture: string;
+  city: string;
+  addressLine: string;
   contactName: string;
   phone: string;
 };
@@ -15,9 +19,34 @@ type Props = {
 export default function SettingsEditForm(props: Props) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(props);
+  const [postalLoading, setPostalLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function handlePostalCode(code: string) {
+    setPostalLoading(true);
+    try {
+      const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${code}`);
+      const json = await res.json();
+      if (json.results?.[0]) {
+        const { address1, address2, address3 } = json.results[0] as {
+          address1: string;
+          address2: string;
+          address3: string;
+        };
+        setForm((f) => ({
+          ...f,
+          prefecture: address1,
+          city: f.city || [address2, address3].filter(Boolean).join(""),
+        }));
+      }
+    } catch {
+      // ignore
+    } finally {
+      setPostalLoading(false);
+    }
+  }
 
   const handleSave = () => {
     const companyName = form.companyName.trim();
@@ -56,28 +85,135 @@ export default function SettingsEditForm(props: Props) {
     );
   }
 
+  const inputCls = "w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[14px] focus:border-[#2f6cff] focus:outline-none";
+
   return (
     <div className="space-y-5 rounded-[12px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-      {success ? (
+      {success && (
         <div className="rounded-[8px] bg-[#d1fae5] px-4 py-3 text-[13px] font-medium text-[#059669]">
           保存しました
         </div>
-      ) : null}
-
-      {error ? (
+      )}
+      {error && (
         <div className="rounded-[8px] bg-[#fff1f2] px-4 py-3 text-[13px] font-medium text-[#e11d48]">
           {error}
         </div>
-      ) : null}
+      )}
 
       <h2 className="text-[16px] font-bold text-[#333]">プロフィール編集</h2>
 
-      <Field label="会社名" value={form.companyName} onChange={(v) => setForm({ ...form, companyName: v })} required />
-      <Field label="説明" value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
-      <Field label="WebサイトURL" value={form.websiteUrl} onChange={(v) => setForm({ ...form, websiteUrl: v })} />
-      <Field label="所在地" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-      <Field label="担当者名" value={form.contactName} onChange={(v) => setForm({ ...form, contactName: v })} />
-      <Field label="電話番号" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+      <Field label="会社名" required>
+        <input
+          type="text"
+          value={form.companyName}
+          onChange={(e) => setForm({ ...form, companyName: e.target.value })}
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="説明">
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          rows={3}
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="WebサイトURL">
+        <input
+          type="text"
+          value={form.websiteUrl}
+          onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
+          className={inputCls}
+        />
+      </Field>
+
+      {/* 住所 */}
+      <div className="space-y-3 rounded-[10px] border border-[#e5e7eb] p-4">
+        <p className="text-[13px] font-semibold text-[#555]">所在地</p>
+
+        <Field label="郵便番号">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={form.postalCode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9-]/g, "");
+                setForm({ ...form, postalCode: val });
+                const digits = val.replace(/-/g, "");
+                if (digits.length === 7) handlePostalCode(digits);
+              }}
+              className={inputCls}
+              placeholder="例）123-4567"
+              maxLength={8}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const digits = form.postalCode.replace(/-/g, "");
+                if (digits.length === 7) handlePostalCode(digits);
+              }}
+              className="shrink-0 rounded-[5px] bg-[#1d63e3] px-3 py-[9px] text-[13px] font-bold text-white hover:opacity-90 transition"
+            >
+              {postalLoading ? "検索中..." : "自動入力"}
+            </button>
+          </div>
+        </Field>
+
+        <Field label="都道府県">
+          <select
+            value={form.prefecture}
+            onChange={(e) => setForm({ ...form, prefecture: e.target.value })}
+            className={inputCls}
+          >
+            <option value="">選択してください</option>
+            {ALL_PREFECTURES.map((pref) => (
+              <option key={pref} value={pref}>
+                {pref}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="市区町村">
+          <input
+            type="text"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+            className={inputCls}
+            placeholder="例）渋谷区道玄坂"
+          />
+        </Field>
+
+        <Field label="以降の住所">
+          <input
+            type="text"
+            value={form.addressLine}
+            onChange={(e) => setForm({ ...form, addressLine: e.target.value })}
+            className={inputCls}
+            placeholder="例）1-1-1 渋谷スクランブルスクエア 12F"
+          />
+        </Field>
+      </div>
+
+      <Field label="担当者名">
+        <input
+          type="text"
+          value={form.contactName}
+          onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+          className={inputCls}
+        />
+      </Field>
+
+      <Field label="電話番号">
+        <input
+          type="text"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          className={inputCls}
+        />
+      </Field>
 
       <div className="flex gap-3">
         <button
@@ -104,38 +240,20 @@ export default function SettingsEditForm(props: Props) {
 
 function Field({
   label,
-  value,
-  onChange,
-  multiline,
   required,
+  children,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
-  multiline?: boolean;
   required?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <div>
       <label className="mb-1 block text-[13px] font-semibold text-[#555]">
         {label}
-        {required ? <span className="ml-1 text-[#ff3158]">*</span> : null}
+        {required && <span className="ml-1 text-[#ff3158]">*</span>}
       </label>
-      {multiline ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[14px] focus:border-[#2f6cff] focus:outline-none"
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-[8px] border border-[#d1d5db] px-4 py-2.5 text-[14px] focus:border-[#2f6cff] focus:outline-none"
-        />
-      )}
+      {children}
     </div>
   );
 }

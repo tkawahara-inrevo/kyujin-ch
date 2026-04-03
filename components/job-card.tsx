@@ -54,33 +54,33 @@ export function JobCard({
   createdAt,
 }: JobCardProps) {
   return (
-    <article className="overflow-hidden rounded-[10px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-      <Link href={`/jobs/${id}`} className="group block">
-        <div className="relative aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]">
-          <Image
-            src={imageSrc}
-            alt={title}
-            fill
-            className="object-cover transition duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-          {badge && (
-            <span className={`absolute right-3 top-3 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
-              badge === "中途"
-                ? "bg-[#2f6cff] text-white"
-                : badge === "新着"
+    <article className="group relative overflow-hidden rounded-[10px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
+      <Link href={`/jobs/${id}`} className="absolute inset-0 z-0" aria-label={title} />
+
+      <div className="relative aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]">
+        <Image
+          src={imageSrc}
+          alt={title}
+          fill
+          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+        {badge && (
+          <span className={`absolute right-3 top-3 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
+            badge === "中途"
+              ? "bg-[#2f6cff] text-white"
+              : badge === "新着"
+                ? "bg-[#ff3158] text-white"
+                : badge === "注目"
                   ? "bg-[#ff3158] text-white"
-                  : badge === "注目"
+                  : badge.includes("卒")
                     ? "bg-[#ff3158] text-white"
-                    : badge.includes("卒")
-                      ? "bg-[#ff3158] text-white"
-                      : "bg-[#ff3158] text-white"
-            }`}>
-              {badge}
-            </span>
-          )}
-        </div>
-      </Link>
+                    : "bg-[#ff3158] text-white"
+          }`}>
+            {badge}
+          </span>
+        )}
+      </div>
 
       <div className="px-3 pb-3 pt-3">
         {/* タグ */}
@@ -100,12 +100,10 @@ export function JobCard({
 
         {/* タイトル + ブックマーク */}
         <div className="mt-2.5 flex items-start justify-between gap-2">
-          <Link href={`/jobs/${id}`} className="min-w-0 block">
-            <h3 className="line-clamp-2 text-[15px] font-bold leading-[1.5] text-[#222] hover:underline">
-              {title}
-            </h3>
-          </Link>
-          <div className="shrink-0 pt-0.5">
+          <h3 className="line-clamp-2 min-w-0 text-[15px] font-bold leading-[1.5] text-[#222]">
+            {title}
+          </h3>
+          <div className="relative z-10 shrink-0 pt-0.5">
             <FavoriteToggleButton jobId={id} />
           </div>
         </div>

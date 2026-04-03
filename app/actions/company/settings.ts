@@ -8,7 +8,10 @@ export async function updateCompanySettings(data: {
   companyName: string;
   description: string;
   websiteUrl: string;
-  location: string;
+  postalCode: string;
+  prefecture: string;
+  city: string;
+  addressLine: string;
   contactName: string;
   phone: string;
 }) {
@@ -37,7 +40,11 @@ export async function updateCompanySettings(data: {
         name: companyName,
         description: data.description.trim() || null,
         websiteUrl: data.websiteUrl.trim() || null,
-        location: data.location.trim() || null,
+        postalCode: data.postalCode.trim() || null,
+        prefecture: data.prefecture.trim() || null,
+        city: data.city.trim() || null,
+        addressLine: data.addressLine.trim() || null,
+        location: [data.prefecture, data.city, data.addressLine].map((s) => s.trim()).filter(Boolean).join("") || null,
       },
     }),
     prisma.user.update({

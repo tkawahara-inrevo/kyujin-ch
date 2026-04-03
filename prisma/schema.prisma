@@ -144,6 +144,10 @@ model Company {
   description   String?
   websiteUrl    String?
   location      String?
+  postalCode    String?
+  prefecture    String?
+  city          String?
+  addressLine   String?
   isActive      Boolean  @default(true)
   companyUserId String?  @unique
   createdAt     DateTime @default(now())

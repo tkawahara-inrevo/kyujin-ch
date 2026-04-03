@@ -193,6 +193,7 @@ export function JobEditForm({
   const [pendingAction, setPendingAction] = useState<"review" | "draft" | "withdraw" | "delete" | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
+  const [showBenefitModal, setShowBenefitModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => TAG_OPTIONS.includes(tag)));
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
@@ -445,6 +446,11 @@ export function JobEditForm({
 
     if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
       setValidationError("雇用形態「その他」の詳細を入力してください");
+      return;
+    }
+
+    if (!selectionProcess.trim()) {
+      setValidationError("選考フローを入力してください");
       return;
     }
 
@@ -727,9 +733,9 @@ export function JobEditForm({
                   onClick={() => {
                     if (!description || confirm("テンプレートで上書きしますか？")) setDescription(DESCRIPTION_TEMPLATE);
                   }}
-                  className="rounded-[5px] border border-[#d0d7e6] bg-[#f8fafd] px-2 py-1 text-[11px] text-[#7b8797] hover:bg-[#eef3fb] transition"
+                  className="rounded-[5px] bg-[#1d63e3] px-2 py-1 text-[11px] font-bold text-white hover:opacity-90 transition"
                 >
-                  カンタン入力
+                  テンプレート入力
                 </button>
               </div>
               <div className="relative">
@@ -1142,37 +1148,21 @@ export function JobEditForm({
           </Section>
 
           <Section title="選考情報">
-            <Field label="募集背景">
-              <textarea
-                name="recruitmentBackground"
-                rows={2}
-                defaultValue={job.recruitmentBackground ?? ""}
-                className={textareaCls}
-                placeholder="例：事業拡大に伴い、既存顧客対応と新規開拓を強化するため増員募集します。"
-              />
-            </Field>
-            <Field label="選考フロー">
-              <div className="mb-2 flex items-center gap-2">
-                {!selectionProcess ? (
-                  <button
-                    type="button"
-                    onClick={() => setSelectionProcess(SELECTION_PROCESS_TEMPLATE)}
-                    className="rounded-[5px] bg-[#1d63e3] px-[10px] py-[5px] text-[12px] font-bold text-white hover:opacity-90 transition"
-                  >
-                    テンプレートを使って素早く入力 →
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => { if (confirm("テンプレートで上書きしますか？")) setSelectionProcess(SELECTION_PROCESS_TEMPLATE); }}
-                    className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] px-3 py-1.5 text-[12px] text-[#7b8797] hover:bg-[#eef3fb] transition"
-                  >
-                    テンプレートに変更
-                  </button>
-                )}
+            <Field label="選考フロー" required>
+              <div className="mb-1 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!selectionProcess || confirm("テンプレートで上書きしますか？")) setSelectionProcess(SELECTION_PROCESS_TEMPLATE);
+                  }}
+                  className="rounded-[5px] bg-[#1d63e3] px-2 py-1 text-[11px] font-bold text-white hover:opacity-90 transition"
+                >
+                  テンプレート入力
+                </button>
               </div>
               <textarea
                 name="selectionProcess"
+                required
                 rows={3}
                 value={selectionProcess}
                 onChange={(e) => setSelectionProcess(e.target.value)}
@@ -1185,7 +1175,7 @@ export function JobEditForm({
           <Section title="福利厚生">
             <Field label="福利厚生">
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                {SHARED_BENEFIT_OPTIONS.map((benefit) => (
+                {(SHARED_BENEFIT_OPTIONS as readonly string[]).slice(0, 12).map((benefit) => (
                   <label
                     key={benefit}
                     className="flex items-center gap-2 rounded-[12px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063]"
@@ -1200,64 +1190,68 @@ export function JobEditForm({
                   </label>
                 ))}
               </div>
-              <textarea
-                value={customBenefits}
-                onChange={(event) => setCustomBenefits(event.target.value)}
-                className={`${textareaCls} mt-3`}
-                rows={2}
-                placeholder="独自の福利厚生（例：ランチ補助、書籍購入補助）カンマ・改行区切り"
-              />
+              <div className="mt-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setShowBenefitModal(true)}
+                  className="rounded-[8px] border border-[#1d63e3] px-4 py-2 text-[13px] font-medium text-[#1d63e3] hover:bg-[#eef2ff] transition"
+                >
+                  福利厚生一覧を見る
+                  {mergedBenefits.length > 0 && (
+                    <span className="ml-2 rounded-full bg-[#1d63e3] px-2 py-0.5 text-[11px] text-white">{mergedBenefits.length}件選択中</span>
+                  )}
+                </button>
+              </div>
             </Field>
           </Section>
 
-          <Section title="詳細情報（任意）">
-            <Field label="青少年雇用情報（若者雇用促進法）">
-              <p className="mb-3 text-[12px] text-[#6b7280]">任意。新卒採用がある場合は入力を推奨します。</p>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-[13px]">
-                  <thead>
-                    <tr className="bg-[#f4f7ff]">
-                      <th className="w-[160px] border border-[#e0e7f0] px-3 py-2 text-left font-semibold text-[#3d4552]">項目</th>
-                      {youthStats.map((s) => (
-                        <th key={s.year} className="border border-[#e0e7f0] px-3 py-2 text-center font-semibold text-[#3d4552]">{s.year}年度</th>
+          <Section title="青少年雇用情報（若者雇用促進法）">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr className="bg-[#f4f7ff]">
+                    <th className="w-[160px] border border-[#e0e7f0] px-3 py-2 text-left font-semibold text-[#3d4552]">項目</th>
+                    {youthStats.map((s) => (
+                      <th key={s.year} className="border border-[#e0e7f0] px-3 py-2 text-center font-semibold text-[#3d4552]">{s.year}年度</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      { key: "newGradHired", label: "新卒採用人数" },
+                      { key: "newGradLeft", label: "新卒離職者人数" },
+                      { key: "avgAge", label: "平均年齢" },
+                      { key: "overtimeHours", label: "平均所定外労働時間数" },
+                      { key: "paidLeaveAvg", label: "有給休暇の平均取得日数" },
+                      { key: "parentalLeave", label: "育児休業取得者数" },
+                    ] as { key: keyof Omit<YouthYearStats, "year">; label: string }[]
+                  ).map(({ key, label }) => (
+                    <tr key={key} className="odd:bg-white even:bg-[#fafbfd]">
+                      <td className="border border-[#e0e7f0] px-3 py-2 font-medium text-[#4b5563]">{label}</td>
+                      {youthStats.map((s, i) => (
+                        <td key={s.year} className="border border-[#e0e7f0] px-2 py-1.5">
+                          <input
+                            type="text"
+                            value={s[key]}
+                            onChange={(e) => {
+                              const next = [...youthStats];
+                              next[i] = { ...next[i], [key]: e.target.value };
+                              setYouthStats(next);
+                            }}
+                            className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#1d63e3] placeholder:text-[#c0c8d8]"
+                            placeholder="—"
+                          />
+                        </td>
                       ))}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {(
-                      [
-                        { key: "newGradHired", label: "新卒採用人数" },
-                        { key: "newGradLeft", label: "新卒離職者人数" },
-                        { key: "avgAge", label: "平均年齢" },
-                        { key: "overtimeHours", label: "平均所定外労働時間数" },
-                        { key: "paidLeaveAvg", label: "有給休暇の平均取得日数" },
-                        { key: "parentalLeave", label: "育児休業取得者数" },
-                        { key: "births", label: "出産者数" },
-                      ] as { key: keyof Omit<YouthYearStats, "year">; label: string }[]
-                    ).map(({ key, label }) => (
-                      <tr key={key} className="odd:bg-white even:bg-[#fafbfd]">
-                        <td className="border border-[#e0e7f0] px-3 py-2 font-medium text-[#4b5563]">{label}</td>
-                        {youthStats.map((s, i) => (
-                          <td key={s.year} className="border border-[#e0e7f0] px-2 py-1.5">
-                            <input
-                              type="text"
-                              value={s[key]}
-                              onChange={(e) => {
-                                const next = [...youthStats];
-                                next[i] = { ...next[i], [key]: e.target.value };
-                                setYouthStats(next);
-                              }}
-                              className="w-full rounded-[8px] border border-[#d9dfec] px-2 py-1.5 text-[13px] outline-none focus:border-[#1d63e3] placeholder:text-[#c0c8d8]"
-                              placeholder="—"
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Field>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+
+          <Section title="受動喫煙対策">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="屋内の受動喫煙対策">
                 <select
@@ -1354,6 +1348,47 @@ export function JobEditForm({
           </div>
         ) : null}
       </div>
+      {showBenefitModal && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[rgba(15,23,42,0.45)] p-4">
+          <div className="flex w-full max-w-[640px] flex-col rounded-[16px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]" style={{ maxHeight: "85vh" }}>
+            <div className="flex items-center justify-between border-b border-[#e8edf5] px-5 py-4">
+              <p className="text-[16px] font-bold text-[#2c2f36]">福利厚生を選択</p>
+              <button type="button" onClick={() => setShowBenefitModal(false)} className="rounded-[8px] border border-[#d7deeb] px-3 py-1.5 text-[13px] font-bold text-[#4b5563] hover:bg-[#f8fbff] transition">閉じる</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(SHARED_BENEFIT_OPTIONS as readonly string[]).map((benefit) => (
+                  <label key={benefit} className="flex cursor-pointer items-center gap-2 rounded-[10px] border border-[#e6ebf5] px-3 py-2 text-[13px] text-[#445063] hover:border-[#1d63e3]">
+                    <input
+                      type="checkbox"
+                      checked={selectedBenefits.includes(benefit)}
+                      onChange={() => toggleItem(selectedBenefits, setSelectedBenefits, benefit)}
+                      className="h-4 w-4 rounded border-[#c4cddd] accent-[#1d63e3]"
+                    />
+                    {benefit}
+                  </label>
+                ))}
+              </div>
+              <div>
+                <p className="mb-1 text-[13px] font-bold text-[#333]">独自の福利厚生</p>
+                <textarea
+                  value={customBenefits}
+                  onChange={(event) => setCustomBenefits(event.target.value)}
+                  className={textareaCls}
+                  rows={2}
+                  placeholder="例：ランチ補助、書籍購入補助（カンマ・改行区切り）"
+                />
+              </div>
+            </div>
+            <div className="border-t border-[#e8edf5] px-5 py-4">
+              <button type="button" onClick={() => setShowBenefitModal(false)} className="w-full rounded-[10px] bg-[#1d63e3] py-3 text-[15px] font-bold text-white hover:opacity-90 transition">
+                確定する（{mergedBenefits.length}件）
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPreview && !isWidePreview ? (
         <div className="fixed inset-0 z-[70] bg-[rgba(15,23,42,0.45)] p-4 md:p-6">
           <div className="mx-auto flex h-full w-full max-w-[1120px] flex-col rounded-[24px] bg-white p-4 shadow-[0_24px_80px_rgba(15,23,42,0.28)] md:p-5">

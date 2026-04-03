@@ -186,14 +186,13 @@ export async function submitCompanyRequest(formData: {
 <br>
 <p>【ログイン情報】</p>
 <p>ログインURL: <a href="${loginUrl}">${loginUrl}</a><br>
-ユーザー名: ${username}<br>
 仮パスワード: ${temporaryPassword}</p>
 <br>
 <p>初回ログイン後、パスワードを変更してください。</p>
 <br>
 <p>求人ちゃんねる 運営事務局</p>
     `.trim(),
-    text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\nユーザー名: ${username}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
+    text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
   });
 
   await postToSlack(

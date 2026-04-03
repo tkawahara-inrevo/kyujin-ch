@@ -455,6 +455,15 @@ export function JobEditForm({
     setDraftSaved(false);
   }
 
+  function parseServerError(err: unknown): string {
+    if (!(err instanceof Error)) return "予期せぬエラーが発生しました。時間をおいて再度お試しください。";
+    const msg = err.message;
+    if (msg.includes("omitted in production") || msg.includes("Server Components render") || msg.includes("digest")) {
+      return "サーバーエラーが発生しました。入力内容を確認し、時間をおいて再度お試しください。";
+    }
+    return msg;
+  }
+
   function showError(msg: string) {
     setValidationError(msg);
     setTimeout(() => {
@@ -555,8 +564,7 @@ export function JobEditForm({
       setIsDirty(false);
     } catch (err) {
       console.error(err);
-      const msg = err instanceof Error ? err.message : "保存に失敗しました。もう一度お試しください。";
-      showError(`下書き保存に失敗しました：${msg}`);
+      showError(`下書き保存に失敗しました：${parseServerError(err)}`);
     } finally {
       setPendingAction(null);
     }
@@ -632,8 +640,7 @@ export function JobEditForm({
       router.push("/company/jobs");
     } catch (err) {
       console.error(err);
-      const msg = err instanceof Error ? err.message : "もう一度お試しください。";
-      showError(`送信に失敗しました：${msg}`);
+      showError(`送信に失敗しました：${parseServerError(err)}`);
     } finally {
       setPendingAction(null);
     }
@@ -1133,7 +1140,7 @@ export function JobEditForm({
                   </div>
                 </Field>
 
-                <Field label="試用期間中の雇用形態">
+                <Field label="試用期間中の雇用形態" required>
                   <div className="flex gap-6">
                     {([true, false] as const).map((val) => (
                       <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -1172,7 +1179,7 @@ export function JobEditForm({
                   )}
                 </Field>
 
-                <Field label="試用期間中の給与">
+                <Field label="試用期間中の給与" required>
                   <div className="flex gap-6">
                     {([true, false] as const).map((val) => (
                       <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">

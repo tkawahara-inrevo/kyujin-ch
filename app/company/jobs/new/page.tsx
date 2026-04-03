@@ -952,7 +952,7 @@ export default function CompanyJobNewPage() {
                   </div>
                 </Field>
 
-                <Field label="試用期間中の雇用形態">
+                <Field label="試用期間中の雇用形態" required>
                   <div className="flex gap-6">
                     {([true, false] as const).map((val) => (
                       <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -991,7 +991,7 @@ export default function CompanyJobNewPage() {
                   )}
                 </Field>
 
-                <Field label="試用期間中の給与">
+                <Field label="試用期間中の給与" required>
                   <div className="flex gap-6">
                     {([true, false] as const).map((val) => (
                       <label key={String(val)} className="flex cursor-pointer items-center gap-2 text-[15px]">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updatePrice, createPriceEntry, deletePriceEntry, renameCategory, reorderEntry, reorderCategories } from "@/app/actions/admin/prices";
+import { updatePrice, createPriceEntry, deletePriceEntry, deleteCategory, renameCategory, reorderEntry, reorderCategories } from "@/app/actions/admin/prices";
 
 type Entry = {
   id: string;
@@ -191,6 +191,13 @@ function CategorySection({
   const [categoryName, setCategoryName] = useState(category);
   const [isPending, startTransition] = useTransition();
 
+  const handleDeleteCategory = () => {
+    if (!confirm(`カテゴリ「${category}」とその全職種を削除しますか？`)) return;
+    startTransition(async () => {
+      await deleteCategory(category);
+    });
+  };
+
   const handleRename = () => {
     if (!categoryName.trim() || categoryName.trim() === category) {
       setEditingName(false);
@@ -240,12 +247,21 @@ function CategorySection({
           </button>
         )}
         {!editingName && (
-          <button
-            onClick={() => setShowAdd(!showAdd)}
-            className="rounded-md bg-white/20 px-3 py-1 text-[12px] font-medium text-white hover:bg-white/30"
-          >
-            {showAdd ? "キャンセル" : "+ 追加"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAdd(!showAdd)}
+              className="rounded-md bg-white/20 px-3 py-1 text-[12px] font-medium text-white hover:bg-white/30"
+            >
+              {showAdd ? "キャンセル" : "+ 追加"}
+            </button>
+            <button
+              onClick={handleDeleteCategory}
+              disabled={isPending}
+              className="rounded-md bg-red-500/70 px-3 py-1 text-[12px] font-medium text-white hover:bg-red-500/90 disabled:opacity-50"
+            >
+              カテゴリ削除
+            </button>
+          </div>
         )}
       </div>
 

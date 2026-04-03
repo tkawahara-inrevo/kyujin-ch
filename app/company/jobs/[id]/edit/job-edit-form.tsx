@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteJob, updateJob, withdrawJobSubmission, type JobSubmissionMode, type YouthYearStats } from "@/app/actions/company/jobs";
 import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
+import { SelectDown } from "@/components/select-down";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import { ALL_PREFECTURES, AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import {
@@ -830,23 +831,17 @@ export function JobEditForm({
             </Field>
 
             <Field label="求人カテゴリ" required>
-              <select
+              <SelectDown
                 name="categoryTag"
                 className={inputCls}
                 value={categoryTag}
-                onChange={(event) => {
-                  setCategoryTag(event.target.value);
+                onChange={(val) => {
+                  setCategoryTag(val);
                   setJobSubcategory("");
-                  if (event.target.value !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
+                  if (val !== OTHER_CATEGORY_VALUE) setCategoryTagDetail("");
                 }}
-              >
-                <option value="">選択してください</option>
-                {categoryOptions.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+                options={categoryOptions.map((c) => ({ value: c, label: c }))}
+              />
               {categoryTag === OTHER_CATEGORY_VALUE ? (
                 <input
                   name="categoryTagDetail"
@@ -860,39 +855,28 @@ export function JobEditForm({
 
             {categoryTag && subcategoryMap[categoryTag]?.length > 0 ? (
               <Field label="職種" required>
-                <select
+                <SelectDown
                   name="jobSubcategory"
                   className={inputCls}
                   value={jobSubcategory}
-                  onChange={(event) => setJobSubcategory(event.target.value)}
-                >
-                  <option value="">選択してください</option>
-                  {subcategoryMap[categoryTag].map((sub) => (
-                    <option key={sub} value={sub}>
-                      {sub}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setJobSubcategory}
+                  options={subcategoryMap[categoryTag].map((s) => ({ value: s, label: s }))}
+                />
               </Field>
             ) : null}
 
             <Field label="雇用形態" required>
-              <select
+              <SelectDown
                 name="employmentType"
-                required
                 className={inputCls}
                 value={employmentType}
-                onChange={(event) => {
-                  setEmploymentType(event.target.value);
-                  if (event.target.value !== "OTHER") setEmploymentTypeDetail("");
+                onChange={(val) => {
+                  setEmploymentType(val);
+                  if (val !== "OTHER") setEmploymentTypeDetail("");
                 }}
-              >
-                {EMPLOYMENT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                options={EMPLOYMENT_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                placeholder=""
+              />
               {employmentType === "OTHER" ? (
                 <input
                   name="employmentTypeDetail"

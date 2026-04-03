@@ -86,6 +86,13 @@ export async function deletePriceEntry(id: string) {
   revalidatePath("/company/billing");
 }
 
+export async function deleteCategory(category: string) {
+  await requireAdminAction();
+  await prisma.priceEntry.deleteMany({ where: { category } });
+  revalidatePath("/admin/billing");
+  revalidatePath("/company/billing");
+}
+
 // 職種の並べ替え（カテゴリ内の順序を配列の順番で一括保存）
 export async function reorderEntry(id: string, direction: "up" | "down") {
   await requireAdminAction();

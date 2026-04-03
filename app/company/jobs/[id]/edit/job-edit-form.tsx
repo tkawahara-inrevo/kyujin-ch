@@ -89,14 +89,23 @@ const SALARY_PLACEHOLDER: Record<string, [string, string]> = {
   hourly:  ["例：1100",    "例：1500"],
 };
 
-const DESCRIPTION_TEMPLATE = `【主な業務内容】
-・
+const DESCRIPTION_TEMPLATE = `【仕事概要】
+○○（会社名、部署名、店舗名など）にて、○○（職種）のお仕事をお任せします。●●●●を商材として扱い、顧客層は主に△△△です。□□□□な価値を提供し、やりがいに繋がる仕事です。
 
-【職場環境】
+【仕事の流れ】
+＜仕事の流れ＞
+▼●●●●から●●●●が割り振られます
+▼●●●●を確認し、●●●●から●●●●●●をします
+▼●●●●●●●●した情報をフォーマットに従って登録
 
+※1日の担当件数は●●件程度。1件のヒアリング・作成はいずれも●●分～●●分程度です。
+※業務はマニュアルに沿って行なうため、未経験の方もご安心ください。
 
-【入社後の流れ】
-入社後はOJTにて業務を覚えていただきます。`;
+【一緒に働くメンバー】
+部署には●●名が所属しており、男女比は●：●。平均年齢層は●●～●●代です。先輩たちの前職は△△△や△△△など様々。□□□□のお仕事が初めてだったメンバーもたくさん活躍中です。
+
+【入社後の独り立ちまでの流れ】
+入社後は●●●●の習得はもちろん、●●●●●●や、●●●●など、●●●●●●の基礎から教えていきます。未経験の方もご安心ください。`;
 
 const SELECTION_PROCESS_TEMPLATE = `書類選考 → 一次面接（オンライン可） → 最終面接 → 内定
 
@@ -203,6 +212,7 @@ export function JobEditForm({
   const [employmentPeriodType, setEmploymentPeriodType] = useState(job.employmentPeriodType || "");
   const [selectedRegion, setSelectedRegion] = useState(job.region || "");
   const [selectedLocation, setSelectedLocation] = useState(job.location || "");
+  const [titleVal, setTitleVal] = useState(job.title);
   const [description, setDescription] = useState(job.description);
   const [selectionProcess, setSelectionProcess] = useState(job.selectionProcess ?? "");
   const [officeDetail, setOfficeDetail] = useState(job.officeDetail ?? "");
@@ -418,8 +428,18 @@ export function JobEditForm({
     event.preventDefault();
     setValidationError(null);
 
+    if (!categoryTag) {
+      setValidationError("求人カテゴリを選択してください");
+      return;
+    }
+
     if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
       setValidationError("カテゴリ「その他」の詳細を入力してください");
+      return;
+    }
+
+    if (description.length < 200) {
+      setValidationError("仕事内容は200文字以上入力してください");
       return;
     }
 
@@ -614,7 +634,18 @@ export function JobEditForm({
 
           <Section title="基本情報">
             <Field label="タイトル" required>
-              <input name="title" required defaultValue={job.title} className={inputCls} placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）" />
+              <input
+                name="title"
+                required
+                maxLength={50}
+                value={titleVal}
+                onChange={(e) => setTitleVal(e.target.value)}
+                className={inputCls}
+                placeholder="例：Webエンジニア（フロントエンド）／営業職（法人向け）"
+              />
+              <p className={`mt-1 text-right text-[12px] ${titleVal.length >= 50 ? "text-[#eb0937]" : "text-[#aaa]"}`}>
+                {titleVal.length}/50
+              </p>
             </Field>
 
             <Field label="メイン画像">
@@ -631,7 +662,7 @@ export function JobEditForm({
               </div>
             </Field>
 
-            <Field label="求人カテゴリ">
+            <Field label="求人カテゴリ" required>
               <select
                 name="categoryTag"
                 className={inputCls}
@@ -690,40 +721,41 @@ export function JobEditForm({
 
           <Section title="仕事内容">
             <Field label="仕事内容" required>
-              <div className="mb-2 flex items-center gap-2">
-                {!description ? (
-                  <button
-                    type="button"
-                    onClick={() => setDescription(DESCRIPTION_TEMPLATE)}
-                    className="rounded-[5px] bg-[#1d63e3] px-[10px] py-[5px] text-[12px] font-bold text-white hover:opacity-90 transition"
-                  >
-                    テンプレートを使って素早く入力 →
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => { if (confirm("テンプレートで上書きしますか？")) setDescription(DESCRIPTION_TEMPLATE); }}
-                    className="rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] px-3 py-1.5 text-[12px] text-[#7b8797] hover:bg-[#eef3fb] transition"
-                  >
-                    テンプレートに変更
-                  </button>
-                )}
+              <div className="mb-1 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!description || confirm("テンプレートで上書きしますか？")) setDescription(DESCRIPTION_TEMPLATE);
+                  }}
+                  className="rounded-[5px] border border-[#d0d7e6] bg-[#f8fafd] px-2 py-1 text-[11px] text-[#7b8797] hover:bg-[#eef3fb] transition"
+                >
+                  カンタン入力
+                </button>
               </div>
-              <textarea
-                name="description"
-                required
-                rows={5}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className={textareaCls}
-                placeholder="例：営業企画・マーケティング施策の立案から実行まで担当していただきます。チームは少人数で、裁量を持って幅広い業務に携わることができます。"
-              />
+              <div className="relative">
+                <textarea
+                  name="description"
+                  required
+                  rows={8}
+                  maxLength={750}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className={textareaCls}
+                  placeholder="仕事の内容を入力してください（200文字以上）"
+                />
+                <p className={`pointer-events-none absolute bottom-2 right-3 text-[12px] ${description.length >= 750 ? "text-[#eb0937]" : description.length >= 200 ? "text-[#aaa]" : "text-[#ccc]"}`}>
+                  {description.length} / 750文字
+                </p>
+              </div>
+              {description.length > 0 && description.length < 200 && (
+                <p className="mt-1 text-[12px] text-[#eb0937]">あと{200 - description.length}文字以上入力してください</p>
+              )}
             </Field>
-            <Field label="応募条件">
-              <textarea name="requirements" rows={3} defaultValue={job.requirements ?? ""} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
+            <Field label="応募条件" required>
+              <textarea name="requirements" required rows={3} defaultValue={job.requirements ?? ""} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
             </Field>
-            <Field label="求める人物像">
-              <textarea name="desiredAptitude" rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
+            <Field label="求める人物像" required>
+              <textarea name="desiredAptitude" required rows={3} defaultValue={job.desiredAptitude ?? ""} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
             <Field label="求人タグ">
               <div className="flex flex-wrap gap-2">

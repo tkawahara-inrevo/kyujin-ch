@@ -12,10 +12,10 @@ export function validateCorporateNumberCheckDigit(num: string): boolean {
   let sum = 0;
   for (let i = 1; i <= 12; i++) {
     const p = parseInt(digits[i], 10);
-    // 奇数位置(右から)は×1、偶数位置は×2
+    // 右から偶数位置は×2、奇数位置は×1
     // 右から: position = 13-i (1-indexed)
     const position = 13 - i;
-    sum += p * (position % 2 === 0 ? 1 : 2);
+    sum += p * (position % 2 === 0 ? 2 : 1);
   }
   const expected = 9 - (sum % 9);
   return checkDigit === expected;

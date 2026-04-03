@@ -4,6 +4,7 @@ import { parsePendingContent } from "@/lib/job-pending";
 import { prisma } from "@/lib/prisma";
 import { JobEditForm } from "./job-edit-form";
 import type { YouthYearStats } from "@/app/actions/company/jobs";
+import type { WorkingHoursDetail } from "@/lib/job-pending";
 
 export default async function CompanyJobEditPage({
   params,
@@ -28,6 +29,9 @@ export default async function CompanyJobEditPage({
   const rawJob = {
     ...job,
     youthEmploymentStats: Array.isArray(job.youthEmploymentStats) ? job.youthEmploymentStats as YouthYearStats[] : null,
+    workingHoursDetail: (job.workingHoursDetail && typeof job.workingHoursDetail === "object" && !Array.isArray(job.workingHoursDetail))
+      ? job.workingHoursDetail as unknown as WorkingHoursDetail
+      : null,
   };
   const formJob = pendingContent
     ? {

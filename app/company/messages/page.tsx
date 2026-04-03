@@ -168,21 +168,24 @@ export default async function CompanyMessagesPage({
                 const updatedAt = conversation.messages[0]?.createdAt ?? conversation.updatedAt;
 
                 return (
-                  <Link
+                  <div
                     key={conversation.id}
-                    href={buildMessagesHref(jobId, conversation.applicationId)}
-                    className={`block rounded-[18px] border px-4 py-3 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
+                    className={`relative rounded-[18px] border px-4 py-3 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition ${
                       isActive
                         ? "border-[#d8e7ff] bg-[#eef4ff]"
                         : "border-transparent bg-white hover:-translate-y-0.5 hover:border-[#e5ebf5]"
                     }`}
                   >
+                    <Link href={buildMessagesHref(jobId, conversation.applicationId)} className="absolute inset-0 z-0 rounded-[18px]" aria-label="メッセージを開く" />
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-[16px] font-bold text-[#2b2f38]">
+                          <Link
+                            href={`/company/applicants/${conversation.applicationId}`}
+                            className="relative z-10 truncate text-[16px] font-bold text-[#2b2f38] hover:underline"
+                          >
                             {conversation.application.user.name}
-                          </p>
+                          </Link>
                           {unreadCount > 0 ? (
                             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
                               {unreadCount > 99 ? "99+" : unreadCount}
@@ -197,7 +200,7 @@ export default async function CompanyMessagesPage({
                         {new Date(updatedAt).toLocaleDateString("ja-JP")}
                       </p>
                     </div>
-                  </Link>
+                  </div>
                 );
               })
             )}
@@ -251,17 +254,20 @@ export default async function CompanyMessagesPage({
                   const updatedAt = conversation.messages[0]?.createdAt ?? conversation.updatedAt;
 
                   return (
-                    <Link
+                    <div
                       key={conversation.id}
-                      href={buildMessagesHref(jobId, conversation.applicationId)}
-                      className="block rounded-[18px] bg-white px-4 py-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition hover:bg-[#fafcff]"
+                      className="relative rounded-[18px] bg-white px-4 py-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)] transition hover:bg-[#fafcff]"
                     >
+                      <Link href={buildMessagesHref(jobId, conversation.applicationId)} className="absolute inset-0 z-0 rounded-[18px]" aria-label="メッセージを開く" />
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <p className="truncate text-[16px] font-bold text-[#2b2f38]">
+                            <Link
+                              href={`/company/applicants/${conversation.applicationId}`}
+                              className="relative z-10 truncate text-[16px] font-bold text-[#2b2f38] hover:underline"
+                            >
                               {conversation.application.user.name}
-                            </p>
+                            </Link>
                             {unreadCount > 0 ? (
                               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
                                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -276,7 +282,7 @@ export default async function CompanyMessagesPage({
                           {new Date(updatedAt).toLocaleDateString("ja-JP")}
                         </p>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })
               )}

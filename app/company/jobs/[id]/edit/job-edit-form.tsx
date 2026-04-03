@@ -717,7 +717,7 @@ export function JobEditForm({
         <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[currentReviewStatus]}`}>
           {JOB_REVIEW_STATUS_LABELS[currentReviewStatus]}
         </span>
-        {job.reviewComment ? <span className="text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
+        {job.reviewComment ? <span className="whitespace-pre-line text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
         {hasPendingVersion ? (
           <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#2563eb]">差し替え審査データあり</span>
         ) : null}

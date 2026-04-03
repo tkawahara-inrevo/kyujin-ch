@@ -134,11 +134,12 @@ export default async function CompanyApplicantsPage({
               ) : (
                 applications.map((application) => {
                   const isUnread = application.companyViewedAt === null;
+                  const href = `/company/applicants/${application.id}`;
                   return (
                     <tr key={application.id} className={`border-b border-[#edf0f5] last:border-b-0 ${isUnread ? "bg-[#f9fbff]" : ""}`}>
                       <td className="px-4 py-4 font-bold">
                         <Link
-                          href={`/company/applicants/${application.id}`}
+                          href={href}
                           className={`flex items-center gap-2 truncate hover:text-[#2f6cff] ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
                           title={application.user.name ?? ""}
                         >
@@ -151,15 +152,19 @@ export default async function CompanyApplicantsPage({
                         </Link>
                       </td>
                       <td className="px-4 py-4 text-[#333]">
-                        <span className="block truncate" title={application.job.title}>
+                        <Link href={href} className="block truncate hover:text-[#2f6cff]" title={application.job.title}>
                           {application.job.title}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-3 py-4 text-center">
-                        <StatusBadge status={application.status} />
+                        <Link href={href} className="block">
+                          <StatusBadge status={application.status} />
+                        </Link>
                       </td>
                       <td className="px-3 py-4 text-center text-[#666]">
-                        {application.createdAt.toLocaleDateString("ja-JP")}
+                        <Link href={href} className="block hover:text-[#2f6cff]">
+                          {application.createdAt.toLocaleDateString("ja-JP")}
+                        </Link>
                       </td>
                     </tr>
                   );

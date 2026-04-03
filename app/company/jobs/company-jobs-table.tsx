@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { duplicateJob, toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
+import { deleteJob, duplicateJob, toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
 
 type JobRow = {
   id: string;
@@ -25,6 +25,7 @@ const FILTER_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
+  { value: "status", label: "ステータス順" },
   { value: "updated_desc", label: "更新日が新しい順" },
   { value: "updated_asc", label: "更新日が古い順" },
   { value: "applications_desc", label: "応募数が多い順" },
@@ -88,20 +89,21 @@ export function CompanyJobsTable({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [targetJob, setTargetJob] = useState<JobRow | null>(null);
+  const [deleteTargetJob, setDeleteTargetJob] = useState<JobRow | null>(null);
 
   const filterValue = useMemo(
     () => (FILTER_OPTIONS.some((option) => option.value === currentStatus) ? currentStatus : "all"),
     [currentStatus],
   );
   const sortValue = useMemo(
-    () => (SORT_OPTIONS.some((option) => option.value === currentSort) ? currentSort : "updated_desc"),
+    () => (SORT_OPTIONS.some((option) => option.value === currentSort) ? currentSort : "status"),
     [currentSort],
   );
 
   function pushQuery(nextStatus: string, nextSort: string) {
     const params = new URLSearchParams();
     if (nextStatus !== "all") params.set("status", nextStatus);
-    if (nextSort !== "updated_desc") params.set("sort", nextSort);
+    if (nextSort !== "status") params.set("sort", nextSort);
     const query = params.toString();
     router.push(query ? `/company/jobs?${query}` : "/company/jobs");
   }
@@ -120,6 +122,16 @@ export function CompanyJobsTable({
     startTransition(async () => {
       await withdrawJobSubmission(targetJob.id);
       setTargetJob(null);
+      router.refresh();
+    });
+  }
+
+  function handleDelete() {
+    if (!deleteTargetJob) return;
+
+    startTransition(async () => {
+      await deleteJob(deleteTargetJob.id);
+      setDeleteTargetJob(null);
       router.refresh();
     });
   }
@@ -179,7 +191,11 @@ export function CompanyJobsTable({
             <div className="divide-y divide-[#edf0f5]">
               {jobs.map((job) => {
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
-                const visibilityDisabled = isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
+                const visibilityDisabled =
+                  isPending ||
+                  job.reviewStatus === "DRAFT" ||
+                  job.reviewStatus === "RETURNED" ||
+                  (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
                 return (
                   <div key={job.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-3">
@@ -208,6 +224,14 @@ export function CompanyJobsTable({
                         className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition disabled:opacity-50"
                       >
                         複製
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTargetJob(job)}
+                        disabled={isPending}
+                        className="rounded-[8px] border border-[#fca5a5] px-3 py-1.5 text-[12px] font-medium text-[#dc2626] hover:bg-[#fff5f5] transition disabled:opacity-50"
+                      >
+                        削除
                       </button>
                     </div>
 
@@ -263,19 +287,24 @@ export function CompanyJobsTable({
                 <th className="w-[132px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
                 <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
                 <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
+                <th className="w-[60px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
               </tr>
             </thead>
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-[#9aa3b2]">
+                  <td colSpan={8} className="px-4 py-12 text-center text-[#9aa3b2]">
                     条件に合う求人はありません
                   </td>
                 </tr>
               ) : (
                 jobs.map((job) => {
                   const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
-                  const visibilityDisabled = isPending || (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
+                  const visibilityDisabled =
+                    isPending ||
+                    job.reviewStatus === "DRAFT" ||
+                    job.reviewStatus === "RETURNED" ||
+                    (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
                   return (
                     <tr key={job.id} className="border-b border-[#edf0f5] last:border-b-0">
                       <td className="px-4 py-4 font-bold text-[#333]">
@@ -323,6 +352,17 @@ export function CompanyJobsTable({
                           複製
                         </button>
                       </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTargetJob(job)}
+                          disabled={isPending}
+                          title="求人を削除"
+                          className="rounded-[8px] border border-[#fca5a5] px-3 py-1.5 text-[12px] font-medium text-[#dc2626] hover:bg-[#fff5f5] transition disabled:opacity-50"
+                        >
+                          削除
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -331,6 +371,37 @@ export function CompanyJobsTable({
           </table>
         </div>
       </div>
+
+      {deleteTargetJob ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-[420px] rounded-[20px] bg-white p-6 shadow-2xl">
+            <h2 className="text-[20px] font-bold text-[#2b2f38]">求人を削除する</h2>
+            <p className="mt-3 text-[14px] leading-[1.8] text-[#5f6775]">
+              この操作は取り消せません。応募者がいる場合は非表示になります。
+            </p>
+            <div className="mt-5 rounded-[14px] bg-[#f7f9fc] px-4 py-3 text-[14px] font-semibold text-[#2b2f38]">
+              {deleteTargetJob.title}
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteTargetJob(null)}
+                className="rounded-[12px] border border-[#d7dce6] px-5 py-3 text-[14px] font-bold text-[#667085]"
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isPending}
+                className="rounded-[12px] bg-[#dc2626] px-5 py-3 text-[14px] font-bold text-white disabled:opacity-60"
+              >
+                {isPending ? "処理中..." : "削除する"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {targetJob ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">

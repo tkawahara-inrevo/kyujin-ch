@@ -9,7 +9,15 @@ import { CompanyJobsTable } from "./company-jobs-table";
 type SearchParams = Promise<{ status?: string; sort?: string }>;
 
 const REVIEW_STATUS_FILTERS = new Set(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED"]);
-const SORT_OPTIONS = new Set(["updated_desc", "updated_asc", "applications_desc", "id_asc"]);
+const SORT_OPTIONS = new Set(["status", "updated_desc", "updated_asc", "applications_desc"]);
+
+function getStatusRank(reviewStatus: string, isPublished: boolean): number {
+  if (reviewStatus === "PUBLISHED" && isPublished) return 1;
+  if (reviewStatus === "PUBLISHED" && !isPublished) return 2;
+  if (reviewStatus === "PENDING_REVIEW") return 3;
+  if (reviewStatus === "RETURNED") return 4;
+  return 5; // DRAFT
+}
 
 function buildOrderBy(sort?: string) {
   switch (sort) {
@@ -17,9 +25,8 @@ function buildOrderBy(sort?: string) {
       return [{ updatedAt: "asc" as const }, { createdAt: "asc" as const }];
     case "applications_desc":
       return [{ applications: { _count: "desc" as const } }, { updatedAt: "desc" as const }];
-    case "id_asc":
-      return [{ id: "asc" as const }];
     case "updated_desc":
+      return [{ updatedAt: "desc" as const }, { createdAt: "desc" as const }];
     default:
       return [{ updatedAt: "desc" as const }, { createdAt: "desc" as const }];
   }
@@ -32,7 +39,7 @@ export default async function CompanyJobsPage({
 }) {
   const session = await requireCompany();
   const { status, sort } = await searchParams;
-  const normalizedSort = sort && SORT_OPTIONS.has(sort) ? sort : "updated_desc";
+  const normalizedSort = sort && SORT_OPTIONS.has(sort) ? sort : "status";
 
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
@@ -72,6 +79,10 @@ export default async function CompanyJobsPage({
     hasPublishedVersion:
       job.isPublished || job.reviewStatus === "PUBLISHED" || !!parsePendingContent(job.pendingContent),
   }));
+
+  if (normalizedSort === "status") {
+    rows.sort((a, b) => getStatusRank(a.reviewStatus, a.isPublished) - getStatusRank(b.reviewStatus, b.isPublished));
+  }
 
   return (
     <div className="px-6 py-8 md:px-12 md:py-10">

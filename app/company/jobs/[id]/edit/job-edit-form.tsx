@@ -457,49 +457,51 @@ export function JobEditForm({
     event.preventDefault();
     setValidationError(null);
 
-    if (!categoryTag) {
-      setValidationError("求人カテゴリを選択してください");
-      return;
-    }
-
-    if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
-      setValidationError("カテゴリ「その他」の詳細を入力してください");
-      return;
-    }
-
-    if (description.length < 200) {
-      setValidationError("仕事内容は200文字以上入力してください");
-      return;
-    }
-
-    if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
-      setValidationError("雇用形態「その他」の詳細を入力してください");
-      return;
-    }
-
-    if (!selectionProcess.trim()) {
-      setValidationError("選考フローを入力してください");
-      return;
-    }
-
-    if (trialPeriodExists === null) {
-      setValidationError("試用期間のあり・なしを選択してください");
-      return;
-    }
-
-    if (mergedBenefits.length === 0) {
-      setValidationError("福利厚生を1つ以上選択してください");
-      return;
-    }
-
-    if (selectedRegion && !selectedLocation) {
-      setValidationError("勤務地を選択してください");
-      return;
-    }
-
     const fd = new FormData(event.currentTarget);
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     const submissionMode = (submitter?.dataset.mode as JobSubmissionMode | undefined) ?? "review";
+
+    if (submissionMode !== "draft") {
+      if (!categoryTag) {
+        setValidationError("求人カテゴリを選択してください");
+        return;
+      }
+
+      if (categoryTag === OTHER_CATEGORY_VALUE && !categoryTagDetail.trim()) {
+        setValidationError("カテゴリ「その他」の詳細を入力してください");
+        return;
+      }
+
+      if (description.length < 200) {
+        setValidationError("仕事内容は200文字以上入力してください");
+        return;
+      }
+
+      if (employmentType === "OTHER" && !employmentTypeDetail.trim()) {
+        setValidationError("雇用形態「その他」の詳細を入力してください");
+        return;
+      }
+
+      if (!selectionProcess.trim()) {
+        setValidationError("選考フローを入力してください");
+        return;
+      }
+
+      if (trialPeriodExists === null) {
+        setValidationError("試用期間のあり・なしを選択してください");
+        return;
+      }
+
+      if (mergedBenefits.length === 0) {
+        setValidationError("福利厚生を1つ以上選択してください");
+        return;
+      }
+
+      if (selectedRegion && !selectedLocation) {
+        setValidationError("勤務地を選択してください");
+        return;
+      }
+    }
     setPendingAction(submissionMode);
 
     try {

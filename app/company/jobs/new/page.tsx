@@ -261,8 +261,8 @@ export default function CompanyJobNewPage() {
       region: selectedRegion,
       officeDetail,
       access: formValues.access ?? "",
-      salaryMin: salaryMinVal,
-      salaryMax: salaryMaxVal,
+      salaryMin: salaryMinVal ? String(Math.round(Number(salaryMinVal) / 10000)) : "",
+      salaryMax: salaryMaxVal ? String(Math.round(Number(salaryMaxVal) / 10000)) : "",
       monthlySalary: annualSalaryText,
       selectionProcess,
       employmentPeriodType,
@@ -769,6 +769,11 @@ export default function CompanyJobNewPage() {
                 <input type="number" value={salaryMaxVal} onChange={(e) => setSalaryMaxVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[salaryType]?.[1] ?? ""} />
                 <span className="shrink-0 text-[14px] text-[#555]">円</span>
               </div>
+              {(salaryMinVal || salaryMaxVal) && (
+                <p className="mt-1 text-[12px] text-[#7b8797]">
+                  万円換算：{salaryMinVal ? `${Math.round(Number(salaryMinVal) / 10000)}万円` : ""}〜{salaryMaxVal ? `${Math.round(Number(salaryMaxVal) / 10000)}万円` : ""}
+                </p>
+              )}
             </Field>
 
             {/* 年俸のみ: 支払い方法 */}

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
+import { sendTransactionalEmail } from "@/lib/email";
 
 export type SimilarJob = {
   id: string;
@@ -64,7 +65,7 @@ export async function submitApplication(jobId: string, motivation: string) {
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { id: true, categoryTag: true, employmentType: true, location: true },
+    select: { id: true, title: true, categoryTag: true, employmentType: true, location: true, company: { include: { companyUser: { select: { email: true } } } } },
   });
   if (!job) throw new Error("求人が見つかりません");
 
@@ -90,6 +91,32 @@ export async function submitApplication(jobId: string, motivation: string) {
       },
     });
   });
+
+  // メール通知（失敗してもフローは止めない）
+  const siteUrl = process.env.NEXTAUTH_URL ?? "https://kyujin-ch.jp";
+  try {
+    // 求職者への応募確認メール
+    if (user.notificationsEnabled) {
+      await sendTransactionalEmail({
+        to: user.email,
+        subject: `【求人ちゃんねる】「${job.title}」に応募しました`,
+        html: `<p>${user.name} 様</p><p>「${job.title}」への応募が完了しました。<br>企業からの返信をお待ちください。</p><p><a href="${siteUrl}/applications">応募一覧を確認する</a></p><p>求人ちゃんねる</p>`,
+        text: `${user.name} 様\n\n「${job.title}」への応募が完了しました。\n企業からの返信をお待ちください。\n\n応募一覧: ${siteUrl}/applications\n\n求人ちゃんねる`,
+      });
+    }
+    // 企業への応募通知メール
+    const companyEmail = job.company?.companyUser?.email;
+    if (companyEmail) {
+      await sendTransactionalEmail({
+        to: companyEmail,
+        subject: `【求人ちゃんねる】「${job.title}」に新しい応募がありました`,
+        html: `<p>「${job.title}」に新しい応募がありました。<br>応募者の情報を確認してください。</p><p><a href="${siteUrl}/company/applicants">応募管理を確認する</a></p><p>求人ちゃんねる</p>`,
+        text: `「${job.title}」に新しい応募がありました。\n応募者の情報を確認してください。\n\n応募管理: ${siteUrl}/company/applicants\n\n求人ちゃんねる`,
+      });
+    }
+  } catch (e) {
+    console.error("応募通知メール送信エラー:", e);
+  }
 
   // ユーザーが既に応募済みの求人IDを取得
   const appliedJobIds = (

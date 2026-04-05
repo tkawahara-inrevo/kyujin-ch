@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import type { ApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendTransactionalEmail } from "@/lib/email";
 
 export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus) {
   const session = await auth();
@@ -61,6 +62,7 @@ export async function sendCompanyMessage(
       invalidRequests: {
         where: { status: "APPROVED" },
       },
+      user: { select: { email: true, name: true, notificationsEnabled: true } },
     },
   });
   if (!application) throw new Error("Application not found");
@@ -88,6 +90,21 @@ export async function sendCompanyMessage(
       attachmentType: attachment?.attachmentType ?? null,
     },
   });
+
+  // 求職者へのメッセージ通知メール（notificationsEnabled チェック）
+  if (application.user.notificationsEnabled) {
+    try {
+      const siteUrl = process.env.NEXTAUTH_URL ?? "https://kyujin-ch.jp";
+      await sendTransactionalEmail({
+        to: application.user.email,
+        subject: "【求人ちゃんねる】企業からメッセージが届きました",
+        html: `<p>${application.user.name} 様</p><p>企業からメッセージが届きました。<br>確認してください。</p><p><a href="${siteUrl}/messages/${conversation.id}">メッセージを確認する</a></p><p>求人ちゃんねる</p>`,
+        text: `${application.user.name} 様\n\n企業からメッセージが届きました。\n\nメッセージ確認: ${siteUrl}/messages/${conversation.id}\n\n求人ちゃんねる`,
+      });
+    } catch (e) {
+      console.error("メッセージ通知メール送信エラー:", e);
+    }
+  }
 
   revalidatePath(`/company/applicants/${applicationId}`);
   revalidatePath("/company/messages");

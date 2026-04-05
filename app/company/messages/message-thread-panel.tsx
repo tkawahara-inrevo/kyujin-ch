@@ -124,9 +124,12 @@ export function MessageThreadPanel({
                 ← 一覧に戻る
               </a>
             ) : null}
-            <p className="truncate text-[17px] font-bold leading-[1.2] text-[#2b2f38] lg:text-[18px]">
+            <a
+              href={`/company/applicants/${applicationId}`}
+              className="truncate text-[17px] font-bold leading-[1.2] text-[#2b2f38] hover:underline lg:text-[18px]"
+            >
               {applicantName}
-            </p>
+            </a>
             <p className="mt-0.5 text-[12px] font-semibold text-[#7f8795] lg:text-[13px]">{jobTitle}</p>
           </div>
 

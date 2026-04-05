@@ -182,17 +182,16 @@ export default async function CompanyDashboardPage() {
           colorClass="text-[#2f6cff]"
         />
         <KpiCard
-          label="概算費用"
-          value={`¥ ${(lifetimeCharges._sum.amount ?? 0).toLocaleString()}`}
-          href="/company/billing"
-          colorClass="text-[#f59e0b]"
-          sub={`当月 ¥ ${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`}
-        />
-        <KpiCard
           label="未読メッセージ"
           value={unreadMessages}
           href="/company/messages"
           colorClass="text-[#22c55e]"
+        />
+        <KpiCard
+          label="今月請求額"
+          value={`¥ ${(currentMonthCharges._sum.amount ?? 0).toLocaleString()}`}
+          href="/company/billing"
+          colorClass="text-[#f59e0b]"
         />
       </div>
 

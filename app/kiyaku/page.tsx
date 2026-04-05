@@ -1,0 +1,131 @@
+export const metadata = {
+  title: "会員規約 | 求人ちゃんねる",
+};
+
+export default function KiyakuPage() {
+  return (
+    <main className="min-h-screen bg-white px-4 py-12">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-8 text-center text-[24px] font-bold text-gray-900">
+          求人ちゃんねる 会員規約
+        </h1>
+
+        <div className="space-y-6 text-[14px] leading-relaxed text-gray-700">
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第1条（求人ちゃんねる）</h2>
+            <p>「求人ちゃんねる」（以下「本サービス」といいます）とは、株式会社INREVO（以下「当社」といいます）が提供するインターネット上の就職情報サイトにおける求人情報の掲載およびこのサイトに付随するメールサービス等の各種情報提供サービス、その他支援サービスの総称をいいます。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第2条（会員）</h2>
+            <p className="mb-2">会員とは、当社の定める方法により本サービスの利用登録を行い、当社がこれを承認した個人をいいます。</p>
+            <p>会員は、本規約および当社「プライバシーポリシー」の内容を理解し、同意したうえで本サービスを利用するものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第3条（会員登録・責任）</h2>
+            <p className="mb-2">本サービスの会員登録は、会員となろうとする者が自らの意思により行うものとします。</p>
+            <p className="mb-2">会員は、登録した情報について、常に真実かつ最新の内容を保つものとします。</p>
+            <p>当社は、会員登録情報に虚偽、誤記、記入漏れ、または第三者の権利を侵害する内容があると判断した場合、事前の通知なく登録を停止または削除できるものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第4条（会員登録情報の変更等）</h2>
+            <p className="mb-2">会員は、登録した氏名、メールアドレス、電話番号その他当社に届け出た事項に変更が生じた場合、速やかに登録内容を更新するものとします。</p>
+            <p className="mb-2">会員が変更手続を怠ったことにより生じた損害について、当社は責任を負いません。</p>
+            <p>会員は、退会を希望する場合、当社所定の方法により退会手続を行うものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第5条（提供情報について）</h2>
+            <p className="mb-2">会員は、本サービスを通じて取得した求人情報、企業情報その他の情報について、自己の責任において利用するものとします。</p>
+            <p>当社は、提供情報の最新性、正確性、完全性、有用性等を保証するものではありません。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第6条（会員の責任）</h2>
+            <p className="mb-2">会員は、求人応募や選考参加の際、自己の意思と責任により企業との連絡、面談、就業条件の確認等を行うものとします。</p>
+            <p>会員は、応募先企業との間で発生したトラブルについて、原則として当該企業との間で解決するものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第7条（企業からの連絡）</h2>
+            <p>会員は、本サービス上の応募やプロフィール情報に基づき、求人企業または職業紹介事業者等から連絡を受ける場合があることをあらかじめ承諾するものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第8条（個人情報の取扱い）</h2>
+            <p>本サービスにおける個人情報の取扱いについては、当社のプライバシーポリシーに従うものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第9条（情報の利用）</h2>
+            <p className="mb-2">当社は、本サービスの改善および品質向上のため、会員情報のうち個人を特定しない統計情報を作成し、利用することがあります。</p>
+            <p>当社は、会員の就職活動状況について、企業または職業紹介事業者から報告を受ける場合があります。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第10条（著作権および提供された情報の利用）</h2>
+            <p className="mb-2">本サービス上に掲載されるコンテンツの著作権その他の知的財産権は、当社または正当な権利者に帰属します。</p>
+            <p>会員は、私的利用の範囲を超えて、本サービス上の情報を複製、転載、改変、公衆送信その他の方法で利用してはなりません。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第11条（禁止行為）</h2>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>虚偽の情報を登録または送信する行為</li>
+              <li>第三者になりすまして本サービスを利用する行為</li>
+              <li>他の会員、企業、当社または第三者の権利利益を侵害する行為</li>
+              <li>本サービスの運営を妨げる行為</li>
+              <li>法令または公序良俗に反する行為</li>
+              <li>その他当社が不適切と判断する行為</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第12条（免責）</h2>
+            <p className="mb-2">当社は、本サービスの利用に関し会員に生じた損害について、当社に故意または重過失がある場合を除き責任を負いません。</p>
+            <p>当社は、通信回線、システム障害、外部サービス障害等に起因して本サービスの全部または一部が利用できない場合でも責任を負いません。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第13条（反社会的勢力の排除）</h2>
+            <p>会員は、反社会的勢力に該当せず、また将来にわたってもこれに該当しないことを表明し、保証するものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第14条（除名）</h2>
+            <p>当社は、会員が本規約に違反した場合その他当社が不適切と判断した場合、事前通知なく会員登録を抹消し、本サービスの利用を停止できるものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第15条（損害賠償）</h2>
+            <p>会員が本規約に違反し、当社または第三者に損害を与えた場合、会員はその損害を賠償する責任を負うものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第16条（サービスの変更等）</h2>
+            <p className="mb-2">当社は、会員への事前通知なく、本サービスの内容を変更し、または提供を中断・終了することができます。</p>
+            <p>当社は、前項により会員に生じた損害について責任を負いません。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第17条（分離条項）</h2>
+            <p>本規約の一部が無効とされた場合であっても、その他の条項は引き続き有効に存続するものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第18条（規約の変更）</h2>
+            <p className="mb-2">当社は、必要に応じて本規約を変更できるものとします。</p>
+            <p>変更後の規約は、当社が本サービス上に掲載した時点または別途定めた効力発生日より効力を生じるものとします。</p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-bold text-gray-900">第19条（準拠法および管轄）</h2>
+            <p>本規約は日本法に準拠し、本規約に関する一切の紛争については、福岡地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -25,17 +25,15 @@ const cardImages = [
   "/assets/Resume.png",
 ];
 
-// 無料期間（JST）: 2026/04/06 00:00:00 〜 2026/07/06 23:59:59.999
-const FREE_CAMPAIGN_START_UTC = Date.UTC(2026, 3, 5, 15, 0, 0, 0);
-const FREE_CAMPAIGN_END_UTC = Date.UTC(2026, 6, 6, 14, 59, 59, 999);
-
-function isFreeCampaignPeriod(now: Date) {
-  const ts = now.getTime();
-  return ts >= FREE_CAMPAIGN_START_UTC && ts <= FREE_CAMPAIGN_END_UTC;
+// 企業アカウント発行から3ヶ月以内は無料
+function isFreeCampaignPeriod(companyCreatedAt: Date, now: Date) {
+  const threeMonthsLater = new Date(companyCreatedAt);
+  threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+  return now < threeMonthsLater;
 }
 
-async function resolveChargeAmount(categoryTag: string | null, now: Date) {
-  if (isFreeCampaignPeriod(now)) {
+async function resolveChargeAmount(categoryTag: string | null, companyCreatedAt: Date, now: Date) {
+  if (isFreeCampaignPeriod(companyCreatedAt, now)) {
     return 0;
   }
 
@@ -65,14 +63,15 @@ export async function submitApplication(jobId: string, motivation: string) {
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { id: true, title: true, categoryTag: true, employmentType: true, location: true, company: { include: { companyUser: { select: { email: true } } } } },
+    select: { id: true, title: true, categoryTag: true, employmentType: true, location: true, company: { select: { createdAt: true, companyUser: { select: { email: true } } } } },
   });
   if (!job) throw new Error("求人が見つかりません");
 
   const now = new Date();
   const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  const chargeAmount = await resolveChargeAmount(job.categoryTag, now);
+  const companyCreatedAt = job.company.createdAt;
+  const chargeAmount = await resolveChargeAmount(job.categoryTag, companyCreatedAt, now);
 
   await prisma.$transaction(async (tx) => {
     const application = await tx.application.create({
@@ -168,14 +167,14 @@ export async function submitBulkApplications(jobIds: string[]) {
 
     const job = await prisma.job.findUnique({
       where: { id: jobId },
-      select: { id: true, categoryTag: true },
+      select: { id: true, categoryTag: true, company: { select: { createdAt: true } } },
     });
     if (!job) continue;
 
     const now = new Date();
     const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    const chargeAmount = await resolveChargeAmount(job.categoryTag, now);
+    const chargeAmount = await resolveChargeAmount(job.categoryTag, job.company.createdAt, now);
 
     await prisma.$transaction(async (tx) => {
       const application = await tx.application.create({

@@ -7,13 +7,11 @@ export const metadata: Metadata = {
   title: "求人ちゃんねる",
   description: "求人ちゃんねる",
   robots: {
-    index: false,
-    follow: false,
-    nocache: true,
+    index: true,
+    follow: true,
     googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
+      index: true,
+      follow: true,
     },
   },
   icons: {

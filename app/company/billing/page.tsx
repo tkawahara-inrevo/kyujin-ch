@@ -70,7 +70,7 @@ export default async function CompanyBillingPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.priceEntry.findMany({
-      orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+      orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
     }),
   ]);
 

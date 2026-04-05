@@ -69,6 +69,9 @@ export default async function AdminInvoicesPage() {
       <p className="mt-1 text-[13px] text-[#888]">
         実データの請求月ごとに、企業別の請求合計を確認できます。
       </p>
+      <p className="mt-3 rounded-[10px] border border-[#dbe7ff] bg-[#f3f7ff] px-4 py-3 text-[13px] font-medium text-[#2b4ea2]">
+        2026年4月6日〜2026年7月6日は無料キャンペーン期間のため、この期間の応募は請求額0円で記録されます。
+      </p>
 
       <InvoiceMonthSwitcher months={months} monthlyData={monthlyData} />
     </div>

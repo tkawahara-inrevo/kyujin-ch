@@ -78,6 +78,7 @@ export default async function CompanyApplicantsPage({
             <div className="divide-y divide-[#edf0f5]">
               {applications.map((application) => {
                 const isUnread = application.companyViewedAt === null;
+                const isDeleted = !!(application.user as { deletedAt?: Date | null }).deletedAt;
                 return (
                   <Link
                     key={application.id}
@@ -92,8 +93,13 @@ export default async function CompanyApplicantsPage({
                               NEW
                             </span>
                           )}
+                          {isDeleted && (
+                            <span className="shrink-0 rounded-full bg-[#999] px-2 py-0.5 text-[10px] font-bold text-white">
+                              退会済み
+                            </span>
+                          )}
                           <p className={`truncate text-[15px] font-bold ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}>
-                            {application.user.name}
+                            {isDeleted ? "退会済みユーザー" : application.user.name}
                           </p>
                         </div>
                         <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
@@ -134,6 +140,7 @@ export default async function CompanyApplicantsPage({
               ) : (
                 applications.map((application) => {
                   const isUnread = application.companyViewedAt === null;
+                  const isDeleted = !!(application.user as { deletedAt?: Date | null }).deletedAt;
                   const href = `/company/applicants/${application.id}`;
                   return (
                     <tr key={application.id} className={`border-b border-[#edf0f5] last:border-b-0 ${isUnread ? "bg-[#f9fbff]" : ""}`}>
@@ -141,14 +148,19 @@ export default async function CompanyApplicantsPage({
                         <Link
                           href={href}
                           className={`flex items-center gap-2 truncate hover:text-[#2f6cff] ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
-                          title={application.user.name ?? ""}
+                          title={isDeleted ? "退会済みユーザー" : (application.user.name ?? "")}
                         >
                           {isUnread && (
                             <span className="shrink-0 rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
                               NEW
                             </span>
                           )}
-                          <span className="truncate">{application.user.name}</span>
+                          {isDeleted && (
+                            <span className="shrink-0 rounded-full bg-[#999] px-2 py-0.5 text-[10px] font-bold text-white">
+                              退会済み
+                            </span>
+                          )}
+                          <span className="truncate">{isDeleted ? "退会済みユーザー" : application.user.name}</span>
                         </Link>
                       </td>
                       <td className="px-4 py-4 text-[#333]">

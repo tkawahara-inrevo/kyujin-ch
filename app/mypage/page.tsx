@@ -5,6 +5,7 @@ import { ProfileSummary } from "@/components/profile-summary";
 import { DocumentUploadCard } from "@/components/document-upload-card";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { ReviewCard } from "@/components/review-card";
+import { DeleteAccountSection } from "./delete-account-section";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -75,6 +76,8 @@ export default async function MyPage() {
                 )}
               </div>
             </section>
+
+            <DeleteAccountSection />
           </div>
 
           <ActionSidebar isLoggedIn={true} />

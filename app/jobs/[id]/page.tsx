@@ -259,6 +259,7 @@ export default async function JobDetailPage({
     salaryRevision?: string | null;
     bonus?: string | null;
     bonusNote?: string | null;
+    salaryNote?: string | null;
     experienceType?: string | null;
     experienceYears?: number | null;
     hasFixedOvertime?: boolean | null;
@@ -434,6 +435,7 @@ export default async function JobDetailPage({
                       )}
                     </InfoRow>
                   )}
+                  <InfoRow label="給与の備考" value={j.salaryNote} />
                 </dl>
               </div>
 

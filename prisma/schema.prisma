@@ -256,6 +256,7 @@ model Job {
   // 昇給・賞与
   bonus                 String?   // 賞与
   bonusNote             String?   // 賞与備考
+  salaryNote            String?   // 給与全体の備考
 
   // 年俸の支払い方法
   annualPaymentMethod   String?   // "monthly" | "other"

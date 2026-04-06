@@ -171,6 +171,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
   const [bonusExists, setBonusExists] = useState<boolean | null>(null);
   const [bonusNote, setBonusNote] = useState("");
+  const [salaryNote, setSalaryNote] = useState("");
   const [experienceType, setExperienceType] = useState("");
   const [experienceYears, setExperienceYears] = useState("");
   const [annualPaymentMethod, setAnnualPaymentMethod] = useState("monthly");
@@ -467,6 +468,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
           salaryRevision: fd.get("salaryRevision") as string,
           bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
           bonusNote: salaryType !== "annual" && bonusExists ? (bonusNote || undefined) : undefined,
+          salaryNote: salaryNote || undefined,
           experienceType: experienceType || undefined,
           experienceYears: (experienceType === "経験者のみ" || experienceType === "経験者歓迎") && experienceYears ? Number(experienceYears) : undefined,
           annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
@@ -1022,13 +1024,27 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
                       value={bonusNote}
                       onChange={(e) => setBonusNote(e.target.value)}
                       rows={2}
+                      maxLength={200}
                       className={textareaCls}
                       placeholder="例：年2回（7月・12月）、業績に応じて支給"
                     />
+                    <p className="mt-0.5 text-right text-[11px] text-[#aaa]">{bonusNote.length} / 200</p>
                   </div>
                 )}
               </Field>
             )}
+
+            <Field label="給与の備考">
+              <textarea
+                value={salaryNote}
+                onChange={(e) => setSalaryNote(e.target.value)}
+                rows={3}
+                maxLength={200}
+                className={textareaCls}
+                placeholder="例：経験・スキルに応じて優遇、入社後3ヶ月は試用期間として基本給の90%"
+              />
+              <p className="mt-0.5 text-right text-[11px] text-[#aaa]">{salaryNote.length} / 200</p>
+            </Field>
           </Section>
 
           <Section title="勤務時間">
@@ -1198,9 +1214,11 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
                 rows={3}
                 value={holidayNote}
                 onChange={(e) => setHolidayNote(e.target.value)}
+                maxLength={200}
                 className={textareaCls}
                 placeholder="休日・休暇に関する補足事項があれば入力してください"
               />
+              <p className="mt-0.5 text-right text-[11px] text-[#aaa]">{holidayNote.length} / 200</p>
             </Field>
           </Section>
 

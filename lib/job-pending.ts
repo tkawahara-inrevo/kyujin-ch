@@ -83,6 +83,7 @@ export type JobPendingContent = {
   holidayNote: string | null;
   bonus: string | null;
   bonusNote: string | null;
+  salaryNote: string | null;
   experienceType: string | null;
   experienceYears: number | null;
   trialPeriod: string | null;
@@ -179,6 +180,7 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     holidayNote: asString(record.holidayNote),
     bonus: asString(record.bonus),
     bonusNote: asString(record.bonusNote),
+    salaryNote: asString(record.salaryNote),
     experienceType: asString(record.experienceType),
     experienceYears: asNumber(record.experienceYears),
     trialPeriod: asString(record.trialPeriod),

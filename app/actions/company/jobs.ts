@@ -82,6 +82,7 @@ type JobData = {
   annualHolidayCount?: number;
   bonus?: string;
   bonusNote?: string;
+  salaryNote?: string;
   experienceType?: string;
   experienceYears?: number;
   trialSalaryType?: string;
@@ -189,6 +190,7 @@ function normalizeJobData(data: JobData): JobPendingContent {
     holidayNote: data.holidayNote || null,
     bonus: data.bonus || null,
     bonusNote: data.bonusNote || null,
+    salaryNote: data.salaryNote || null,
     experienceType: data.experienceType || null,
     experienceYears: data.experienceYears ?? null,
     trialPeriod: data.trialPeriod || null,
@@ -267,6 +269,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     holidayNote: normalized.holidayNote,
     bonus: normalized.bonus,
     bonusNote: normalized.bonusNote,
+    salaryNote: normalized.salaryNote,
     experienceType: normalized.experienceType,
     experienceYears: normalized.experienceYears,
     trialPeriod: normalized.trialPeriod,

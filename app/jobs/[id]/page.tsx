@@ -14,6 +14,7 @@ import { auth } from "@/auth";
 import { graduationYearLabel } from "@/lib/graduation-years";
 import { EMPLOYMENT_LABELS, OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { rankRecommendedJobs } from "@/lib/recommended-jobs";
+import type { WorkingHoursDetail } from "@/lib/job-pending";
 
 type JobDetailPageProps = {
   params: Promise<{
@@ -94,6 +95,56 @@ function formatFixedOvertime(json: string): string {
 function formatDate(date?: Date | null) {
   if (!date) return null;
   return new Date(date).toLocaleDateString("ja-JP");
+}
+
+function formatWorkingHours(
+  type: string | null | undefined,
+  detail: WorkingHoursDetail | null | undefined,
+): string | null {
+  if (!type) return null;
+  const d = detail ?? ({} as Partial<WorkingHoursDetail>);
+  const fmtTime = (h: number | null | undefined, m: number | null | undefined) =>
+    h != null && m != null ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}` : null;
+  const fmtHM = (h: number | null | undefined, m: number | null | undefined) => {
+    if (h == null) return null;
+    return m ? `${h}時間${String(m).padStart(2, "0")}分` : `${h}時間`;
+  };
+  const lines: string[] = [];
+  if (type === "固定時間制") {
+    const start = fmtTime(d.scheduledStartHour, d.scheduledStartMin);
+    const end = fmtTime(d.scheduledEndHour, d.scheduledEndMin);
+    if (start && end) lines.push(`所定労働時間：${start}〜${end}`);
+    const max = fmtHM(d.maxWorkHour, d.maxWorkMin);
+    if (max) lines.push(`実働：${max}`);
+    if (d.separateContract) lines.push("別途36協定あり");
+  } else if (type === "シフト制") {
+    const max = fmtHM(d.maxWorkHour, d.maxWorkMin);
+    if (max) lines.push(`実働：${max}`);
+    if (d.separateContract) lines.push("別途36協定あり");
+  } else if (type === "フレックスタイム制") {
+    if (d.hasCoretime === true) {
+      const start = fmtTime(d.coretimeStartHour, d.coretimeStartMin);
+      const end = fmtTime(d.coretimeEndHour, d.coretimeEndMin);
+      if (start && end) lines.push(`コアタイム：${start}〜${end}`);
+    } else if (d.hasCoretime === false) {
+      lines.push("コアタイムなし");
+    }
+    const std = fmtHM(d.standardWorkHour, d.standardWorkMin);
+    if (std) {
+      const period = d.standardWorkPeriod ? `（${d.standardWorkPeriod}あたり）` : "";
+      lines.push(`標準労働時間：${std}${period}`);
+    }
+  } else if (type === "裁量労働制") {
+    if (d.discretionaryType) lines.push(d.discretionaryType);
+    const notional = fmtHM(d.maxWorkHour, d.maxWorkMin);
+    if (notional) lines.push(`みなし労働時間：${notional}`);
+  } else if (type === "変形労働制") {
+    if (d.variablePeriod) lines.push(`単位：${d.variablePeriod}`);
+    const avg = fmtHM(d.variableWorkHour, d.variableWorkMin);
+    if (avg) lines.push(`平均労働時間：${avg}`);
+  }
+  if (d.note) lines.push(d.note);
+  return lines.length > 0 ? `${type}\n${lines.join("\n")}` : type;
 }
 
 function buildMapQuery(location?: string | null, officeDetail?: string | null) {
@@ -211,6 +262,11 @@ export default async function JobDetailPage({
     fixedOvertime?: string | null;
     trialPeriodExists?: boolean | null;
     trialPeriodMonths?: number | null;
+    trialPeriodDays?: number | null;
+    trialEmploymentSame?: boolean | null;
+    trialEmploymentType?: string | null;
+    trialWorkingHours?: number | null;
+    trialSalarySame?: boolean | null;
     trialSalaryType?: string | null;
     trialSalaryMin?: number | null;
     trialSalaryMax?: number | null;
@@ -220,9 +276,12 @@ export default async function JobDetailPage({
     holidayFeatures?: string[];
     annualHolidayCount?: number | null;
     holidayPolicy?: string | null;
+    holidayNote?: string | null;
     recruitmentBackground?: string | null;
     annualPaymentMethod?: string | null;
     annualPaymentNote?: string | null;
+    workingHoursType?: string | null;
+    workingHoursDetail?: WorkingHoursDetail | null;
   };
   const trialSalaryRange = formatSalaryRange(j.trialSalaryType ?? null, j.trialSalaryMin, j.trialSalaryMax);
 
@@ -343,7 +402,7 @@ export default async function JobDetailPage({
                       )}
                     </InfoRow>
                   )}
-                  {j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
+                  {j.salaryType !== "annual" && j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
                   {j.salaryType !== "annual" && <InfoRow label="賞与" value={j.bonus} />}
                   {j.hasFixedOvertime != null && (
                     <InfoRow label="みなし残業">
@@ -356,6 +415,22 @@ export default async function JobDetailPage({
                 </dl>
               </div>
 
+              {/* 勤務時間 */}
+              {j.workingHoursType && (
+                <div>
+                  <SectionHeader title="勤務時間" />
+                  <dl className="px-5">
+                    <InfoRow
+                      label="勤務時間"
+                      value={formatWorkingHours(
+                        j.workingHoursType,
+                        j.workingHoursDetail as WorkingHoursDetail | null,
+                      )}
+                    />
+                  </dl>
+                </div>
+              )}
+
               {/* 試用期間 */}
               {j.trialPeriodExists != null && (
                 <div>
@@ -363,13 +438,27 @@ export default async function JobDetailPage({
                   <dl className="px-5">
                     <InfoRow label="試用期間">
                       {j.trialPeriodExists
-                        ? `あり（${j.trialPeriodMonths ?? ""}ヶ月）`
+                        ? [
+                            j.trialPeriodMonths ? `${j.trialPeriodMonths}ヶ月` : null,
+                            j.trialPeriodDays ? `${j.trialPeriodDays}日` : null,
+                          ]
+                            .filter(Boolean)
+                            .join("・") || "あり"
                         : "なし"}
                     </InfoRow>
                     {j.trialPeriodExists && (
                       <>
-                        {(trialSalaryRange || j.trialAnnualSalary) && (
+                        {j.trialEmploymentSame === false && j.trialEmploymentType && (
+                          <InfoRow label="試用中の雇用形態" value={j.trialEmploymentType} />
+                        )}
+                        {j.trialWorkingHours != null && (
+                          <InfoRow label="試用中の想定労働時間" value={`月${j.trialWorkingHours}時間`} />
+                        )}
+                        {j.trialSalarySame === false && (trialSalaryRange || j.trialAnnualSalary) && (
                           <InfoRow label="試用中の給与" value={j.trialAnnualSalary || trialSalaryRange} />
+                        )}
+                        {j.trialSalarySame === true && (
+                          <InfoRow label="試用中の給与" value="本採用時と同じ" />
                         )}
                         {j.trialPeriod && (
                           <InfoRow label="変更となる条件" value={j.trialPeriod} />
@@ -381,12 +470,13 @@ export default async function JobDetailPage({
               )}
 
               {/* 休日休暇 */}
-              {(j.holidayType || j.holidayPolicy) && (
+              {(j.holidayType || j.holidayPolicy || j.holidayNote) && (
                 <div>
                   <SectionHeader title="休日休暇" />
                   <dl className="px-5">
                     <InfoRow label="休みの取り方" value={j.holidayType} />
                     <InfoRow label="詳細" value={j.holidayPolicy} />
+                    <InfoRow label="備考" value={j.holidayNote} />
                   </dl>
                 </div>
               )}

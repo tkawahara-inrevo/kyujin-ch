@@ -244,6 +244,7 @@ model Job {
   holidayType           String?   // 完全週休2日制 etc.
   holidayFeatures       String[]  @default([])
   annualHolidayCount    Int?      // 年間休日数
+  holidayNote           String?   // 休日休暇 備考
 
   // 昇給・賞与
   bonus                 String?   // 賞与

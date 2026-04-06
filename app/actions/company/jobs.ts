@@ -60,6 +60,7 @@ type JobData = {
   recruitmentBackground?: string;
   positionMission?: string;
   holidayPolicy?: string;
+  holidayNote?: string;
   trialPeriod?: string;
   fixedOvertime?: string;
   salaryRevision?: string;
@@ -182,6 +183,7 @@ function normalizeJobData(data: JobData): JobPendingContent {
     recruitmentBackground: data.recruitmentBackground || null,
     positionMission: data.positionMission || null,
     holidayPolicy: data.holidayPolicy || null,
+    holidayNote: data.holidayNote || null,
     trialPeriod: data.trialPeriod || null,
     fixedOvertime: data.fixedOvertime || null,
     salaryRevision: data.salaryRevision || null,
@@ -256,6 +258,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     recruitmentBackground: normalized.recruitmentBackground,
     positionMission: normalized.positionMission,
     holidayPolicy: normalized.holidayPolicy,
+    holidayNote: normalized.holidayNote,
     trialPeriod: normalized.trialPeriod,
     fixedOvertime: normalized.fixedOvertime,
     salaryRevision: normalized.salaryRevision,

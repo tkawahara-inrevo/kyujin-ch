@@ -197,6 +197,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
   const [trialSalarySame, setTrialSalarySame] = useState<boolean | null>(null);
   const [workingHours, setWorkingHours] = useState<WorkingHoursState>(DEFAULT_WORKING_HOURS_STATE);
   const [holidayType, setHolidayType] = useState("");
+  const [holidayNote, setHolidayNote] = useState("");
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
   const mergedTags = selectedTags;
@@ -491,6 +492,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
           trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
           holidayType,
           holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+          holidayNote: holidayNote || undefined,
           jobSubcategory: jobSubcategory || undefined,
           ...workingHoursStateToData(workingHours),
         },
@@ -1130,6 +1132,15 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
               </Field>
             )}
             <SectionTags tags={HOLIDAY_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
+            <Field label="備考">
+              <textarea
+                rows={3}
+                value={holidayNote}
+                onChange={(e) => setHolidayNote(e.target.value)}
+                className={textareaCls}
+                placeholder="休日・休暇に関する補足事項があれば入力してください"
+              />
+            </Field>
           </Section>
 
           <Section title="選考情報">

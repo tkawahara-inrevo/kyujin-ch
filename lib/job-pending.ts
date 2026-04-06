@@ -80,6 +80,7 @@ export type JobPendingContent = {
   recruitmentBackground: string | null;
   positionMission: string | null;
   holidayPolicy: string | null;
+  holidayNote: string | null;
   trialPeriod: string | null;
   fixedOvertime: string | null;
   salaryRevision: string | null;
@@ -172,6 +173,7 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     recruitmentBackground: asString(record.recruitmentBackground),
     positionMission: asString(record.positionMission),
     holidayPolicy: asString(record.holidayPolicy),
+    holidayNote: asString(record.holidayNote),
     trialPeriod: asString(record.trialPeriod),
     fixedOvertime: asString(record.fixedOvertime),
     salaryRevision: asString(record.salaryRevision),

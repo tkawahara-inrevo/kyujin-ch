@@ -165,6 +165,7 @@ type Job = {
   recruitmentBackground?: string | null;
   positionMission?: string | null;
   holidayPolicy?: string | null;
+  holidayNote?: string | null;
   trialPeriod?: string | null;
   fixedOvertime?: string | null;
   salaryRevision?: string | null;
@@ -295,6 +296,7 @@ export function JobEditForm({
     workingHoursStateFromDetail(job.workingHoursType, job.workingHoursDetail as WorkingHoursDetail | null ?? null)
   );
   const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
+  const [holidayNote, setHolidayNote] = useState(job.holidayNote ?? "");
   const [formValues, setFormValues] = useState<Record<string, string>>({
     title: job.title,
     description: job.description,
@@ -572,6 +574,7 @@ export function JobEditForm({
       trialPeriod: trialPeriodExists ? fd.get("trialPeriod") as string : undefined,
       holidayType,
       holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
+      holidayNote: holidayNote || undefined,
       jobSubcategory: jobSubcategory || undefined,
       ...workingHoursStateToData(workingHours),
     };
@@ -1339,6 +1342,15 @@ export function JobEditForm({
               </Field>
             )}
             <SectionTags tags={HOLIDAY_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
+            <Field label="備考">
+              <textarea
+                rows={3}
+                value={holidayNote}
+                onChange={(e) => setHolidayNote(e.target.value)}
+                className={textareaCls}
+                placeholder="休日・休暇に関する補足事項があれば入力してください"
+              />
+            </Field>
           </Section>
 
           <Section title="選考情報">

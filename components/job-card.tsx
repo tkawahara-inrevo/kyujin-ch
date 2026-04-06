@@ -50,13 +50,13 @@ export function JobCard({
     <article className="group relative overflow-hidden rounded-[10px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
       <Link href={`/jobs/${id}`} className="absolute inset-0 z-0" aria-label={title} />
 
-      <Link href={`/jobs/${id}`} className="relative z-10 block aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]" tabIndex={-1} aria-hidden>
+      <div className="relative aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]">
         {/* ブラー背景：余白を埋める */}
         <Image
           src={imageSrc}
           alt=""
           fill
-          aria-hidden
+          aria-hidden="true"
           className="scale-110 object-cover blur-xl brightness-75"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
@@ -65,11 +65,11 @@ export function JobCard({
           src={imageSrc}
           alt={title}
           fill
-          className="relative object-contain transition duration-300 group-hover:scale-[1.03]"
+          className="object-contain transition duration-300 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         {badge && (
-          <span className={`absolute right-3 top-3 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
+          <span className={`absolute right-3 top-3 z-10 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
             badge === "中途"
               ? "bg-[#2f6cff] text-white"
               : badge === "新着"
@@ -83,7 +83,7 @@ export function JobCard({
             {badge}
           </span>
         )}
-      </Link>
+      </div>
 
       <div className="px-3 pb-3 pt-3">
         {/* タグ */}

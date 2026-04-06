@@ -11,11 +11,14 @@ interface Props {
 
 export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
   const searchParams = useSearchParams();
-  const [storedTarget, setStoredTarget] = useState<string | null>(() =>
-    typeof window === "undefined" ? null : localStorage.getItem("kyujin-target"),
-  );
+  const [storedTarget, setStoredTarget] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const target = searchParams.get("target") || storedTarget;
+
+  // hydration後にlocalStorageを読む（SSRとの不一致を防ぐ）
+  useEffect(() => {
+    setStoredTarget(localStorage.getItem("kyujin-target"));
+  }, []);
 
   // 外側クリックで閉じる
   useEffect(() => {

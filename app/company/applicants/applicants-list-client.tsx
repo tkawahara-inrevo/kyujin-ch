@@ -228,47 +228,49 @@ export function ApplicantsListClient({
           <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[260px] px-4 py-4 font-bold">応募者 / 求人</th>
-                <th className="w-[96px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
+                <th className="w-[120px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
+                <th className="w-[200px] px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[90px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
                 <th className="px-4 py-4 font-bold">最新メッセージ</th>
-                <th className="w-[180px] px-4 py-4 font-bold">メモ</th>
+                <th className="w-[160px] px-4 py-4 font-bold">メモ</th>
                 <th className="w-[82px] whitespace-nowrap px-3 py-4 text-center font-bold">応募日</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</td>
+                  <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</td>
                 </tr>
               ) : (
                 rows.map((app) => (
                   <tr key={app.id} className={`border-b border-[#edf0f5] last:border-b-0 ${app.isUnread ? "bg-[#f9fbff]" : ""}`}>
-                    {/* 氏名 + 求人タイトル縦積み */}
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-5">
                       <div className="flex items-center gap-1.5">
                         {app.isUnread && <span className="shrink-0 rounded-full bg-[#ff3158] px-1.5 py-0.5 text-[9px] font-bold text-white">NEW</span>}
                         {app.isDeleted && <span className="shrink-0 rounded-full bg-[#999] px-1.5 py-0.5 text-[9px] font-bold text-white">退会</span>}
                         <Link
                           href={`/company/applicants/${app.id}`}
-                          className={`font-bold hover:text-[#2f6cff] ${app.isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
+                          className={`truncate font-bold hover:text-[#2f6cff] ${app.isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
                         >
                           {app.userName}
                         </Link>
                       </div>
+                    </td>
+                    <td className="px-4 py-5 text-[#555]">
                       <Link
                         href={`/company/applicants/${app.id}`}
-                        className="mt-1 block text-[12px] leading-[1.5] text-[#666] hover:text-[#2f6cff]"
+                        className="block leading-[1.5] hover:text-[#2f6cff]"
                         title={app.jobTitle}
                       >
                         {app.jobTitle}
                       </Link>
                     </td>
-                    <td className="px-3 py-4 text-center">
+                    <td className="px-3 py-5 text-center">
                       <Link href={`/company/applicants/${app.id}`} className="block">
                         <StatusBadge status={app.status} />
                       </Link>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-5">
                       {app.latestMessage ? (
                         <Link
                           href={`/company/applicants/${app.id}`}
@@ -282,7 +284,7 @@ export function ApplicantsListClient({
                         <span className="text-[12px] text-[#ccc]">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-5">
                       <div className="flex flex-col gap-1.5">
                         {app.note && (
                           <span className="line-clamp-2 text-[12px] leading-[1.5] text-[#888]">{app.note}</span>
@@ -296,7 +298,7 @@ export function ApplicantsListClient({
                         </button>
                       </div>
                     </td>
-                    <td className="px-3 py-4 text-center text-[12px] text-[#666]">
+                    <td className="px-3 py-5 text-center text-[12px] text-[#666]">
                       {new Date(app.createdAt).toLocaleDateString("ja-JP")}
                     </td>
                   </tr>

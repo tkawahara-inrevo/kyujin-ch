@@ -42,7 +42,7 @@ export function CompanySummaryCard({
       )}
 
       {description && (
-        <p className="mt-3 text-[13px] leading-[1.9] text-[#555]">{description}</p>
+        <p className="mt-3 line-clamp-3 text-[13px] leading-[1.9] text-[#555]">{description}</p>
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">

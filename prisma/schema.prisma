@@ -190,6 +190,8 @@ model Job {
   // 追加フィールド（WP準拠）
   imageUrl              String?   // メイン画像
   requirements          String?   // 応募条件
+  experienceType        String?   // 経験要件（未経験者歓迎/経験者歓迎/経験者のみ）
+  experienceYears       Int?      // 必要経験年数
   desiredAptitude       String?   // 求む適性
   recommendedFor        String?   // おすすめしたい方へ
   monthlySalary         String?   // 給与（税込月給）
@@ -253,6 +255,7 @@ model Job {
 
   // 昇給・賞与
   bonus                 String?   // 賞与
+  bonusNote             String?   // 賞与備考
 
   // 年俸の支払い方法
   annualPaymentMethod   String?   // "monthly" | "other"

@@ -37,7 +37,10 @@ export function Footer() {
                 お問い合わせ
               </Link>
               <Link href="https://kyujin-ch.jp/kiyaku" className="block hover:underline" target="_blank" rel="noreferrer">
-                利用規約
+                利用規約（求職者様）
+              </Link>
+              <Link href="/kiyaku-company" className="block hover:underline">
+                利用規約（企業様）
               </Link>
               <Link href="https://inrevo.co.jp/privacy-policy" className="block hover:underline" target="_blank" rel="noreferrer">
                 プライバシーポリシー

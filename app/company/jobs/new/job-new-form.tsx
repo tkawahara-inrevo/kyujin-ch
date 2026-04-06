@@ -170,6 +170,9 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
   const [annualNumManual, setAnnualNumManual] = useState(false);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
   const [bonusExists, setBonusExists] = useState<boolean | null>(null);
+  const [bonusNote, setBonusNote] = useState("");
+  const [experienceType, setExperienceType] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
   const [annualPaymentMethod, setAnnualPaymentMethod] = useState("monthly");
   const [annualPaymentNote, setAnnualPaymentNote] = useState("");
   const [fixedOvertimePayType, setFixedOvertimePayType] = useState<"fixed"|"range"|"minimum">("fixed");
@@ -463,6 +466,9 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
           monthlySalary: annualSalaryText || undefined,
           salaryRevision: fd.get("salaryRevision") as string,
           bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
+          bonusNote: salaryType !== "annual" && bonusExists ? (bonusNote || undefined) : undefined,
+          experienceType: experienceType || undefined,
+          experienceYears: (experienceType === "経験者のみ" || experienceType === "経験者歓迎") && experienceYears ? Number(experienceYears) : undefined,
           annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
           annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
           hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
@@ -687,6 +693,49 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
             </Field>
             <Field label="応募条件" required>
               <textarea name="requirements" required rows={3} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
+            </Field>
+            <Field label="経験要件">
+              <div className="flex flex-wrap gap-5">
+                {(["未経験者歓迎", "経験者歓迎", "経験者のみ"] as const).map((opt) => (
+                  <label key={opt} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                    <input
+                      type="radio"
+                      checked={experienceType === opt}
+                      onChange={() => setExperienceType(opt)}
+                      className="h-[18px] w-[18px] accent-[#1d63e3]"
+                    />
+                    {opt}
+                  </label>
+                ))}
+                {experienceType && (
+                  <label className="flex cursor-pointer items-center gap-2 text-[15px] text-[#999]">
+                    <input
+                      type="radio"
+                      checked={experienceType === ""}
+                      onChange={() => setExperienceType("")}
+                      className="h-[18px] w-[18px] accent-[#aaa]"
+                    />
+                    指定しない
+                  </label>
+                )}
+              </div>
+              {(experienceType === "経験者のみ" || experienceType === "経験者歓迎") && (
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(e.target.value)}
+                    min={0}
+                    max={30}
+                    className="w-[80px] rounded-[8px] border border-[#d3dae8] px-3 py-2 text-[14px] focus:border-[#1d63e3] focus:outline-none"
+                    placeholder="0"
+                  />
+                  <span className="text-[14px] text-[#555]">年以上の経験</span>
+                  {experienceType === "経験者歓迎" && (
+                    <span className="text-[12px] text-[#888]">（任意）</span>
+                  )}
+                </div>
+              )}
             </Field>
             <Field label="求める人物像" required>
               <textarea name="desiredAptitude" required rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
@@ -966,6 +1015,18 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
                     </label>
                   ))}
                 </div>
+                {bonusExists === true && (
+                  <div className="mt-3">
+                    <p className="mb-1 text-[13px] font-semibold text-[#555]">備考（任意）</p>
+                    <textarea
+                      value={bonusNote}
+                      onChange={(e) => setBonusNote(e.target.value)}
+                      rows={2}
+                      className={textareaCls}
+                      placeholder="例：年2回（7月・12月）、業績に応じて支給"
+                    />
+                  </div>
+                )}
               </Field>
             )}
           </Section>

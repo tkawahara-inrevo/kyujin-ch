@@ -81,6 +81,10 @@ export type JobPendingContent = {
   positionMission: string | null;
   holidayPolicy: string | null;
   holidayNote: string | null;
+  bonus: string | null;
+  bonusNote: string | null;
+  experienceType: string | null;
+  experienceYears: number | null;
   trialPeriod: string | null;
   fixedOvertime: string | null;
   salaryRevision: string | null;
@@ -100,7 +104,6 @@ export type JobPendingContent = {
   holidayType: string | null;
   holidayFeatures: string[];
   annualHolidayCount: number | null;
-  bonus: string | null;
   trialSalaryType: string | null;
   trialSalaryMin: number | null;
   trialSalaryMax: number | null;
@@ -174,6 +177,10 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     positionMission: asString(record.positionMission),
     holidayPolicy: asString(record.holidayPolicy),
     holidayNote: asString(record.holidayNote),
+    bonus: asString(record.bonus),
+    bonusNote: asString(record.bonusNote),
+    experienceType: asString(record.experienceType),
+    experienceYears: asNumber(record.experienceYears),
     trialPeriod: asString(record.trialPeriod),
     fixedOvertime: asString(record.fixedOvertime),
     salaryRevision: asString(record.salaryRevision),
@@ -193,7 +200,6 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     holidayType: asString(record.holidayType),
     holidayFeatures: asStringArray(record.holidayFeatures),
     annualHolidayCount: asNumber(record.annualHolidayCount),
-    bonus: asString(record.bonus),
     trialSalaryType: asString(record.trialSalaryType),
     trialSalaryMin: asNumber(record.trialSalaryMin),
     trialSalaryMax: asNumber(record.trialSalaryMax),

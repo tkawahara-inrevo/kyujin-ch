@@ -258,6 +258,9 @@ export default async function JobDetailPage({
     monthlySalary?: string | null;
     salaryRevision?: string | null;
     bonus?: string | null;
+    bonusNote?: string | null;
+    experienceType?: string | null;
+    experienceYears?: number | null;
     hasFixedOvertime?: boolean | null;
     fixedOvertime?: string | null;
     trialPeriodExists?: boolean | null;
@@ -372,6 +375,14 @@ export default async function JobDetailPage({
                 <dl className="px-5">
                   <InfoRow label="仕事内容" value={job.description} />
                   <InfoRow label="応募条件" value={job.requirements} />
+                  {j.experienceType && (
+                    <InfoRow label="経験要件">
+                      <span>{j.experienceType}</span>
+                      {j.experienceYears != null && j.experienceYears > 0 && (
+                        <span className="ml-2 text-[12px] text-[#666]">（{j.experienceYears}年以上）</span>
+                      )}
+                    </InfoRow>
+                  )}
                   <InfoRow label="求める人物像" value={job.desiredAptitude} />
                 </dl>
               </div>
@@ -403,7 +414,18 @@ export default async function JobDetailPage({
                     </InfoRow>
                   )}
                   {j.salaryType !== "annual" && j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
-                  {j.salaryType !== "annual" && <InfoRow label="賞与" value={j.bonus} />}
+                  {j.salaryType !== "annual" && (
+                    <InfoRow label="賞与">
+                      {j.bonus && (
+                        <>
+                          <span>{j.bonus}</span>
+                          {j.bonusNote && (
+                            <p className="mt-1 text-[12px] text-[#666] whitespace-pre-wrap">{j.bonusNote}</p>
+                          )}
+                        </>
+                      )}
+                    </InfoRow>
+                  )}
                   {j.hasFixedOvertime != null && (
                     <InfoRow label="みなし残業">
                       <span>{j.hasFixedOvertime ? "あり" : "なし"}</span>

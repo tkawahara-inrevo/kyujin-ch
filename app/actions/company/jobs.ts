@@ -81,6 +81,9 @@ type JobData = {
   holidayFeatures?: string[];
   annualHolidayCount?: number;
   bonus?: string;
+  bonusNote?: string;
+  experienceType?: string;
+  experienceYears?: number;
   trialSalaryType?: string;
   trialSalaryMin?: number;
   trialSalaryMax?: number;
@@ -184,6 +187,10 @@ function normalizeJobData(data: JobData): JobPendingContent {
     positionMission: data.positionMission || null,
     holidayPolicy: data.holidayPolicy || null,
     holidayNote: data.holidayNote || null,
+    bonus: data.bonus || null,
+    bonusNote: data.bonusNote || null,
+    experienceType: data.experienceType || null,
+    experienceYears: data.experienceYears ?? null,
     trialPeriod: data.trialPeriod || null,
     fixedOvertime: data.fixedOvertime || null,
     salaryRevision: data.salaryRevision || null,
@@ -203,7 +210,6 @@ function normalizeJobData(data: JobData): JobPendingContent {
     holidayType: data.holidayType || null,
     holidayFeatures: data.holidayFeatures || [],
     annualHolidayCount: data.annualHolidayCount ?? null,
-    bonus: data.bonus || null,
     trialSalaryType: data.trialSalaryType || null,
     trialSalaryMin: data.trialSalaryMin ?? null,
     trialSalaryMax: data.trialSalaryMax ?? null,
@@ -259,6 +265,10 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     positionMission: normalized.positionMission,
     holidayPolicy: normalized.holidayPolicy,
     holidayNote: normalized.holidayNote,
+    bonus: normalized.bonus,
+    bonusNote: normalized.bonusNote,
+    experienceType: normalized.experienceType,
+    experienceYears: normalized.experienceYears,
     trialPeriod: normalized.trialPeriod,
     fixedOvertime: normalized.fixedOvertime,
     salaryRevision: normalized.salaryRevision,
@@ -280,7 +290,6 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     holidayType: normalized.holidayType,
     holidayFeatures: normalized.holidayFeatures,
     annualHolidayCount: normalized.annualHolidayCount,
-    bonus: normalized.bonus,
     trialSalaryType: normalized.trialSalaryType,
     trialSalaryMin: normalized.trialSalaryMin,
     trialSalaryMax: normalized.trialSalaryMax,

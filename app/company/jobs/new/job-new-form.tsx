@@ -408,6 +408,11 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
         return;
       }
 
+      if (!experienceType) {
+        setValidationError("経験要件を選択してください");
+        return;
+      }
+
       if (mergedBenefits.length === 0) {
         setValidationError("福利厚生を1つ以上選択してください");
         return;
@@ -696,7 +701,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
             <Field label="応募条件" required>
               <textarea name="requirements" required rows={3} className={textareaCls} placeholder="例：営業経験3年以上、コミュニケーション能力が高い方、普通自動車免許をお持ちの方" />
             </Field>
-            <Field label="経験要件">
+            <Field label="経験要件" required>
               <div className="flex flex-wrap gap-5">
                 {(["未経験者歓迎", "経験者歓迎", "経験者のみ"] as const).map((opt) => (
                   <label key={opt} className="flex cursor-pointer items-center gap-2 text-[15px]">
@@ -709,17 +714,6 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
                     {opt}
                   </label>
                 ))}
-                {experienceType && (
-                  <label className="flex cursor-pointer items-center gap-2 text-[15px] text-[#999]">
-                    <input
-                      type="radio"
-                      checked={experienceType === ""}
-                      onChange={() => setExperienceType("")}
-                      className="h-[18px] w-[18px] accent-[#aaa]"
-                    />
-                    指定しない
-                  </label>
-                )}
               </div>
               {(experienceType === "経験者のみ" || experienceType === "経験者歓迎") && (
                 <div className="mt-3 flex items-center gap-2">

@@ -4,9 +4,39 @@ import { useState, useTransition } from "react";
 import { updateCompanySettings } from "@/app/actions/company/settings";
 import { ALL_PREFECTURES } from "@/lib/job-locations";
 
+const INDUSTRY_OPTIONS = [
+  "IT・通信・インターネット",
+  "メーカー・製造",
+  "建設・不動産・設備",
+  "医療・福祉・介護",
+  "教育・学習支援",
+  "小売・流通・物流",
+  "飲食・宿泊・サービス",
+  "金融・保険",
+  "農林水産・鉱業",
+  "マスコミ・広告・デザイン",
+  "コンサルティング・士業",
+  "官公庁・団体",
+  "その他",
+];
+
+const EMPLOYEE_COUNT_OPTIONS = [
+  "1〜10名",
+  "11〜30名",
+  "31〜100名",
+  "101〜300名",
+  "301〜1000名",
+  "1001名以上",
+];
+
 type Props = {
   companyName: string;
+  businessDescription: string;
   description: string;
+  industry: string;
+  employeeCount: string;
+  foundedYear: string;
+  capital: string;
   websiteUrl: string;
   postalCode: string;
   prefecture: string;
@@ -52,6 +82,11 @@ export default function SettingsEditForm(props: Props) {
     const companyName = form.companyName.trim();
     if (!companyName) {
       setError("会社名を入力してください");
+      setSuccess(false);
+      return;
+    }
+    if (!form.businessDescription.trim()) {
+      setError("事業内容を入力してください");
       setSuccess(false);
       return;
     }
@@ -111,14 +146,71 @@ export default function SettingsEditForm(props: Props) {
         />
       </Field>
 
-      <Field label="説明">
+      <Field label="事業内容" required>
+        <textarea
+          value={form.businessDescription}
+          onChange={(e) => setForm({ ...form, businessDescription: e.target.value })}
+          rows={4}
+          className={inputCls}
+          placeholder="主要な事業・サービスの内容を入力してください"
+        />
+      </Field>
+
+      <Field label="会社説明">
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={3}
           className={inputCls}
+          placeholder="会社のPRや特徴を入力してください（求職者向けに表示されます）"
         />
       </Field>
+
+      <Field label="業種">
+        <select
+          value={form.industry}
+          onChange={(e) => setForm({ ...form, industry: e.target.value })}
+          className={inputCls}
+        >
+          <option value="">選択してください</option>
+          {INDUSTRY_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label="設立年">
+          <input
+            type="text"
+            value={form.foundedYear}
+            onChange={(e) => setForm({ ...form, foundedYear: e.target.value })}
+            className={inputCls}
+            placeholder="例）2010年4月"
+          />
+        </Field>
+        <Field label="従業員数">
+          <select
+            value={form.employeeCount}
+            onChange={(e) => setForm({ ...form, employeeCount: e.target.value })}
+            className={inputCls}
+          >
+            <option value="">選択してください</option>
+            {EMPLOYEE_COUNT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="資本金">
+          <input
+            type="text"
+            value={form.capital}
+            onChange={(e) => setForm({ ...form, capital: e.target.value })}
+            className={inputCls}
+            placeholder="例）1000万円"
+          />
+        </Field>
+      </div>
 
       <Field label="WebサイトURL">
         <input
@@ -126,12 +218,13 @@ export default function SettingsEditForm(props: Props) {
           value={form.websiteUrl}
           onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
           className={inputCls}
+          placeholder="https://example.com"
         />
       </Field>
 
       {/* 住所 */}
       <div className="space-y-3 rounded-[10px] border border-[#e5e7eb] p-4">
-        <p className="text-[13px] font-semibold text-[#555]">所在地</p>
+        <p className="text-[13px] font-semibold text-[#555]">所在地 <span className="text-[#ff3158]">*</span></p>
 
         <Field label="郵便番号">
           <div className="flex items-center gap-2">

@@ -142,7 +142,12 @@ model Company {
   id            String   @id @default(cuid())
   name          String
   corporateNumber String? @unique
-  description   String?
+  description         String?   // 会社説明（旧フィールド）
+  businessDescription String?   // 事業内容（必須）
+  industry            String?   // 業種
+  employeeCount       String?   // 従業員数
+  foundedYear         String?   // 設立年
+  capital             String?   // 資本金
   websiteUrl    String?
   location      String?
   postalCode    String?
@@ -240,7 +245,7 @@ model Job {
   trialWorkingHours     Int?      // 試用期間中の想定労働時間（月）
   trialSalarySame       Boolean?  // 試用期間中の給与: 本採用時と同じ
 
-  // 休日休暇
+  // 休日休暇（Jobモデル用）
   holidayType           String?   // 完全週休2日制 etc.
   holidayFeatures       String[]  @default([])
   annualHolidayCount    Int?      // 年間休日数

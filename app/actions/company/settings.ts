@@ -6,7 +6,12 @@ import { revalidatePath } from "next/cache";
 
 export async function updateCompanySettings(data: {
   companyName: string;
+  businessDescription: string;
   description: string;
+  industry: string;
+  employeeCount: string;
+  foundedYear: string;
+  capital: string;
   websiteUrl: string;
   postalCode: string;
   prefecture: string;
@@ -25,6 +30,11 @@ export async function updateCompanySettings(data: {
     throw new Error("会社名を入力してください");
   }
 
+  const businessDescription = data.businessDescription.trim();
+  if (!businessDescription) {
+    throw new Error("事業内容を入力してください");
+  }
+
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
   });
@@ -38,7 +48,12 @@ export async function updateCompanySettings(data: {
       where: { id: company.id },
       data: {
         name: companyName,
+        businessDescription,
         description: data.description.trim() || null,
+        industry: data.industry.trim() || null,
+        employeeCount: data.employeeCount.trim() || null,
+        foundedYear: data.foundedYear.trim() || null,
+        capital: data.capital.trim() || null,
         websiteUrl: data.websiteUrl.trim() || null,
         postalCode: data.postalCode.trim() || null,
         prefecture: data.prefecture.trim() || null,

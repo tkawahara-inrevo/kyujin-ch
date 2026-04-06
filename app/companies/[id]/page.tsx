@@ -7,7 +7,6 @@ import { RecommendSection } from "@/components/recommend-section";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { CompanyHeaderBlock } from "@/components/company-header-block";
-import { CompanyStory } from "@/components/company-story";
 import { CompanyInfoTable } from "@/components/company-info-table";
 import { CompanyReviews } from "@/components/company-reviews";
 import { CompanyReviewForm } from "@/components/company-review-form";
@@ -30,7 +29,12 @@ export default async function CompanyPage({
     where: { id },
     include: {
       jobs: {
-        take: 5,
+        where: {
+          isPublished: true,
+          reviewStatus: "PUBLISHED",
+          isDeleted: false,
+        },
+        take: 4,
         orderBy: { createdAt: "desc" },
       },
       reviews: {
@@ -44,6 +48,12 @@ export default async function CompanyPage({
   }
 
   const recommendedJobs = await prisma.job.findMany({
+    where: {
+      NOT: { companyId: company.id },
+      isPublished: true,
+      reviewStatus: "PUBLISHED",
+      isDeleted: false,
+    },
     include: {
       company: true,
     },
@@ -62,21 +72,28 @@ export default async function CompanyPage({
           <div>
             <CompanyHeaderBlock
               companyName={company.name}
-              location={(company as { location?: string | null }).location ?? "福岡県"}
+              location={company.location}
               description={company.description}
+              businessDescription={company.businessDescription}
             />
 
-            <CompanyStory companyName={company.name} />
-            <CompanyInfoTable />
+            <CompanyInfoTable
+              location={company.location}
+              industry={company.industry}
+              employeeCount={company.employeeCount}
+              foundedYear={company.foundedYear}
+              capital={company.capital}
+              websiteUrl={company.websiteUrl}
+            />
 
             {company.jobs.length > 0 && (
-              <section className="mt-12">
+              <section className="mt-10">
                 <div className="bg-[#2f6cff] px-4 py-2 text-[14px] font-bold text-white">
                   募集中の求人
                 </div>
 
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {company.jobs.slice(0, 4).map((job) => (
+                  {company.jobs.map((job) => (
                     <Link
                       key={job.id}
                       href={`/jobs/${job.id}`}

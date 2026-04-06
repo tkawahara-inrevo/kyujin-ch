@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { checkCompanyProfileComplete } from "@/lib/company-profile";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -49,6 +50,13 @@ export default async function CompanyDashboardPage() {
   if (!company) {
     return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
   }
+
+  const { isComplete: profileComplete, missingFields } = checkCompanyProfileComplete({
+    name: company.name,
+    businessDescription: company.businessDescription,
+    prefecture: company.prefecture,
+    location: company.location,
+  });
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -167,6 +175,21 @@ export default async function CompanyDashboardPage() {
   return (
     <div className="px-6 py-8 md:px-12 md:py-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">ダッシュボード</h1>
+
+      {!profileComplete && (
+        <Link
+          href="/company/settings#company-settings-edit"
+          className="mt-6 flex items-start gap-3 rounded-[12px] border border-[#fbbf24] bg-[#fffbeb] px-5 py-4 transition hover:bg-[#fef9c3]"
+        >
+          <span className="mt-0.5 shrink-0 text-[20px]">⚠</span>
+          <div>
+            <p className="text-[14px] font-bold text-[#92400e]">プロフィールが未完成のため、求人を作成できません</p>
+            <p className="mt-1 text-[13px] text-[#78350f]">
+              未入力項目：{missingFields.join("・")}　→ プロフィール設定で入力してください
+            </p>
+          </div>
+        </Link>
+      )}
 
       <div className="mt-8 grid grid-cols-2 gap-4 xl:grid-cols-4">
         <KpiCard

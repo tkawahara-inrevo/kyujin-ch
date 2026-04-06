@@ -28,11 +28,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  text-wrap: balance;
-}
-
-p, li {
+h1, h2, h3, h4, h5, h6, p, li {
   word-break: auto-phrase;
   overflow-wrap: break-word;
 }

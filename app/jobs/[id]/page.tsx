@@ -221,6 +221,8 @@ export default async function JobDetailPage({
     annualHolidayCount?: number | null;
     holidayPolicy?: string | null;
     recruitmentBackground?: string | null;
+    annualPaymentMethod?: string | null;
+    annualPaymentNote?: string | null;
   };
   const trialSalaryRange = formatSalaryRange(j.trialSalaryType ?? null, j.trialSalaryMin, j.trialSalaryMax);
 
@@ -333,6 +335,14 @@ export default async function JobDetailPage({
                 <SectionHeader title="雇用情報" />
                 <dl className="px-5">
                   <InfoRow label="給与" value={salaryRange} />
+                  {j.salaryType === "annual" && j.annualPaymentMethod && (
+                    <InfoRow label="支払い方法">
+                      <span>{j.annualPaymentMethod === "monthly" ? "年俸の1/12を毎月支給" : "そのほか"}</span>
+                      {j.annualPaymentMethod === "other" && j.annualPaymentNote && (
+                        <p className="mt-1 text-[12px] text-[#666] whitespace-pre-wrap">{j.annualPaymentNote}</p>
+                      )}
+                    </InfoRow>
+                  )}
                   {j.monthlySalary && <InfoRow label="想定年収" value={j.monthlySalary} />}
                   {j.salaryType !== "annual" && <InfoRow label="賞与" value={j.bonus} />}
                   {j.hasFixedOvertime != null && (

@@ -319,7 +319,7 @@ export function CompanyJobsTable({
           <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[460px] px-4 py-4 font-bold">応募求人</th>
                 <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
                 <th className="w-[90px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
                 <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
@@ -352,8 +352,7 @@ export function CompanyJobsTable({
                       <td className="px-4 py-4 font-bold text-[#333]">
                         <Link
                           href={`/company/jobs/${job.id}/edit`}
-                          className="block truncate hover:text-[#2f6cff]"
-                          title={job.title}
+                          className="block leading-[1.5] hover:text-[#2f6cff]"
                         >
                           {job.title}
                         </Link>

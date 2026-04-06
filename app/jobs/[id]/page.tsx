@@ -70,6 +70,27 @@ function formatSalaryRange(type: string | null, min?: number | null, max?: numbe
   return `${label} 〜${fmt(max!)}`;
 }
 
+function formatFixedOvertime(json: string): string {
+  try {
+    const d = JSON.parse(json) as {
+      payType: string; payFixed: number | null; payMin: number | null; payMax: number | null; payFloor: number | null;
+      hoursType: string; hoursFixed: number | null; hoursMin: number | null; hoursMax: number | null; excessPaid: boolean;
+    };
+    const fmt = (n: number) => `${n.toLocaleString()}円`;
+    let pay = "";
+    if (d.payType === "fixed" && d.payFixed) pay = fmt(d.payFixed);
+    else if (d.payType === "range" && d.payMin && d.payMax) pay = `${fmt(d.payMin)}〜${fmt(d.payMax)}`;
+    else if (d.payType === "minimum" && d.payFloor) pay = `${fmt(d.payFloor)}以上`;
+    let hours = "";
+    if (d.hoursType === "fixed" && d.hoursFixed) hours = `${d.hoursFixed}時間分`;
+    else if (d.hoursType === "range" && d.hoursMin && d.hoursMax) hours = `${d.hoursMin}〜${d.hoursMax}時間分`;
+    const excess = d.excessPaid ? "超過分別途支給" : "超過分支給なし";
+    return [pay && `固定残業代 ${pay}`, hours, excess].filter(Boolean).join(" / ");
+  } catch {
+    return json;
+  }
+}
+
 function formatDate(date?: Date | null) {
   if (!date) return null;
   return new Date(date).toLocaleDateString("ja-JP");
@@ -318,7 +339,7 @@ export default async function JobDetailPage({
                     <InfoRow label="みなし残業">
                       <span>{j.hasFixedOvertime ? "あり" : "なし"}</span>
                       {j.hasFixedOvertime && j.fixedOvertime && (
-                        <p className="mt-1 text-[12px] text-[#666]">{j.fixedOvertime}</p>
+                        <p className="mt-1 text-[12px] text-[#666]">{formatFixedOvertime(j.fixedOvertime)}</p>
                       )}
                     </InfoRow>
                   )}

@@ -66,7 +66,7 @@ export function TargetSelectModal({ currentYear, nextYear }: Props) {
         </div>
 
         <a
-          href="/company/login"
+          href="/service"
           className="mt-5 inline-flex items-center rounded-full border-2 border-[#ff3158] bg-white px-6 py-2 text-[13px] font-bold text-[#ff3158] sm:mt-6"
         >
           求人掲載を検討中の企業様はこちら

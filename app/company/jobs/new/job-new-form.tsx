@@ -410,6 +410,11 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
+      if ((salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === null) {
+        setValidationError("みなし残業制度のあり・なしを選択してください");
+        return;
+      }
+
       if (!experienceType) {
         setValidationError("経験要件を選択してください");
         return;

@@ -681,6 +681,11 @@ export function JobEditForm({
       return;
     }
 
+    if ((salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === null) {
+      showError("みなし残業制度のあり・なしを選択してください");
+      return;
+    }
+
     if (!experienceType) {
       showError("経験要件を選択してください");
       return;

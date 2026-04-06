@@ -126,7 +126,7 @@ const SALARY_PLACEHOLDER: Record<string, [string, string]> = {
   hourly:  ["例：1100",    "例：1500"],
 };
 
-export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, string[]> }) {
+export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Record<string, string[]>; companyName: string }) {
   const categoryOptions = Object.keys(subcategoryMap).length > 0 ? Object.keys(subcategoryMap) : [...CATEGORY_OPTIONS];
   const router = useRouter();
   const [pendingAction, setPendingAction] = useState<JobSubmissionMode | null>(null);
@@ -288,6 +288,7 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
       salaryMin: salaryMinVal ? String(Math.round(Number(salaryMinVal) / 10000)) : "",
       salaryMax: salaryMaxVal ? String(Math.round(Number(salaryMaxVal) / 10000)) : "",
       monthlySalary: annualSalaryText,
+      companyName,
       selectionProcess,
       employmentPeriodType,
       tags: mergedTags,

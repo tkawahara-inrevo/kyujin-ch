@@ -207,11 +207,13 @@ export function JobEditForm({
   hasPublishedVersion,
   hasPendingVersion,
   subcategoryMap,
+  companyName,
 }: {
   job: Job;
   hasPublishedVersion: boolean;
   hasPendingVersion: boolean;
   subcategoryMap: Record<string, string[]>;
+  companyName: string;
 }) {
   const categoryOptions = Object.keys(subcategoryMap).length > 0 ? Object.keys(subcategoryMap) : [...CATEGORY_OPTIONS];
   const router = useRouter();
@@ -423,6 +425,7 @@ export function JobEditForm({
       salaryMin: salaryMinVal ? String(Math.round(Number(salaryMinVal) / 10000)) : "",
       salaryMax: salaryMaxVal ? String(Math.round(Number(salaryMaxVal) / 10000)) : "",
       monthlySalary: annualSalaryText,
+      companyName,
       selectionProcess,
       employmentPeriodType,
       tags: mergedTags,

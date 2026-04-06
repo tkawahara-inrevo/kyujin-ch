@@ -36,5 +36,5 @@ export default async function CompanyJobNewPage() {
     subcategoryMap[entry.category].push(entry.subcategory);
   }
 
-  return <JobNewForm subcategoryMap={subcategoryMap} />;
+  return <JobNewForm subcategoryMap={subcategoryMap} companyName={company.name ?? ""} />;
 }

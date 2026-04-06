@@ -56,7 +56,7 @@ export default async function CompanyJobEditPage({
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">求人を編集する</h1>
-      <JobEditForm job={formJob} hasPublishedVersion={job.isPublished} hasPendingVersion={!!pendingContent} subcategoryMap={subcategoryMap} />
+      <JobEditForm job={formJob} hasPublishedVersion={job.isPublished} hasPendingVersion={!!pendingContent} subcategoryMap={subcategoryMap} companyName={company.name ?? ""} />
     </div>
   );
 }

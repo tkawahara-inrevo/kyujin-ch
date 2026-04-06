@@ -39,6 +39,7 @@ export type JobPreviewData = {
   interviewCount?: string;
   selectionDuration?: string;
   joinTiming?: string;
+  companyName?: string;
 };
 
 export function JobPreview({ data }: { data: JobPreviewData }) {
@@ -104,7 +105,7 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
           </div>
 
           <div className="mt-4 border-b border-[#e9eef5] pb-4">
-            <p className="text-[18px] font-bold text-[#2b2f38]">すごくいい株式会社</p>
+            <p className="text-[18px] font-bold text-[#2b2f38]">{data.companyName ?? "会社名"}</p>
             <div className="mt-3 flex items-center gap-2 text-[15px] text-[#4a5565]">
               <span>📍</span>
               <span>{locationLabel}</span>

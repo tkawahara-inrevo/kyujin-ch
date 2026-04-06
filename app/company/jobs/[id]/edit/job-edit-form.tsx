@@ -8,6 +8,7 @@ import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { SelectDown } from "@/components/select-down";
 import { getActiveGraduationYears, graduationYearLabel } from "@/lib/graduation-years";
 import { ALL_PREFECTURES, AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
+import { checkMinWage } from "@/lib/min-wage";
 import {
   BENEFIT_OPTIONS as SHARED_BENEFIT_OPTIONS,
   PRIMARY_BENEFIT_OPTIONS,
@@ -700,6 +701,14 @@ export function JobEditForm({
     if (!smokingPolicyOutdoor) {
       showError("屋外の受動喫煙対策を選択してください");
       return;
+    }
+
+    if (salaryMinVal && salaryType && selectedLocation) {
+      const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
+      if (!minWageResult.ok) {
+        showError(minWageResult.message);
+        return;
+      }
     }
 
     setPendingAction("review");

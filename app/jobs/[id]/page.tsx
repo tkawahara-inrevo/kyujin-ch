@@ -311,17 +311,27 @@ export default async function JobDetailPage({
               </div>
 
               {/* タイトル */}
-              <h1 className="mt-2 text-[20px] font-bold leading-[1.5] text-[#1f2937] md:text-[28px]">
+              <h1 className="mt-2 whitespace-pre-line text-[20px] font-bold leading-[1.5] text-[#1f2937] md:text-[28px]">
                 {job.title}
               </h1>
 
               {/* 画像 */}
               <div className="relative mt-5 aspect-[2.4/1] overflow-hidden rounded-[14px] bg-[#ececec] md:aspect-[2.15/1]">
+                {/* ブラー背景：余白を埋める */}
+                <Image
+                  src={job.imageUrl || "/assets/Resume.png"}
+                  alt=""
+                  fill
+                  aria-hidden
+                  className="scale-110 object-cover blur-xl brightness-75"
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                />
+                {/* メイン画像：見切れなし */}
                 <Image
                   src={job.imageUrl || "/assets/Resume.png"}
                   alt={job.title}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 1024px) 100vw, 800px"
                 />
               </div>

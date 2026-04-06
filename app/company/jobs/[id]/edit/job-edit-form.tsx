@@ -688,8 +688,13 @@ export function JobEditForm({
       return;
     }
 
-    if (selectedRegion && !selectedLocation) {
-      showError("勤務地を選択してください");
+    if (!selectedLocation) {
+      showError("勤務地（都道府県）を選択してください");
+      return;
+    }
+
+    if (!salaryMinVal) {
+      showError("給与下限を入力してください");
       return;
     }
 
@@ -703,12 +708,10 @@ export function JobEditForm({
       return;
     }
 
-    if (salaryMinVal && salaryType && selectedLocation) {
-      const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
-      if (!minWageResult.ok) {
-        showError(minWageResult.message);
-        return;
-      }
+    const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
+    if (!minWageResult.ok) {
+      showError(minWageResult.message);
+      return;
     }
 
     setPendingAction("review");

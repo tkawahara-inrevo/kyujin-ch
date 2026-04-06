@@ -419,8 +419,13 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
         return;
       }
 
-      if (selectedRegion && !selectedLocation) {
-        setValidationError("勤務地を選択してください");
+      if (!selectedLocation) {
+        setValidationError("勤務地（都道府県）を選択してください");
+        return;
+      }
+
+      if (!salaryMinVal) {
+        setValidationError("給与下限を入力してください");
         return;
       }
 
@@ -434,12 +439,10 @@ export function JobNewForm({ subcategoryMap }: { subcategoryMap: Record<string, 
         return;
       }
 
-      if (salaryMinVal && salaryType && selectedLocation) {
-        const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
-        if (!minWageResult.ok) {
-          setValidationError(minWageResult.message);
-          return;
-        }
+      const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
+      if (!minWageResult.ok) {
+        setValidationError(minWageResult.message);
+        return;
       }
     }
 

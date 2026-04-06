@@ -45,6 +45,7 @@ export async function approveJob(jobId: string) {
             officeDetail: pendingContent.officeDetail,
             postalCode: pendingContent.postalCode,
             benefits: pendingContent.benefits,
+            benefitNote: pendingContent.benefitNote,
             selectionProcess: pendingContent.selectionProcess,
             workingHours: pendingContent.workingHours,
             closingDate: pendingContent.closingDate ? new Date(pendingContent.closingDate) : null,

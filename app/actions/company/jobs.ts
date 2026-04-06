@@ -92,6 +92,7 @@ type JobData = {
   workingHoursType?: string;
   workingHoursDetail?: WorkingHoursDetail;
   jobSubcategory?: string;
+  benefitNote?: string;
 };
 
 export type YouthYearStats = {
@@ -170,6 +171,7 @@ function normalizeJobData(data: JobData): JobPendingContent {
     officeDetail: normalizeOfficeDetail(normalizedLocation.location ?? undefined, data.officeDetail),
     postalCode: data.postalCode || null,
     benefits: data.benefits || [],
+    benefitNote: data.benefitNote || null,
     selectionProcess: data.selectionProcess || null,
     workingHours: data.workingHours || null,
     closingDate: data.closingDate ? new Date(data.closingDate).toISOString() : null,
@@ -249,6 +251,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     officeDetail: normalized.officeDetail,
     postalCode: normalized.postalCode,
     benefits: normalized.benefits,
+    benefitNote: normalized.benefitNote,
     selectionProcess: normalized.selectionProcess,
     workingHours: normalized.workingHours,
     closingDate: normalized.closingDate ? new Date(normalized.closingDate) : null,
@@ -471,6 +474,15 @@ export async function toggleJobVisibility(jobId: string) {
   revalidatePath(`/admin/jobs/${jobId}`);
   revalidatePath("/");
   revalidatePath("/jobs");
+}
+
+export async function updateJobNote(jobId: string, note: string) {
+  const companyId = await getCompanyId();
+  await prisma.job.update({
+    where: { id: jobId, companyId },
+    data: { note: note.trim() || null },
+  });
+  revalidatePath("/company/jobs");
 }
 
 export async function deleteJob(jobId: string) {

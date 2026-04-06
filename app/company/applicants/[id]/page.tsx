@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireCompany } from "@/lib/auth-helpers";
 import { ApplicantActions } from "./applicant-actions";
+import { ApplicantNoteEditor } from "./applicant-note-editor";
 
 function DocumentLink({
   href,
@@ -48,19 +49,28 @@ export default async function CompanyApplicantDetailPage({
     notFound();
   }
 
-  const application = await prisma.application.findFirst({
-    where: { id, job: { companyId: company.id } },
-    include: {
-      user: true,
-      job: true,
-      invalidRequests: {
-        orderBy: { createdAt: "desc" },
+  const [application, messageTemplates] = await Promise.all([
+    prisma.application.findFirst({
+      where: { id, job: { companyId: company.id } },
+      include: {
+        user: true,
+        job: true,
+        invalidRequests: { orderBy: { createdAt: "desc" } },
+        conversation: {
+          include: {
+            messages: {
+              where: { deletedBySender: false },
+              orderBy: { createdAt: "asc" },
+            },
+          },
+        },
       },
-      conversation: {
-        include: { messages: { orderBy: { createdAt: "asc" } } },
-      },
-    },
-  });
+    }),
+    prisma.messageTemplate.findMany({
+      where: { companyId: company.id },
+      orderBy: { sortOrder: "asc" },
+    }),
+  ]);
 
   if (!application) {
     notFound();
@@ -163,6 +173,9 @@ export default async function CompanyApplicantDetailPage({
             </p>
           </div>
         )}
+        <div className="mt-3 border-t border-[#f0f0f0] pt-3">
+          <ApplicantNoteEditor applicationId={application.id} initialNote={application.note ?? ""} />
+        </div>
       </div>
 
       <div className="mt-5">
@@ -172,6 +185,7 @@ export default async function CompanyApplicantDetailPage({
           messages={application.conversation?.messages ?? []}
           conversationId={application.conversation?.id}
           isInvalidated={!!approvedInvalidRequest}
+          messageTemplates={messageTemplates}
         />
       </div>
     </div>

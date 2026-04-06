@@ -3,7 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteJob, duplicateJob, toggleJobVisibility, withdrawJobSubmission } from "@/app/actions/company/jobs";
+import { deleteJob, duplicateJob, toggleJobVisibility, updateJobNote, withdrawJobSubmission } from "@/app/actions/company/jobs";
+import { JobPreview, type JobPreviewData } from "@/components/job-preview";
 
 type JobRow = {
   id: string;
@@ -13,7 +14,10 @@ type JobRow = {
   reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED";
   isPublished: boolean;
   applicationsCount: number;
+  viewCount: number;
+  note: string;
   hasPublishedVersion: boolean;
+  previewData: JobPreviewData;
 };
 
 const FILTER_OPTIONS = [
@@ -90,6 +94,9 @@ export function CompanyJobsTable({
   const [isPending, startTransition] = useTransition();
   const [targetJob, setTargetJob] = useState<JobRow | null>(null);
   const [deleteTargetJob, setDeleteTargetJob] = useState<JobRow | null>(null);
+  const [previewJob, setPreviewJob] = useState<JobRow | null>(null);
+  const [noteJob, setNoteJob] = useState<JobRow | null>(null);
+  const [noteText, setNoteText] = useState("");
 
   const filterValue = useMemo(
     () => (FILTER_OPTIONS.some((option) => option.value === currentStatus) ? currentStatus : "all"),
@@ -147,6 +154,20 @@ export function CompanyJobsTable({
     startTransition(async () => {
       const newId = await duplicateJob(job.id);
       router.push(`/company/jobs/${newId}/edit`);
+    });
+  }
+
+  function openNote(job: JobRow) {
+    setNoteJob(job);
+    setNoteText(job.note);
+  }
+
+  function handleSaveNote() {
+    if (!noteJob) return;
+    startTransition(async () => {
+      await updateJobNote(noteJob.id, noteText);
+      setNoteJob(null);
+      router.refresh();
     });
   }
 
@@ -210,13 +231,27 @@ export function CompanyJobsTable({
                       </div>
                     </div>
 
-                    <div className="mt-3 flex gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       <Link
                         href={`/company/jobs/${job.id}/edit`}
                         className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
                       >
                         編集
                       </Link>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewJob(job)}
+                        className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
+                      >
+                        プレビュー
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openNote(job)}
+                        className={`rounded-[8px] border px-3 py-1.5 text-[12px] font-medium transition ${job.note ? "border-[#2f6cff] text-[#2f6cff]" : "border-[#d0d7e6] text-[#445063] hover:bg-[#f4f7fb]"}`}
+                      >
+                        {job.note ? "メモ編集" : "メモ追加"}
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleDuplicate(job)}
@@ -235,6 +270,10 @@ export function CompanyJobsTable({
                       </button>
                     </div>
 
+                    {job.note && (
+                      <p className="mt-3 rounded-[8px] bg-[#fffbeb] px-3 py-2 text-[12px] text-[#92400e] line-clamp-2">{job.note}</p>
+                    )}
+
                     <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
                       <div>
                         <p className="text-[#98a2b3]">雇用形態</p>
@@ -247,8 +286,8 @@ export function CompanyJobsTable({
                         </p>
                       </div>
                       <div>
-                        <p className="text-[#98a2b3]">応募数</p>
-                        <p className="mt-1 font-semibold text-[#344054]">{job.applicationsCount}</p>
+                        <p className="text-[#98a2b3]">応募数 / 閲覧数</p>
+                        <p className="mt-1 font-semibold text-[#344054]">{job.applicationsCount} / {job.viewCount}</p>
                       </div>
                       <div>
                         <p className="text-[#98a2b3]">審査状況</p>
@@ -281,13 +320,16 @@ export function CompanyJobsTable({
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
                 <th className="px-4 py-4 font-bold">応募求人</th>
-                <th className="w-[118px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
-                <th className="w-[112px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
-                <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
-                <th className="w-[132px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
-                <th className="w-[84px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
-                <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
-                <th className="w-[60px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
+                <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
+                <th className="w-[90px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
+                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
+                <th className="w-[60px] whitespace-nowrap px-3 py-4 text-center font-bold">閲覧数</th>
+                <th className="w-[120px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
+                <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
+                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">プレビュー</th>
+                <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">メモ</th>
+                <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
+                <th className="w-[48px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
               </tr>
             </thead>
             <tbody>
@@ -323,6 +365,7 @@ export function CompanyJobsTable({
                         </span>
                       </td>
                       <td className="px-3 py-4 text-center font-bold text-[#333]">{job.applicationsCount}</td>
+                      <td className="px-3 py-4 text-center text-[#555]">{job.viewCount}</td>
                       <td className="px-3 py-4 text-center">
                         {canWithdraw ? (
                           <button
@@ -344,10 +387,30 @@ export function CompanyJobsTable({
                       <td className="px-3 py-4 text-center">
                         <button
                           type="button"
+                          onClick={() => setPreviewJob(job)}
+                          title="プレビューを表示"
+                          className="rounded-[8px] border border-[#d0d7e6] px-2 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
+                        >
+                          表示
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => openNote(job)}
+                          title={job.note ? job.note : "メモを追加"}
+                          className={`rounded-[8px] border px-2 py-1.5 text-[12px] font-medium transition ${job.note ? "border-[#2f6cff] text-[#2f6cff] hover:bg-[#f0f5ff]" : "border-[#d0d7e6] text-[#445063] hover:bg-[#f4f7fb]"}`}
+                        >
+                          {job.note ? "編集" : "追加"}
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-center">
+                        <button
+                          type="button"
                           onClick={() => handleDuplicate(job)}
                           disabled={isPending}
                           title="複製して下書きを作成"
-                          className="rounded-[8px] border border-[#d0d7e6] px-3 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition disabled:opacity-50"
+                          className="rounded-[8px] border border-[#d0d7e6] px-2 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition disabled:opacity-50"
                         >
                           複製
                         </button>
@@ -358,7 +421,7 @@ export function CompanyJobsTable({
                           onClick={() => setDeleteTargetJob(job)}
                           disabled={isPending}
                           title="求人を削除"
-                          className="rounded-[8px] border border-[#fca5a5] px-3 py-1.5 text-[12px] font-medium text-[#dc2626] hover:bg-[#fff5f5] transition disabled:opacity-50"
+                          className="rounded-[8px] border border-[#fca5a5] px-2 py-1.5 text-[12px] font-medium text-[#dc2626] hover:bg-[#fff5f5] transition disabled:opacity-50"
                         >
                           削除
                         </button>
@@ -430,6 +493,46 @@ export function CompanyJobsTable({
                 className="rounded-[12px] bg-[#f59e0b] px-5 py-3 text-[14px] font-bold text-white disabled:opacity-60"
               >
                 {isPending ? "処理中..." : "取り下げる"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* プレビューモーダル */}
+      {previewJob ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="flex max-h-[90vh] w-full max-w-[780px] flex-col overflow-hidden rounded-[20px] bg-[#f5f7fb] shadow-2xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-[#e5e7eb] bg-white px-5 py-3">
+              <p className="text-[14px] font-bold text-[#2b2f38]">プレビュー — {previewJob.title}</p>
+              <button type="button" onClick={() => setPreviewJob(null)} className="rounded-full bg-[#f3f4f6] px-3 py-1.5 text-[12px] font-bold text-[#666]">閉じる</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <JobPreview data={previewJob.previewData} />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* メモ編集モーダル */}
+      {noteJob ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-[480px] rounded-[20px] bg-white p-6 shadow-2xl">
+            <h2 className="text-[18px] font-bold text-[#2b2f38]">求人メモ</h2>
+            <p className="mt-1 text-[12px] text-[#888]">{noteJob.title}</p>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              rows={5}
+              placeholder="社内管理用のメモを入力（求職者には表示されません）"
+              className="mt-4 w-full rounded-[10px] border border-[#d6dce8] px-4 py-3 text-[13px] outline-none focus:border-[#2f6cff]"
+              maxLength={500}
+            />
+            <p className="mt-1 text-right text-[11px] text-[#aaa]">{noteText.length}/500</p>
+            <div className="mt-4 flex justify-end gap-3">
+              <button type="button" onClick={() => setNoteJob(null)} className="rounded-[12px] border border-[#d7dce6] px-5 py-2.5 text-[13px] font-bold text-[#667085]">キャンセル</button>
+              <button type="button" onClick={handleSaveNote} disabled={isPending} className="rounded-[12px] bg-[#2f6cff] px-5 py-2.5 text-[13px] font-bold text-white disabled:opacity-60">
+                {isPending ? "保存中..." : "保存する"}
               </button>
             </div>
           </div>

@@ -200,7 +200,8 @@ model Job {
   officeName            String?   // 勤務地名称
   officeDetail          String?   // 勤務地名称詳細
   postalCode            String?   // 郵便番号
-  benefits              String[]  // 福利厚生
+  benefits              String[]  // 福利厚生（選択式）
+  benefitNote           String?   // 独自の福利厚生・補足メモ
   selectionProcess      String?   // 選考プロセス
   workingHours          String?   // 勤務時間
   closingDate           DateTime? // 掲載終了日
@@ -275,6 +276,8 @@ model Job {
   workingHoursType      String?   // 固定時間制 | シフト制 | フレックスタイム制 | 裁量労働制 | 変形労働制 | 勤務時間を指定しない
   workingHoursDetail    Json?     // 構造化された勤務時間データ
 
+  note                  String?   // 求人メモ（社内管理用）
+
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   bookmarks    Bookmark[]
@@ -289,6 +292,7 @@ model Application {
   motivation String?
   status     ApplicationStatus @default(APPLIED)
   companyViewedAt DateTime?
+  note       String?           // 応募者メモ（社内管理用）
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
@@ -321,9 +325,22 @@ model Message {
   attachmentName String?
   attachmentType String?
   isRead         Boolean           @default(false)
+  deletedBySender Boolean          @default(false)
   createdAt      DateTime          @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model MessageTemplate {
+  id        String   @id @default(cuid())
+  companyId String
+  title     String
+  body      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId, sortOrder])
 }
 
 model Review {

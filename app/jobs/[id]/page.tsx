@@ -520,6 +520,9 @@ export default async function JobDetailPage({
                   ) : (
                     <p className="text-[13px] text-[#94a3b8]">現在確認中です。</p>
                   )}
+                  {job.benefitNote && (
+                    <p className="mt-3 whitespace-pre-line text-[13px] leading-[1.9] text-[#555]">{job.benefitNote}</p>
+                  )}
                 </div>
               </div>
 

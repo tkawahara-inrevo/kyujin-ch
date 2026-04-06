@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import type { ApplicationStatus } from "@prisma/client";
-import { sendCompanyMessage, updateApplicationStatus } from "@/app/actions/company/applicants";
+import { sendCompanyMessage, updateApplicationStatus, deleteCompanyMessage } from "@/app/actions/company/applicants";
 
 const STATUSES: { value: ApplicationStatus; label: string }[] = [
   { value: "APPLIED", label: "応募済み" },
@@ -29,6 +29,12 @@ type Message = {
   createdAt: Date;
 };
 
+type MessageTemplate = {
+  id: string;
+  title: string;
+  body: string;
+};
+
 const STATUS_TONE: Record<string, string> = {
   APPLIED: "bg-[#e8f0ff] text-[#2f6cff]",
   REVIEWING: "bg-[#fff6db] text-[#b7791f]",
@@ -43,18 +49,21 @@ export function ApplicantActions({
   currentStatus,
   messages,
   isInvalidated = false,
+  messageTemplates = [],
 }: {
   applicationId: string;
   currentStatus: ApplicationStatus;
   messages: Message[];
   conversationId?: string;
   isInvalidated?: boolean;
+  messageTemplates?: MessageTemplate[];
 }) {
   const [isPending, startTransition] = useTransition();
   const [msgBody, setMsgBody] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   function handleStatusChange(status: ApplicationStatus) {
     if (isInvalidated) return;
@@ -121,6 +130,11 @@ export function ApplicantActions({
     });
   }
 
+  function handleDeleteMessage(messageId: string) {
+    if (!confirm("このメッセージを削除しますか？")) return;
+    startTransition(() => deleteCompanyMessage(messageId, applicationId));
+  }
+
   const currentStatusLabel = STATUSES.find((status) => status.value === currentStatus)?.label ?? currentStatus;
   const displayStatusLabel = isInvalidated ? "無効" : currentStatusLabel;
   const displayStatusTone = isInvalidated
@@ -184,7 +198,7 @@ export function ApplicantActions({
                       <div key={msg.id} className={`flex ${isCompany ? "justify-end" : "justify-start"}`}>
                         <div className="max-w-[85%] md:max-w-[75%]">
                           <div
-                            className={`rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
+                            className={`group relative rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
                               isCompany
                                 ? "rounded-br-md bg-[#2f6cff] text-white"
                                 : "rounded-bl-md bg-white text-[#333] shadow-sm"
@@ -206,6 +220,16 @@ export function ApplicantActions({
                                 <span className="truncate">{msg.attachmentName}</span>
                               </a>
                             ) : null}
+                            {isCompany && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteMessage(msg.id)}
+                                className="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-[#ff3158] text-[10px] font-bold text-white group-hover:flex"
+                                title="削除"
+                              >
+                                ×
+                              </button>
+                            )}
                           </div>
                           <p className={`mt-0.5 text-[10px] text-[#bbb] ${isCompany ? "text-right" : "text-left"}`}>
                             {new Date(msg.createdAt).toLocaleString("ja-JP", {
@@ -224,6 +248,35 @@ export function ApplicantActions({
             </div>
 
             <form onSubmit={handleSendMessage} className="border-t border-[#f0f0f0] p-3">
+              {messageTemplates.length > 0 && (
+                <div className="mb-2 relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplates((v) => !v)}
+                    className="rounded-[6px] border border-[#d6dce8] px-3 py-1.5 text-[12px] text-[#555] hover:bg-[#f8fbff] transition"
+                  >
+                    テンプレート選択
+                  </button>
+                  {showTemplates && (
+                    <div className="absolute bottom-full left-0 mb-1 z-10 w-[320px] rounded-[10px] border border-[#e0e7f0] bg-white shadow-md">
+                      {messageTemplates.map((tpl) => (
+                        <button
+                          key={tpl.id}
+                          type="button"
+                          className="w-full px-4 py-2.5 text-left hover:bg-[#f0f5ff] transition"
+                          onClick={() => {
+                            setMsgBody(tpl.body);
+                            setShowTemplates(false);
+                          }}
+                        >
+                          <p className="text-[13px] font-bold text-[#333]">{tpl.title}</p>
+                          <p className="mt-0.5 line-clamp-1 text-[11px] text-[#888]">{tpl.body}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {file ? (
                 <div className="mb-2 flex items-center gap-2 rounded-lg bg-[#f0f5ff] px-3 py-1.5 text-[12px] text-[#2f6cff]">
                   <span>添付 {file.name}</span>

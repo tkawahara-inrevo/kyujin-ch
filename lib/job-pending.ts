@@ -63,6 +63,7 @@ export type JobPendingContent = {
   officeDetail: string | null;
   postalCode: string | null;
   benefits: string[];
+  benefitNote: string | null;
   selectionProcess: string | null;
   workingHours: string | null;
   closingDate: string | null;
@@ -160,6 +161,7 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     officeDetail: asString(record.officeDetail),
     postalCode: asString(record.postalCode),
     benefits: asStringArray(record.benefits),
+    benefitNote: asString(record.benefitNote),
     selectionProcess: asString(record.selectionProcess),
     workingHours: asString(record.workingHours),
     closingDate: asString(record.closingDate),

@@ -200,6 +200,16 @@ export default async function AdminJobDetailPage({
 
         {/* Sections */}
         <div className="mt-5 overflow-hidden rounded-[18px] border border-[#e5e5e5] bg-white divide-y divide-[#f0f0f0]">
+          {/* 求人メモ（社内管理用） */}
+          {job.note && (
+            <div>
+              <SectionHeader title="求人メモ（社内管理用）" />
+              <div className="px-5 py-4">
+                <p className="whitespace-pre-line text-[13px] text-[#444]">{job.note}</p>
+              </div>
+            </div>
+          )}
+
           {/* 概要 */}
           <div>
             <SectionHeader title="概要" />
@@ -319,6 +329,9 @@ export default async function AdminJobDetailPage({
                 </div>
               ) : (
                 <p className="text-[13px] text-[#94a3b8]">未設定</p>
+              )}
+              {d.benefitNote && (
+                <p className="mt-3 whitespace-pre-line text-[13px] leading-[1.9] text-[#555]">{String(d.benefitNote)}</p>
               )}
             </div>
           </div>

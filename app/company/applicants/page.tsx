@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
-import { StatusBadge } from "./status-badge";
+import { ApplicantsListClient } from "./applicants-list-client";
+import type { ApplicationStatus } from "@prisma/client";
 
-type SearchParams = Promise<{ jobId?: string }>;
+type SearchParams = Promise<{ jobId?: string; name?: string; statuses?: string; sort?: string }>;
+
+const ALL_STATUSES: ApplicationStatus[] = ["APPLIED", "REVIEWING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"];
 
 export default async function CompanyApplicantsPage({
   searchParams,
@@ -11,7 +14,7 @@ export default async function CompanyApplicantsPage({
   searchParams: SearchParams;
 }) {
   const session = await requireCompany();
-  const { jobId } = await searchParams;
+  const { jobId, name, statuses, sort } = await searchParams;
 
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
@@ -20,6 +23,12 @@ export default async function CompanyApplicantsPage({
   if (!company) {
     return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
   }
+
+  const selectedStatuses = statuses
+    ? statuses.split(",").filter((s) => ALL_STATUSES.includes(s as ApplicationStatus)) as ApplicationStatus[]
+    : [];
+
+  const sortDir = sort === "asc" ? "asc" : "desc";
 
   const [jobs, applications] = await Promise.all([
     prisma.job.findMany({
@@ -34,158 +43,68 @@ export default async function CompanyApplicantsPage({
           isDeleted: false,
           ...(jobId ? { id: jobId } : {}),
         },
+        ...(name ? { user: { name: { contains: name, mode: "insensitive" } } } : {}),
+        ...(selectedStatuses.length > 0 ? { status: { in: selectedStatuses } } : {}),
       },
-      include: { user: true, job: true },
-      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        note: true,
+        companyViewedAt: true,
+        createdAt: true,
+        user: { select: { id: true, name: true, email: true, deletedAt: true } },
+        job: { select: { id: true, title: true } },
+        conversation: {
+          select: {
+            id: true,
+            messages: {
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              select: { id: true, body: true, senderType: true, createdAt: true, deletedBySender: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: sortDir },
     }),
   ]);
+
+  const rows = applications.map((app) => {
+    const latestMsg = app.conversation?.messages[0];
+    return {
+      id: app.id,
+      userName: app.user.deletedAt ? "退会済みユーザー" : (app.user.name ?? ""),
+      userEmail: app.user.deletedAt ? "" : app.user.email,
+      jobId: app.job.id,
+      jobTitle: app.job.title,
+      status: app.status,
+      note: app.note ?? "",
+      isUnread: app.companyViewedAt === null,
+      isDeleted: !!app.user.deletedAt,
+      createdAt: app.createdAt.toISOString(),
+      latestMessage: latestMsg && !latestMsg.deletedBySender
+        ? {
+            id: latestMsg.id,
+            body: latestMsg.body,
+            senderType: latestMsg.senderType,
+            conversationId: app.conversation!.id,
+          }
+        : null,
+    };
+  });
 
   return (
     <div className="px-6 py-8 md:px-12 md:py-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">応募者管理</h1>
 
-      <form action="/company/applicants" className="mt-8">
-        <div className="flex max-w-[420px] items-end gap-3">
-          <div className="flex-1">
-            <label className="mb-2 block text-[14px] font-bold text-[#444]">絞り込み条件</label>
-            <select
-              name="jobId"
-              defaultValue={jobId ?? ""}
-              className="w-full rounded-[10px] border border-[#d6dce8] bg-white px-4 py-3 text-[14px] text-[#333] outline-none focus:border-[#2f6cff]"
-            >
-              <option value="">応募求人</option>
-              {jobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.title}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="rounded-[10px] bg-[#2f6cff] px-5 py-3 text-[14px] font-bold text-white"
-          >
-            反映
-          </button>
-        </div>
-      </form>
-
-      <div className="mt-8 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
-        <div className="xl:hidden">
-          {applications.length === 0 ? (
-            <div className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</div>
-          ) : (
-            <div className="divide-y divide-[#edf0f5]">
-              {applications.map((application) => {
-                const isUnread = application.companyViewedAt === null;
-                const isDeleted = !!(application.user as { deletedAt?: Date | null }).deletedAt;
-                return (
-                  <Link
-                    key={application.id}
-                    href={`/company/applicants/${application.id}`}
-                    className={`block px-4 py-4 transition hover:bg-[#fafcff] ${isUnread ? "bg-[#f9fbff]" : ""}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          {isUnread && (
-                            <span className="shrink-0 rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
-                              NEW
-                            </span>
-                          )}
-                          {isDeleted && (
-                            <span className="shrink-0 rounded-full bg-[#999] px-2 py-0.5 text-[10px] font-bold text-white">
-                              退会済み
-                            </span>
-                          )}
-                          <p className={`truncate text-[15px] font-bold ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}>
-                            {isDeleted ? "退会済みユーザー" : application.user.name}
-                          </p>
-                        </div>
-                        <p className="mt-2 line-clamp-2 text-[13px] font-medium leading-[1.6] text-[#475467]">
-                          {application.job.title}
-                        </p>
-                      </div>
-                      <div className="shrink-0">
-                        <StatusBadge status={application.status} />
-                      </div>
-                    </div>
-                    <p className="mt-3 text-[12px] text-[#98a2b3]">
-                      応募日 {application.createdAt.toLocaleDateString("ja-JP")}
-                    </p>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="hidden xl:block">
-          <table className="w-full table-fixed text-left text-[14px]">
-            <thead>
-              <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[92px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
-                <th className="px-4 py-4 font-bold">応募求人</th>
-                <th className="w-[98px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
-                <th className="w-[92px] whitespace-nowrap px-3 py-4 text-center font-bold">応募日</th>
-              </tr>
-            </thead>
-            <tbody>
-              {applications.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-[#9aa3b2]">
-                    条件に合う応募者はありません
-                  </td>
-                </tr>
-              ) : (
-                applications.map((application) => {
-                  const isUnread = application.companyViewedAt === null;
-                  const isDeleted = !!(application.user as { deletedAt?: Date | null }).deletedAt;
-                  const href = `/company/applicants/${application.id}`;
-                  return (
-                    <tr key={application.id} className={`border-b border-[#edf0f5] last:border-b-0 ${isUnread ? "bg-[#f9fbff]" : ""}`}>
-                      <td className="px-4 py-4 font-bold">
-                        <Link
-                          href={href}
-                          className={`flex items-center gap-2 truncate hover:text-[#2f6cff] ${isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
-                          title={isDeleted ? "退会済みユーザー" : (application.user.name ?? "")}
-                        >
-                          {isUnread && (
-                            <span className="shrink-0 rounded-full bg-[#ff3158] px-2 py-0.5 text-[10px] font-bold text-white">
-                              NEW
-                            </span>
-                          )}
-                          {isDeleted && (
-                            <span className="shrink-0 rounded-full bg-[#999] px-2 py-0.5 text-[10px] font-bold text-white">
-                              退会済み
-                            </span>
-                          )}
-                          <span className="truncate">{isDeleted ? "退会済みユーザー" : application.user.name}</span>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 text-[#333]">
-                        <Link href={href} className="block truncate hover:text-[#2f6cff]" title={application.job.title}>
-                          {application.job.title}
-                        </Link>
-                      </td>
-                      <td className="px-3 py-4 text-center">
-                        <Link href={href} className="block">
-                          <StatusBadge status={application.status} />
-                        </Link>
-                      </td>
-                      <td className="px-3 py-4 text-center text-[#666]">
-                        <Link href={href} className="block hover:text-[#2f6cff]">
-                          {application.createdAt.toLocaleDateString("ja-JP")}
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ApplicantsListClient
+        jobs={jobs}
+        rows={rows}
+        currentJobId={jobId ?? ""}
+        currentName={name ?? ""}
+        currentStatuses={selectedStatuses}
+        currentSort={sortDir}
+      />
     </div>
   );
 }

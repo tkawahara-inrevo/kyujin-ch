@@ -161,7 +161,8 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [showBenefitModal, setShowBenefitModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [customBenefits, setCustomBenefits] = useState("");
+  const [benefitNote, setBenefitNote] = useState("");
+  const [tagInput, setTagInput] = useState("");
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [salaryType, setSalaryType] = useState("annual");
   const [salaryMinVal, setSalaryMinVal] = useState("");
@@ -206,11 +207,10 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
   const mergedTags = selectedTags;
-  const parsedCustomBenefits = customBenefits
-    .split(/[\n,、]/)
-    .map((item: string) => item.trim())
-    .filter(Boolean);
-  const mergedBenefits = Array.from(new Set([...selectedBenefits, ...parsedCustomBenefits]));
+  const mergedBenefits = selectedBenefits;
+  const tagSuggestions = TAG_OPTIONS.filter(
+    (t) => !selectedTags.includes(t) && t.includes(tagInput.trim())
+  );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1536px)");
@@ -380,8 +380,8 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
-      if (description.length < 200) {
-        setValidationError("仕事内容は200文字以上入力してください");
+      if (description.length < 1000) {
+        setValidationError("仕事内容は1000文字以上入力してください");
         return;
       }
 
@@ -476,6 +476,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
           imageUrl,
           tags: mergedTags,
           benefits: mergedBenefits,
+          benefitNote: benefitNote.trim() || undefined,
           targetType,
           graduationYear: targetType === "NEW_GRAD" ? graduationYear : undefined,
           trainingInfo: trainingInfo || undefined,
@@ -702,18 +703,18 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   name="description"
                   required
                   rows={8}
-                  maxLength={750}
+                  maxLength={3000}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className={textareaCls}
-                  placeholder="仕事の内容を入力してください（200文字以上）"
+                  placeholder="仕事の内容を入力してください（1000文字以上）"
                 />
-                <p className={`pointer-events-none absolute bottom-2 right-3 text-[12px] ${description.length >= 750 ? "text-[#eb0937]" : description.length >= 200 ? "text-[#aaa]" : "text-[#ccc]"}`}>
-                  {description.length} / 750文字
+                <p className={`pointer-events-none absolute bottom-2 right-3 text-[12px] ${description.length >= 1000 ? "text-[#aaa]" : "text-[#ccc]"}`}>
+                  {description.length} / 1000文字以上
                 </p>
               </div>
-              {description.length > 0 && description.length < 200 && (
-                <p className="mt-1 text-[12px] text-[#eb0937]">あと{200 - description.length}文字以上入力してください</p>
+              {description.length > 0 && description.length < 1000 && (
+                <p className="mt-1 text-[12px] text-[#eb0937]">あと{1000 - description.length}文字以上入力してください</p>
               )}
             </Field>
             <Field label="応募条件" required>
@@ -776,6 +777,52 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   </label>
                 ))}
               </div>
+              <div className="relative mt-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = tagInput.trim();
+                      if (val && !selectedTags.includes(val)) {
+                        setSelectedTags([...selectedTags, val]);
+                      }
+                      setTagInput("");
+                    }
+                  }}
+                  placeholder="タグを手入力（Enterで追加）"
+                  className="w-full rounded-[8px] border border-[#d3dae8] px-3 py-2 text-[14px] focus:border-[#1d63e3] focus:outline-none"
+                />
+                {tagInput.trim() && tagSuggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded-[8px] border border-[#d3dae8] bg-white shadow-md">
+                    {tagSuggestions.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className="w-full px-3 py-2 text-left text-[13px] text-[#333] hover:bg-[#f0f5ff]"
+                        onClick={() => {
+                          setSelectedTags([...selectedTags, s]);
+                          setTagInput("");
+                        }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedTags.filter((t) => !TAG_OPTIONS.includes(t)).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {selectedTags.filter((t) => !TAG_OPTIONS.includes(t)).map((t) => (
+                    <span key={t} className="inline-flex items-center gap-1 rounded-full border border-[#1d63e3] bg-[#eef2ff] px-3 py-1 text-[13px] text-[#1d63e3]">
+                      {t}
+                      <button type="button" onClick={() => setSelectedTags(selectedTags.filter((x) => x !== t))} className="ml-0.5 text-[#1d63e3] hover:text-[#eb0937]">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </Field>
           </Section>
 
@@ -1292,6 +1339,17 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   )}
                 </button>
               </div>
+              <div className="mt-3">
+                <p className="mb-1 text-[13px] font-medium text-[#555]">補足メモ（独自の福利厚生など）</p>
+                <textarea
+                  value={benefitNote}
+                  onChange={(e) => setBenefitNote(e.target.value)}
+                  rows={2}
+                  maxLength={500}
+                  className={textareaCls}
+                  placeholder="例：ランチ補助あり、書籍購入補助（年間3万円まで）など"
+                />
+              </div>
             </Field>
           </Section>
 
@@ -1438,19 +1496,19 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                 ))}
               </div>
               <div>
-                <p className="mb-1 text-[13px] font-bold text-[#333]">独自の福利厚生</p>
+                <p className="mb-1 text-[13px] font-bold text-[#333]">補足メモ</p>
                 <textarea
-                  value={customBenefits}
-                  onChange={(event) => setCustomBenefits(event.target.value)}
+                  value={benefitNote}
+                  onChange={(event) => setBenefitNote(event.target.value)}
                   className={textareaCls}
                   rows={2}
-                  placeholder="例：ランチ補助、書籍購入補助（カンマ・改行区切り）"
+                  placeholder="例：ランチ補助あり、書籍購入補助（年間3万円まで）など"
                 />
               </div>
             </div>
             <div className="border-t border-[#e8edf5] px-5 py-4">
               <button type="button" onClick={() => setShowBenefitModal(false)} className="w-full rounded-[10px] bg-[#1d63e3] py-3 text-[15px] font-bold text-white hover:opacity-90 transition">
-                確定する（{mergedBenefits.length}件）
+                確定する（{selectedBenefits.length}件）
               </button>
             </div>
           </div>

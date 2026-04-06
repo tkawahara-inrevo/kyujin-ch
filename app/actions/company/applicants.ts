@@ -109,3 +109,82 @@ export async function sendCompanyMessage(
   revalidatePath(`/company/applicants/${applicationId}`);
   revalidatePath("/company/messages");
 }
+
+export async function updateApplicationNote(applicationId: string, note: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
+
+  const company = await prisma.company.findFirst({
+    where: { companyUserId: session.user.id },
+  });
+  if (!company) throw new Error("Company not found");
+
+  const app = await prisma.application.findFirst({
+    where: { id: applicationId, job: { companyId: company.id } },
+  });
+  if (!app) throw new Error("Application not found");
+
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: { note: note.trim() || null },
+  });
+
+  revalidatePath(`/company/applicants/${applicationId}`);
+  revalidatePath("/company/applicants");
+}
+
+async function getCompanyIdForSession() {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
+  const company = await prisma.company.findFirst({
+    where: { companyUserId: session.user.id },
+    select: { id: true },
+  });
+  if (!company) throw new Error("Company not found");
+  return company.id;
+}
+
+export async function createMessageTemplate(title: string, body: string) {
+  const companyId = await getCompanyIdForSession();
+  const maxOrder = await prisma.messageTemplate.aggregate({
+    where: { companyId },
+    _max: { sortOrder: true },
+  });
+  await prisma.messageTemplate.create({
+    data: { companyId, title, body, sortOrder: (maxOrder._max.sortOrder ?? 0) + 1 },
+  });
+  revalidatePath("/company/applicants");
+}
+
+export async function updateMessageTemplate(id: string, title: string, body: string) {
+  const companyId = await getCompanyIdForSession();
+  await prisma.messageTemplate.update({
+    where: { id, companyId },
+    data: { title, body },
+  });
+  revalidatePath("/company/applicants");
+}
+
+export async function deleteMessageTemplate(id: string) {
+  const companyId = await getCompanyIdForSession();
+  await prisma.messageTemplate.delete({ where: { id, companyId } });
+  revalidatePath("/company/applicants");
+}
+
+export async function deleteCompanyMessage(messageId: string, applicationId: string) {
+  const companyId = await getCompanyIdForSession();
+  const msg = await prisma.message.findFirst({
+    where: {
+      id: messageId,
+      senderType: "COMPANY",
+      senderId: { not: undefined },
+      conversation: { application: { job: { companyId } } },
+    },
+  });
+  if (!msg) throw new Error("Message not found");
+  await prisma.message.update({
+    where: { id: messageId },
+    data: { deletedBySender: true },
+  });
+  revalidatePath(`/company/applicants/${applicationId}`);
+}

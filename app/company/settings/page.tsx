@@ -108,12 +108,18 @@ export default async function CompanySettingsPage({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href="/company/settings/password"
           className="inline-flex items-center justify-center rounded-[12px] border border-[#d6dce8] bg-white px-6 py-3 text-[14px] font-bold text-[#333] shadow-[0_2px_8px_rgba(37,56,88,0.04)] transition hover:bg-[#f7f9fd]"
         >
           パスワードを変更する
+        </Link>
+        <Link
+          href="/company/settings/message-templates"
+          className="inline-flex items-center justify-center rounded-[12px] border border-[#d6dce8] bg-white px-6 py-3 text-[14px] font-bold text-[#333] shadow-[0_2px_8px_rgba(37,56,88,0.04)] transition hover:bg-[#f7f9fd]"
+        >
+          メッセージテンプレートを管理する
         </Link>
       </div>
     </div>

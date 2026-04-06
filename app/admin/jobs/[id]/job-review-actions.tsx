@@ -51,6 +51,12 @@ export function JobReviewActions({
     );
   }
 
+  if (disabledApprove) {
+    return (
+      <p className="mt-4 text-[15px] font-bold text-[#16a34a]">公開中</p>
+    );
+  }
+
   return (
     <>
       <textarea

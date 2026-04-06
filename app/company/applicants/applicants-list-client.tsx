@@ -56,10 +56,11 @@ export function ApplicantsListClient({
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  // メモのインライン編集用（appId → note text）
+  // メモ: 値と編集中のIDを管理
   const [notes, setNotes] = useState<Record<string, string>>(() =>
     Object.fromEntries(rows.map((r) => [r.id, r.note]))
   );
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
 
   // Filter form state (local, submitted via URL)
   const [nameInput, setNameInput] = useState(currentName);
@@ -92,10 +93,21 @@ export function ApplicantsListClient({
   }
 
   function handleNoteBlur(appId: string) {
+    setEditingNoteId(null);
     const text = notes[appId] ?? "";
     startTransition(async () => {
       await updateApplicationNote(appId, text);
     });
+  }
+
+  function handleNoteKeyDown(e: React.KeyboardEvent, appId: string) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleNoteBlur(appId);
+    }
+    if (e.key === "Escape") {
+      setEditingNoteId(null);
+    }
   }
 
   return (
@@ -194,15 +206,31 @@ export function ApplicantsListClient({
                           </Link>
                         </p>
                       )}
-                      <input
-                        type="text"
-                        value={notes[app.id] ?? ""}
-                        onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
-                        onBlur={() => handleNoteBlur(app.id)}
-                        placeholder="メモ..."
-                        maxLength={500}
-                        className="mt-1 w-full rounded-[6px] border border-[#d6dce8] bg-transparent px-2 py-1 text-[12px] text-[#555] placeholder:text-[#ccc] focus:border-[#2f6cff] focus:outline-none"
-                      />
+                      {editingNoteId === app.id ? (
+                        <input
+                          type="text"
+                          value={notes[app.id] ?? ""}
+                          onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
+                          onBlur={() => handleNoteBlur(app.id)}
+                          onKeyDown={(e) => handleNoteKeyDown(e, app.id)}
+                          placeholder="メモを入力..."
+                          maxLength={500}
+                          autoFocus
+                          className="mt-1 w-full rounded-[6px] border border-[#2f6cff] bg-white px-2 py-1 text-[12px] text-[#333] outline-none"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingNoteId(app.id)}
+                          className="mt-1 w-full rounded-[6px] px-2 py-1 text-left text-[12px] hover:bg-[#f5f8ff] transition"
+                        >
+                          {notes[app.id] ? (
+                            <span className="text-[#888] italic">{notes[app.id]}</span>
+                          ) : (
+                            <span className="text-[#ccc]">メモ...</span>
+                          )}
+                        </button>
+                      )}
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-2">
                       <StatusBadge status={app.status} />
@@ -222,11 +250,11 @@ export function ApplicantsListClient({
           <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[120px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
-                <th className="w-[200px] px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[140px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
+                <th className="w-[400px] px-4 py-4 font-bold">応募求人</th>
                 <th className="w-[90px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
                 <th className="px-4 py-4 font-bold">最新メッセージ</th>
-                <th className="w-[160px] px-4 py-4 font-bold">メモ</th>
+                <th className="w-[240px] px-4 py-4 font-bold">メモ</th>
                 <th className="w-[82px] whitespace-nowrap px-3 py-4 text-center font-bold">応募日</th>
               </tr>
             </thead>
@@ -279,15 +307,31 @@ export function ApplicantsListClient({
                       )}
                     </td>
                     <td className="px-4 py-5">
-                      <input
-                        type="text"
-                        value={notes[app.id] ?? ""}
-                        onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
-                        onBlur={() => handleNoteBlur(app.id)}
-                        placeholder="メモを入力..."
-                        maxLength={500}
-                        className="w-full rounded-[6px] border border-[#d6dce8] bg-transparent px-2 py-1.5 text-[12px] text-[#555] placeholder:text-[#ccc] focus:border-[#2f6cff] focus:outline-none"
-                      />
+                      {editingNoteId === app.id ? (
+                        <input
+                          type="text"
+                          value={notes[app.id] ?? ""}
+                          onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
+                          onBlur={() => handleNoteBlur(app.id)}
+                          onKeyDown={(e) => handleNoteKeyDown(e, app.id)}
+                          placeholder="メモを入力..."
+                          maxLength={500}
+                          autoFocus
+                          className="w-full rounded-[6px] border border-[#2f6cff] bg-white px-2 py-1.5 text-[12px] text-[#333] outline-none"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingNoteId(app.id)}
+                          className="w-full rounded-[6px] px-2 py-1.5 text-left text-[12px] hover:bg-[#f5f8ff] transition"
+                        >
+                          {notes[app.id] ? (
+                            <span className="text-[#555]">{notes[app.id]}</span>
+                          ) : (
+                            <span className="text-[#ccc]">メモを追加...</span>
+                          )}
+                        </button>
+                      )}
                     </td>
                     <td className="px-3 py-5 text-center text-[12px] text-[#666]">
                       {new Date(app.createdAt).toLocaleDateString("ja-JP")}

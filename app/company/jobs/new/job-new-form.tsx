@@ -380,8 +380,13 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
-      if (description.length < 1000) {
-        setValidationError("仕事内容は1000文字以上入力してください");
+      if (description.length < 200) {
+        setValidationError("仕事内容は200文字以上入力してください");
+        return;
+      }
+
+      if (description.length > 1000) {
+        setValidationError("仕事内容は1000文字以内で入力してください");
         return;
       }
 
@@ -703,18 +708,18 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   name="description"
                   required
                   rows={8}
-                  maxLength={3000}
+                  maxLength={1000}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className={textareaCls}
-                  placeholder="仕事の内容を入力してください（1000文字以上）"
+                  placeholder="仕事の内容を入力してください（200〜1000文字）"
                 />
-                <p className={`pointer-events-none absolute bottom-2 right-3 text-[12px] ${description.length >= 1000 ? "text-[#aaa]" : "text-[#ccc]"}`}>
-                  {description.length} / 1000文字以上
+                <p className={`pointer-events-none absolute bottom-2 right-3 text-[12px] ${description.length >= 1000 ? "text-[#eb0937]" : description.length >= 200 ? "text-[#aaa]" : "text-[#ccc]"}`}>
+                  {description.length} / 1000文字
                 </p>
               </div>
-              {description.length > 0 && description.length < 1000 && (
-                <p className="mt-1 text-[12px] text-[#eb0937]">あと{1000 - description.length}文字以上入力してください</p>
+              {description.length > 0 && description.length < 200 && (
+                <p className="mt-1 text-[12px] text-[#eb0937]">あと{200 - description.length}文字以上入力してください</p>
               )}
             </Field>
             <Field label="応募条件" required>

@@ -3,17 +3,10 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { formatSalary } from "@/lib/format-salary";
 import { submitBulkApplications } from "@/app/actions/applications";
 import { addFavorite } from "@/app/actions/favorites";
 import type { SimilarJob } from "@/app/actions/applications";
-
-function formatSalary(min?: number | null, max?: number | null) {
-  if (!min && !max) return "応相談";
-  if (min && max && min === max) return `${min}万円`;
-  if (min && max) return `${min}万〜${max}万円`;
-  if (min) return `${min}万円〜`;
-  return `〜${max}万円`;
-}
 
 type Props = {
   jobs: SimilarJob[];

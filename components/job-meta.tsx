@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { formatSalary } from "@/lib/format-salary";
 
 type JobMetaProps = {
   companyName: string;
@@ -6,14 +7,6 @@ type JobMetaProps = {
   salaryMin?: number | null;
   salaryMax?: number | null;
 };
-
-function formatSalary(min?: number | null, max?: number | null) {
-  if (!min && !max) return "応相談";
-  if (min && max && min === max) return `${min}万円`;
-  if (min && max) return `${min}万円`;
-  if (min) return `${min}万円〜`;
-  return `〜${max}万円`;
-}
 
 export function JobMeta({
   companyName,

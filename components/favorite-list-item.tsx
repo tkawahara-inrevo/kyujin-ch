@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FavoriteToggleButton } from "@/components/favorite-toggle-button";
+import { formatSalary } from "@/lib/format-salary";
 
 type FavoriteListItemProps = {
   jobId: string;
@@ -12,14 +13,6 @@ type FavoriteListItemProps = {
   savedAt?: string;
   imageSrc?: string;
 };
-
-function formatSalary(min?: number | null, max?: number | null) {
-  if (!min && !max) return "応相談";
-  if (min && max && min === max) return `${min}万円`;
-  if (min && max) return `${min}万円`;
-  if (min) return `${min}万円〜`;
-  return `〜${max}万円`;
-}
 
 export function FavoriteListItem({
   jobId,

@@ -27,9 +27,16 @@ export function CompanyHeaderBlock({
       )}
 
       {displayText && (
-        <p className="mt-4 max-w-[760px] whitespace-pre-line text-[13px] leading-[1.8] text-[#555]">
-          {displayText}
-        </p>
+        <div className="mt-6">
+          <div className="bg-[#2f6cff] px-4 py-2 text-[14px] font-bold text-white">
+            会社概要
+          </div>
+          <div className="border border-t-0 border-[#e0e0e0] bg-white px-5 py-4">
+            <p className="whitespace-pre-line text-[13px] leading-[1.9] text-[#444]">
+              {displayText}
+            </p>
+          </div>
+        </div>
       )}
     </section>
   );

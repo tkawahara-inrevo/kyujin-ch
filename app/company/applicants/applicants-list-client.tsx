@@ -54,9 +54,12 @@ export function ApplicantsListClient({
   currentSort: string;
 }) {
   const router = useRouter();
-  const [noteApp, setNoteApp] = useState<ApplicantRow | null>(null);
-  const [noteText, setNoteText] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+
+  // メモのインライン編集用（appId → note text）
+  const [notes, setNotes] = useState<Record<string, string>>(() =>
+    Object.fromEntries(rows.map((r) => [r.id, r.note]))
+  );
 
   // Filter form state (local, submitted via URL)
   const [nameInput, setNameInput] = useState(currentName);
@@ -88,18 +91,10 @@ export function ApplicantsListClient({
     );
   }
 
-  function openNote(app: ApplicantRow) {
-    setNoteApp(app);
-    setNoteText(app.note);
-  }
-
-  function handleSaveNote() {
-    if (!noteApp) return;
-    const appId = noteApp.id;
-    const text = noteText;
+  function handleNoteBlur(appId: string) {
+    const text = notes[appId] ?? "";
     startTransition(async () => {
       await updateApplicationNote(appId, text);
-      setNoteApp(null);
     });
   }
 
@@ -199,19 +194,18 @@ export function ApplicantsListClient({
                           </Link>
                         </p>
                       )}
-                      {app.note && (
-                        <p className="mt-1 truncate text-[12px] text-[#888] italic">{app.note}</p>
-                      )}
+                      <input
+                        type="text"
+                        value={notes[app.id] ?? ""}
+                        onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
+                        onBlur={() => handleNoteBlur(app.id)}
+                        placeholder="メモ..."
+                        maxLength={500}
+                        className="mt-1 w-full rounded-[6px] border border-[#d6dce8] bg-transparent px-2 py-1 text-[12px] text-[#555] placeholder:text-[#ccc] focus:border-[#2f6cff] focus:outline-none"
+                      />
                     </div>
                     <div className="shrink-0 flex flex-col items-end gap-2">
                       <StatusBadge status={app.status} />
-                      <button
-                        type="button"
-                        onClick={() => openNote(app)}
-                        className="rounded-[6px] border border-[#d6dce8] px-2 py-1 text-[11px] text-[#666] hover:bg-[#f8fbff]"
-                      >
-                        メモ
-                      </button>
                     </div>
                   </div>
                   <p className="mt-2 text-[12px] text-[#98a2b3]">
@@ -285,18 +279,15 @@ export function ApplicantsListClient({
                       )}
                     </td>
                     <td className="px-4 py-5">
-                      <div className="flex flex-col gap-1.5">
-                        {app.note && (
-                          <span className="line-clamp-2 text-[12px] leading-[1.5] text-[#888]">{app.note}</span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => openNote(app)}
-                          className="w-fit rounded-[6px] border border-[#d6dce8] px-2 py-1 text-[11px] text-[#666] hover:bg-[#f8fbff] transition"
-                        >
-                          {app.note ? "編集" : "メモ追加"}
-                        </button>
-                      </div>
+                      <input
+                        type="text"
+                        value={notes[app.id] ?? ""}
+                        onChange={(e) => setNotes((prev) => ({ ...prev, [app.id]: e.target.value }))}
+                        onBlur={() => handleNoteBlur(app.id)}
+                        placeholder="メモを入力..."
+                        maxLength={500}
+                        className="w-full rounded-[6px] border border-[#d6dce8] bg-transparent px-2 py-1.5 text-[12px] text-[#555] placeholder:text-[#ccc] focus:border-[#2f6cff] focus:outline-none"
+                      />
                     </td>
                     <td className="px-3 py-5 text-center text-[12px] text-[#666]">
                       {new Date(app.createdAt).toLocaleDateString("ja-JP")}
@@ -309,42 +300,6 @@ export function ApplicantsListClient({
         </div>
       </div>
 
-      {/* Note modal */}
-      {noteApp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(15,23,42,0.45)] p-4">
-          <div className="w-full max-w-[480px] rounded-[16px] bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
-            <p className="text-[15px] font-bold text-[#2c2f36]">メモを編集</p>
-            <p className="mt-1 text-[13px] text-[#888]">{noteApp.userName}</p>
-            <textarea
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              rows={4}
-              maxLength={500}
-              className="mt-3 w-full rounded-[8px] border border-[#d3dae8] px-3 py-2 text-[14px] focus:border-[#2f6cff] focus:outline-none resize-none"
-              placeholder="社内メモを入力..."
-              autoFocus
-            />
-            <p className="mt-1 text-right text-[11px] text-[#aaa]">{noteText.length} / 500</p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setNoteApp(null)}
-                className="rounded-[8px] border border-[#d7deeb] px-4 py-2 text-[13px] text-[#555] hover:bg-[#f8fbff] transition"
-              >
-                キャンセル
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveNote}
-                disabled={isPending}
-                className="rounded-[8px] bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white hover:opacity-90 transition disabled:opacity-50"
-              >
-                {isPending ? "保存中..." : "保存"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

@@ -180,8 +180,8 @@ function SectionHeader({ title }: { title: string }) {
 function InfoRow({ label, value, children }: { label: string; value?: string | null; children?: React.ReactNode }) {
   if (!value && !children) return null;
   return (
-    <div className="flex gap-5 border-b border-[#f0f0f0] py-4 last:border-0">
-      <dt className="w-[96px] shrink-0 text-[12px] font-semibold text-[#6b7280]">{label}</dt>
+    <div className="flex flex-col gap-1 border-b border-[#f0f0f0] py-3 last:border-0 sm:flex-row sm:gap-5 sm:py-4">
+      <dt className="shrink-0 text-[12px] font-semibold text-[#6b7280] sm:w-[96px]">{label}</dt>
       <dd className="flex-1 whitespace-pre-line text-[13px] leading-[1.9] text-[#333]">
         {children ?? value}
       </dd>

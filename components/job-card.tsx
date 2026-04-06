@@ -51,11 +51,21 @@ export function JobCard({
       <Link href={`/jobs/${id}`} className="absolute inset-0 z-0" aria-label={title} />
 
       <Link href={`/jobs/${id}`} className="relative z-10 block aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]" tabIndex={-1} aria-hidden>
+        {/* ブラー背景：余白を埋める */}
+        <Image
+          src={imageSrc}
+          alt=""
+          fill
+          aria-hidden
+          className="scale-110 object-cover blur-xl brightness-75"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+        {/* メイン画像：見切れなし */}
         <Image
           src={imageSrc}
           alt={title}
           fill
-          className="object-contain transition duration-300 group-hover:scale-[1.03]"
+          className="relative object-contain transition duration-300 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         {badge && (
@@ -116,7 +126,7 @@ export function JobCard({
         </div>
 
         {/* 説明文 */}
-        <p className="mt-2.5 line-clamp-3 text-[12px] leading-[1.8] text-[#777]">
+        <p className="mt-2.5 line-clamp-3 whitespace-pre-line text-[12px] leading-[1.8] text-[#777]">
           {description}
         </p>
 

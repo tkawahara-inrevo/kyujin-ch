@@ -50,12 +50,12 @@ export function JobCard({
     <article className="group relative overflow-hidden rounded-[10px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
       <Link href={`/jobs/${id}`} className="absolute inset-0 z-0" aria-label={title} />
 
-      <div className="relative aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]">
+      <Link href={`/jobs/${id}`} className="relative z-10 block aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]" tabIndex={-1} aria-hidden>
         <Image
           src={imageSrc}
           alt={title}
           fill
-          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          className="object-contain transition duration-300 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         {badge && (
@@ -73,7 +73,7 @@ export function JobCard({
             {badge}
           </span>
         )}
-      </div>
+      </Link>
 
       <div className="px-3 pb-3 pt-3">
         {/* タグ */}

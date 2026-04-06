@@ -66,19 +66,28 @@ function getRecommendationScore(
   return score;
 }
 
-export function rankRecommendedJobs<T extends RecommendedJobBase>(
+export function rankRecommendedJobs<T extends RecommendedJobBase & { companyId?: string; company?: { id?: string } }>(
   currentJob: RecommendedJobBase,
   candidates: T[],
   limit = 3,
 ): T[] {
-  return [...candidates]
-    .sort((a, b) => {
-      const scoreDiff = getRecommendationScore(currentJob, b) - getRecommendationScore(currentJob, a);
-      if (scoreDiff !== 0) {
-        return scoreDiff;
-      }
+  const sorted = [...candidates].sort((a, b) => {
+    const scoreDiff = getRecommendationScore(currentJob, b) - getRecommendationScore(currentJob, a);
+    if (scoreDiff !== 0) return scoreDiff;
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    })
-    .slice(0, limit);
+  // 同一会社は1件のみ
+  const seenCompanies = new Set<string>();
+  const result: T[] = [];
+  for (const candidate of sorted) {
+    const cid = candidate.companyId ?? candidate.company?.id;
+    if (cid) {
+      if (seenCompanies.has(cid)) continue;
+      seenCompanies.add(cid);
+    }
+    result.push(candidate);
+    if (result.length >= limit) break;
+  }
+  return result;
 }

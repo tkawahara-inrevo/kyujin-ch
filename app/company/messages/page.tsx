@@ -180,12 +180,9 @@ export default async function CompanyMessagesPage({
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <Link
-                            href={`/company/applicants/${conversation.applicationId}`}
-                            className="relative z-10 truncate text-[16px] font-bold text-[#2b2f38] hover:underline"
-                          >
+                          <span className="truncate text-[16px] font-bold text-[#2b2f38]">
                             {conversation.application.user.name}
-                          </Link>
+                          </span>
                           {unreadCount > 0 ? (
                             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
                               {unreadCount > 99 ? "99+" : unreadCount}
@@ -262,12 +259,9 @@ export default async function CompanyMessagesPage({
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <Link
-                              href={`/company/applicants/${conversation.applicationId}`}
-                              className="relative z-10 truncate text-[16px] font-bold text-[#2b2f38] hover:underline"
-                            >
+                            <span className="truncate text-[16px] font-bold text-[#2b2f38]">
                               {conversation.application.user.name}
-                            </Link>
+                            </span>
                             {unreadCount > 0 ? (
                               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff3158] px-1.5 text-[10px] font-bold text-white">
                                 {unreadCount > 99 ? "99+" : unreadCount}

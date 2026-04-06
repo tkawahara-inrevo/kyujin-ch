@@ -228,73 +228,75 @@ export function ApplicantsListClient({
           <table className="w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[130px] whitespace-nowrap px-4 py-4 font-bold">氏名</th>
-                <th className="px-4 py-4 font-bold">応募求人</th>
-                <th className="w-[90px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
-                <th className="w-[200px] px-4 py-4 font-bold">最新メッセージ</th>
-                <th className="w-[160px] px-4 py-4 font-bold">メモ</th>
+                <th className="w-[260px] px-4 py-4 font-bold">応募者 / 求人</th>
+                <th className="w-[96px] whitespace-nowrap px-3 py-4 text-center font-bold">ステータス</th>
+                <th className="px-4 py-4 font-bold">最新メッセージ</th>
+                <th className="w-[180px] px-4 py-4 font-bold">メモ</th>
                 <th className="w-[82px] whitespace-nowrap px-3 py-4 text-center font-bold">応募日</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</td>
+                  <td colSpan={5} className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う応募者はありません</td>
                 </tr>
               ) : (
                 rows.map((app) => (
                   <tr key={app.id} className={`border-b border-[#edf0f5] last:border-b-0 ${app.isUnread ? "bg-[#f9fbff]" : ""}`}>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1.5">
-                          {app.isUnread && <span className="shrink-0 rounded-full bg-[#ff3158] px-1.5 py-0.5 text-[9px] font-bold text-white">NEW</span>}
-                          {app.isDeleted && <span className="shrink-0 rounded-full bg-[#999] px-1.5 py-0.5 text-[9px] font-bold text-white">退会</span>}
-                          <Link
-                            href={`/company/applicants/${app.id}`}
-                            className={`truncate font-bold hover:text-[#2f6cff] ${app.isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
-                          >
-                            {app.userName}
-                          </Link>
-                        </div>
+                    {/* 氏名 + 求人タイトル縦積み */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-1.5">
+                        {app.isUnread && <span className="shrink-0 rounded-full bg-[#ff3158] px-1.5 py-0.5 text-[9px] font-bold text-white">NEW</span>}
+                        {app.isDeleted && <span className="shrink-0 rounded-full bg-[#999] px-1.5 py-0.5 text-[9px] font-bold text-white">退会</span>}
+                        <Link
+                          href={`/company/applicants/${app.id}`}
+                          className={`font-bold hover:text-[#2f6cff] ${app.isUnread ? "text-[#1a1a2e]" : "text-[#333]"}`}
+                        >
+                          {app.userName}
+                        </Link>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-[#555]">
-                      <Link href={`/company/applicants/${app.id}`} className="block truncate hover:text-[#2f6cff]" title={app.jobTitle}>
+                      <Link
+                        href={`/company/applicants/${app.id}`}
+                        className="mt-1 block text-[12px] leading-[1.5] text-[#666] hover:text-[#2f6cff]"
+                        title={app.jobTitle}
+                      >
                         {app.jobTitle}
                       </Link>
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-3 py-4 text-center">
                       <Link href={`/company/applicants/${app.id}`} className="block">
                         <StatusBadge status={app.status} />
                       </Link>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-4">
                       {app.latestMessage ? (
                         <Link
                           href={`/company/applicants/${app.id}`}
-                          className="block truncate text-[12px] text-[#666] hover:text-[#2f6cff]"
+                          className="block line-clamp-2 text-[12px] leading-[1.6] text-[#666] hover:text-[#2f6cff]"
                           title={app.latestMessage.body}
                         >
                           {app.latestMessage.senderType === "COMPANY" && <span className="text-[#2f6cff]">自分: </span>}
-                          {app.latestMessage.body.slice(0, 40)}
+                          {app.latestMessage.body}
                         </Link>
                       ) : (
                         <span className="text-[12px] text-[#ccc]">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex-1 truncate text-[12px] text-[#888]">{app.note || ""}</span>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1.5">
+                        {app.note && (
+                          <span className="line-clamp-2 text-[12px] leading-[1.5] text-[#888]">{app.note}</span>
+                        )}
                         <button
                           type="button"
                           onClick={() => openNote(app)}
-                          className="shrink-0 rounded-[6px] border border-[#d6dce8] px-2 py-1 text-[11px] text-[#666] hover:bg-[#f8fbff] transition"
+                          className="w-fit rounded-[6px] border border-[#d6dce8] px-2 py-1 text-[11px] text-[#666] hover:bg-[#f8fbff] transition"
                         >
-                          編集
+                          {app.note ? "編集" : "メモ追加"}
                         </button>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-center text-[12px] text-[#666]">
+                    <td className="px-3 py-4 text-center text-[12px] text-[#666]">
                       {new Date(app.createdAt).toLocaleDateString("ja-JP")}
                     </td>
                   </tr>

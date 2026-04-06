@@ -13,7 +13,7 @@ export function CompanyHeaderBlock({
   description,
   businessDescription,
 }: CompanyHeaderBlockProps) {
-  const displayText = description || businessDescription;
+  const displayText = businessDescription || description;
 
   return (
     <section>

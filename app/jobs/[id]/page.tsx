@@ -578,7 +578,7 @@ export default async function JobDetailPage({
                 companyId={job.company.id}
                 companyName={job.company.name}
                 location={job.company.location}
-                description={job.company.description}
+                description={job.company.businessDescription || job.company.description}
                 websiteUrl={
                   (job.company as { websiteUrl?: string | null }).websiteUrl ?? null
                 }

@@ -104,7 +104,7 @@ export function TopFVSection({
                 </Link>
                 <button
                   onClick={() => handleTab("search")}
-                  className="flex w-full items-center justify-center rounded-[5px] bg-[#eb0937] py-2 text-[10px] font-bold text-white transition hover:opacity-90 md:text-[11px]"
+                  className="flex w-full items-center justify-center rounded-[5px] bg-[#eb0937] py-2 text-[11px] font-bold text-white transition hover:opacity-90 md:text-[12px] whitespace-nowrap"
                 >
                   今すぐ求人を探す
                 </button>

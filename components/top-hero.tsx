@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { EMPLOYMENT_FILTER_OPTIONS, EXPERIENCE_FILTER_OPTIONS, SALARY_FILTER_OPTIONS } from "@/lib/job-options";
@@ -28,7 +28,7 @@ function findGroupForCategory(cat: string, groups: CategoryGroup[]): string {
   return "";
 }
 
-// 都道府県マルチセレクト（縦スクロールリスト）
+// 都道府県マルチセレクト（クリックで下にドロップダウン）
 function PrefectureMultiSelect({
   selected,
   onChange,
@@ -36,38 +36,68 @@ function PrefectureMultiSelect({
   selected: string[];
   onChange: (next: string[]) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   function toggle(pref: string) {
     onChange(selected.includes(pref) ? selected.filter((p) => p !== pref) : [...selected, pref]);
   }
 
   return (
-    <div>
-      <div className="h-[82px] overflow-y-auto rounded-[6px] bg-white px-2 py-1.5">
-        {Object.entries(PREFECTURES_BY_AREA).map(([area, prefs]) => (
-          <div key={area}>
-            <p className="mt-1 text-[9px] font-bold text-[#aaa] first:mt-0">{area}</p>
-            {prefs.map((pref) => (
-              <label key={pref} className="flex cursor-pointer items-center gap-1.5 py-[2px]">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(pref)}
-                  onChange={() => toggle(pref)}
-                  className="h-3 w-3 shrink-0 accent-[#ff5a78]"
-                />
-                <span className="text-[11px] text-[#333]">{pref}</span>
-              </label>
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between rounded-[6px] bg-white px-2 py-2 text-left text-[12px] outline-none"
+      >
+        <span className={selected.length > 0 ? "text-[#333]" : "text-[#999]"}>
+          {selected.length > 0 ? `${selected.length}都道府県選択中` : "都道府県を選択"}
+        </span>
+        <span className="text-[10px] text-[#666]">{open ? "▴" : "▾"}</span>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 w-[280px] overflow-hidden rounded-[10px] border border-[#e0e0e0] bg-white shadow-xl">
+          <div className="max-h-[320px] overflow-y-auto p-3">
+            {Object.entries(PREFECTURES_BY_AREA).map(([area, prefs]) => (
+              <div key={area} className="mb-3 last:mb-0">
+                <p className="mb-1.5 text-[10px] font-bold text-[#999]">{area}</p>
+                <div className="grid grid-cols-3 gap-x-1 gap-y-1">
+                  {prefs.map((pref) => (
+                    <label key={pref} className="flex cursor-pointer items-center gap-1 rounded-[4px] px-1 py-0.5 hover:bg-[#f5f5f5]">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(pref)}
+                        onChange={() => toggle(pref)}
+                        className="h-3 w-3 shrink-0 accent-[#ff5a78]"
+                      />
+                      <span className="text-[11px] text-[#333]">{pref.replace(/[都道府県]$/, "")}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
-        ))}
-      </div>
-      {selected.length > 0 && (
-        <button
-          type="button"
-          onClick={() => onChange([])}
-          className="mt-1 w-full text-center text-[10px] text-white/80 underline hover:text-white"
-        >
-          クリア（{selected.length}件）
-        </button>
+          {selected.length > 0 && (
+            <div className="border-t border-[#eee] px-3 py-2">
+              <button
+                type="button"
+                onClick={() => onChange([])}
+                className="w-full text-center text-[11px] text-[#888] hover:text-[#333]"
+              >
+                クリア（{selected.length}件選択中）
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

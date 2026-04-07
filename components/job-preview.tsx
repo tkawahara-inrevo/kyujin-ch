@@ -28,6 +28,7 @@ export type JobPreviewData = {
   selectionProcess?: string;
   tags?: string[];
   benefits?: string[];
+  benefitNote?: string;
   targetType?: string;
   graduationYear?: number;
   recruitmentBackground?: string;
@@ -122,19 +123,24 @@ export function JobPreview({ data }: { data: JobPreviewData }) {
             {data.desiredAptitude ? <PreviewSection title="向いている人" body={data.desiredAptitude} /> : null}
             {data.recommendedFor ? <PreviewSection title="おすすめの人" body={data.recommendedFor} /> : null}
             {data.selectionProcess ? <PreviewSection title="選考フロー" body={data.selectionProcess} /> : null}
-            {data.benefits && data.benefits.length > 0 ? (
+            {(data.benefits && data.benefits.length > 0) || data.benefitNote ? (
               <div>
                 <p className="text-[14px] font-bold text-[#2b2f38]">福利厚生</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {data.benefits.slice(0, 6).map((benefit) => (
-                    <span
-                      key={benefit}
-                      className="rounded-full bg-[#f1f4f9] px-3 py-1 text-[12px] font-medium text-[#5a6575]"
-                    >
-                      {benefit}
-                    </span>
-                  ))}
-                </div>
+                {data.benefits && data.benefits.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {data.benefits.slice(0, 6).map((benefit) => (
+                      <span
+                        key={benefit}
+                        className="rounded-full bg-[#f1f4f9] px-3 py-1 text-[12px] font-medium text-[#5a6575]"
+                      >
+                        {benefit}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {data.benefitNote && (
+                  <p className="mt-2 whitespace-pre-line text-[13px] leading-[1.8] text-[#4d5867]">{data.benefitNote}</p>
+                )}
               </div>
             ) : null}
             {(data.officeDetail || data.access || data.workingHours) && (

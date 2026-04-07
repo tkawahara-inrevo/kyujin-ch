@@ -167,9 +167,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
   const [salaryType, setSalaryType] = useState("annual");
   const [salaryMinVal, setSalaryMinVal] = useState("");
   const [salaryMaxVal, setSalaryMaxVal] = useState("");
-  const [annualSalaryMinNum, setAnnualSalaryMinNum] = useState("");
-  const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState("");
-  const [annualNumManual, setAnnualNumManual] = useState(false);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(null);
   const [bonusExists, setBonusExists] = useState<boolean | null>(null);
   const [bonusNote, setBonusNote] = useState("");
@@ -232,13 +229,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
   }, [showPreview, isWidePreview]);
 
   useEffect(() => {
-    if (!annualNumManual) {
-      setAnnualSalaryMinNum(computeAnnualNum(salaryType, salaryMinVal));
-      setAnnualSalaryMaxNum(computeAnnualNum(salaryType, salaryMaxVal));
-    }
-  }, [salaryType, salaryMinVal, salaryMaxVal, annualNumManual]);
-
-  useEffect(() => {
     if (!trialAnnualNumManual) {
       setTrialAnnualSalaryMinNum(computeAnnualNum(trialSalaryType, trialSalaryMinVal));
       setTrialAnnualSalaryMaxNum(computeAnnualNum(trialSalaryType, trialSalaryMaxVal));
@@ -254,13 +244,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
     if (!num) return "";
     return num >= 10000 ? `${Math.round(num / 10000)}万円` : `${num.toLocaleString()}円`;
   };
-
-  const annualSalaryText = useMemo(() => {
-    if (!annualSalaryMinNum && !annualSalaryMaxNum) return "";
-    if (annualSalaryMinNum && annualSalaryMaxNum) return `${fmtAnnual(annualSalaryMinNum)}〜${fmtAnnual(annualSalaryMaxNum)}`;
-    if (annualSalaryMinNum) return `${fmtAnnual(annualSalaryMinNum)}〜`;
-    return `〜${fmtAnnual(annualSalaryMaxNum)}`;
-  }, [annualSalaryMinNum, annualSalaryMaxNum]);
 
   const trialAnnualSalaryText = useMemo(() => {
     if (!trialAnnualSalaryMinNum && !trialAnnualSalaryMaxNum) return "";
@@ -287,12 +270,12 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
       access: formValues.access ?? "",
       salaryMin: salaryMinVal ? String(Math.round(Number(salaryMinVal) / 10000)) : "",
       salaryMax: salaryMaxVal ? String(Math.round(Number(salaryMaxVal) / 10000)) : "",
-      monthlySalary: annualSalaryText,
       companyName,
       selectionProcess,
       employmentPeriodType,
       tags: mergedTags,
       benefits: mergedBenefits,
+      benefitNote: benefitNote.trim() || undefined,
       targetType,
       graduationYear,
       recruitmentBackground: formValues.recruitmentBackground ?? "",
@@ -316,6 +299,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
       employmentPeriodType,
       mergedTags,
       mergedBenefits,
+      benefitNote,
       targetType,
       graduationYear,
     ],
@@ -493,7 +477,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
           salaryType,
           salaryMin: salaryMinVal ? Number(salaryMinVal) : undefined,
           salaryMax: salaryMaxVal ? Number(salaryMaxVal) : undefined,
-          monthlySalary: annualSalaryText || undefined,
           salaryRevision: fd.get("salaryRevision") as string,
           bonus: salaryType !== "annual" ? (bonusExists === null ? undefined : bonusExists ? "あり" : "なし") : undefined,
           bonusNote: salaryType !== "annual" && bonusExists ? (bonusNote || undefined) : undefined,
@@ -919,7 +902,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
             <div className="flex flex-wrap gap-6">
               {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
                 <label key={type} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                  <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setAnnualNumManual(false); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                  <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                   {type === "annual" ? "年俸" : type === "monthly" ? "月給" : type === "daily" ? "日給" : "時給"}
                 </label>
               ))}
@@ -953,18 +936,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                     </label>
                   ))}
                   <textarea value={annualPaymentNote} onChange={(e) => setAnnualPaymentNote(e.target.value)} rows={3} className={textareaCls} placeholder="支払い方法の詳細を入力してください" />
-                </div>
-              </Field>
-            )}
-
-            {/* 月給のみ: 想定年収 */}
-            {salaryType === "monthly" && (
-              <Field label="想定年収" required>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={annualSalaryMinNum} onChange={(e) => { setAnnualSalaryMinNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4200000" />
-                  <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
-                  <input type="number" value={annualSalaryMaxNum} onChange={(e) => { setAnnualSalaryMaxNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4800000" />
-                  <span className="shrink-0 text-[14px] text-[#555]">円</span>
                 </div>
               </Field>
             )}

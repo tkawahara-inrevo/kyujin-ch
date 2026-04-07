@@ -268,7 +268,6 @@ export function JobEditForm({
   const [salaryMaxVal, setSalaryMaxVal] = useState(job.salaryMax ? String(job.salaryMax) : "");
   const [annualSalaryMinNum, setAnnualSalaryMinNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMin ? String(job.salaryMin) : ""));
   const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMax ? String(job.salaryMax) : ""));
-  const [annualNumManual, setAnnualNumManual] = useState(false);
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(job.hasFixedOvertime ?? null);
   const [bonusExists, setBonusExists] = useState<boolean | null>(
     job.bonus === "あり" ? true : job.bonus === "なし" ? false : null
@@ -353,13 +352,6 @@ export function JobEditForm({
   }, [showPreview, isWidePreview]);
 
   useEffect(() => {
-    if (!annualNumManual) {
-      setAnnualSalaryMinNum(computeAnnualNum(salaryType, salaryMinVal));
-      setAnnualSalaryMaxNum(computeAnnualNum(salaryType, salaryMaxVal));
-    }
-  }, [salaryType, salaryMinVal, salaryMaxVal, annualNumManual]);
-
-  useEffect(() => {
     if (!trialAnnualNumManual) {
       setTrialAnnualSalaryMinNum(computeAnnualNum(trialSalaryType, trialSalaryMinVal));
       setTrialAnnualSalaryMaxNum(computeAnnualNum(trialSalaryType, trialSalaryMaxVal));
@@ -391,13 +383,6 @@ export function JobEditForm({
     return num >= 10000 ? `${Math.round(num / 10000)}万円` : `${num.toLocaleString()}円`;
   };
 
-  const annualSalaryText = useMemo(() => {
-    if (!annualSalaryMinNum && !annualSalaryMaxNum) return "";
-    if (annualSalaryMinNum && annualSalaryMaxNum) return `${fmtAnnual(annualSalaryMinNum)}〜${fmtAnnual(annualSalaryMaxNum)}`;
-    if (annualSalaryMinNum) return `${fmtAnnual(annualSalaryMinNum)}〜`;
-    return `〜${fmtAnnual(annualSalaryMaxNum)}`;
-  }, [annualSalaryMinNum, annualSalaryMaxNum]);
-
   const trialAnnualSalaryText = useMemo(() => {
     if (!trialAnnualSalaryMinNum && !trialAnnualSalaryMaxNum) return "";
     if (trialAnnualSalaryMinNum && trialAnnualSalaryMaxNum) return `${fmtAnnual(trialAnnualSalaryMinNum)}〜${fmtAnnual(trialAnnualSalaryMaxNum)}`;
@@ -423,7 +408,6 @@ export function JobEditForm({
       access: formValues.access ?? "",
       salaryMin: salaryMinVal ? String(Math.round(Number(salaryMinVal) / 10000)) : "",
       salaryMax: salaryMaxVal ? String(Math.round(Number(salaryMaxVal) / 10000)) : "",
-      monthlySalary: annualSalaryText,
       companyName,
       selectionProcess,
       employmentPeriodType,
@@ -535,7 +519,6 @@ export function JobEditForm({
       requirements: fd.get("requirements") as string,
       desiredAptitude: fd.get("desiredAptitude") as string,
       recommendedFor: fd.get("recommendedFor") as string,
-      monthlySalary: annualSalaryText || undefined,
       access: fd.get("access") as string,
       officeName: fd.get("officeName") as string || undefined,
       officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
@@ -1166,7 +1149,7 @@ export function JobEditForm({
             <div className="flex flex-wrap gap-6">
               {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
                 <label key={type} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                  <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setAnnualNumManual(false); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                  <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                   {type === "annual" ? "年俸" : type === "monthly" ? "月給" : type === "daily" ? "日給" : "時給"}
                 </label>
               ))}
@@ -1203,16 +1186,6 @@ export function JobEditForm({
               </Field>
             )}
 
-            {salaryType === "monthly" && (
-              <Field label="想定年収" required>
-                <div className="flex items-center gap-2">
-                  <input type="number" value={annualSalaryMinNum} onChange={(e) => { setAnnualSalaryMinNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4200000" />
-                  <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
-                  <input type="number" value={annualSalaryMaxNum} onChange={(e) => { setAnnualSalaryMaxNum(e.target.value); setAnnualNumManual(true); }} className={inputCls} placeholder="例：4800000" />
-                  <span className="shrink-0 text-[14px] text-[#555]">円</span>
-                </div>
-              </Field>
-            )}
 
             {(salaryType === "annual" || salaryType === "monthly") && (
               <Field label="みなし残業制度" required>

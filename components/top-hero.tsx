@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { PREFECTURES_BY_AREA } from "@/lib/job-locations";
+import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { EMPLOYMENT_FILTER_OPTIONS, EXPERIENCE_FILTER_OPTIONS, SALARY_FILTER_OPTIONS } from "@/lib/job-options";
 import type { CategoryGroup } from "@/lib/price-categories";
 
@@ -65,25 +65,18 @@ function PrefectureMultiSelect({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-[280px] overflow-hidden rounded-[10px] border border-[#e0e0e0] bg-white shadow-xl">
-          <div className="max-h-[320px] overflow-y-auto p-3">
-            {Object.entries(PREFECTURES_BY_AREA).map(([area, prefs]) => (
-              <div key={area} className="mb-3 last:mb-0">
-                <p className="mb-1.5 text-[10px] font-bold text-[#999]">{area}</p>
-                <div className="grid grid-cols-3 gap-x-1 gap-y-1">
-                  {prefs.map((pref) => (
-                    <label key={pref} className="flex cursor-pointer items-center gap-1 rounded-[4px] px-1 py-0.5 hover:bg-[#f5f5f5]">
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(pref)}
-                        onChange={() => toggle(pref)}
-                        className="h-3 w-3 shrink-0 accent-[#ff5a78]"
-                      />
-                      <span className="text-[11px] text-[#333]">{pref.replace(/[都道府県]$/, "")}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+        <div className="absolute left-0 top-full z-50 mt-1 w-[160px] overflow-hidden rounded-[10px] border border-[#e0e0e0] bg-white shadow-xl">
+          <div className="max-h-[320px] overflow-y-auto py-1">
+            {ALL_PREFECTURES.map((pref) => (
+              <label key={pref} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-[#f5f5f5]">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(pref)}
+                  onChange={() => toggle(pref)}
+                  className="h-3.5 w-3.5 shrink-0 accent-[#ff5a78]"
+                />
+                <span className="text-[12px] text-[#333]">{pref}</span>
+              </label>
             ))}
           </div>
           {selected.length > 0 && (
@@ -93,7 +86,7 @@ function PrefectureMultiSelect({
                 onClick={() => onChange([])}
                 className="w-full text-center text-[11px] text-[#888] hover:text-[#333]"
               >
-                クリア（{selected.length}件選択中）
+                クリア（{selected.length}件）
               </button>
             </div>
           )}

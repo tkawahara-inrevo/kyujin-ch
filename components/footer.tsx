@@ -24,7 +24,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-16 text-[12px] text-[#666]">
+          <div className="grid grid-cols-3 gap-10 text-[12px] text-[#666]">
             <div className="space-y-3">
               <p className="font-bold text-[#333]">求人情報</p>
               <Link href="/jobs" className="block hover:underline">
@@ -45,6 +45,9 @@ export function Footer() {
               <Link href="https://inrevo.co.jp/privacy-policy" className="block hover:underline" target="_blank" rel="noreferrer">
                 プライバシーポリシー
               </Link>
+            </div>
+            <div className="space-y-3">
+              <p className="font-bold text-[#333] opacity-0">-</p>
               <Link href="https://inrevo.co.jp/about" className="block hover:underline" target="_blank" rel="noreferrer">
                 会社概要
               </Link>

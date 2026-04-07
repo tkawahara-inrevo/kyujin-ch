@@ -135,6 +135,7 @@ export function buildPublishedJobSearchWhere(
     isPublished: true,
     reviewStatus: "PUBLISHED",
     isDeleted: false,
+    company: { isTest: false },
     ...buildTargetFilter(input.target),
     ...(andConditions.length > 0 ? { AND: andConditions } : {}),
     ...(employmentType && { employmentType }),

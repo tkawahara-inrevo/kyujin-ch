@@ -16,6 +16,7 @@ enum UserRole {
   USER
   COMPANY
   ADMIN
+  SEO_EDITOR
 }
 
 enum EmploymentType {

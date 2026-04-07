@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { deleteColumnPost, toggleColumnPublished } from "@/app/actions/admin/columns";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireColumnEditor } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminColumnsPage() {
-  await requireAdmin();
+  await requireColumnEditor();
 
   const posts = await prisma.columnPost.findMany({
     orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],

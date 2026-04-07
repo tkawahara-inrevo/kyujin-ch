@@ -1,9 +1,9 @@
 import { createColumnPost } from "@/app/actions/admin/columns";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireColumnEditor } from "@/lib/auth-helpers";
 import { ColumnForm } from "../column-form";
 
 export default async function AdminColumnNewPage() {
-  await requireAdmin();
+  await requireColumnEditor();
 
   return (
     <ColumnForm

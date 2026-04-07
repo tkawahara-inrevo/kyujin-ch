@@ -16,3 +16,12 @@ export async function requireAdmin() {
   }
   return session;
 }
+
+export async function requireColumnEditor() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user?.id || (role !== "ADMIN" && role !== "SEO_EDITOR")) {
+    redirect("/admin/login");
+  }
+  return session;
+}

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { updateColumnPost } from "@/app/actions/admin/columns";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireColumnEditor } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { ColumnForm } from "../../column-form";
 
@@ -11,7 +11,7 @@ export default async function AdminColumnEditPage({
 }: {
   params: Params;
 }) {
-  await requireAdmin();
+  await requireColumnEditor();
   const { id } = await params;
 
   const post = await prisma.columnPost.findUnique({ where: { id } });

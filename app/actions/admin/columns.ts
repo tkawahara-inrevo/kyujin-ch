@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireColumnEditor } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 function parseTags(raw: string) {
@@ -17,7 +17,7 @@ function parseCheckbox(value: FormDataEntryValue | null) {
 }
 
 export async function createColumnPost(formData: FormData) {
-  const session = await requireAdmin();
+  const session = await requireColumnEditor() as { user: { id: string } };
 
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
@@ -48,7 +48,7 @@ export async function createColumnPost(formData: FormData) {
 }
 
 export async function updateColumnPost(id: string, formData: FormData) {
-  await requireAdmin();
+  await requireColumnEditor();
 
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
@@ -89,7 +89,7 @@ export async function updateColumnPost(id: string, formData: FormData) {
 }
 
 export async function deleteColumnPost(id: string) {
-  await requireAdmin();
+  await requireColumnEditor();
   await prisma.columnPost.delete({ where: { id } });
   revalidatePath("/column");
   revalidatePath(`/column/${id}`);
@@ -97,7 +97,7 @@ export async function deleteColumnPost(id: string) {
 }
 
 export async function toggleColumnPublished(id: string) {
-  await requireAdmin();
+  await requireColumnEditor();
   const post = await prisma.columnPost.findUnique({
     where: { id },
     select: { isPublished: true },

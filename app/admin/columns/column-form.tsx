@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { RichTextEditor } from "@/components/rich-text-editor";
 
 type ColumnFormValues = {
   title: string;
@@ -42,7 +45,7 @@ export function ColumnForm({ title, submitLabel, action, values }: Props) {
         </div>
 
         <div>
-          <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">概要</label>
+          <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">概要（一覧に表示されるサマリー）</label>
           <input
             name="summary"
             defaultValue={initial.summary}
@@ -65,20 +68,14 @@ export function ColumnForm({ title, submitLabel, action, values }: Props) {
           <input
             name="tags"
             defaultValue={initial.tags}
-            placeholder="就活, 面接, 履歴書"
+            placeholder="就活ノウハウ, 面接対策, チェックリスト"
             className="w-full rounded-lg border border-[#d7dee9] px-4 py-2.5 text-[14px] outline-none focus:border-[#2f6cff]"
           />
         </div>
 
         <div>
           <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">本文 *</label>
-          <textarea
-            name="body"
-            defaultValue={initial.body}
-            required
-            rows={16}
-            className="w-full rounded-lg border border-[#d7dee9] px-4 py-3 text-[14px] outline-none focus:border-[#2f6cff]"
-          />
+          <RichTextEditor name="body" defaultValue={initial.body} />
         </div>
 
         <label className="flex items-center gap-2 text-[14px] font-medium text-[#374151]">

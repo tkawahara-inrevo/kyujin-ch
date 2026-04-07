@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { RightSidebar } from "@/components/right-sidebar";
@@ -9,11 +11,7 @@ export const revalidate = 0;
 
 type Params = Promise<{ id: string }>;
 
-export default async function ColumnDetailPage({
-  params,
-}: {
-  params: Params;
-}) {
+export default async function ColumnDetailPage({ params }: { params: Params }) {
   const { id } = await params;
 
   const post = await prisma.columnPost.findFirst({
@@ -22,38 +20,89 @@ export default async function ColumnDetailPage({
 
   if (!post) notFound();
 
-  const lines = post.body.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  const date = (post.publishedAt ?? post.createdAt).toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const isHtml = post.body.trim().startsWith("<");
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
       <Header />
 
-      <div className="mx-auto max-w-[1200px] px-4 py-10 md:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_260px]">
-          <article className="rounded-xl bg-white p-6 shadow-sm md:p-8">
-            <h1 className="text-[28px] font-bold leading-[1.45] text-[#1f2937]">{post.title}</h1>
-            <p className="mt-3 text-[12px] text-[#98a2b3]">
-              {post.publishedAt?.toLocaleDateString("ja-JP") ?? post.createdAt.toLocaleDateString("ja-JP")}
-            </p>
-
-            {post.tags.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-[#eef2f7] px-2 py-0.5 text-[11px] text-[#475467]">
-                    #{tag}
-                  </span>
-                ))}
+      <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6">
+        <div className="grid gap-8 lg:grid-cols-[1fr_260px]">
+          <article className="overflow-hidden rounded-xl bg-white shadow-sm">
+            {/* サムネイル */}
+            {post.thumbnailUrl && (
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#e8e8e8]">
+                <Image
+                  src={post.thumbnailUrl}
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 800px"
+                />
               </div>
-            ) : null}
+            )}
 
-            {post.summary ? (
-              <p className="mt-6 rounded-lg bg-[#f8fafc] p-4 text-[14px] leading-[1.8] text-[#475467]">{post.summary}</p>
-            ) : null}
+            <div className="p-6 md:p-8">
+              {/* タグ */}
+              {post.tags.length > 0 && (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-[#eef2f7] px-3 py-1 text-[11px] font-bold text-[#475467]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-            <div className="mt-8 space-y-4 text-[15px] leading-[1.95] text-[#374151]">
-              {lines.map((line, idx) => (
-                <p key={`${idx}-${line.slice(0, 16)}`}>{line}</p>
-              ))}
+              {/* タイトル */}
+              <h1 className="text-[24px] font-bold leading-[1.45] text-[#1f2937] md:text-[28px]">
+                {post.title}
+              </h1>
+
+              {/* 日付 */}
+              <p className="mt-2 text-[12px] text-[#98a2b3]">{date}</p>
+
+              {/* サマリー */}
+              {post.summary && (
+                <p className="mt-5 rounded-lg bg-[#f8fafc] p-4 text-[14px] leading-[1.8] text-[#475467]">
+                  {post.summary}
+                </p>
+              )}
+
+              {/* 本文 */}
+              <div className="mt-6">
+                {isHtml ? (
+                  <div
+                    className="prose prose-sm max-w-none text-[#374151] [&_a]:text-[#2f6cff] [&_a]:underline [&_h2]:mt-8 [&_h2]:text-[18px] [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:text-[16px] [&_h3]:font-bold [&_li]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-3 [&_p]:text-[15px] [&_p]:leading-[1.95] [&_ul]:list-disc [&_ul]:pl-5 [&_strong]:font-bold"
+                    dangerouslySetInnerHTML={{ __html: post.body }}
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {post.body.split(/\r?\n/).filter((l) => l.trim()).map((line, idx) => (
+                      <p key={idx} className="text-[15px] leading-[1.95] text-[#374151]">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 戻るリンク */}
+              <div className="mt-10 border-t border-[#eee] pt-6">
+                <Link href="/column" className="text-[13px] text-[#2f6cff] hover:underline">
+                  ← コラム一覧に戻る
+                </Link>
+              </div>
             </div>
           </article>
 

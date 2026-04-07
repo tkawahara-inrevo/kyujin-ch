@@ -65,17 +65,17 @@ function PrefectureMultiSelect({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-[160px] overflow-hidden rounded-[10px] border border-[#e0e0e0] bg-white shadow-xl">
-          <div className="max-h-[320px] overflow-y-auto py-1">
+        <div className="absolute left-0 top-full z-50 mt-1 w-[200px] overflow-hidden rounded-[10px] border border-[#e0e0e0] bg-white shadow-xl">
+          <div className="max-h-[360px] overflow-y-auto py-1">
             {ALL_PREFECTURES.map((pref) => (
-              <label key={pref} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-[#f5f5f5]">
+              <label key={pref} className="flex cursor-pointer items-center gap-2 px-3 py-2 hover:bg-[#f5f5f5]">
                 <input
                   type="checkbox"
                   checked={selected.includes(pref)}
                   onChange={() => toggle(pref)}
-                  className="h-3.5 w-3.5 shrink-0 accent-[#ff5a78]"
+                  className="h-4 w-4 shrink-0 accent-[#ff5a78]"
                 />
-                <span className="text-[12px] text-[#333]">{pref}</span>
+                <span className="text-[14px] text-[#333]">{pref}</span>
               </label>
             ))}
           </div>
@@ -204,9 +204,9 @@ export function TopHero({
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 pb-6 pt-3 md:px-6">
-      <div className={`overflow-hidden rounded-[16px] border-2 ${borderColor}`}>
+      <div className={`rounded-[16px] border-2 ${borderColor}`}>
         {showTabs && (
-          <div className="grid grid-cols-2">
+          <div className="grid grid-cols-2 overflow-hidden rounded-t-[14px]">
             <Link
               href="https://kyujin-ch.jp/column/"
               target="_blank"
@@ -335,7 +335,7 @@ export function TopHero({
               {/* Desktop */}
               <div className="hidden md:block">
                 {/* Row 1: filters */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-6 gap-2">
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
                     <select
@@ -387,7 +387,7 @@ export function TopHero({
                       ))}
                     </select>
                   </div>
-                  <div className="col-span-2">
+                  <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
                     <PrefectureMultiSelect selected={prefectures} onChange={setPrefectures} />
                   </div>

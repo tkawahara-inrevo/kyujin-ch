@@ -127,15 +127,16 @@ export function buildPublishedJobSearchWhere(
   const salaryFilter = buildSalaryFilter(salary);
   if (salaryFilter) andConditions.push(salaryFilter);
 
+  if (category) {
+    andConditions.push({ categoryTag: { contains: category, mode: "insensitive" } });
+  }
+
   return {
     isPublished: true,
     reviewStatus: "PUBLISHED",
     isDeleted: false,
     ...buildTargetFilter(input.target),
     ...(andConditions.length > 0 ? { AND: andConditions } : {}),
-    ...(category && {
-      categoryTag: { contains: category, mode: "insensitive" },
-    }),
     ...(employmentType && { employmentType }),
   };
 }

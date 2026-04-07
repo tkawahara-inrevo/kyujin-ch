@@ -48,7 +48,7 @@ export function JobCard({
 }: JobCardProps) {
   return (
     <article className="group relative overflow-hidden rounded-[10px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:shadow-[0_4px_14px_rgba(0,0,0,0.10)]">
-      <Link href={`/jobs/${id}`} className="absolute inset-0 z-0" aria-label={title} />
+      <Link href={`/jobs/${id}`} className="absolute inset-0 z-10" aria-label={title} />
 
       <div className="relative aspect-[1.85/1] w-full overflow-hidden bg-[#e8e8e8]">
         {/* ブラー背景：余白を埋める */}
@@ -106,7 +106,7 @@ export function JobCard({
           <h3 className="line-clamp-2 min-w-0 text-[15px] font-bold leading-[1.5] text-[#222]">
             {title}
           </h3>
-          <div className="relative z-10 shrink-0 pt-0.5">
+          <div className="relative z-20 shrink-0 pt-0.5">
             <FavoriteToggleButton jobId={id} />
           </div>
         </div>

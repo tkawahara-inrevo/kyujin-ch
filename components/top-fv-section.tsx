@@ -70,12 +70,12 @@ export function TopFVSection({
 
           {/* FV画像エリア */}
           <div className="relative overflow-hidden rounded-b-[16px]">
-            <div className="relative h-[200px] w-full md:h-[290px]">
+            <div className="relative aspect-[2/1] w-full sm:aspect-[5/2] md:aspect-auto md:h-[290px]">
               <Image
                 src="/assets/FV_fix.png"
                 alt=""
                 fill
-                className="object-cover object-center"
+                className="object-cover object-[30%_center] md:object-center"
                 priority
               />
             </div>

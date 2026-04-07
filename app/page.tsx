@@ -16,6 +16,7 @@ import {
   normalizeEmploymentTypeParam,
   normalizeTextParam,
 } from "@/lib/job-search";
+import { getPriceCategories } from "@/lib/price-categories";
 
 type SearchParams = Promise<{
   q?: string;
@@ -44,11 +45,11 @@ export default async function HomePage({
     q,
     category,
     employmentType,
-    location,
     target,
   });
 
-  const [featuredJobs, newJobs, jobs] = await Promise.all([
+  const [categoryGroups, featuredJobs, newJobs, jobs] = await Promise.all([
+    getPriceCategories(),
     // 注目の求人: PV数+応募数が多い人気求人
     prisma.job.findMany({
       where,
@@ -87,7 +88,7 @@ export default async function HomePage({
         defaultQ={q}
         defaultCategory={category}
         defaultEmploymentType={employmentType}
-        defaultLocation={location}
+        categoryGroups={categoryGroups}
       />
 
       <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6 md:py-10">

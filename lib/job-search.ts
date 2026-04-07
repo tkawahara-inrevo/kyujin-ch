@@ -1,18 +1,15 @@
 import { EmploymentType, Prisma } from "@prisma/client";
-import { CATEGORY_OPTIONS, EMPLOYMENT_OPTIONS } from "@/lib/job-options";
-import { PREFECTURES_BY_AREA } from "@/lib/job-locations";
+import { EMPLOYMENT_OPTIONS } from "@/lib/job-options";
 
 const EMPLOYMENT_TYPE_VALUES = new Set(
   EMPLOYMENT_OPTIONS.map((option) => option.value),
 );
 
-const CATEGORY_VALUES = new Set(CATEGORY_OPTIONS);
-
 export type JobSearchInput = {
   q?: string;
   category?: string;
   employmentType?: string;
-  location?: string;
+  prefectures?: string[];
   target?: string;
   experience?: string;
   salary?: string;
@@ -23,10 +20,7 @@ export function normalizeTextParam(value?: string): string {
 }
 
 export function normalizeCategoryParam(value?: string): string {
-  const category = normalizeTextParam(value);
-  return CATEGORY_VALUES.has(category as (typeof CATEGORY_OPTIONS)[number])
-    ? category
-    : "";
+  return normalizeTextParam(value);
 }
 
 export function normalizeEmploymentTypeParam(value?: string): EmploymentType | "" {
@@ -99,10 +93,9 @@ export function buildPublishedJobSearchWhere(
   const q = normalizeTextParam(input.q);
   const category = normalizeCategoryParam(input.category);
   const employmentType = normalizeEmploymentTypeParam(input.employmentType);
-  const location = normalizeTextParam(input.location);
+  const prefectures = (input.prefectures ?? []).filter(Boolean);
   const experience = normalizeTextParam(input.experience);
   const salary = normalizeTextParam(input.salary);
-  const areaPrefectures = location ? PREFECTURES_BY_AREA[location] ?? [] : [];
   const andConditions: Prisma.JobWhereInput[] = [];
 
   if (q) {
@@ -117,18 +110,12 @@ export function buildPublishedJobSearchWhere(
     });
   }
 
-  if (location) {
-    if (areaPrefectures.length > 0) {
-      andConditions.push({
-        OR: areaPrefectures.map((prefecture) => ({
-          location: { contains: prefecture, mode: "insensitive" },
-        })),
-      });
-    } else {
-      andConditions.push({
-        location: { contains: location, mode: "insensitive" },
-      });
-    }
+  if (prefectures.length > 0) {
+    andConditions.push({
+      OR: prefectures.map((pref) => ({
+        location: { contains: pref, mode: "insensitive" },
+      })),
+    });
   }
 
   if (experience === "inexperienced") {
@@ -147,7 +134,7 @@ export function buildPublishedJobSearchWhere(
     ...buildTargetFilter(input.target),
     ...(andConditions.length > 0 ? { AND: andConditions } : {}),
     ...(category && {
-      categoryTag: { equals: category, mode: "insensitive" },
+      categoryTag: { contains: category, mode: "insensitive" },
     }),
     ...(employmentType && { employmentType }),
   };

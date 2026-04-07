@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AuthDialog } from "./auth-dialog";
 import { TopHero } from "./top-hero";
+import type { CategoryGroup } from "@/lib/price-categories";
 
 type Tab = "news" | "search";
 
@@ -14,7 +15,7 @@ type Props = {
   defaultQ?: string;
   defaultCategory?: string;
   defaultEmploymentType?: string;
-  defaultLocation?: string;
+  categoryGroups?: CategoryGroup[];
 };
 
 const CATEGORY_NAV = [
@@ -35,7 +36,7 @@ export function TopFVSection({
   defaultQ,
   defaultCategory,
   defaultEmploymentType,
-  defaultLocation,
+  categoryGroups = [],
 }: Props) {
   const [showFV, setShowFV] = useState(!hasSearchFilter);
   const [activeTab, setActiveTab] = useState<Tab>("search");
@@ -118,7 +119,7 @@ export function TopFVSection({
           defaultQ={defaultQ}
           defaultCategory={defaultCategory}
           defaultEmploymentType={defaultEmploymentType}
-          defaultLocation={defaultLocation}
+          categoryGroups={categoryGroups}
           searchPath="/jobs"
           includeSearchTabParam={false}
         />

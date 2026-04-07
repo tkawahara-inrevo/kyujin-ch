@@ -12,12 +12,13 @@ import {
   normalizeEmploymentTypeParam,
   normalizeTextParam,
 } from "@/lib/job-search";
+import { getPriceCategories } from "@/lib/price-categories";
 import { graduationYearLabel } from "@/lib/graduation-years";
 import Link from "next/link";
 
 type SearchParams = Promise<{
   q?: string;
-  location?: string;
+  prefectures?: string;
   tag?: string;
   category?: string;
   employmentType?: string;
@@ -35,7 +36,7 @@ export default async function JobsPage({
 }) {
   const search = await searchParams;
   const q = normalizeTextParam(search.q);
-  const location = normalizeTextParam(search.location);
+  const prefectures = search.prefectures ? search.prefectures.split(",").filter(Boolean) : [];
   const tag = normalizeTextParam(search.tag);
   const category = normalizeCategoryParam(search.category);
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
@@ -46,12 +47,14 @@ export default async function JobsPage({
   const page = Math.max(1, Number.parseInt(normalizeTextParam(search.page) || "1", 10) || 1);
   const pageSize = 12;
 
+  const [categoryGroups] = await Promise.all([getPriceCategories()]);
+
   const where: Prisma.JobWhereInput = {
     ...buildPublishedJobSearchWhere({
       q,
       category,
       employmentType,
-      location,
+      prefectures,
       target,
       experience,
       salary,
@@ -84,7 +87,7 @@ export default async function JobsPage({
   function buildPageHref(nextPage: number) {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
-    if (location) params.set("location", location);
+    if (prefectures.length > 0) params.set("prefectures", prefectures.join(","));
     if (tag) params.set("tag", tag);
     if (category) params.set("category", category);
     if (employmentType) params.set("employmentType", employmentType);
@@ -105,9 +108,10 @@ export default async function JobsPage({
         defaultQ={q}
         defaultCategory={category}
         defaultEmploymentType={employmentType}
-        defaultLocation={location}
+        defaultPrefectures={prefectures}
         defaultExperience={experience}
         defaultSalary={salary}
+        categoryGroups={categoryGroups}
         searchPath="/jobs"
         includeSearchTabParam={false}
         showTabs={false}
@@ -118,13 +122,13 @@ export default async function JobsPage({
           {sort === "popular" ? "注目の求人" : targetLabel}
         </h1>
 
-        {(q || location || tag || category || employmentType) && (
+        {(q || prefectures.length > 0 || tag || category || employmentType) && (
           <p className="mt-4 text-[13px] text-[#888]">
             {totalCount} 件の求人が見つかりました
             {q && <span>（キーワード: {q}）</span>}
             {tag && <span>（タグ: {tag}）</span>}
             {category && <span>（カテゴリ: {category}）</span>}
-            {location && <span>（勤務地: {location}）</span>}
+            {prefectures.length > 0 && <span>（勤務地: {prefectures.join("・")}）</span>}
           </p>
         )}
 

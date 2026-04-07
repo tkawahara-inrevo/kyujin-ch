@@ -24,6 +24,8 @@ type SearchParams = Promise<{
   target?: string;
   sort?: string;
   page?: string;
+  experience?: string;
+  salary?: string;
 }>;
 
 export default async function JobsPage({
@@ -39,6 +41,8 @@ export default async function JobsPage({
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
   const target = normalizeTextParam(search.target);
   const sort = normalizeTextParam(search.sort);
+  const experience = normalizeTextParam(search.experience);
+  const salary = normalizeTextParam(search.salary);
   const page = Math.max(1, Number.parseInt(normalizeTextParam(search.page) || "1", 10) || 1);
   const pageSize = 12;
 
@@ -49,6 +53,8 @@ export default async function JobsPage({
       employmentType,
       location,
       target,
+      experience,
+      salary,
     }),
     ...(tag && { tags: { hasSome: [tag] } }),
   };
@@ -82,6 +88,8 @@ export default async function JobsPage({
     if (tag) params.set("tag", tag);
     if (category) params.set("category", category);
     if (employmentType) params.set("employmentType", employmentType);
+    if (experience) params.set("experience", experience);
+    if (salary) params.set("salary", salary);
     if (target) params.set("target", target);
     if (sort) params.set("sort", sort);
     if (nextPage > 1) params.set("page", String(nextPage));
@@ -98,6 +106,8 @@ export default async function JobsPage({
         defaultCategory={category}
         defaultEmploymentType={employmentType}
         defaultLocation={location}
+        defaultExperience={experience}
+        defaultSalary={salary}
         searchPath="/jobs"
         includeSearchTabParam={false}
         showTabs={false}

@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AREA_OPTIONS, PREFECTURES_BY_AREA } from "@/lib/job-locations";
-import { CATEGORY_OPTIONS, EMPLOYMENT_FILTER_OPTIONS } from "@/lib/job-options";
+import {
+  CATEGORY_GROUPS,
+  CATEGORY_OPTIONS,
+  EMPLOYMENT_FILTER_OPTIONS,
+  EXPERIENCE_FILTER_OPTIONS,
+  SALARY_FILTER_OPTIONS,
+} from "@/lib/job-options";
 
 type Props = {
   activeTab?: "news" | "search";
@@ -12,10 +18,19 @@ type Props = {
   defaultCategory?: string;
   defaultEmploymentType?: string;
   defaultLocation?: string;
+  defaultExperience?: string;
+  defaultSalary?: string;
   searchPath?: string;
   includeSearchTabParam?: boolean;
   showTabs?: boolean;
 };
+
+function findGroupForCategory(cat: string): string {
+  for (const [group, cats] of Object.entries(CATEGORY_GROUPS)) {
+    if ((cats as readonly string[]).includes(cat)) return group;
+  }
+  return "";
+}
 
 export function TopHero({
   activeTab = "news",
@@ -23,28 +38,36 @@ export function TopHero({
   defaultCategory = "",
   defaultEmploymentType = "",
   defaultLocation = "",
+  defaultExperience = "",
+  defaultSalary = "",
   searchPath = "/",
   includeSearchTabParam = true,
   showTabs = true,
 }: Props) {
   const router = useRouter();
   const [q, setQ] = useState(defaultQ);
+  const [categoryGroup, setCategoryGroup] = useState(() => findGroupForCategory(defaultCategory));
   const [category, setCategory] = useState(defaultCategory);
   const [employmentType, setEmploymentType] = useState(defaultEmploymentType);
+  const [experience, setExperience] = useState(defaultExperience);
+  const [salary, setSalary] = useState(defaultSalary);
   const [area, setArea] = useState("");
   const [prefecture, setPrefecture] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(
-    Boolean(defaultCategory || defaultEmploymentType || defaultLocation),
+    Boolean(defaultCategory || defaultEmploymentType || defaultLocation || defaultExperience || defaultSalary),
   );
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       setQ(defaultQ);
       setCategory(defaultCategory);
+      setCategoryGroup(findGroupForCategory(defaultCategory));
       setEmploymentType(defaultEmploymentType);
+      setExperience(defaultExperience);
+      setSalary(defaultSalary);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [defaultQ, defaultCategory, defaultEmploymentType]);
+  }, [defaultQ, defaultCategory, defaultEmploymentType, defaultExperience, defaultSalary]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -81,8 +104,13 @@ export function TopHero({
     [area],
   );
 
+  const categoryOptions = useMemo(
+    () => (categoryGroup ? CATEGORY_GROUPS[categoryGroup] ?? CATEGORY_OPTIONS : CATEGORY_OPTIONS),
+    [categoryGroup],
+  );
+
   const location = prefecture || area;
-  const hasAdvancedFilters = Boolean(category || employmentType || location);
+  const hasAdvancedFilters = Boolean(category || employmentType || experience || salary || location);
   const borderColor = activeTab === "news" ? "border-[#3b6ff6]" : "border-[#ff5a78]";
   const backgroundColor = activeTab === "news" ? "bg-[#3b6ff6]" : "bg-[#ff5a78]";
   const actionTextColor = activeTab === "news" ? "text-[#3b6ff6]" : "text-[#ff5a78]";
@@ -115,6 +143,12 @@ export function TopHero({
       if (employmentType) {
         params.set("employmentType", employmentType);
       }
+      if (experience) {
+        params.set("experience", experience);
+      }
+      if (salary) {
+        params.set("salary", salary);
+      }
       if (location) {
         params.set("location", location);
       }
@@ -137,8 +171,11 @@ export function TopHero({
 
   function handleReset() {
     setQ("");
+    setCategoryGroup("");
     setCategory("");
     setEmploymentType("");
+    setExperience("");
+    setSalary("");
     setArea("");
     setPrefecture("");
     setMobileFiltersOpen(false);
@@ -156,52 +193,7 @@ export function TopHero({
     router.push(params.toString() ? `${searchPath}?${params.toString()}` : searchPath);
   }
 
-  function renderAreaSelect() {
-    return (
-      <div>
-        <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
-        <select
-          value={area}
-          onChange={(e) => {
-            const nextArea = e.target.value;
-            setArea(nextArea);
-            if (!nextArea || !(PREFECTURES_BY_AREA[nextArea] ?? []).includes(prefecture)) {
-              setPrefecture("");
-            }
-          }}
-          className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
-        >
-          <option value="">すべて</option>
-          {AREA_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
-
-  function renderPrefectureSelect() {
-    return (
-      <div>
-        <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
-        <select
-          value={prefecture}
-          onChange={(e) => setPrefecture(e.target.value)}
-          disabled={!area}
-          className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]"
-        >
-          <option value="">すべて</option>
-          {prefectureOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
+  const selectClass = "w-full rounded-[6px] bg-white px-2 py-2 text-[12px] text-[#333] outline-none";
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 pb-6 pt-3 md:px-6">
@@ -238,7 +230,8 @@ export function TopHero({
               <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
                 <div className="min-w-[180px] flex-1">
                   <label className="mb-1 block text-[11px] font-bold text-white">
-                    キーワードで探す                  </label>
+                    キーワードで探す
+                  </label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
@@ -283,10 +276,12 @@ export function TopHero({
             </form>
           ) : (
             <form onSubmit={handleSearch}>
+              {/* Mobile */}
               <div className="space-y-4 md:hidden">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-white">
-                    キーワードで探す                  </label>
+                    キーワードで探す
+                  </label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
@@ -307,43 +302,105 @@ export function TopHero({
                 </button>
 
                 {mobileFiltersOpen && (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-[11px] font-bold text-white">
-                        カテゴリ
-                      </label>
+                      <label className="mb-1 block text-[11px] font-bold text-white">業種</label>
+                      <select
+                        value={categoryGroup}
+                        onChange={(e) => {
+                          setCategoryGroup(e.target.value);
+                          setCategory("");
+                        }}
+                        className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
+                      >
+                        <option value="">すべて</option>
+                        {Object.keys(CATEGORY_GROUPS).map((g) => (
+                          <option key={g} value={g}>{g}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold text-white">職種</label>
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
                         className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                       >
                         <option value="">すべて</option>
-                        {CATEGORY_OPTIONS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
+                        {categoryOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
                         ))}
                       </select>
                     </div>
-
                     <div>
-                      <label className="mb-1 block text-[11px] font-bold text-white">
-                        雇用形態                      </label>
+                      <label className="mb-1 block text-[11px] font-bold text-white">雇用形態</label>
                       <select
                         value={employmentType}
                         onChange={(e) => setEmploymentType(e.target.value)}
                         className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
                       >
                         {EMPLOYMENT_FILTER_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
+                          <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                     </div>
-
-                    {renderAreaSelect()}
-                    {renderPrefectureSelect()}
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold text-white">経験</label>
+                      <select
+                        value={experience}
+                        onChange={(e) => setExperience(e.target.value)}
+                        className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
+                      >
+                        {EXPERIENCE_FILTER_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold text-white">給与帯</label>
+                      <select
+                        value={salary}
+                        onChange={(e) => setSalary(e.target.value)}
+                        className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
+                      >
+                        {SALARY_FILTER_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
+                      <select
+                        value={area}
+                        onChange={(e) => {
+                          const nextArea = e.target.value;
+                          setArea(nextArea);
+                          if (!nextArea || !(PREFECTURES_BY_AREA[nextArea] ?? []).includes(prefecture)) {
+                            setPrefecture("");
+                          }
+                        }}
+                        className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none"
+                      >
+                        <option value="">すべて</option>
+                        {AREA_OPTIONS.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
+                      <select
+                        value={prefecture}
+                        onChange={(e) => setPrefecture(e.target.value)}
+                        disabled={!area}
+                        className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]"
+                      >
+                        <option value="">すべて</option>
+                        {prefectureOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
 
@@ -364,31 +421,37 @@ export function TopHero({
                 </div>
               </div>
 
+              {/* Desktop */}
               <div className="hidden md:block">
-                <div className="grid grid-cols-6 gap-3">
-                  <div className="col-span-2">
-                    <label className="mb-1 block text-[11px] font-bold text-white">
-                      キーワードで探す                    </label>
-                    <input
-                      value={q}
-                      onChange={(e) => setQ(e.target.value)}
-                      placeholder="キッチン、エンジニア"
-                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
-                    />
+                {/* Row 1: filters */}
+                <div className="grid grid-cols-7 gap-2">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">業種</label>
+                    <select
+                      value={categoryGroup}
+                      onChange={(e) => {
+                        setCategoryGroup(e.target.value);
+                        setCategory("");
+                      }}
+                      className={selectClass}
+                    >
+                      <option value="">業種（すべて）</option>
+                      {Object.keys(CATEGORY_GROUPS).map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
+                    <label className="mb-1 block text-[11px] font-bold text-white">職種</label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
+                      className={selectClass}
                     >
-                      <option value="">すべて</option>
-                      {CATEGORY_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
+                      <option value="">職種（すべて）</option>
+                      {categoryOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
                   </div>
@@ -398,31 +461,99 @@ export function TopHero({
                     <select
                       value={employmentType}
                       onChange={(e) => setEmploymentType(e.target.value)}
-                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
+                      className={selectClass}
                     >
                       {EMPLOYMENT_FILTER_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
+                        <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </select>
                   </div>
 
-                  {renderAreaSelect()}
-                  {renderPrefectureSelect()}
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">経験</label>
+                    <select
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                      className={selectClass}
+                    >
+                      {EXPERIENCE_FILTER_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">給与帯</label>
+                    <select
+                      value={salary}
+                      onChange={(e) => setSalary(e.target.value)}
+                      className={selectClass}
+                    >
+                      {SALARY_FILTER_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">エリア</label>
+                    <select
+                      value={area}
+                      onChange={(e) => {
+                        const nextArea = e.target.value;
+                        setArea(nextArea);
+                        if (!nextArea || !(PREFECTURES_BY_AREA[nextArea] ?? []).includes(prefecture)) {
+                          setPrefecture("");
+                        }
+                      }}
+                      className={selectClass}
+                    >
+                      <option value="">すべて</option>
+                      {AREA_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
+                    <select
+                      value={prefecture}
+                      onChange={(e) => setPrefecture(e.target.value)}
+                      disabled={!area}
+                      className={`${selectClass} disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]`}
+                    >
+                      <option value="">すべて</option>
+                      {prefectureOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                <div className="mt-4 flex justify-center gap-3">
+                {/* Row 2: keyword + buttons */}
+                <div className="mt-3 flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="mb-1 block text-[11px] font-bold text-white">
+                      キーワードで探す
+                    </label>
+                    <input
+                      value={q}
+                      onChange={(e) => setQ(e.target.value)}
+                      placeholder="キッチン、エンジニア、会社名など"
+                      className="w-full rounded-[6px] bg-white px-3 py-2 text-[13px] text-[#333] outline-none"
+                    />
+                  </div>
                   <button
                     type="submit"
-                    className={`rounded-[8px] bg-white px-10 py-2.5 text-[14px] font-bold ${actionTextColor} hover:opacity-90`}
+                    className={`rounded-[8px] bg-white px-8 py-2 text-[13px] font-bold ${actionTextColor} hover:opacity-90`}
                   >
                     検索
                   </button>
                   <button
                     type="button"
                     onClick={handleReset}
-                    className={`rounded-[8px] border-2 border-white px-10 py-2.5 text-[14px] font-bold text-white hover:bg-white ${hoverTextColor}`}
+                    className={`rounded-[8px] border-2 border-white px-8 py-2 text-[13px] font-bold text-white hover:bg-white ${hoverTextColor}`}
                   >
                     リセット
                   </button>
@@ -435,5 +566,3 @@ export function TopHero({
     </div>
   );
 }
-
-

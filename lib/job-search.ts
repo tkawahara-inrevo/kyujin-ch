@@ -14,6 +14,8 @@ export type JobSearchInput = {
   employmentType?: string;
   location?: string;
   target?: string;
+  experience?: string;
+  salary?: string;
 };
 
 export function normalizeTextParam(value?: string): string {
@@ -55,6 +57,42 @@ export function buildTargetFilter(target?: string): Prisma.JobWhereInput {
   return {};
 }
 
+function buildSalaryFilter(salary?: string): Prisma.JobWhereInput | null {
+  switch (salary) {
+    case "to300":
+      return {
+        OR: [
+          { salaryMax: { lte: 300 } },
+          { salaryMax: null, salaryMin: { lte: 300 } },
+        ],
+      };
+    case "301to400":
+      return {
+        salaryMin: { lte: 400 },
+        OR: [{ salaryMax: { gte: 301 } }, { salaryMax: null }],
+      };
+    case "401to500":
+      return {
+        salaryMin: { lte: 500 },
+        OR: [{ salaryMax: { gte: 401 } }, { salaryMax: null }],
+      };
+    case "501to600":
+      return {
+        salaryMin: { lte: 600 },
+        OR: [{ salaryMax: { gte: 501 } }, { salaryMax: null }],
+      };
+    case "601plus":
+      return {
+        OR: [
+          { salaryMax: { gte: 601 } },
+          { salaryMax: null, salaryMin: { gte: 601 } },
+        ],
+      };
+    default:
+      return null;
+  }
+}
+
 export function buildPublishedJobSearchWhere(
   input: JobSearchInput,
 ): Prisma.JobWhereInput {
@@ -62,6 +100,8 @@ export function buildPublishedJobSearchWhere(
   const category = normalizeCategoryParam(input.category);
   const employmentType = normalizeEmploymentTypeParam(input.employmentType);
   const location = normalizeTextParam(input.location);
+  const experience = normalizeTextParam(input.experience);
+  const salary = normalizeTextParam(input.salary);
   const areaPrefectures = location ? PREFECTURES_BY_AREA[location] ?? [] : [];
   const andConditions: Prisma.JobWhereInput[] = [];
 
@@ -90,6 +130,15 @@ export function buildPublishedJobSearchWhere(
       });
     }
   }
+
+  if (experience === "inexperienced") {
+    andConditions.push({ experienceType: "未経験者歓迎" });
+  } else if (experience === "experienced") {
+    andConditions.push({ experienceType: { in: ["経験者歓迎", "経験者のみ"] } });
+  }
+
+  const salaryFilter = buildSalaryFilter(salary);
+  if (salaryFilter) andConditions.push(salaryFilter);
 
   return {
     isPublished: true,

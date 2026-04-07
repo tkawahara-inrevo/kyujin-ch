@@ -1,5 +1,33 @@
 export const OTHER_CATEGORY_VALUE = "その他";
 
+export const CATEGORY_GROUPS: Record<string, readonly string[]> = {
+  "営業・マーケティング": ["営業", "企画/マーケティング"],
+  "IT・クリエイティブ": ["IT", "クリエイティブ", "デザイナー"],
+  "管理・バックオフィス": ["コーポレートスタッフ", "経理", "金融"],
+  "コンサル・人材": ["コンサルタント", "人材サービス"],
+  "建設・不動産": ["建築/土木", "不動産"],
+  "製造・技術": ["機械/電気", "化学", "食品"],
+  "医療・薬品": ["医薬品"],
+  "物流・交通": ["交通/運輸"],
+  "販売・サービス": ["販売/サービス"],
+  "その他": ["その他"],
+};
+
+export const EXPERIENCE_FILTER_OPTIONS = [
+  { value: "", label: "経験不問" },
+  { value: "inexperienced", label: "未経験OK" },
+  { value: "experienced", label: "経験者" },
+] as const;
+
+export const SALARY_FILTER_OPTIONS = [
+  { value: "", label: "給与帯" },
+  { value: "to300", label: "～300万" },
+  { value: "301to400", label: "301～400万" },
+  { value: "401to500", label: "401～500万" },
+  { value: "501to600", label: "501～600万" },
+  { value: "601plus", label: "601万～" },
+] as const;
+
 export const CATEGORY_OPTIONS = [
   "営業",
   "企画/マーケティング",

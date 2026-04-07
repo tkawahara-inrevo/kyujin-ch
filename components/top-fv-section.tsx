@@ -76,13 +76,20 @@ export function TopFVSection({
                 src="/assets/FV_fix.png"
                 alt=""
                 fill
-                className="object-cover object-[30%_center] md:object-center"
+                className="hidden object-cover md:block md:object-center"
+                priority
+              />
+              <Image
+                src="/assets/FV_fix-sp.png"
+                alt=""
+                fill
+                className="object-cover object-center md:hidden"
                 priority
               />
             </div>
 
-            {/* オーバーレイカード */}
-            <div className="absolute right-3 top-3 w-[145px] md:right-8 md:top-5 md:w-[196px]">
+            {/* オーバーレイカード（PCのみ表示） */}
+            <div className="absolute right-3 top-3 hidden w-[145px] md:block md:right-8 md:top-5 md:w-[196px]">
               <div className="rounded-[10px] bg-white p-3 shadow-[0px_2px_20px_0px_rgba(0,0,0,0.08)] md:p-5">
                 <p className="mb-2 text-[9px] font-bold text-[#333] md:text-[10px]">
                   ▼就活お役立ち・資格情報

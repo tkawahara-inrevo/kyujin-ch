@@ -1,8 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { ColumnSearchForm } from "./column-search-form";
+import Image from "next/image";
 import Link from "next/link";
 import { SidebarAuthButtons } from "./sidebar-auth-buttons";
+
+const menuItems = [
+  { href: "/mypage",       label: "マイページ", icon: "/assets/User_01_bl.png" },
+  { href: "/applications", label: "応募済み",   icon: "/assets/Checkbox_Check_bl.png" },
+  { href: "/favorites",    label: "気になる",   icon: "/assets/Bookmark_bl.png" },
+  { href: "/messages",     label: "メッセージ", icon: "/assets/Chat_Circle_bl.png" },
+];
 
 // Figmaに合わせた固定タグ分類
 const DARK_TAGS = ["就活ノウハウ", "新卒向け", "学生向け", "管理職向け"];
@@ -63,12 +71,16 @@ export async function ColumnSidebar() {
         {/* 区切り線 + 認証ボタン */}
         <div className="border-t border-[#e5e5e5] pt-3 space-y-1">
           {isLoggedIn ? (
-            <Link
-              href="/mypage"
-              className="flex w-full items-center gap-3 rounded-[8px] px-2 py-2.5 text-[13px] font-semibold text-[#333] transition hover:bg-[#f7f7f7]"
-            >
-              マイページ
-            </Link>
+            menuItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center gap-3 rounded-[8px] px-2 py-2.5 text-[13px] font-semibold text-[#333] transition hover:bg-[#f7f7f7]"
+              >
+                <Image src={item.icon} alt="" width={18} height={18} />
+                <span>{item.label}</span>
+              </Link>
+            ))
           ) : (
             <SidebarAuthButtons />
           )}

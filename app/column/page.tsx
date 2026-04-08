@@ -8,9 +8,17 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function ColumnListPage() {
+export default async function ColumnListPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const posts = await prisma.columnPost.findMany({
-    where: { isPublished: true },
+    where: {
+      isPublished: true,
+      ...(q ? { OR: [{ title: { contains: q, mode: "insensitive" } }, { body: { contains: q, mode: "insensitive" } }] } : {}),
+    },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: 50,
   });

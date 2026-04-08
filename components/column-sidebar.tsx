@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { SidebarSearchForm } from "./sidebar-search-form";
+import { ColumnSearchForm } from "./column-search-form";
 import { SidebarAuthButtons } from "./sidebar-auth-buttons";
 
 // Figmaに合わせた固定タグ分類
@@ -56,7 +56,7 @@ export async function ColumnSidebar() {
         {/* キーワードから探す */}
         <div>
           <h3 className="mb-2 text-[12px] font-bold text-[#333]">キーワードから探す</h3>
-          <SidebarSearchForm />
+          <ColumnSearchForm />
         </div>
 
         {/* 区切り線 + 認証ボタン */}

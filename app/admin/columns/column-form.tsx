@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { RichTextEditor } from "@/components/rich-text-editor";
+
+const PRESET_TAGS = [
+  "就活ノウハウ", "新卒向け", "学生向け", "管理職向け",
+  "チェックリスト", "最新", "2025年", "2026年",
+  "面接", "履歴書", "カジュアル面談", "面接対策",
+];
 
 type ColumnFormValues = {
   title: string;
@@ -28,6 +35,15 @@ export function ColumnForm({ title, submitLabel, action, values }: Props) {
     tags: values?.tags ?? "",
     isPublished: values?.isPublished ?? false,
   };
+
+  const initialTags = initial.tags ? initial.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+
+  function toggleTag(tag: string) {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  }
 
   return (
     <div className="p-6 lg:p-10">
@@ -64,13 +80,27 @@ export function ColumnForm({ title, submitLabel, action, values }: Props) {
         </div>
 
         <div>
-          <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">タグ（カンマ区切り）</label>
-          <input
-            name="tags"
-            defaultValue={initial.tags}
-            placeholder="就活ノウハウ, 面接対策, チェックリスト"
-            className="w-full rounded-lg border border-[#d7dee9] px-4 py-2.5 text-[14px] outline-none focus:border-[#2f6cff]"
-          />
+          <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">タグ</label>
+          <div className="flex flex-wrap gap-2 rounded-lg border border-[#d7dee9] p-3">
+            {PRESET_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                className={`rounded-full px-3 py-1 text-[12px] font-semibold transition ${
+                  selectedTags.includes(tag)
+                    ? "bg-[#2f6cff] text-white"
+                    : "bg-[#e5e5e5] text-[#333] hover:bg-[#d0d0d0]"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          {selectedTags.length > 0 && (
+            <p className="mt-1.5 text-[11px] text-[#888]">選択中: {selectedTags.join(", ")}</p>
+          )}
+          <input type="hidden" name="tags" value={selectedTags.join(",")} />
         </div>
 
         <div>

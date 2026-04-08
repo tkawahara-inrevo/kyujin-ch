@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
-import { RightSidebar } from "@/components/right-sidebar";
+import { ColumnSidebar } from "@/components/column-sidebar";
 import { Footer } from "@/components/footer";
 import { prisma } from "@/lib/prisma";
 
@@ -83,7 +83,7 @@ export default async function ColumnDetailPage({ params }: { params: Params }) {
               <div className="mt-6">
                 {isHtml ? (
                   <div
-                    className="prose prose-sm max-w-none text-[#374151] [&_a]:text-[#2f6cff] [&_a]:underline [&_h2]:mt-8 [&_h2]:text-[18px] [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:text-[16px] [&_h3]:font-bold [&_li]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-3 [&_p]:text-[15px] [&_p]:leading-[1.95] [&_ul]:list-disc [&_ul]:pl-5 [&_strong]:font-bold"
+                    className="column-body max-w-none"
                     dangerouslySetInnerHTML={{ __html: post.body }}
                   />
                 ) : (
@@ -107,7 +107,7 @@ export default async function ColumnDetailPage({ params }: { params: Params }) {
           </article>
 
           <div className="hidden lg:block">
-            <RightSidebar />
+            <ColumnSidebar />
           </div>
         </div>
       </div>

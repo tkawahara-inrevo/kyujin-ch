@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/header";
-import { RightSidebar } from "@/components/right-sidebar";
+import { ColumnSidebar } from "@/components/column-sidebar";
 import { Footer } from "@/components/footer";
 import { prisma } from "@/lib/prisma";
 
@@ -44,7 +44,7 @@ export default async function ColumnListPage() {
 
           {/* 右サイドバー */}
           <div className="hidden lg:block">
-            <RightSidebar />
+            <ColumnSidebar />
           </div>
         </div>
       </div>

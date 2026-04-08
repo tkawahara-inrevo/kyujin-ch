@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
+import type { WorkingHoursDetail } from "@/lib/job-pending";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { EMPLOYMENT_LABELS, OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { graduationYearLabel } from "@/lib/graduation-years";
@@ -36,6 +37,38 @@ function formatWorkLocation(location?: string | null, officeDetail?: string | nu
   if (!detail) return base;
   if (detail.startsWith(base)) return detail;
   return `${base} ${detail}`;
+}
+
+function formatWorkingHoursDetail(type: string | null | undefined, detail: WorkingHoursDetail | null | undefined): string | null {
+  if (!type || !detail) return null;
+  const fmt = (h: number | null, m: number | null) =>
+    h != null && m != null ? `${h}:${String(m).padStart(2, "0")}` : null;
+  const lines: string[] = [];
+  if (type === "固定時間制") {
+    const start = fmt(detail.scheduledStartHour, detail.scheduledStartMin);
+    const end = fmt(detail.scheduledEndHour, detail.scheduledEndMin);
+    if (start && end) lines.push(`所定時間: ${start}〜${end}`);
+    if (detail.maxWorkHour != null) lines.push(`実働: ${detail.maxWorkHour}時間${detail.maxWorkMin ?? 0}分`);
+  } else if (type === "シフト制") {
+    if (detail.maxWorkHour != null) lines.push(`実働: ${detail.maxWorkHour}時間${detail.maxWorkMin ?? 0}分`);
+  } else if (type === "フレックスタイム制") {
+    if (detail.hasCoretime) {
+      const cs = fmt(detail.coretimeStartHour, detail.coretimeStartMin);
+      const ce = fmt(detail.coretimeEndHour, detail.coretimeEndMin);
+      if (cs && ce) lines.push(`コアタイム: ${cs}〜${ce}`);
+    } else {
+      lines.push("コアタイムなし");
+    }
+    if (detail.standardWorkHour != null) lines.push(`標準労働時間: ${detail.standardWorkHour}時間${detail.standardWorkMin ?? 0}分`);
+  } else if (type === "裁量労働制") {
+    if (detail.discretionaryType) lines.push(`制度: ${detail.discretionaryType}`);
+    if (detail.maxWorkHour != null) lines.push(`みなし労働時間: ${detail.maxWorkHour}時間${detail.maxWorkMin ?? 0}分`);
+  } else if (type === "変形労働制") {
+    if (detail.variablePeriod) lines.push(`単位期間: ${detail.variablePeriod}`);
+    if (detail.variableWorkHour != null) lines.push(`平均労働時間: ${detail.variableWorkHour}時間${detail.variableWorkMin ?? 0}分`);
+  }
+  if (detail.note) lines.push(`備考: ${detail.note}`);
+  return lines.length > 0 ? lines.join("\n") : null;
 }
 
 function SectionHeader({ title }: { title: string }) {
@@ -111,6 +144,10 @@ export default async function AdminJobDetailPage({
   const targetLabel = formatTarget(d.targetType ?? "MID_CAREER", d.graduationYear ?? null);
 
   const youthStats: YouthYearStats[] | null = Array.isArray(d.youthEmploymentStats) ? d.youthEmploymentStats : null;
+  const workingHoursDetailFormatted = formatWorkingHoursDetail(
+    d.workingHoursType,
+    d.workingHoursDetail as WorkingHoursDetail | null,
+  );
 
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
@@ -216,6 +253,8 @@ export default async function AdminJobDetailPage({
             <dl className="px-5">
               <InfoRow label="仕事内容" value={d.description} />
               <InfoRow label="応募条件" value={d.requirements} />
+              <InfoRow label="経験要件" value={d.experienceType} />
+              {d.experienceYears && <InfoRow label="必要経験年数" value={`${d.experienceYears}年以上`} />}
               <InfoRow label="求める人物像" value={d.desiredAptitude} />
               <InfoRow label="おすすめの方" value={d.recommendedFor} />
               <InfoRow label="ポジション役割" value={d.positionMission} />
@@ -230,9 +269,14 @@ export default async function AdminJobDetailPage({
               <InfoRow label="雇用期間" value={d.employmentPeriodType} />
               <InfoRow label="対象" value={targetLabel} />
               <InfoRow label="カテゴリ" value={categoryLabel} />
+              <InfoRow label="職種" value={d.jobSubcategory} />
+              <InfoRow label="勤務地名称" value={d.officeName} />
               <InfoRow label="勤務地" value={workLocation} />
+              {d.postalCode && <InfoRow label="郵便番号" value={d.postalCode} />}
+              {d.region && <InfoRow label="エリア" value={d.region} />}
               <InfoRow label="最寄・アクセス" value={d.access} />
-              <InfoRow label="勤務時間" value={d.workingHours} />
+              <InfoRow label="勤務形態" value={d.workingHoursType} />
+              <InfoRow label="勤務時間" value={d.workingHours ?? workingHoursDetailFormatted} />
               <InfoRow label="研修情報" value={d.trainingInfo} />
               <InfoRow label="掲載終了日" value={d.closingDate ? new Date(d.closingDate).toLocaleDateString("ja-JP") : null} />
             </dl>
@@ -243,13 +287,16 @@ export default async function AdminJobDetailPage({
             <SectionHeader title="雇用情報" />
             <dl className="px-5">
               <InfoRow label="給与" value={salaryRange} />
-              {d.monthlySalary && <InfoRow label="想定年収" value={d.monthlySalary} />}
+              {d.annualSalary && <InfoRow label="税込年収" value={d.annualSalary} />}
+              {d.monthlySalary && <InfoRow label="想定月収" value={d.monthlySalary} />}
+              {d.salaryNote && <InfoRow label="給与備考" value={d.salaryNote} />}
               {d.salaryType === "annual" && d.annualPaymentMethod && (
                 <InfoRow label="支払方法" value={d.annualPaymentMethod === "monthly" ? "年俸の1/12を毎月支給" : "そのほか"} />
               )}
               {d.annualPaymentNote && <InfoRow label="支払方法補足" value={d.annualPaymentNote} />}
               <InfoRow label="昇給" value={d.salaryRevision} />
               {d.salaryType !== "annual" && <InfoRow label="賞与" value={d.bonus} />}
+              {d.bonusNote && <InfoRow label="賞与備考" value={d.bonusNote} />}
               {d.hasFixedOvertime != null && (
                 <InfoRow label="みなし残業">
                   <span>{d.hasFixedOvertime ? "あり" : "なし"}</span>
@@ -311,6 +358,7 @@ export default async function AdminJobDetailPage({
                   </InfoRow>
                 )}
                 <InfoRow label="詳細" value={d.holidayPolicy} />
+                <InfoRow label="備考" value={d.holidayNote} />
               </dl>
             </div>
           )}

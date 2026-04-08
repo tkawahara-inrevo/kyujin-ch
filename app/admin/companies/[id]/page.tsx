@@ -6,6 +6,7 @@ import { getDisplayFirstName, getDisplayLastName } from "@/lib/company-account";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { CompanyActiveToggle } from "../company-active-toggle";
 import CompanyEditForm from "./company-edit-form";
+import PasswordResetForm from "./password-reset-form";
 
 export default async function AdminCompanyDetailPage({
   params,
@@ -73,6 +74,9 @@ export default async function AdminCompanyDetailPage({
             <InfoRow label="メール" value={company.companyUser?.email || "未設定"} />
             <InfoRow label="電話番号" value={company.companyUser?.phone || "未設定"} />
           </dl>
+          <div className="mt-5 border-t border-[#f0f0f0] pt-4">
+            <PasswordResetForm companyId={company.id} />
+          </div>
         </div>
       </div>
 

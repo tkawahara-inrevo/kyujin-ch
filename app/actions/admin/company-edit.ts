@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { buildContactFullName } from "@/lib/company-account";
 import { prisma } from "@/lib/prisma";
@@ -95,4 +96,22 @@ export async function updateCompanyByAdmin(
 
   revalidatePath(`/admin/companies/${companyId}`);
   revalidatePath("/admin/companies");
+}
+
+export async function resetCompanyPasswordByAdmin(companyId: string, newPassword: string) {
+  await requireAdminAction();
+
+  if (!newPassword || newPassword.length < 8) throw new Error("パスワードは8文字以上で入力してください");
+
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { companyUserId: true },
+  });
+  if (!company?.companyUserId) throw new Error("企業担当ユーザーが見つかりません");
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({
+    where: { id: company.companyUserId },
+    data: { password: hashed },
+  });
 }

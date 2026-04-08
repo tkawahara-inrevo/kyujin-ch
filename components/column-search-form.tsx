@@ -20,7 +20,7 @@ export function ColumnSearchForm() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         className="flex-1 rounded-[4px] border border-[#ccc] bg-[#fafafa] px-2 py-1 text-[12px] text-[#666] outline-none focus:border-[#2f6cff]"
-        placeholder="キッチン、エンジニア"
+        placeholder=""
       />
     </form>
   );

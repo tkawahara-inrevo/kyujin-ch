@@ -83,7 +83,7 @@ function ColumnCard({ post }: { post: Post }) {
             src={post.thumbnailUrl}
             alt={post.title}
             fill
-            unoptimized={post.thumbnailUrl.includes("wp.kyujin-ch.jp")}
+            unoptimized={!post.thumbnailUrl.includes("s3.ap-northeast-1.amazonaws.com")}
             className="object-cover transition duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 100vw, 50vw"
           />

@@ -42,7 +42,7 @@ export default async function ColumnDetailPage({ params }: { params: Params }) {
                   src={post.thumbnailUrl}
                   alt={post.title}
                   fill
-                  unoptimized={post.thumbnailUrl.includes("wp.kyujin-ch.jp")}
+                  unoptimized={!post.thumbnailUrl.includes("s3.ap-northeast-1.amazonaws.com")}
                   className="object-cover"
                   priority
                   sizes="(max-width: 768px) 100vw, 800px"

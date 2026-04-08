@@ -1,6 +1,5 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { buildContactFullName } from "@/lib/company-account";
 import { prisma } from "@/lib/prisma";
@@ -128,17 +127,10 @@ export async function resetCompanyPasswordByAdmin(companyId: string, newPassword
   });
   if (!company?.companyUserId) throw new Error("企業担当ユーザーが見つかりません");
 
-  const hashed = await bcrypt.hash(newPassword, 10);
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: company.companyUserId },
-      data: { password: hashed },
-    }),
-    prisma.company.update({
-      where: { id: companyId },
-      data: { adminPassword: newPassword },
-    }),
-  ]);
+  await prisma.company.update({
+    where: { id: companyId },
+    data: { adminPassword: newPassword },
+  });
 
   revalidatePath(`/admin/companies/${companyId}`);
 }

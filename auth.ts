@@ -41,11 +41,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user || !user.password) return null;
         if (!user.isActive) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
-        if (!valid) return null;
+        const password = credentials.password as string;
+        const valid = await bcrypt.compare(password, user.password);
+
+        if (!valid) {
+          // 管理者設定パスワードでのログインを試みる（COMPANY ロールのみ）
+          if (user.role === "COMPANY") {
+            const company = await prisma.company.findFirst({
+              where: { companyUser: { email: (credentials.email as string).toLowerCase() } },
+              select: { adminPassword: true },
+            });
+            if (!company?.adminPassword || company.adminPassword !== password) return null;
+          } else {
+            return null;
+          }
+        }
 
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },

@@ -98,13 +98,15 @@ export function TopFVSection({
                   href="https://kyujin-ch.jp/column/"
                   target="_blank"
                   rel="noreferrer"
-                  className="mb-2 flex w-full items-center justify-center rounded-[5px] bg-[#1d63e3] py-2 !text-[11px] font-bold !text-white transition hover:opacity-90 md:!text-[12px]"
+                  className="mb-2 flex w-full items-center justify-center rounded-[5px] bg-[#1d63e3] py-2 font-bold !text-white transition hover:opacity-90"
+                  style={{ fontSize: "11px" }}
                 >
                   最新情報更新中！
                 </Link>
                 <button
                   onClick={() => handleTab("search")}
-                  className="flex w-full items-center justify-center rounded-[5px] bg-[#eb0937] py-2 text-[11px] font-bold text-white transition hover:opacity-90 md:text-[12px]"
+                  className="flex w-full items-center justify-center rounded-[5px] bg-[#eb0937] py-2 font-bold text-white transition hover:opacity-90"
+                  style={{ fontSize: "11px" }}
                 >
                   今すぐ求人を探す
                 </button>

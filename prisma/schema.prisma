@@ -157,6 +157,7 @@ model Company {
   addressLine   String?
   isActive      Boolean  @default(true)
   isTest        Boolean  @default(false)
+  adminPassword String?  // 管理者が設定したパスワード（平文・確認用）
   companyUserId String?  @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -94,7 +94,7 @@ function ColumnCard({ post }: { post: Post }) {
         )}
         {/* 新着バッジ（7日以内） */}
         {isNew(post.publishedAt ?? post.createdAt) && (
-          <span className="absolute right-2 top-2 rounded-[4px] bg-[#ff3158] px-2 py-[3px] text-[11px] font-bold text-white">
+          <span className="absolute right-0 top-0 rounded-bl-[6px] bg-[#1d63e3] px-3 py-[3px] text-[11px] font-semibold text-white">
             新着
           </span>
         )}
@@ -105,10 +105,12 @@ function ColumnCard({ post }: { post: Post }) {
         {/* タグ */}
         {post.tags.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1.5">
-            {post.tags.map((tag) => (
+            {post.tags.map((tag, i) => (
               <span
                 key={tag}
-                className="rounded-full bg-[#eef2f7] px-2.5 py-[3px] text-[10px] font-bold text-[#475467]"
+                className={`rounded-full px-3 py-[3px] text-[11px] font-semibold ${
+                  i === 0 ? "bg-[#333] text-white" : "bg-[#e5e5e5] text-[#333]"
+                }`}
               >
                 {tag}
               </span>

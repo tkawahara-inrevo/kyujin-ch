@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { ColumnSearchForm } from "./column-search-form";
+import Link from "next/link";
 import { SidebarAuthButtons } from "./sidebar-auth-buttons";
 
 // Figmaに合わせた固定タグ分類
@@ -60,8 +61,17 @@ export async function ColumnSidebar() {
         </div>
 
         {/* 区切り線 + 認証ボタン */}
-        <div className="border-t border-[#e5e5e5] pt-2">
-          {isLoggedIn ? null : <SidebarAuthButtons />}
+        <div className="border-t border-[#e5e5e5] pt-3 space-y-1">
+          {isLoggedIn ? (
+            <Link
+              href="/mypage"
+              className="flex w-full items-center gap-3 rounded-[8px] px-2 py-2.5 text-[13px] font-semibold text-[#333] transition hover:bg-[#f7f7f7]"
+            >
+              マイページ
+            </Link>
+          ) : (
+            <SidebarAuthButtons />
+          )}
         </div>
       </div>
     </aside>

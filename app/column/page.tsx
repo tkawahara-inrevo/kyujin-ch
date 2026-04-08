@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/header";
+import { ColumnHero } from "@/components/column-hero";
 import { ColumnSidebar } from "@/components/column-sidebar";
 import { Footer } from "@/components/footer";
 import { prisma } from "@/lib/prisma";
@@ -26,6 +27,7 @@ export default async function ColumnListPage({
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
       <Header />
+      <ColumnHero defaultQ={q ?? ""} />
 
       <div className="mx-auto max-w-[1200px] px-4 py-8 md:px-6">
         <div className="grid gap-8 lg:grid-cols-[1fr_260px]">

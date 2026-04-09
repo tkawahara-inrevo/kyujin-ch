@@ -8,7 +8,7 @@ import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { isJobPublished } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { postToSlack } from "@/lib/slack";
+import { postJobReviewSlack } from "@/lib/slack";
 
 async function getCompany() {
   const session = await auth();
@@ -322,7 +322,7 @@ export async function createJob(data: JobData, submissionMode: JobSubmissionMode
   revalidatePath("/admin/jobs");
 
   if (submissionMode === "review") {
-    await postToSlack(
+    await postJobReviewSlack(
       `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${job.id}`
     );
   }
@@ -379,7 +379,7 @@ export async function updateJob(
     revalidatePath("/jobs");
 
     if (submissionMode === "review") {
-      await postToSlack(
+      await postJobReviewSlack(
         `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${jobId}`
       );
     }

@@ -163,8 +163,8 @@ export function CompanySidebar() {
           onClick={() => setIsOpen(false)}
           className="flex items-center gap-2 text-[18px] font-bold text-[#20242d]"
         >
-          <Image src="/assets/Person.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
-          <span className="whitespace-nowrap">企業ちゃんねる</span>
+          <Image src="/favicon-32.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+          <span className="whitespace-nowrap">求人ちゃんねる</span>
         </Link>
         <div className="w-10" />
       </div>
@@ -184,8 +184,8 @@ export function CompanySidebar() {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 text-[18px] font-bold text-[#20242d]"
               >
-                <Image src="/assets/Person.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
-                <span className="whitespace-nowrap">企業ちゃんねる</span>
+                <Image src="/favicon-32.png" alt="" width={34} height={34} className="h-8 w-8 object-contain" />
+                <span className="whitespace-nowrap">求人ちゃんねる</span>
               </Link>
               <button
                 type="button"
@@ -217,8 +217,8 @@ export function CompanySidebar() {
         <aside className="hidden w-[272px] shrink-0 flex-col border-r border-[#edf0f5] bg-white xl:flex">
           <div className="flex h-[120px] items-center border-b border-[#edf0f5] px-8">
             <Link href="/company/dashboard" className="flex items-center gap-3 text-[20px] font-bold text-[#20242d]">
-              <Image src="/assets/Person.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
-              <span className="whitespace-nowrap">企業ちゃんねる</span>
+              <Image src="/favicon-32.png" alt="" width={38} height={38} className="h-9 w-9 object-contain" />
+              <span className="whitespace-nowrap">求人ちゃんねる</span>
             </Link>
           </div>
           {navContent}

@@ -9,9 +9,21 @@ export async function requireCompany() {
   return session;
 }
 
+export function isAdminRole(role?: string | null) {
+  return role === "ADMIN" || role === "SUPER_ADMIN";
+}
+
 export async function requireAdmin() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !isAdminRole(session.user.role)) {
+    redirect("/admin/login");
+  }
+  return session;
+}
+
+export async function requireSuperAdmin() {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") {
     redirect("/admin/login");
   }
   return session;
@@ -20,7 +32,7 @@ export async function requireAdmin() {
 export async function requireColumnEditor() {
   const session = await auth();
   const role = session?.user?.role;
-  if (!session?.user?.id || (role !== "ADMIN" && role !== "SEO_EDITOR")) {
+  if (!session?.user?.id || (!isAdminRole(role) && role !== "SEO_EDITOR")) {
     redirect("/admin/login");
   }
   return session;

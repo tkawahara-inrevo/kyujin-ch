@@ -34,9 +34,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: (credentials.email as string).toLowerCase() },
-        });
+        const identifier = (credentials.email as string).trim();
+        const isEmailFormat = identifier.includes("@");
+
+        const user = isEmailFormat
+          ? await prisma.user.findUnique({ where: { email: identifier.toLowerCase() } })
+          : await prisma.user.findFirst({
+              where: {
+                username: identifier.toLowerCase(),
+                role: { in: ["ADMIN", "SUPER_ADMIN", "SEO_EDITOR"] },
+              },
+            });
 
         if (!user || !user.password) return null;
         if (!user.isActive) return null;

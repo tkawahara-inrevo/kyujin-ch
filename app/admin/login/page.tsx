@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [adminId, setAdminId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,11 +16,11 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", { email, password, redirect: false });
+    const result = await signIn("credentials", { email: adminId, password, redirect: false });
     setLoading(false);
 
     if (result?.error) {
-      setError("メールアドレスまたはパスワードが正しくありません");
+      setError("IDまたはパスワードが正しくありません");
       return;
     }
 
@@ -37,8 +37,8 @@ export default function AdminLoginPage() {
         </div>
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">メールアドレス</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full rounded-[8px] border border-[#ddd] px-4 py-3 text-[14px] outline-none focus:border-[#1e293b]" />
+            <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">管理者ID</label>
+            <input type="text" value={adminId} onChange={(e) => setAdminId(e.target.value)} required className="w-full rounded-[8px] border border-[#ddd] px-4 py-3 text-[14px] outline-none focus:border-[#1e293b]" placeholder="IDまたはメールアドレス" />
           </div>
           <div>
             <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">パスワード</label>

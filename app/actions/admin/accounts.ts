@@ -10,7 +10,8 @@ import { Prisma } from "@prisma/client";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") throw new Error("Unauthorized");
+  const role = session?.user?.role;
+  if (!session?.user?.id || (role !== "ADMIN" && role !== "SUPER_ADMIN")) throw new Error("Unauthorized");
   return session.user.id;
 }
 

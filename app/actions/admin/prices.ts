@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache";
 
 async function requireAdminAction() {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  const role = session?.user?.role;
+  if (!session?.user?.id || (role !== "ADMIN" && role !== "SUPER_ADMIN")) {
     throw new Error("Unauthorized");
   }
   return session;

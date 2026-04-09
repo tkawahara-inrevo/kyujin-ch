@@ -4,21 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
+import type { AdminPermissions } from "@/lib/admin-permissions";
 
-const navItems = [
-  { href: "/admin/dashboard", label: "ダッシュボード", icon: "📊" },
-  { href: "/admin/companies", label: "企業一覧", icon: "🏢" },
-  { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤" },
-  { href: "/admin/jobs", label: "求人一覧", icon: "📄" },
-  { href: "/admin/columns", label: "コラム管理", icon: "📝" },
-  { href: "/admin/billing", label: "請求単価管理", icon: "💳" },
-  { href: "/admin/invoices", label: "請求一覧", icon: "🧮" },
-  { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠" },
-  { href: "/admin/inquiries", label: "問い合わせ", icon: "📨" },
-  { href: "/admin/analytics", label: "分析", icon: "📈" },
-];
+const NAV_ITEMS = [
+  { href: "/admin/dashboard", label: "ダッシュボード", icon: "📊", key: "dashboard" },
+  { href: "/admin/companies", label: "企業一覧", icon: "🏢", key: "companies" },
+  { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤", key: "jobseekers" },
+  { href: "/admin/jobs", label: "求人一覧", icon: "📄", key: "jobs" },
+  { href: "/admin/columns", label: "コラム管理", icon: "📝", key: "columns" },
+  { href: "/admin/billing", label: "請求単価管理", icon: "💳", key: "billing" },
+  { href: "/admin/invoices", label: "請求一覧", icon: "🧮", key: "invoices" },
+  { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠", key: "invalidRequests" },
+  { href: "/admin/inquiries", label: "問い合わせ", icon: "📨", key: "inquiries" },
+  { href: "/admin/analytics", label: "分析", icon: "📈", key: "analytics" },
+] as const;
 
-export function AdminSidebar() {
+type Props = {
+  isSuperAdmin: boolean;
+  permissions: AdminPermissions;
+};
+
+export function AdminSidebar({ isSuperAdmin, permissions }: Props) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,11 +35,15 @@ export function AdminSidebar() {
     };
   }, [isOpen]);
 
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => isSuperAdmin || permissions[item.key as keyof AdminPermissions]
+  );
+
   const navContent = (
     <>
       <nav className="flex-1 px-3 py-4">
         <ul className="space-y-1">
-          {navItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <li key={item.href}>
@@ -52,6 +62,23 @@ export function AdminSidebar() {
               </li>
             );
           })}
+
+          {isSuperAdmin && (
+            <li>
+              <Link
+                href="/admin/accounts"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] font-medium transition ${
+                  pathname === "/admin/accounts" || pathname.startsWith("/admin/accounts/")
+                    ? "bg-[#2f6cff]/10 font-semibold text-[#2f6cff]"
+                    : "text-[#555] hover:bg-[#f7f7f7]"
+                }`}
+              >
+                <span className="text-[16px]">👥</span>
+                <span>アカウント管理</span>
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
 

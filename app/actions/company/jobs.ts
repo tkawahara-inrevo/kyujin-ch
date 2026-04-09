@@ -8,15 +8,21 @@ import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
 import { isJobPublished } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { postToSlack } from "@/lib/slack";
 
-async function getCompanyId() {
+async function getCompany() {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
   const company = await prisma.company.findFirst({
     where: { companyUserId: session.user.id },
+    select: { id: true, name: true },
   });
   if (!company) throw new Error("Company not found");
-  return company.id;
+  return company;
+}
+
+async function getCompanyId() {
+  return (await getCompany()).id;
 }
 
 export type JobSubmissionMode = "draft" | "review";
@@ -308,12 +314,19 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
 }
 
 export async function createJob(data: JobData, submissionMode: JobSubmissionMode): Promise<string> {
-  const companyId = await getCompanyId();
+  const company = await getCompany();
   const job = await prisma.job.create({
-    data: { companyId, ...toLiveJobPrismaData(data, submissionMode) },
+    data: { companyId: company.id, ...toLiveJobPrismaData(data, submissionMode) },
   });
   revalidatePath("/company/jobs");
   revalidatePath("/admin/jobs");
+
+  if (submissionMode === "review") {
+    await postToSlack(
+      `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${job.id}`
+    );
+  }
+
   return job.id;
 }
 
@@ -323,7 +336,8 @@ export async function updateJob(
   submissionMode: JobSubmissionMode,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const companyId = await getCompanyId();
+    const company = await getCompany();
+    const companyId = company.id;
     const job = await prisma.job.findFirst({
       where: { id: jobId, companyId, isDeleted: false },
       select: {
@@ -363,6 +377,12 @@ export async function updateJob(
     revalidatePath(`/admin/jobs/${jobId}`);
     revalidatePath("/");
     revalidatePath("/jobs");
+
+    if (submissionMode === "review") {
+      await postToSlack(
+        `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${jobId}`
+      );
+    }
 
     return { ok: true };
   } catch (err) {

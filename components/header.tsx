@@ -78,7 +78,13 @@ export async function Header() {
             </div>
           </>
         ) : (
-          <HeaderAuthButtons />
+          <>
+            <HeaderAuthButtons hideMobile />
+            {/* Mobile: 切り替えボタン */}
+            <div className="flex items-center md:hidden">
+              <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
+            </div>
+          </>
         )}
       </div>
 

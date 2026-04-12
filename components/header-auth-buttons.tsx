@@ -5,7 +5,7 @@ import { AuthDialog } from "./auth-dialog";
 
 type Mode = "register" | "login";
 
-export function HeaderAuthButtons() {
+export function HeaderAuthButtons({ hideMobile }: { hideMobile?: boolean } = {}) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("register");
 
@@ -41,7 +41,7 @@ export function HeaderAuthButtons() {
       </div>
 
       {/* Mobile: アイコンのみ */}
-      <div className="flex items-center gap-2 md:hidden">
+      <div className={`flex items-center gap-2 md:hidden ${hideMobile ? "hidden" : ""}`}>
         <button
           onClick={() => openDialog("register")}
           className="p-1.5 text-[#333]"

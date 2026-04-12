@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { HeaderAuthNav } from "./header-auth-nav";
 import { HeaderAuthButtons } from "./header-auth-buttons";
-import { HeaderTargetBadge } from "./header-target-badge";
+import { HeaderTargetBadge, MobileTargetSwitchButton } from "./header-target-badge";
 import { UserMessageBadge } from "./user-message-badge";
 import { getActiveGraduationYears } from "@/lib/graduation-years";
 
@@ -72,13 +72,9 @@ export async function Header() {
               ))}
               <HeaderAuthNav />
             </nav>
-            {/* Mobile: メッセージ + ログアウト */}
-            <div className="flex items-center gap-1 md:hidden">
-              <Link href="/messages" className="relative p-1.5 text-[#444]">
-                <Image src="/assets/Chat_Circle.png" alt="メッセージ" width={22} height={22} className="object-contain" />
-                <UserMessageBadge className="absolute right-0 top-0 h-[16px] min-w-[16px] px-1 text-[10px]" />
-              </Link>
-              <HeaderAuthNav />
+            {/* Mobile: 切り替えボタン */}
+            <div className="flex items-center md:hidden">
+              <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
             </div>
           </>
         ) : (

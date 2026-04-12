@@ -154,13 +154,18 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
 
   return (
     <div className="relative">
-      {/* メインバッジ（クリックでドロップダウン） */}
+      {/* モバイル：ラベルのみ（非インタラクティブ） */}
+      <span className={`${badgeBg} flex items-center rounded-full px-3 py-[5px] text-[11px] font-bold text-white md:hidden`}>
+        {badgeLabel}
+      </span>
+
+      {/* デスクトップ：クリックでドロップダウン */}
       <button
         onClick={(e) => {
           e.stopPropagation();
           setOpen(!open);
         }}
-        className={`${badgeBg} flex items-center gap-1 rounded-full px-3 py-[5px] text-[11px] font-bold text-white transition hover:opacity-90 md:px-4 md:text-[12px]`}
+        className={`${badgeBg} hidden items-center gap-1 rounded-full px-4 py-[5px] text-[12px] font-bold text-white transition hover:opacity-90 md:flex`}
       >
         {badgeLabel}
         <svg
@@ -178,7 +183,7 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
         </svg>
       </button>
 
-      {/* ドロップダウン */}
+      {/* ドロップダウン（デスクトップのみ） */}
       {open && (
         <div className="absolute left-0 top-full z-50 mt-1 min-w-[120px] rounded-[10px] border border-[#e8e8e8] bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.10)]">
           {options.map((opt) => (

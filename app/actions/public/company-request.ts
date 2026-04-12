@@ -175,10 +175,12 @@ export async function submitCompanyRequest(formData: {
   const loginUrl = `${process.env.NEXTAUTH_URL ?? "https://kyujin-ch.jp"}/company/login`;
 
   // メール送付 → Slack通知
-  await sendTransactionalEmail({
-    to: email,
-    subject: "【求人ちゃんねる】アカウントが発行されました",
-    html: `
+  let emailError: string | null = null;
+  try {
+    await sendTransactionalEmail({
+      to: email,
+      subject: "【求人ちゃんねる】アカウントが発行されました",
+      html: `
 <p>${lastName} ${firstName} 様</p>
 <p>この度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。</p>
 <p>法人情報が確認できましたので、企業アカウントを発行いたしました。<br>
@@ -191,13 +193,18 @@ export async function submitCompanyRequest(formData: {
 <p>初回ログイン後、パスワードを変更してください。</p>
 <br>
 <p>求人ちゃんねる 運営事務局</p>
-    `.trim(),
-    text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
-  });
+      `.trim(),
+      text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
+    });
+  } catch (err) {
+    emailError = err instanceof Error ? err.message : String(err);
+    console.error("[company-request] メール送信失敗:", emailError, "宛先:", email);
+  }
 
   await postToSlack(
     `以下の企業のアカウントを自動発行しました\n` +
-    `---\n${companyInfo}\n---`
+    `---\n${companyInfo}\n---` +
+    (emailError ? `\n⚠️ メール送信失敗: ${emailError}` : "")
   );
 
   return { status: "issued", companyId, temporaryPassword };

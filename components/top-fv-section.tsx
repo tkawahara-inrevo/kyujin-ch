@@ -18,17 +18,18 @@ type Props = {
   categoryGroups?: CategoryGroup[];
 };
 
-const CATEGORY_NAV = [
-  { label: "IT",         icon: "/assets/Engineer.png",  category: "IT" },
-  { label: "デザイナー",  icon: "/assets/Design.png",    category: "デザイナー" },
-  { label: "営業",        icon: "/assets/List.png",      category: "営業" },
-  { label: "企画/マーケ", icon: "/assets/Graph.png",     category: "企画/マーケティング" },
-  { label: "事務・管理",  icon: "/assets/Bag.png",       category: "コーポレートスタッフ" },
-  { label: "経理",        icon: "/assets/Paper.png",     category: "経理" },
-  { label: "販売/サービス", icon: "/assets/Talk_01.png", category: "販売/サービス" },
-  { label: "クリエイティブ", icon: "/assets/Online.png", category: "クリエイティブ" },
-  { label: "その他",      icon: "/assets/Resume.png",    category: "その他" },
-];
+// 料金表の大項目名 → アイコン + 表示ラベルのマッピング
+const CATEGORY_META: Record<string, { icon: string; label: string }> = {
+  "IT":               { icon: "/assets/Engineer.png", label: "IT" },
+  "デザイナー":        { icon: "/assets/Design.png",   label: "デザイナー" },
+  "営業":              { icon: "/assets/Bag.png",      label: "営業" },
+  "企画/マーケティング": { icon: "/assets/Graph.png",  label: "企画/マーケ" },
+  "事務・管理":        { icon: "/assets/List.png",     label: "事務・管理" },
+  "経理":              { icon: "/assets/Paper.png",    label: "経理" },
+  "販売/サービス":     { icon: "/assets/Talk_01.png",  label: "販売/サービス" },
+  "クリエイティブ":    { icon: "/assets/Online.png",   label: "クリエイティブ" },
+  "その他":            { icon: "/assets/Resume.png",   label: "その他" },
+};
 
 export function TopFVSection({
   hasSearchFilter,
@@ -134,29 +135,35 @@ export function TopFVSection({
         />
       )}
 
-      {/* カテゴリナビ */}
+      {/* カテゴリナビ（料金表の大項目に紐づく） */}
       <div className="mx-auto max-w-[1200px] px-4 py-4 md:px-6 md:py-6">
         <div className="flex flex-wrap justify-center gap-3 md:gap-6">
-          {CATEGORY_NAV.map(({ label, icon, category }) => (
-            <Link
-              key={label}
-              href={`/jobs?category=${encodeURIComponent(category)}`}
-              className="flex flex-col items-center gap-1.5 transition-opacity hover:opacity-70"
-            >
-              <div className="flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-sm md:h-[64px] md:w-[64px]">
-                <Image
-                  src={icon}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="object-contain md:h-[34px] md:w-[34px]"
-                />
-              </div>
-              <span className="text-[10px] font-semibold text-[#555] md:text-[11px]">
-                {label}
-              </span>
-            </Link>
-          ))}
+          {categoryGroups.map(({ category }) => {
+            const meta = CATEGORY_META[category] ?? {
+              icon: "/assets/Resume.png",
+              label: category,
+            };
+            return (
+              <Link
+                key={category}
+                href={`/jobs?category=${encodeURIComponent(category)}`}
+                className="flex flex-col items-center gap-1.5 transition-opacity hover:opacity-70"
+              >
+                <div className="flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-sm md:h-[64px] md:w-[64px]">
+                  <Image
+                    src={meta.icon}
+                    alt=""
+                    width={28}
+                    height={28}
+                    className="object-contain md:h-[34px] md:w-[34px]"
+                  />
+                </div>
+                <span className="text-[10px] font-semibold text-[#555] md:text-[11px]">
+                  {meta.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

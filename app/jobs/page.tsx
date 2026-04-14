@@ -21,6 +21,7 @@ type SearchParams = Promise<{
   prefectures?: string;
   tag?: string;
   category?: string;
+  subcategory?: string;
   employmentType?: string;
   target?: string;
   sort?: string;
@@ -39,6 +40,7 @@ export default async function JobsPage({
   const prefectures = search.prefectures ? search.prefectures.split(",").filter(Boolean) : [];
   const tag = normalizeTextParam(search.tag);
   const category = normalizeCategoryParam(search.category);
+  const subcategory = normalizeTextParam(search.subcategory);
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
   const target = normalizeTextParam(search.target);
   const sort = normalizeTextParam(search.sort);
@@ -53,6 +55,7 @@ export default async function JobsPage({
     ...buildPublishedJobSearchWhere({
       q,
       category,
+      subcategory,
       employmentType,
       prefectures,
       target,
@@ -90,6 +93,7 @@ export default async function JobsPage({
     if (prefectures.length > 0) params.set("prefectures", prefectures.join(","));
     if (tag) params.set("tag", tag);
     if (category) params.set("category", category);
+    if (subcategory) params.set("subcategory", subcategory);
     if (employmentType) params.set("employmentType", employmentType);
     if (experience) params.set("experience", experience);
     if (salary) params.set("salary", salary);
@@ -107,6 +111,7 @@ export default async function JobsPage({
         activeTab="search"
         defaultQ={q}
         defaultCategory={category}
+        defaultSubcategory={subcategory}
         defaultEmploymentType={employmentType}
         defaultPrefectures={prefectures}
         defaultExperience={experience}

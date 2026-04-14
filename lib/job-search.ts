@@ -7,7 +7,8 @@ const EMPLOYMENT_TYPE_VALUES = new Set(
 
 export type JobSearchInput = {
   q?: string;
-  category?: string;
+  category?: string;    // 大項目 (categoryTag)
+  subcategory?: string; // 小項目 (jobSubcategory)
   employmentType?: string;
   prefectures?: string[];
   target?: string;
@@ -92,6 +93,7 @@ export function buildPublishedJobSearchWhere(
 ): Prisma.JobWhereInput {
   const q = normalizeTextParam(input.q);
   const category = normalizeCategoryParam(input.category);
+  const subcategory = normalizeTextParam(input.subcategory);
   const employmentType = normalizeEmploymentTypeParam(input.employmentType);
   const prefectures = (input.prefectures ?? []).filter(Boolean);
   const experience = normalizeTextParam(input.experience);
@@ -129,6 +131,10 @@ export function buildPublishedJobSearchWhere(
 
   if (category) {
     andConditions.push({ categoryTag: { contains: category, mode: "insensitive" } });
+  }
+
+  if (subcategory) {
+    andConditions.push({ jobSubcategory: { contains: subcategory, mode: "insensitive" } });
   }
 
   return {

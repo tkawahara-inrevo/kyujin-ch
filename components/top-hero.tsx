@@ -10,7 +10,8 @@ import type { CategoryGroup } from "@/lib/price-categories";
 type Props = {
   activeTab?: "news" | "search";
   defaultQ?: string;
-  defaultCategory?: string;
+  defaultCategory?: string;    // 大項目
+  defaultSubcategory?: string; // 小項目
   defaultEmploymentType?: string;
   defaultPrefectures?: string[];
   defaultExperience?: string;
@@ -20,13 +21,6 @@ type Props = {
   includeSearchTabParam?: boolean;
   showTabs?: boolean;
 };
-
-function findGroupForCategory(cat: string, groups: CategoryGroup[]): string {
-  for (const g of groups) {
-    if (g.subcategories.includes(cat)) return g.category;
-  }
-  return "";
-}
 
 // 都道府県マルチセレクト（クリックで下にドロップダウン）
 function PrefectureMultiSelect({
@@ -100,6 +94,7 @@ export function TopHero({
   activeTab = "news",
   defaultQ = "",
   defaultCategory = "",
+  defaultSubcategory = "",
   defaultEmploymentType = "",
   defaultPrefectures = [],
   defaultExperience = "",
@@ -111,21 +106,21 @@ export function TopHero({
 }: Props) {
   const router = useRouter();
   const [q, setQ] = useState(defaultQ);
-  const [categoryGroup, setCategoryGroup] = useState(() => findGroupForCategory(defaultCategory, categoryGroups));
-  const [category, setCategory] = useState(defaultCategory);
+  const [categoryGroup, setCategoryGroup] = useState(defaultCategory);
+  const [subcategory, setSubcategory] = useState(defaultSubcategory);
   const [employmentType, setEmploymentType] = useState(defaultEmploymentType);
   const [experience, setExperience] = useState(defaultExperience);
   const [salary, setSalary] = useState(defaultSalary);
   const [prefectures, setPrefectures] = useState<string[]>(defaultPrefectures);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(
-    Boolean(defaultCategory || defaultEmploymentType || defaultPrefectures.length || defaultExperience || defaultSalary),
+    Boolean(defaultCategory || defaultSubcategory || defaultEmploymentType || defaultPrefectures.length || defaultExperience || defaultSalary),
   );
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       setQ(defaultQ);
-      setCategory(defaultCategory);
-      setCategoryGroup(findGroupForCategory(defaultCategory, categoryGroups));
+      setCategoryGroup(defaultCategory);
+      setSubcategory(defaultSubcategory);
       setEmploymentType(defaultEmploymentType);
       setExperience(defaultExperience);
       setSalary(defaultSalary);
@@ -133,14 +128,14 @@ export function TopHero({
     });
     return () => window.cancelAnimationFrame(frame);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultQ, defaultCategory, defaultEmploymentType, defaultExperience, defaultSalary]);
+  }, [defaultQ, defaultCategory, defaultSubcategory, defaultEmploymentType, defaultExperience, defaultSalary]);
 
   const subcategoryOptions = useMemo(
     () => categoryGroups.find((g) => g.category === categoryGroup)?.subcategories ?? [],
     [categoryGroup, categoryGroups],
   );
 
-  const hasAdvancedFilters = Boolean(category || employmentType || experience || salary || prefectures.length > 0);
+  const hasAdvancedFilters = Boolean(categoryGroup || subcategory || employmentType || experience || salary || prefectures.length > 0);
   const borderColor = activeTab === "news" ? "border-[#3b6ff6]" : "border-[#ff5a78]";
   const backgroundColor = activeTab === "news" ? "bg-[#3b6ff6]" : "bg-[#ff5a78]";
   const actionTextColor = activeTab === "news" ? "text-[#3b6ff6]" : "text-[#ff5a78]";
@@ -159,7 +154,8 @@ export function TopHero({
     const target = getTarget();
     if (target) params.set("target", target);
     if (q.trim()) params.set("q", q.trim());
-    if (category) params.set("category", category);
+    if (categoryGroup) params.set("category", categoryGroup);
+    if (subcategory) params.set("subcategory", subcategory);
 
     if (includeAllFilters) {
       if (employmentType) params.set("employmentType", employmentType);
@@ -186,7 +182,7 @@ export function TopHero({
   function handleReset() {
     setQ("");
     setCategoryGroup("");
-    setCategory("");
+    setSubcategory("");
     setEmploymentType("");
     setExperience("");
     setSalary("");
@@ -245,7 +241,7 @@ export function TopHero({
                   <button type="submit" className={`rounded-[8px] bg-white px-8 py-2.5 text-[13px] font-bold ${actionTextColor} hover:opacity-90`}>
                     検索
                   </button>
-                  <button type="button" onClick={() => { setQ(""); setCategory(""); }} className={`rounded-[8px] border-2 border-white px-8 py-2.5 text-[13px] font-bold text-white hover:bg-white ${hoverTextColor}`}>
+                  <button type="button" onClick={() => { setQ(""); setSubcategory(""); }} className={`rounded-[8px] border-2 border-white px-8 py-2.5 text-[13px] font-bold text-white hover:bg-white ${hoverTextColor}`}>
                     リセット
                   </button>
                 </div>
@@ -276,14 +272,14 @@ export function TopHero({
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
-                      <select value={categoryGroup} onChange={(e) => { setCategoryGroup(e.target.value); setCategory(""); }} className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none">
+                      <select value={categoryGroup} onChange={(e) => { setCategoryGroup(e.target.value); setSubcategory(""); }} className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none">
                         <option value="">すべて</option>
                         {categoryGroups.map((g) => <option key={g.category} value={g.category}>{g.category}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="mb-1 block text-[11px] font-bold text-white">職種</label>
-                      <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none" disabled={!categoryGroup}>
+                      <select value={subcategory} onChange={(e) => setSubcategory(e.target.value)} className="w-full rounded-[6px] bg-white px-3 py-2.5 text-[13px] text-[#333] outline-none" disabled={!categoryGroup}>
                         <option value="">すべて</option>
                         {subcategoryOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -340,7 +336,7 @@ export function TopHero({
                     <label className="mb-1 block text-[11px] font-bold text-white">カテゴリ</label>
                     <select
                       value={categoryGroup}
-                      onChange={(e) => { setCategoryGroup(e.target.value); setCategory(""); }}
+                      onChange={(e) => { setCategoryGroup(e.target.value); setSubcategory(""); }}
                       className={selectClass}
                     >
                       <option value="">カテゴリ（すべて）</option>
@@ -352,8 +348,8 @@ export function TopHero({
                   <div>
                     <label className="mb-1 block text-[11px] font-bold text-white">職種</label>
                     <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
+                      value={subcategory}
+                      onChange={(e) => setSubcategory(e.target.value)}
                       disabled={!categoryGroup}
                       className={`${selectClass} disabled:cursor-not-allowed disabled:bg-[#f2f2f2] disabled:text-[#999]`}
                     >

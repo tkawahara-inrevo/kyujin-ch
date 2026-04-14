@@ -21,6 +21,7 @@ import { getPriceCategories } from "@/lib/price-categories";
 type SearchParams = Promise<{
   q?: string;
   category?: string;
+  subcategory?: string;
   employmentType?: string;
   location?: string;
   target?: string;
@@ -37,6 +38,7 @@ export default async function HomePage({
   const search = await searchParams;
   const q = normalizeTextParam(search.q);
   const category = normalizeCategoryParam(search.category);
+  const subcategory = normalizeTextParam(search.subcategory);
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
   const location = normalizeTextParam(search.location);
   const target = normalizeTextParam(search.target);
@@ -44,25 +46,26 @@ export default async function HomePage({
   const where = buildPublishedJobSearchWhere({
     q,
     category,
+    subcategory,
     employmentType,
     target,
   });
 
-  const [categoryGroups, featuredJobs, newJobs, jobs] = await Promise.all([
+  const [categoryGroups, featuredJobs, newJobsRaw, jobs] = await Promise.all([
     getPriceCategories(),
-    // 注目の求人: PV数+応募数が多い人気求人
+    // 注目の求人: PV数が多い人気求人
     prisma.job.findMany({
       where,
       include: { company: true, _count: { select: { applications: true } } },
       orderBy: { viewCount: "desc" },
       take: 6,
     }),
-    // 新着求人: 掲載日が新しい順
+    // 新着求人: 掲載日が新しい順（注目と重複しないよう多めに取得）
     prisma.job.findMany({
       where,
       include: { company: true },
       orderBy: { createdAt: "desc" },
-      take: 6,
+      take: 12,
     }),
     // 検索結果用（検索フィルタがある場合のみ全件取得）
     prisma.job.findMany({
@@ -72,8 +75,11 @@ export default async function HomePage({
     }),
   ]);
 
+  const featuredIds = new Set(featuredJobs.map((j) => j.id));
+  const newJobs = newJobsRaw.filter((j) => !featuredIds.has(j.id)).slice(0, 6);
+
   const activeTarget = target || "all";
-  const hasSearchFilter = !!(q || category || employmentType || location);
+  const hasSearchFilter = !!(q || category || subcategory || employmentType || location);
 
   return (
     <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
@@ -87,6 +93,7 @@ export default async function HomePage({
         isLoggedIn={isLoggedIn}
         defaultQ={q}
         defaultCategory={category}
+        defaultSubcategory={subcategory}
         defaultEmploymentType={employmentType}
         categoryGroups={categoryGroups}
       />

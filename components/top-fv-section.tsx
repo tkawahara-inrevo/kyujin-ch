@@ -14,6 +14,7 @@ type Props = {
   isLoggedIn: boolean;
   defaultQ?: string;
   defaultCategory?: string;
+  defaultSubcategory?: string;
   defaultEmploymentType?: string;
   categoryGroups?: CategoryGroup[];
 };
@@ -36,6 +37,7 @@ export function TopFVSection({
   isLoggedIn,
   defaultQ,
   defaultCategory,
+  defaultSubcategory,
   defaultEmploymentType,
   categoryGroups = [],
 }: Props) {
@@ -128,6 +130,7 @@ export function TopFVSection({
           activeTab={activeTab}
           defaultQ={defaultQ}
           defaultCategory={defaultCategory}
+          defaultSubcategory={defaultSubcategory}
           defaultEmploymentType={defaultEmploymentType}
           categoryGroups={categoryGroups}
           searchPath="/jobs"

@@ -96,6 +96,13 @@ export default async function CompanyApplicantsPage({
   return (
     <div className="px-6 py-8 md:px-12 md:py-10">
       <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">応募者管理</h1>
+      <p className="mt-3 text-[13px] text-[#555]">
+        ご利用の前に
+        <Link href="/application-notes/" target="_blank" rel="noreferrer" className="mx-1 text-[#2f6cff] underline hover:opacity-80">
+          求人ちゃんねるお申込みに関する注意事項
+        </Link>
+        をご確認ください。
+      </p>
 
       <ApplicantsListClient
         jobs={jobs}

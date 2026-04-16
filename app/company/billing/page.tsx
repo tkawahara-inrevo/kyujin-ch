@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ChargeRow } from "@/app/actions/company/billing";
 import { requireCompany } from "@/lib/auth-helpers";
 import { canSubmitInvalidRequest } from "@/lib/invalid-request-deadline";
@@ -91,6 +92,13 @@ export default async function CompanyBillingPage() {
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">請求管理</h1>
       <p className="mt-3 rounded-[10px] border border-[#dbe7ff] bg-[#f3f7ff] px-4 py-3 text-[13px] font-medium text-[#2b4ea2]">
         アカウント発行日から3ヶ月間は無料期間のため、応募が発生しても請求は発生しません。
+      </p>
+      <p className="mt-2 text-[13px] text-[#555]">
+        料金・支払条件の詳細は
+        <Link href="/application-notes/" target="_blank" rel="noreferrer" className="mx-1 text-[#2f6cff] underline hover:opacity-80">
+          求人ちゃんねるお申込みに関する注意事項
+        </Link>
+        をご確認ください。
       </p>
 
       <MonthSwitcher

@@ -16,6 +16,33 @@ const SALARY_TYPE_LABELS: Record<string, string> = {
   annual: "年俸", monthly: "月給", daily: "日給", hourly: "時給",
 };
 
+function formatFixedOvertime(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  try {
+    const fo = JSON.parse(raw);
+    const parts: string[] = [];
+    // みなし残業代
+    if (fo.payType === "fixed" && fo.payFixed) {
+      parts.push(`みなし残業代：${fo.payFixed.toLocaleString()}円/月`);
+    } else if (fo.payType === "range" && (fo.payMin || fo.payMax)) {
+      parts.push(`みなし残業代：${fo.payMin ? fo.payMin.toLocaleString() : ""}〜${fo.payMax ? fo.payMax.toLocaleString() : ""}円/月`);
+    } else if (fo.payType === "minimum" && fo.payFloor) {
+      parts.push(`みなし残業代：${fo.payFloor.toLocaleString()}円以上/月`);
+    }
+    // みなし残業時間
+    if (fo.hoursType === "fixed" && fo.hoursFixed) {
+      parts.push(`みなし残業時間：${fo.hoursFixed}時間/月`);
+    } else if (fo.hoursType === "range" && (fo.hoursMin || fo.hoursMax)) {
+      parts.push(`みなし残業時間：${fo.hoursMin ?? ""}〜${fo.hoursMax ?? ""}時間/月`);
+    }
+    // 超過分支給
+    parts.push(`超過分全額支給：${fo.excessPaid ? "あり" : "なし"}`);
+    return parts.join("　/　") || null;
+  } catch {
+    return null;
+  }
+}
+
 function formatSalaryRange(type: string | null | undefined, min?: number | null, max?: number | null) {
   const label = type ? (SALARY_TYPE_LABELS[type] ?? "") : "";
   const fmt = (n: number) => `${n.toLocaleString()}円`;
@@ -300,9 +327,10 @@ export default async function AdminJobDetailPage({
               {d.hasFixedOvertime != null && (
                 <InfoRow label="みなし残業">
                   <span>{d.hasFixedOvertime ? "あり" : "なし"}</span>
-                  {d.hasFixedOvertime && d.fixedOvertime && (
-                    <p className="mt-1 text-[12px] text-[#666]">{d.fixedOvertime}</p>
-                  )}
+                  {d.hasFixedOvertime && d.fixedOvertime && (() => {
+                    const formatted = formatFixedOvertime(d.fixedOvertime);
+                    return formatted ? <p className="mt-1 text-[12px] text-[#666]">{formatted}</p> : null;
+                  })()}
                 </InfoRow>
               )}
             </dl>

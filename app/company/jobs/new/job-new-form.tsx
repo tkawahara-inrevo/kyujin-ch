@@ -419,6 +419,11 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
+      if (!imageUrl) {
+        setValidationError("メイン画像をアップロードしてください");
+        return;
+      }
+
       if (!salaryMinVal) {
         setValidationError("給与下限を入力してください");
         return;
@@ -601,7 +606,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
               </p>
             </Field>
 
-            <Field label="メイン画像">
+            <Field label="メイン画像" required>
               <p className="mb-2 text-[13px] text-[#6b7280]">対応形式：jpg / png / webp（最大10MB）</p>
               <div className="rounded-[18px] border border-[#d9dfec] p-4">
                 <ThumbnailUpload
@@ -900,7 +905,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
             </div>
 
             <div className="flex flex-wrap gap-6">
-              {(["annual", "monthly", "daily", "hourly"] as const).map((type) => (
+              {(["monthly", "annual", "daily", "hourly"] as const).map((type) => (
                 <label key={type} className="flex cursor-pointer items-center gap-2 text-[15px]">
                   <input type="radio" name="salaryTypeRadio" checked={salaryType === type} onChange={() => { setSalaryType(type); setHasFixedOvertime(null); }} className="h-[18px] w-[18px] accent-[#1d63e3]" />
                   {type === "annual" ? "年俸" : type === "monthly" ? "月給" : type === "daily" ? "日給" : "時給"}
@@ -985,16 +990,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                         <span className="shrink-0 text-[13px] text-[#555]">円〜</span>
                         <input type="number" value={fixedOvertimePayMax} onChange={(e) => setFixedOvertimePayMax(e.target.value)} disabled={fixedOvertimePayType !== "range"} className={inputCls} placeholder="60000" />
                         <span className="shrink-0 text-[13px] text-[#555]">円</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="flex cursor-pointer items-center gap-2 text-[14px]">
-                        <input type="radio" checked={fixedOvertimePayType === "minimum"} onChange={() => setFixedOvertimePayType("minimum")} className="h-[16px] w-[16px] accent-[#1d63e3]" />
-                        最低額を表示
-                      </label>
-                      <div className={`mt-1.5 flex items-center gap-2 pl-6 ${fixedOvertimePayType !== "minimum" ? "opacity-40 pointer-events-none" : ""}`}>
-                        <input type="number" value={fixedOvertimePayFloor} onChange={(e) => setFixedOvertimePayFloor(e.target.value)} disabled={fixedOvertimePayType !== "minimum"} className={inputCls} placeholder="30000" />
-                        <span className="shrink-0 text-[13px] text-[#555]">円以上/月</span>
                       </div>
                     </div>
                   </div>

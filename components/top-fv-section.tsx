@@ -26,14 +26,14 @@ const CATEGORY_META: Record<string, { icon: string; label: string }> = {
   "営業":                                      { icon: "/assets/Bag.png",                 label: "営業" },
   "企画/マーケティング":                         { icon: "/assets/Graph.png",               label: "企画/マーケ" },
   "事務・管理・バックオフィス":                  { icon: "/assets/List.png",                label: "事務・管理" },
-  "専門職（コンサル・金融・公務員・インストラクター）": { icon: "/assets/Paper.png",         label: "専門職" },
-  "医療/福祉":                                  { icon: "/assets/Online.png",              label: "医療/福祉" },
+  "専門職（コンサル・金融・公務員・インストラクター）": { icon: "/assets/Professional.png",   label: "専門職" },
+  "医療/福祉":                                  { icon: "/assets/Healthcare.png",          label: "医療/福祉" },
   "販売・サービス・飲食":                        { icon: "/assets/Talk_01.png",             label: "販売・サービス" },
-  "建築・土木・設備":                            { icon: "/assets/Resume.png",              label: "建築・土木" },
-  "機械/電気/電子製品":                          { icon: "/assets/Edit_Pencil_Line_02.png", label: "機械・電気" },
-  "交通/運輸/物流":                              { icon: "/assets/Map_Pin.png",             label: "交通・物流" },
-  "不動産":                                     { icon: "/assets/en.png",                  label: "不動産" },
-  "人材サービス":                               { icon: "/assets/User_01.png",             label: "人材サービス" },
+  "建築・土木・設備":                            { icon: "/assets/Construction.png",        label: "建築・土木" },
+  "機械/電気/電子製品":                          { icon: "/assets/Engineering.png",         label: "機械・電気" },
+  "交通/運輸/物流":                              { icon: "/assets/Logistics.png",           label: "交通・物流" },
+  "不動産":                                     { icon: "/assets/Realty.png",              label: "不動産" },
+  "人材サービス":                               { icon: "/assets/Recruitment.png",         label: "人材サービス" },
 };
 
 export function TopFVSection({

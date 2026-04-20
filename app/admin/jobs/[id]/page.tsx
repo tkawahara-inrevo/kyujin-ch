@@ -481,7 +481,7 @@ export default async function AdminJobDetailPage({
           <p className="mt-1 text-[13px] text-[#888]">差し戻す場合は理由を入力してから「差し戻し」ボタンを押してください。</p>
           <JobReviewActions
             jobId={job.id}
-            disabledApprove={job.reviewStatus === "PUBLISHED" && !pendingContent}
+            isPublished={job.reviewStatus === "PUBLISHED" && !pendingContent}
           />
         </div>
 

@@ -115,7 +115,7 @@ export async function approveJob(jobId: string) {
   revalidatePath("/jobs");
 }
 
-export async function returnJob(jobId: string, reviewComment?: string) {
+export async function returnJob(jobId: string, comments: Record<string, string>) {
   await ensureAdmin();
 
   const job = await prisma.job.findUnique({
@@ -125,13 +125,15 @@ export async function returnJob(jobId: string, reviewComment?: string) {
   if (!job) throw new Error("Job not found");
 
   const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+  const filtered = Object.fromEntries(Object.entries(comments).filter(([, v]) => v.trim()));
+  const commentJson = Object.keys(filtered).length > 0 ? JSON.stringify(filtered) : JSON.stringify({ other: "差し戻し理由を確認してください" });
 
   await prisma.job.update({
     where: { id: jobId },
     data: {
       reviewStatus: "RETURNED",
       isPublished: hasPendingVersion,
-      reviewComment: reviewComment?.trim() || "差し戻し理由を確認してください",
+      reviewComment: commentJson,
       reviewStatusChangedAt: new Date(),
     },
   });

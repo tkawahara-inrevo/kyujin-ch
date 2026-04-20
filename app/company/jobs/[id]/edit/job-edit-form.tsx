@@ -768,7 +768,7 @@ export function JobEditForm({
         <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${JOB_REVIEW_STATUS_BADGE_CLASSES[currentReviewStatus]}`}>
           {JOB_REVIEW_STATUS_LABELS[currentReviewStatus]}
         </span>
-        {job.reviewComment ? <span className="whitespace-pre-line text-[13px] text-[#a16207]">差し戻しコメント: {job.reviewComment}</span> : null}
+        {job.reviewComment ? <ReturnComments raw={job.reviewComment} /> : null}
         {hasPendingVersion ? (
           <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#2563eb]">差し替え審査データあり</span>
         ) : null}
@@ -1846,5 +1846,48 @@ function TargetButton({
     >
       {children}
     </button>
+  );
+}
+
+const RETURN_FIELD_LABELS: Record<string, string> = {
+  title:           "タイトル",
+  image:           "メイン画像",
+  category:        "求人カテゴリ",
+  employmentType:  "雇用形態",
+  description:     "仕事内容",
+  requirements:    "応募条件",
+  salary:          "給与",
+  fixedOvertime:   "みなし残業",
+  workingHours:    "勤務時間",
+  trialPeriod:     "試用期間",
+  holiday:         "休日・休暇",
+  benefits:        "福利厚生",
+  location:        "勤務地",
+  selectionProcess: "選考フロー",
+  smoking:         "受動喫煙対策",
+  other:           "その他",
+};
+
+function ReturnComments({ raw }: { raw: string }) {
+  let entries: [string, string][] = [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null) {
+      entries = Object.entries(parsed).filter(([, v]) => typeof v === "string" && (v as string).trim()) as [string, string][];
+    }
+  } catch {
+    entries = [["other", raw]];
+  }
+  if (entries.length === 0) return null;
+  return (
+    <div className="mt-3 w-full rounded-[10px] border border-[#fcd34d] bg-[#fffbeb] px-4 py-3 space-y-2">
+      <p className="text-[13px] font-bold text-[#92400e]">修正依頼コメント</p>
+      {entries.map(([key, value]) => (
+        <div key={key}>
+          <p className="text-[11px] font-semibold text-[#b45309]">{RETURN_FIELD_LABELS[key] ?? key}</p>
+          <p className="whitespace-pre-line text-[13px] text-[#78350f]">{value}</p>
+        </div>
+      ))}
+    </div>
   );
 }

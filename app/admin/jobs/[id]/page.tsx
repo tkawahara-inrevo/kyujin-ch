@@ -180,7 +180,7 @@ export default async function AdminJobDetailPage({
     <div className="min-h-screen bg-[#f7f7f7]">
       {/* Admin top bar */}
       <div className="bg-white px-6 py-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-        <div className="mx-auto max-w-[900px]">
+        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
           <div className="flex items-center gap-2 text-[13px] text-[#888]">
             <Link href="/admin/jobs" className="hover:text-[#2f6cff]">求人一覧</Link>
             <span>/</span>
@@ -205,10 +205,14 @@ export default async function AdminJobDetailPage({
         </div>
       </div>
 
-      {/* Job content — same structure as public page */}
-      <div className="mx-auto max-w-[900px] px-4 py-6 md:px-6 md:py-10">
+      {/* Job content — 2-column: left=content, right=sticky review panel */}
+      <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-6 md:py-8">
+        <div className="grid gap-6 xl:grid-cols-[1fr_340px] xl:items-start">
+
+        {/* ===== LEFT: job content ===== */}
+        <div>
         {/* Top card */}
-        <div className="rounded-[20px] border border-[#e8ebf0] bg-white p-5 md:p-7">
+        <div id="section-title" className="rounded-[20px] border border-[#e8ebf0] bg-white p-5 md:p-7">
           <p className="text-[13px] font-semibold text-[#6b7280]">{job.company.name}</p>
 
           <h1 className="mt-2 text-[20px] font-bold leading-[1.5] text-[#1f2937] md:text-[28px]">
@@ -275,7 +279,7 @@ export default async function AdminJobDetailPage({
           )}
 
           {/* 概要 */}
-          <div>
+          <div id="section-description">
             <SectionHeader title="概要" />
             <dl className="px-5">
               <InfoRow label="仕事内容" value={d.description} />
@@ -289,7 +293,7 @@ export default async function AdminJobDetailPage({
           </div>
 
           {/* 募集要項 */}
-          <div>
+          <div id="section-employment">
             <SectionHeader title="募集要項" />
             <dl className="px-5">
               <InfoRow label="雇用形態" value={employmentLabel} />
@@ -310,7 +314,7 @@ export default async function AdminJobDetailPage({
           </div>
 
           {/* 雇用情報（給与） */}
-          <div>
+          <div id="section-salary">
             <SectionHeader title="雇用情報" />
             <dl className="px-5">
               <InfoRow label="給与" value={salaryRange} />
@@ -338,7 +342,7 @@ export default async function AdminJobDetailPage({
 
           {/* 試用期間 */}
           {d.trialPeriodExists != null && (
-            <div>
+            <div id="section-trial">
               <SectionHeader title="試用期間" />
               <dl className="px-5">
                 <InfoRow label="試用期間">
@@ -371,7 +375,7 @@ export default async function AdminJobDetailPage({
 
           {/* 休日休暇 */}
           {(d.holidayType || d.holidayPolicy || (d.holidayFeatures && d.holidayFeatures.length > 0)) && (
-            <div>
+            <div id="section-holiday">
               <SectionHeader title="休日休暇" />
               <dl className="px-5">
                 <InfoRow label="休みの取り方" value={d.holidayType} />
@@ -392,7 +396,7 @@ export default async function AdminJobDetailPage({
           )}
 
           {/* 福利厚生 */}
-          <div>
+          <div id="section-benefits">
             <SectionHeader title="福利厚生" />
             <div className="px-6 py-4">
               {(d.benefits ?? []).length > 0 ? (
@@ -413,7 +417,7 @@ export default async function AdminJobDetailPage({
           </div>
 
           {/* 選考情報 */}
-          <div>
+          <div id="section-selection">
             <SectionHeader title="選考情報" />
             <dl className="px-5">
               <InfoRow label="募集背景" value={d.recruitmentBackground} />
@@ -433,7 +437,7 @@ export default async function AdminJobDetailPage({
 
           {/* 受動喫煙 */}
           {(d.smokingPolicyIndoor || d.smokingPolicyOutdoor || d.smokingNote) && (
-            <div>
+            <div id="section-smoking">
               <SectionHeader title="受動喫煙対策" />
               <dl className="px-5">
                 <InfoRow label="屋内" value={d.smokingPolicyIndoor} />
@@ -474,17 +478,21 @@ export default async function AdminJobDetailPage({
             </div>
           )}
         </div>
+        <div className="h-6" />
+        </div>{/* end left column */}
 
-        {/* Review actions */}
-        <div className="mt-8 rounded-[16px] border border-[#dbe4ff] bg-white p-6 shadow-[0_2px_12px_rgba(47,108,255,0.08)]">
-          <h2 className="text-[15px] font-bold text-[#1e293b]">審査アクション</h2>
-          <p className="mt-1 text-[13px] text-[#888]">差し戻す場合は理由を入力してから「差し戻し」ボタンを押してください。</p>
-          <JobReviewActions
-            jobId={job.id}
-            isPublished={job.reviewStatus === "PUBLISHED" && !pendingContent}
-          />
+        {/* ===== RIGHT: sticky review panel ===== */}
+        <div className="xl:sticky xl:top-6">
+          <div className="rounded-[16px] border border-[#dbe4ff] bg-white p-5 shadow-[0_2px_12px_rgba(47,108,255,0.08)]">
+            <h2 className="text-[15px] font-bold text-[#1e293b]">審査アクション</h2>
+            <JobReviewActions
+              jobId={job.id}
+              isPublished={job.reviewStatus === "PUBLISHED" && !pendingContent}
+            />
+          </div>
         </div>
 
+        </div>{/* end grid */}
         <div className="h-10" />
       </div>
     </div>

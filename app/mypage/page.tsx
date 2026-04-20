@@ -27,8 +27,18 @@ export default async function MyPage() {
           <div>
             <ProfileSummary
               name={currentUser.name}
+              lastName={currentUser.lastName}
+              firstName={currentUser.firstName}
+              lastNameKana={currentUser.lastNameKana}
+              firstNameKana={currentUser.firstNameKana}
+              birthDate={currentUser.birthDate}
+              gender={currentUser.gender}
               email={currentUser.email}
               phone={currentUser.phone}
+              postalCode={currentUser.postalCode}
+              prefecture={currentUser.prefecture}
+              cityTown={currentUser.cityTown}
+              addressLine={currentUser.addressLine}
               notificationsEnabled={currentUser.notificationsEnabled}
               createdAt={currentUser.createdAt}
             />

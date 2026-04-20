@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "User"
+  ADD COLUMN IF NOT EXISTS "firstNameKana" TEXT,
+  ADD COLUMN IF NOT EXISTS "lastNameKana"  TEXT,
+  ADD COLUMN IF NOT EXISTS "birthDate"     TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "gender"        TEXT,
+  ADD COLUMN IF NOT EXISTS "postalCode"    TEXT,
+  ADD COLUMN IF NOT EXISTS "prefecture"    TEXT,
+  ADD COLUMN IF NOT EXISTS "cityTown"      TEXT,
+  ADD COLUMN IF NOT EXISTS "addressLine"   TEXT;

@@ -17,9 +17,18 @@ export default async function MyPageEdit() {
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_252px]">
           <div>
             <ProfileEditForm
-              name={currentUser.name}
+              lastName={currentUser.lastName}
+              firstName={currentUser.firstName}
+              lastNameKana={currentUser.lastNameKana}
+              firstNameKana={currentUser.firstNameKana}
+              birthDate={currentUser.birthDate}
+              gender={currentUser.gender}
               email={currentUser.email}
               phone={currentUser.phone}
+              postalCode={currentUser.postalCode}
+              prefecture={currentUser.prefecture}
+              cityTown={currentUser.cityTown}
+              addressLine={currentUser.addressLine}
               notificationsEnabled={currentUser.notificationsEnabled}
               createdAt={currentUser.createdAt}
             />

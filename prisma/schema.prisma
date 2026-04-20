@@ -80,7 +80,15 @@ model User {
   role                 UserRole @default(USER)
   firstName            String?
   lastName             String?
+  firstNameKana        String?
+  lastNameKana         String?
+  birthDate            DateTime?
+  gender               String?
   phone                String?
+  postalCode           String?
+  prefecture           String?
+  cityTown             String?
+  addressLine          String?
   resumeUrl            String?
   careerHistoryUrl     String?
   notificationsEnabled Boolean  @default(true)

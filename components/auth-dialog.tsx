@@ -72,7 +72,7 @@ export function AuthDialog({ initialMode = "register", onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40"
       onClick={handleBackdropClick}
     >
       <div className="mx-4 w-full max-w-[520px] rounded-[16px] bg-white px-10 py-10 shadow-xl max-h-[90vh] overflow-y-auto">

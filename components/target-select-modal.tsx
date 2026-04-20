@@ -24,7 +24,7 @@ export function TargetSelectModal({ currentYear, nextYear }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
       <div className="mx-4 w-full max-w-[600px] rounded-[16px] bg-white px-6 py-8 text-center sm:px-10 sm:py-10">
         {/* ロゴ */}
         <div className="flex items-center justify-center gap-2">

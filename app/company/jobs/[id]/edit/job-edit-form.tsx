@@ -762,6 +762,15 @@ export function JobEditForm({
   const canWithdraw = currentReviewStatus === "PENDING_REVIEW";
   const showDraftSave = !canWithdraw && !hasPublishedVersion;
 
+  const parsedReturnComments: Record<string, string> = (() => {
+    if (!job.reviewComment) return {};
+    try { return JSON.parse(job.reviewComment); } catch { return { other: job.reviewComment }; }
+  })();
+  function rc(...keys: string[]): string | undefined {
+    const v = keys.map((k) => parsedReturnComments[k]).filter(Boolean).join("\n");
+    return v || undefined;
+  }
+
   return (
     <>
       <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -834,7 +843,7 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="基本情報">
+          <Section title="基本情報" comment={rc("section-title", "section-employment", "title", "image", "category", "employmentType", "location")}>
             <Field label="タイトル" required>
               <input
                 ref={titleRef}
@@ -923,7 +932,7 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="仕事内容">
+          <Section title="仕事内容" comment={rc("section-description", "description", "requirements")}>
             <Field label="仕事内容" required>
               <div className="mb-1 flex justify-end">
                 <button
@@ -1142,7 +1151,7 @@ export function JobEditForm({
             <SectionTags tags={LOCATION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
-          <Section title="給与">
+          <Section title="給与" comment={rc("section-salary", "salary", "fixedOvertime")}>
             <div className="space-y-0.5 text-[14px] text-[#eb0937]">
               <p>最低賃金を下回る時給は法令によって禁止されています。</p>
               <a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/minimumichiran/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:underline">
@@ -1299,7 +1308,7 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="勤務時間">
+          <Section title="勤務時間" comment={rc("workingHours")}>
             <Field label="勤務時間" required>
               <WorkingHoursSection
                 value={workingHours}
@@ -1308,7 +1317,7 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="試用期間">
+          <Section title="試用期間" comment={rc("section-trial", "trialPeriod")}>
             <Field label="試用期間" required>
               <div className="flex gap-6">
                 {([true, false] as const).map((val) => (
@@ -1439,7 +1448,7 @@ export function JobEditForm({
             )}
           </Section>
 
-          <Section title="休日・休暇">
+          <Section title="休日・休暇" comment={rc("section-holiday", "holiday")}>
             <div className="text-[14px] text-[#eb0937]">週1日以上の休日休暇が法律で決まっています。</div>
             <Field label="休みの取り方" required>
               <div className="flex flex-wrap gap-6">
@@ -1476,7 +1485,7 @@ export function JobEditForm({
             </Field>
           </Section>
 
-          <Section title="選考情報">
+          <Section title="選考情報" comment={rc("section-selection", "selectionProcess")}>
             <Field label="選考フロー" required>
               <div className="mb-1 flex justify-end">
                 <button
@@ -1502,7 +1511,7 @@ export function JobEditForm({
             <SectionTags tags={SELECTION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
-          <Section title="福利厚生">
+          <Section title="福利厚生" comment={rc("section-benefits", "benefits")}>
             <Field label="福利厚生" required>
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {(PRIMARY_BENEFIT_OPTIONS as readonly string[]).map((benefit) => (
@@ -1594,7 +1603,7 @@ export function JobEditForm({
             </div>
           </Section>}
 
-          <Section title="受動喫煙対策">
+          <Section title="受動喫煙対策" comment={rc("section-smoking", "smoking")}>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="屋内の受動喫煙対策" required>
                 <select
@@ -1798,10 +1807,16 @@ function SectionTags({
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, comment }: { title: string; children: React.ReactNode; comment?: string }) {
   return (
     <section className="border-b border-[#ccc] pb-5 last:border-b-0 last:pb-0">
       <h2 className="mb-3 text-[20px] font-semibold leading-[1.2] tracking-[-0.4px] text-[#1d63e3]">{title}</h2>
+      {comment && (
+        <div className="mb-3 rounded-[8px] border border-[#fcd34d] bg-[#fffbeb] px-3 py-2.5">
+          <p className="text-[11px] font-bold text-[#92400e]">修正依頼コメント</p>
+          <p className="mt-1 whitespace-pre-line text-[12px] text-[#78350f]">{comment}</p>
+        </div>
+      )}
       <div className="space-y-[10px]">{children}</div>
     </section>
   );

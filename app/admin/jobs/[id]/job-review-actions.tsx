@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { approveJob, returnJob } from "@/app/actions/admin/jobs";
 
 const RETURN_FIELDS: { key: string; label: string; anchorId?: string }[] = [
@@ -23,7 +23,7 @@ const RETURN_FIELDS: { key: string; label: string; anchorId?: string }[] = [
   { key: "other",           label: "その他" },
 ];
 
-function scrollTo(id?: string) {
+function scrollToSection(id?: string) {
   if (!id) return;
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -41,7 +41,19 @@ export function JobReviewActions({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<"approved" | "returned" | null>(null);
   const [showReturnForm, setShowReturnForm] = useState(!isPublished);
-  const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (selectedKey && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [selectedKey]);
+
+  function handleFieldClick(key: string, anchorId?: string) {
+    setSelectedKey((prev) => (prev === key ? null : key));
+    scrollToSection(anchorId);
+  }
 
   function handleApprove() {
     setError(null);
@@ -72,6 +84,8 @@ export function JobReviewActions({
   if (done === "approved") {
     return <p className="mt-3 text-[14px] font-bold text-[#16a34a]">承認して公開済み。</p>;
   }
+
+  const filledCount = Object.values(comments).filter((v) => v.trim()).length;
 
   return (
     <div className="mt-3 space-y-3">
@@ -109,35 +123,63 @@ export function JobReviewActions({
               ⚠️ 差し戻しすると非公開になります
             </p>
           )}
-          <p className="text-[11px] text-[#888]">
-            各項目のラベルをクリックするとその箇所にジャンプします
-          </p>
 
-          <div className="max-h-[55vh] overflow-y-auto space-y-2 pr-1">
-            {RETURN_FIELDS.map(({ key, label, anchorId }) => (
-              <div key={key} className={`rounded-[8px] border p-2 transition ${focusedKey === key ? "border-[#c2410c] bg-[#fff8f5]" : "border-[#e8e8e8] bg-[#fafafa]"}`}>
-                <button
-                  type="button"
-                  onClick={() => scrollTo(anchorId)}
-                  className={`mb-1 block text-left text-[11px] font-bold transition ${anchorId ? "text-[#2f6cff] hover:underline cursor-pointer" : "text-[#555] cursor-default"}`}
-                >
-                  {label}{anchorId ? " ↗" : ""}
-                </button>
-                <textarea
-                  rows={2}
-                  value={comments[key] ?? ""}
-                  onFocus={() => {
-                    setFocusedKey(key);
-                    scrollTo(anchorId);
-                  }}
-                  onBlur={() => setFocusedKey(null)}
-                  onChange={(e) => setComments((prev) => ({ ...prev, [key]: e.target.value }))}
-                  placeholder="修正コメント（任意）"
-                  className="w-full resize-none rounded-[6px] border border-[#e0d8d0] bg-white px-2 py-1.5 text-[12px] outline-none focus:border-[#c2410c] placeholder:text-[#d0d0d0]"
-                />
-              </div>
-            ))}
+          {/* フィールドリスト */}
+          <div className="rounded-[10px] border border-[#e8e8e8] overflow-hidden">
+            {RETURN_FIELDS.map(({ key, label, anchorId }, i) => {
+              const isSelected = selectedKey === key;
+              const hasComment = !!comments[key]?.trim();
+              return (
+                <div key={key} className={i > 0 ? "border-t border-[#f0f0f0]" : ""}>
+                  <button
+                    type="button"
+                    onClick={() => handleFieldClick(key, anchorId)}
+                    className={`flex w-full items-center justify-between px-3 py-2.5 text-left transition ${
+                      isSelected
+                        ? "bg-[#fff5f0]"
+                        : "bg-white hover:bg-[#fafafa]"
+                    }`}
+                  >
+                    <span className={`text-[12px] font-semibold ${isSelected ? "text-[#c2410c]" : "text-[#444]"}`}>
+                      {label}
+                      {anchorId && (
+                        <span className="ml-1 text-[10px] text-[#2f6cff]">↗</span>
+                      )}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      {hasComment && (
+                        <span className="rounded-full bg-[#c2410c] px-1.5 py-0.5 text-[9px] font-bold text-white">
+                          入力済
+                        </span>
+                      )}
+                      <span className={`text-[10px] transition-transform ${isSelected ? "rotate-180 text-[#c2410c]" : "text-[#bbb]"}`}>
+                        ▼
+                      </span>
+                    </span>
+                  </button>
+
+                  {isSelected && (
+                    <div className="border-t border-[#f0e8e4] bg-[#fff8f5] px-3 pb-3 pt-2">
+                      <textarea
+                        ref={textareaRef}
+                        rows={4}
+                        value={comments[key] ?? ""}
+                        onChange={(e) =>
+                          setComments((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        placeholder="修正コメントを入力（任意）"
+                        className="w-full resize-none rounded-[6px] border border-[#e0d0c8] bg-white px-3 py-2 text-[12px] outline-none focus:border-[#c2410c] placeholder:text-[#ccc]"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {filledCount > 0 && (
+            <p className="text-right text-[11px] text-[#888]">{filledCount}項目にコメント入力済み</p>
+          )}
 
           {error && <p className="text-[12px] font-medium text-[#dc2626]">{error}</p>}
 
@@ -153,7 +195,7 @@ export function JobReviewActions({
             {isPublished && (
               <button
                 type="button"
-                onClick={() => setShowReturnForm(false)}
+                onClick={() => { setShowReturnForm(false); setSelectedKey(null); }}
                 className="rounded-[8px] border border-[#ccc] px-3 py-2 text-[12px] text-[#555] hover:bg-[#f5f5f5] transition"
               >
                 戻す

@@ -4,27 +4,21 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition, useRef, useEffect } from "react";
 import { approveJob, returnJob } from "@/app/actions/admin/jobs";
 
-const RETURN_FIELDS: { key: string; label: string; anchorId?: string }[] = [
-  { key: "title",           label: "タイトル",      anchorId: "section-title" },
-  { key: "image",           label: "メイン画像",     anchorId: "section-title" },
-  { key: "category",        label: "求人カテゴリ",   anchorId: "section-employment" },
-  { key: "employmentType",  label: "雇用形態",       anchorId: "section-employment" },
-  { key: "description",     label: "仕事内容",       anchorId: "section-description" },
-  { key: "requirements",    label: "応募条件",       anchorId: "section-description" },
-  { key: "salary",          label: "給与",           anchorId: "section-salary" },
-  { key: "fixedOvertime",   label: "みなし残業",     anchorId: "section-salary" },
-  { key: "workingHours",    label: "勤務時間",       anchorId: "section-employment" },
-  { key: "trialPeriod",     label: "試用期間",       anchorId: "section-trial" },
-  { key: "holiday",         label: "休日・休暇",     anchorId: "section-holiday" },
-  { key: "benefits",        label: "福利厚生",       anchorId: "section-benefits" },
-  { key: "location",        label: "勤務地",         anchorId: "section-employment" },
-  { key: "selectionProcess",label: "選考フロー",     anchorId: "section-selection" },
-  { key: "smoking",         label: "受動喫煙対策",   anchorId: "section-smoking" },
-  { key: "other",           label: "その他" },
+const REVIEW_SECTIONS: { key: string; label: string; anchorId?: string }[] = [
+  { key: "section-title",       label: "タイトル・メイン画像", anchorId: "section-title" },
+  { key: "section-description", label: "概要",                anchorId: "section-description" },
+  { key: "section-employment",  label: "募集要項",             anchorId: "section-employment" },
+  { key: "section-salary",      label: "雇用情報",             anchorId: "section-salary" },
+  { key: "section-trial",       label: "試用期間",             anchorId: "section-trial" },
+  { key: "section-holiday",     label: "休日休暇",             anchorId: "section-holiday" },
+  { key: "section-benefits",    label: "福利厚生",             anchorId: "section-benefits" },
+  { key: "section-selection",   label: "選考情報",             anchorId: "section-selection" },
+  { key: "section-smoking",     label: "受動喫煙対策",         anchorId: "section-smoking" },
+  { key: "other",               label: "その他" },
 ];
 
 const ALL_SECTION_IDS = Array.from(
-  new Set(RETURN_FIELDS.map((f) => f.anchorId).filter(Boolean))
+  new Set(REVIEW_SECTIONS.map((f) => f.anchorId).filter(Boolean))
 ) as string[];
 
 function clearHighlights() {
@@ -155,9 +149,9 @@ export function JobReviewActions({
             </p>
           )}
 
-          {/* フィールドリスト */}
+          {/* セクションリスト */}
           <div className="rounded-[10px] border border-[#e8e8e8] overflow-hidden">
-            {RETURN_FIELDS.map(({ key, label, anchorId }, i) => {
+            {REVIEW_SECTIONS.map(({ key, label, anchorId }, i) => {
               const isSelected = selectedKey === key;
               const hasComment = !!comments[key]?.trim();
               return (

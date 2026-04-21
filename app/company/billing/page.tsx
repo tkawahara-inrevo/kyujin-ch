@@ -95,7 +95,7 @@ export default async function CompanyBillingPage() {
       </p>
       <p className="mt-2 text-[13px] text-[#555]">
         料金・支払条件の詳細は
-        <Link href="/application-notes/" target="_blank" rel="noreferrer" className="mx-1 text-[#2f6cff] underline hover:opacity-80">
+        <Link href="/application-notes/" target="_blank" rel="noreferrer" className="mx-1" style={{ color: '#2f6cff', textDecoration: 'underline' }}>
           求人ちゃんねるお申込みに関する注意事項
         </Link>
         をご確認ください。

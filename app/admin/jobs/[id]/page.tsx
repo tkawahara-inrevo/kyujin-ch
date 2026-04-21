@@ -100,7 +100,7 @@ function formatWorkingHoursDetail(type: string | null | undefined, detail: Worki
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="bg-[#2f6cff] px-5 py-1.5">
+    <div data-section-header className="bg-[#2f6cff] px-5 py-1.5" style={{ transition: "background-color 0.25s" }}>
       <h2 className="text-[13px] font-bold text-white">{title}</h2>
     </div>
   );

@@ -23,7 +23,23 @@ const RETURN_FIELDS: { key: string; label: string; anchorId?: string }[] = [
   { key: "other",           label: "その他" },
 ];
 
-function scrollToSection(id?: string) {
+const ALL_SECTION_IDS = Array.from(
+  new Set(RETURN_FIELDS.map((f) => f.anchorId).filter(Boolean))
+) as string[];
+
+function clearHighlights() {
+  ALL_SECTION_IDS.forEach((id) => {
+    const section = document.getElementById(id);
+    if (!section) return;
+    section.querySelectorAll<HTMLElement>("[data-section-header]").forEach((el) => {
+      el.style.backgroundColor = "";
+    });
+    section.style.outline = "";
+  });
+}
+
+function scrollToSection(id?: string, highlight = false) {
+  clearHighlights();
   if (!id) return;
   const panel = document.getElementById("left-panel");
   const target = document.getElementById(id);
@@ -31,6 +47,15 @@ function scrollToSection(id?: string) {
   const panelRect = panel.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
   panel.scrollBy({ top: targetRect.top - panelRect.top - 16, behavior: "smooth" });
+  if (highlight) {
+    const headers = target.querySelectorAll<HTMLElement>("[data-section-header]");
+    if (headers.length > 0) {
+      headers.forEach((el) => { el.style.backgroundColor = "#c2410c"; });
+    } else {
+      target.style.outline = "2px solid #c2410c";
+      target.style.outlineOffset = "3px";
+    }
+  }
 }
 
 export function JobReviewActions({
@@ -56,8 +81,9 @@ export function JobReviewActions({
   }, [selectedKey]);
 
   function handleFieldClick(key: string, anchorId?: string) {
-    setSelectedKey((prev) => (prev === key ? null : key));
-    scrollToSection(anchorId);
+    const next = selectedKey === key ? null : key;
+    setSelectedKey(next);
+    scrollToSection(anchorId, next !== null);
   }
 
   function handleApprove() {

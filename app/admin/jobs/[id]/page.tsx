@@ -177,9 +177,9 @@ export default async function AdminJobDetailPage({
   );
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7]">
+    <div className="flex h-screen flex-col bg-[#f7f7f7]">
       {/* Admin top bar */}
-      <div className="bg-white px-6 py-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+      <div className="shrink-0 bg-white px-6 py-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
         <div className="mx-auto max-w-[1400px] px-4 md:px-6">
           <div className="flex items-center gap-2 text-[13px] text-[#888]">
             <Link href="/admin/jobs" className="hover:text-[#2f6cff]">求人一覧</Link>
@@ -205,12 +205,11 @@ export default async function AdminJobDetailPage({
         </div>
       </div>
 
-      {/* Job content — 2-column: left=content, right=sticky review panel */}
-      <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-6 md:py-8">
-        <div className="grid gap-6 xl:grid-cols-[1fr_340px] xl:items-start">
+      {/* Job content — 2-column split: left & right scroll independently */}
+      <div className="mx-auto flex w-full max-w-[1400px] flex-1 gap-6 overflow-hidden px-4 md:px-6">
 
-        {/* ===== LEFT: job content ===== */}
-        <div>
+        {/* ===== LEFT: job content (independently scrollable) ===== */}
+        <div id="left-panel" className="flex-1 overflow-y-auto py-6 md:py-8">
         {/* Top card */}
         <div id="section-title" className="rounded-[20px] border border-[#e8ebf0] bg-white p-5 md:p-7">
           <p className="text-[13px] font-semibold text-[#6b7280]">{job.company.name}</p>
@@ -479,10 +478,10 @@ export default async function AdminJobDetailPage({
           )}
         </div>
         <div className="h-6" />
-        </div>{/* end left column */}
+        </div>{/* end left panel */}
 
-        {/* ===== RIGHT: sticky review panel ===== */}
-        <div className="xl:sticky xl:top-6">
+        {/* ===== RIGHT: independently scrollable review panel ===== */}
+        <div className="w-[340px] shrink-0 overflow-y-auto py-6 md:py-8">
           <div className="rounded-[16px] border border-[#dbe4ff] bg-white p-5 shadow-[0_2px_12px_rgba(47,108,255,0.08)]">
             <h2 className="text-[15px] font-bold text-[#1e293b]">審査アクション</h2>
             <JobReviewActions
@@ -492,9 +491,7 @@ export default async function AdminJobDetailPage({
           </div>
         </div>
 
-        </div>{/* end grid */}
-        <div className="h-10" />
-      </div>
+      </div>{/* end flex */}
     </div>
   );
 }

@@ -25,7 +25,12 @@ const RETURN_FIELDS: { key: string; label: string; anchorId?: string }[] = [
 
 function scrollToSection(id?: string) {
   if (!id) return;
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const panel = document.getElementById("left-panel");
+  const target = document.getElementById(id);
+  if (!panel || !target) return;
+  const panelRect = panel.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  panel.scrollBy({ top: targetRect.top - panelRect.top - 16, behavior: "smooth" });
 }
 
 export function JobReviewActions({

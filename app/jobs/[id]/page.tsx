@@ -483,7 +483,7 @@ export default async function JobDetailPage({
                     {j.trialPeriodExists && (
                       <>
                         {j.trialEmploymentSame === false && j.trialEmploymentType && (
-                          <InfoRow label="試用中の雇用形態" value={j.trialEmploymentType} />
+                          <InfoRow label="試用中の雇用形態" value={EMPLOYMENT_LABELS[j.trialEmploymentType] ?? j.trialEmploymentType} />
                         )}
                         {j.trialWorkingHours != null && (
                           <InfoRow label="試用中の想定労働時間" value={`月${j.trialWorkingHours}時間`} />

@@ -387,7 +387,7 @@ export default async function AdminJobDetailPage({
                   <>
                     <InfoRow label="雇用形態" value={
                       d.trialEmploymentSame === true ? "本採用時と同じ" :
-                      d.trialEmploymentSame === false ? (d.trialEmploymentType || "異なる") : null
+                      d.trialEmploymentSame === false ? (d.trialEmploymentType ? (EMPLOYMENT_LABELS[d.trialEmploymentType] ?? d.trialEmploymentType) : "異なる") : null
                     } />
                     <InfoRow label="労働時間" value={d.trialWorkingHours ? `${d.trialWorkingHours}時間/月` : null} />
                     <InfoRow label="給与" value={

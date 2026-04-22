@@ -13,7 +13,7 @@ const navItems = [
   { href: "/messages",     label: "メッセージ", icon: "/assets/Chat_Circle.png" },
 ];
 
-export async function Header() {
+export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean } = {}) {
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const [currentYear, nextYear] = getActiveGraduationYears();
@@ -37,7 +37,7 @@ export async function Header() {
             <span className="text-[15px] font-bold text-[#1a1a1a] md:text-[18px]">求人ちゃんねる</span>
           </Link>
 
-          <HeaderTargetBadge currentYear={currentYear} nextYear={nextYear} />
+          {!hideTargetSwitch && <HeaderTargetBadge currentYear={currentYear} nextYear={nextYear} />}
         </div>
 
         {/* 中央：企業向けリンク */}
@@ -73,17 +73,21 @@ export async function Header() {
               <HeaderAuthNav />
             </nav>
             {/* Mobile: 切り替えボタン */}
-            <div className="flex items-center md:hidden">
-              <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
-            </div>
+            {!hideTargetSwitch && (
+              <div className="flex items-center md:hidden">
+                <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
+              </div>
+            )}
           </>
         ) : (
           <>
             <HeaderAuthButtons hideMobile />
             {/* Mobile: 切り替えボタン */}
-            <div className="flex items-center md:hidden">
-              <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
-            </div>
+            {!hideTargetSwitch && (
+              <div className="flex items-center md:hidden">
+                <MobileTargetSwitchButton currentYear={currentYear} nextYear={nextYear} />
+              </div>
+            )}
           </>
         )}
       </div>

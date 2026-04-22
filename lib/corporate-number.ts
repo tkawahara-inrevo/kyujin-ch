@@ -26,26 +26,39 @@ export interface GBizCompanyInfo {
   name: string;
 }
 
+function decodeXmlEntities(value: string) {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 /**
- * gBizINFO APIから法人情報を取得
- * https://info.gbiz.go.jp/hojin/v1/hojin/{法人番号}
+ * 国税庁 法人番号公表サイト Web-API から法人情報を取得
+ * https://www.houjin-bangou.nta.go.jp/webapi/
  */
 export async function lookupCorporateNumber(
   corporateNumber: string
 ): Promise<GBizCompanyInfo | null> {
-  const token = process.env.GBIZ_API_TOKEN;
-  if (!token) throw new Error("GBIZ_API_TOKEN is not configured");
+  const appId = process.env.NTA_CORPORATE_NUMBER_API_APP_ID;
+  if (!appId) throw new Error("NTA_CORPORATE_NUMBER_API_APP_ID is not configured");
 
   const digits = corporateNumber.replace(/[^\d]/g, "");
   if (!/^\d{13}$/.test(digits)) return null;
 
-  const url = `https://info.gbiz.go.jp/hojin/v1/hojin/${digits}`;
+  const apiUrl = new URL("https://api.houjin-bangou.nta.go.jp/4/num");
+  apiUrl.searchParams.set("id", appId);
+  apiUrl.searchParams.set("number", digits);
+  apiUrl.searchParams.set("type", "01"); // XML UTF-8
+  apiUrl.searchParams.set("history", "0");
+
   let res: Response;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-    res = await fetch(url, {
-      headers: { "X-hojinInfo-api-token": token },
+    res = await fetch(apiUrl.toString(), {
       next: { revalidate: 0 },
       signal: controller.signal,
     });
@@ -54,17 +67,18 @@ export async function lookupCorporateNumber(
     return null;
   }
 
-  if (res.status === 404) return null;
   if (!res.ok) return null;
 
-  const json = await res.json();
-  // レスポンス: { hojin-infos: [ { corporate_number, name, ... } ] }
-  const info = json?.["hojin-infos"]?.[0];
-  if (!info) return null;
+  const xml = await res.text();
+  const corporationBlock = xml.match(/<corporation>([\s\S]*?)<\/corporation>/)?.[1];
+  const name = corporationBlock?.match(/<name>([\s\S]*?)<\/name>/)?.[1];
+  const foundNumber = corporationBlock?.match(/<corporateNumber>(\d{13})<\/corporateNumber>/)?.[1];
+
+  if (!corporationBlock || !name || !foundNumber) return null;
 
   return {
-    corporateNumber: String(info.corporate_number ?? digits),
-    name: String(info.name ?? ""),
+    corporateNumber: foundNumber,
+    name: decodeXmlEntities(name).trim(),
   };
 }
 

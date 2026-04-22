@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const apiUrl = new URL("https://api.houjin-bangou.nta.go.jp/4/num");
   apiUrl.searchParams.set("id", applicationId);
   apiUrl.searchParams.set("number", corporateNumber);
-  apiUrl.searchParams.set("type", "12");
+  apiUrl.searchParams.set("type", "01");
   apiUrl.searchParams.set("history", "0");
 
   const response = await fetch(apiUrl, { cache: "no-store" });

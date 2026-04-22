@@ -4,13 +4,23 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function decodeXml(value: string) {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+function parseNtaCsvLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === "," && !inQuotes) {
+      fields.push(current); current = "";
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
 }
 
 export async function GET(request: Request) {
@@ -50,17 +60,23 @@ export async function GET(request: Request) {
     );
   }
 
-  const xml = await response.text();
-  const corporationBlock = xml.match(/<corporation>([\s\S]*?)<\/corporation>/)?.[1];
-  const name = corporationBlock?.match(/<name>([\s\S]*?)<\/name>/)?.[1];
-  const foundNumber = corporationBlock?.match(/<corporateNumber>(\d{13})<\/corporateNumber>/)?.[1];
+  const buf = await response.arrayBuffer();
+  const text = new TextDecoder("shift-jis").decode(buf);
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) {
+    return NextResponse.json({ message: "該当する法人番号が見つかりませんでした" }, { status: 404 });
+  }
 
-  if (!corporationBlock || !name || !foundNumber) {
+  const fields = parseNtaCsvLine(lines[1]);
+  const foundNumber = fields[1]?.trim();
+  const name = fields[6]?.trim();
+
+  if (!foundNumber || !name) {
     return NextResponse.json({ message: "該当する法人番号が見つかりませんでした" }, { status: 404 });
   }
 
   return NextResponse.json({
     corporateNumber: foundNumber,
-    companyName: decodeXml(name).trim(),
+    companyName: name,
   });
 }

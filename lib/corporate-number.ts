@@ -26,18 +26,31 @@ export interface GBizCompanyInfo {
   name: string;
 }
 
-function decodeXmlEntities(value: string) {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+// NTA API はShift-JIS CSVで返す（type=01でもCSV）
+function parseNtaCsvLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === "," && !inQuotes) {
+      fields.push(current); current = "";
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
 }
 
 /**
  * 国税庁 法人番号公表サイト Web-API から法人情報を取得
  * https://www.houjin-bangou.nta.go.jp/webapi/
+ * レスポンスはShift-JIS CSV（type=01でもCSV形式）
+ * CSV列: [0]=連番, [1]=法人番号, ..., [6]=法人名称
  */
 export async function lookupCorporateNumber(
   corporateNumber: string
@@ -51,7 +64,7 @@ export async function lookupCorporateNumber(
   const apiUrl = new URL("https://api.houjin-bangou.nta.go.jp/4/num");
   apiUrl.searchParams.set("id", appId);
   apiUrl.searchParams.set("number", digits);
-  apiUrl.searchParams.set("type", "01"); // XML UTF-8
+  apiUrl.searchParams.set("type", "01");
   apiUrl.searchParams.set("history", "0");
 
   let res: Response;
@@ -69,17 +82,18 @@ export async function lookupCorporateNumber(
 
   if (!res.ok) return null;
 
-  const xml = await res.text();
-  const corporationBlock = xml.match(/<corporation>([\s\S]*?)<\/corporation>/)?.[1];
-  const name = corporationBlock?.match(/<name>([\s\S]*?)<\/name>/)?.[1];
-  const foundNumber = corporationBlock?.match(/<corporateNumber>(\d{13})<\/corporateNumber>/)?.[1];
+  const buf = await res.arrayBuffer();
+  const text = new TextDecoder("shift-jis").decode(buf);
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return null;
 
-  if (!corporationBlock || !name || !foundNumber) return null;
+  const fields = parseNtaCsvLine(lines[1]);
+  const foundNumber = fields[1]?.trim();
+  const name = fields[6]?.trim();
 
-  return {
-    corporateNumber: foundNumber,
-    name: decodeXmlEntities(name).trim(),
-  };
+  if (!foundNumber || !name) return null;
+
+  return { corporateNumber: foundNumber, name };
 }
 
 /**

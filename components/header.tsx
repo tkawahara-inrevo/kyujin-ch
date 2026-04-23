@@ -24,17 +24,15 @@ export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean 
 
         {/* 左：ロゴ + バッジ */}
         <div className="flex items-center gap-3 md:gap-5">
-          <Link href="/" className="flex items-center gap-1.5 md:gap-2">
-            <div className="relative h-[24px] w-[24px] shrink-0 md:h-[30px] md:w-[30px]">
-              <Image
-                src="/favicon-32.png"
-                alt=""
-                fill
-                className="object-contain"
-                sizes="30px"
-              />
-            </div>
-            <span className="text-[15px] font-bold text-[#1a1a1a] md:text-[18px]">求人ちゃんねる</span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/assets/アセット6.png"
+              alt="求人ちゃんねる"
+              height={22}
+              width={131}
+              className="h-[20px] w-auto md:h-[24px]"
+              priority
+            />
           </Link>
 
           {!hideTargetSwitch && <HeaderTargetBadge currentYear={currentYear} nextYear={nextYear} />}

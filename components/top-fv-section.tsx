@@ -59,18 +59,18 @@ export function TopFVSection({
       {showFV ? (
         <div className="mx-auto max-w-[1200px] px-4 pt-3 pb-0 md:px-6">
           {/* タブ */}
-          <div className="grid grid-cols-2">
+          <div className="flex gap-1">
             <Link
               href="https://kyujin-ch.jp/column/"
               target="_blank"
               rel="noreferrer"
-              className="rounded-tl-[10px] border-2 border-b-0 border-r-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
+              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
             >
               就職最新情報
             </Link>
             <button
               onClick={() => handleTab("search")}
-              className="rounded-tr-[10px] border-2 border-b-0 border-[#ff5a78] bg-white py-2.5 text-[13px] font-bold text-[#ff5a78] transition hover:bg-[#fff0f3]"
+              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#ff5a78] bg-white py-2.5 text-[13px] font-bold text-[#ff5a78] transition hover:bg-[#fff0f3]"
             >
               求人を探す
             </button>

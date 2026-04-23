@@ -59,7 +59,7 @@ export function TopFVSection({
       {showFV ? (
         <div className="mx-auto max-w-[1200px] px-4 pt-3 pb-0 md:px-6">
           {/* タブ */}
-          <div className="flex gap-1">
+          <div className="flex gap-[2px]">
             <Link
               href="https://kyujin-ch.jp/column/"
               target="_blank"

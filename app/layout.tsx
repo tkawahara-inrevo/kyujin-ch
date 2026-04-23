@@ -5,7 +5,6 @@ import { SessionProvider } from "@/components/session-provider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],
   weight: ["400", "500", "700"],
   display: "swap",
   variable: "--font-noto-sans-jp",
@@ -35,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={notoSansJP.variable}>
+    <html lang="ja" className={`${notoSansJP.variable} ${notoSansJP.className}`}>
       <body>
         <SessionProvider>{children}</SessionProvider>
       </body>

@@ -5,7 +5,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/jobs/", "/companies/", "/column/", "/kiyaku", "/kiyaku-company", "/application-notes"],
         disallow: ["/admin/", "/company/", "/mypage/", "/messages/", "/applications/", "/favorites/", "/api/"],
       },
     ],

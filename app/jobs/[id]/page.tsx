@@ -147,6 +147,71 @@ function formatWorkingHours(
   return lines.length > 0 ? `${type}\n${lines.join("\n")}` : type;
 }
 
+const GOOGLE_EMPLOYMENT_TYPE: Record<string, string> = {
+  FULL_TIME: "FULL_TIME",
+  PART_TIME: "PART_TIME",
+  CONTRACT: "CONTRACTOR",
+  TEMPORARY: "TEMPORARY",
+  INTERN: "INTERN",
+  DISPATCH: "TEMPORARY",
+  COMMISSION: "CONTRACTOR",
+  OTHER: "OTHER",
+};
+
+const SALARY_UNIT: Record<string, string> = {
+  annual: "YEAR",
+  monthly: "MONTH",
+  daily: "DAY",
+  hourly: "HOUR",
+};
+
+function buildJobPostingSchema(job: {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  officeDetail: string | null;
+  employmentType: string;
+  createdAt: Date;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  company: { name: string };
+}, salaryType: string | null | undefined) {
+  const schema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description ?? job.title,
+    datePosted: job.createdAt.toISOString().split("T")[0],
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.company.name,
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: job.officeDetail ?? job.location ?? "",
+        addressCountry: "JP",
+      },
+    },
+    directApply: true,
+  };
+
+  const googleEmpType = GOOGLE_EMPLOYMENT_TYPE[job.employmentType];
+  if (googleEmpType) schema.employmentType = googleEmpType;
+
+  if (salaryType && (job.salaryMin || job.salaryMax)) {
+    const unitText = SALARY_UNIT[salaryType] ?? "MONTH";
+    const value: Record<string, unknown> = { "@type": "QuantitativeValue", unitText };
+    if (job.salaryMin) value.minValue = job.salaryMin;
+    if (job.salaryMax) value.maxValue = job.salaryMax;
+    schema.baseSalary = { "@type": "MonetaryAmount", currency: "JPY", value };
+  }
+
+  return schema;
+}
+
 function buildMapQuery(location?: string | null, officeDetail?: string | null) {
   const base = location?.trim() ?? "";
   const detail = officeDetail?.trim() ?? "";
@@ -289,8 +354,14 @@ export default async function JobDetailPage({
   };
   const trialSalaryRange = formatSalaryRange(j.trialSalaryType ?? null, j.trialSalaryMin, j.trialSalaryMax);
 
+  const jobPostingSchema = buildJobPostingSchema(job, j.salaryType);
+
   return (
     <main className="min-h-screen bg-[#f7f7f7]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }}
+      />
       <JobViewTracker jobId={job.id} />
       <Header />
 

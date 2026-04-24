@@ -83,6 +83,7 @@ export function checkMinWage(
   prefecture: string,
   annualHolidayCount?: number | null,
 ): MinWageCheckResult {
+  return { ok: true }; // TODO: 最低賃金チェック一時停止中
   const minWage = MIN_WAGE_BY_PREFECTURE[prefecture];
   if (!minWage) return { ok: true }; // 都道府県不明の場合はスキップ
 

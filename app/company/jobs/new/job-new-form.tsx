@@ -201,6 +201,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
   const [workingHours, setWorkingHours] = useState<WorkingHoursState>(DEFAULT_WORKING_HOURS_STATE);
   const [holidayType, setHolidayType] = useState("");
   const [holidayNote, setHolidayNote] = useState("");
+  const [annualHolidayCount, setAnnualHolidayCount] = useState("");
 
   const availablePrefectures = selectedRegion ? PREFECTURES_BY_AREA[selectedRegion] ?? [] : ALL_PREFECTURES;
   const mergedTags = selectedTags;
@@ -439,7 +440,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
-      const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
+      const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation, annualHolidayCount ? Number(annualHolidayCount) : null);
       if (!minWageResult.ok) {
         setValidationError(minWageResult.message);
         return;
@@ -518,6 +519,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
           holidayType,
           holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
           holidayNote: holidayNote || undefined,
+          annualHolidayCount: annualHolidayCount ? Number(annualHolidayCount) : undefined,
           jobSubcategory: jobSubcategory || undefined,
           ...workingHoursStateToData(workingHours),
         },
@@ -1249,6 +1251,21 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                 placeholder="休日・休暇に関する補足事項があれば入力してください"
               />
               <p className="mt-0.5 text-right text-[11px] text-[#aaa]">{holidayNote.length} / 200</p>
+            </Field>
+            <Field label="年間休日数">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={365}
+                  value={annualHolidayCount}
+                  onChange={(e) => setAnnualHolidayCount(e.target.value)}
+                  className={inputCls + " w-24"}
+                  placeholder="例: 127"
+                />
+                <span className="text-[14px] text-[#555]">日</span>
+              </div>
+              <p className="mt-1 text-[11px] text-[#888]">入力すると最低賃金の計算に実際の月間労働時間が使用されます</p>
             </Field>
           </Section>
 

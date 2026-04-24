@@ -54,7 +54,17 @@ export const MIN_WAGE_BY_PREFECTURE: Record<string, number> = {
 
 // 月給・年俸の最低賃金換算に用いる月間所定労働時間の標準値
 // (52週 × 40時間) / 12ヶ月 ≈ 173時間
-const MONTHLY_HOURS = 173;
+const DEFAULT_MONTHLY_HOURS = 173;
+const DAILY_WORK_HOURS = 8;
+
+/**
+ * 年間休日数から月間所定労働時間を計算する
+ * 例: 年間休日127日 → (365-127)/12×8 ≈ 158.7時間
+ */
+export function calcMonthlyHours(annualHolidayCount: number): number {
+  const workingDaysPerYear = 365 - annualHolidayCount;
+  return (workingDaysPerYear / 12) * DAILY_WORK_HOURS;
+}
 
 export type MinWageCheckResult =
   | { ok: true }
@@ -65,14 +75,21 @@ export type MinWageCheckResult =
  * @param salaryType 給与種別
  * @param salaryMin 給与下限（円）
  * @param prefecture 都道府県名（例: "東京都"）
+ * @param annualHolidayCount 年間休日数（指定時は実態に即した月間労働時間で計算）
  */
 export function checkMinWage(
   salaryType: string,
   salaryMin: number,
   prefecture: string,
+  annualHolidayCount?: number | null,
 ): MinWageCheckResult {
   const minWage = MIN_WAGE_BY_PREFECTURE[prefecture];
   if (!minWage) return { ok: true }; // 都道府県不明の場合はスキップ
+
+  const monthlyHours = annualHolidayCount != null
+    ? calcMonthlyHours(annualHolidayCount)
+    : DEFAULT_MONTHLY_HOURS;
+  const monthlyHoursLabel = Math.round(monthlyHours);
 
   let hourlyEquiv: number;
   let calcNote: string;
@@ -83,16 +100,16 @@ export function checkMinWage(
       calcNote = `時給 ${salaryMin.toLocaleString()}円`;
       break;
     case "daily":
-      hourlyEquiv = salaryMin / 8;
-      calcNote = `日給 ${salaryMin.toLocaleString()}円 ÷ 8時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
+      hourlyEquiv = salaryMin / DAILY_WORK_HOURS;
+      calcNote = `日給 ${salaryMin.toLocaleString()}円 ÷ ${DAILY_WORK_HOURS}時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
       break;
     case "monthly":
-      hourlyEquiv = salaryMin / MONTHLY_HOURS;
-      calcNote = `月給 ${salaryMin.toLocaleString()}円 ÷ ${MONTHLY_HOURS}時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
+      hourlyEquiv = salaryMin / monthlyHours;
+      calcNote = `月給 ${salaryMin.toLocaleString()}円 ÷ ${monthlyHoursLabel}時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
       break;
     case "annual":
-      hourlyEquiv = salaryMin / 12 / MONTHLY_HOURS;
-      calcNote = `年俸 ${salaryMin.toLocaleString()}円 ÷ 12ヶ月 ÷ ${MONTHLY_HOURS}時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
+      hourlyEquiv = salaryMin / 12 / monthlyHours;
+      calcNote = `年俸 ${salaryMin.toLocaleString()}円 ÷ 12ヶ月 ÷ ${monthlyHoursLabel}時間 = ${Math.floor(hourlyEquiv).toLocaleString()}円/時`;
       break;
     default:
       return { ok: true };

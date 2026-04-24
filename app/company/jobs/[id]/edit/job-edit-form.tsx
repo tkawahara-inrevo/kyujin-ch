@@ -307,6 +307,9 @@ export function JobEditForm({
   );
   const [holidayType, setHolidayType] = useState(job.holidayType ?? "");
   const [holidayNote, setHolidayNote] = useState(job.holidayNote ?? "");
+  const [annualHolidayCount, setAnnualHolidayCount] = useState<string>(
+    job.annualHolidayCount != null ? String(job.annualHolidayCount) : ""
+  );
   const [formValues, setFormValues] = useState<Record<string, string>>({
     title: job.title,
     description: job.description,
@@ -575,6 +578,7 @@ export function JobEditForm({
       holidayType,
       holidayPolicy: holidayType === "そのほか" ? (fd.get("holidayPolicy") as string) : undefined,
       holidayNote: holidayNote || undefined,
+      annualHolidayCount: annualHolidayCount ? Number(annualHolidayCount) : undefined,
       jobSubcategory: jobSubcategory || undefined,
       ...workingHoursStateToData(workingHours),
     };
@@ -710,7 +714,7 @@ export function JobEditForm({
       return;
     }
 
-    const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation);
+    const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation, annualHolidayCount ? Number(annualHolidayCount) : null);
     if (!minWageResult.ok) {
       showError(minWageResult.message);
       return;
@@ -1482,6 +1486,21 @@ export function JobEditForm({
                 placeholder="休日・休暇に関する補足事項があれば入力してください"
               />
               <p className="mt-0.5 text-right text-[11px] text-[#aaa]">{holidayNote.length} / 200</p>
+            </Field>
+            <Field label="年間休日数">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={365}
+                  value={annualHolidayCount}
+                  onChange={(e) => setAnnualHolidayCount(e.target.value)}
+                  className={inputCls + " w-24"}
+                  placeholder="例: 127"
+                />
+                <span className="text-[14px] text-[#555]">日</span>
+              </div>
+              <p className="mt-1 text-[11px] text-[#888]">入力すると最低賃金の計算に実際の月間労働時間が使用されます</p>
             </Field>
           </Section>
 

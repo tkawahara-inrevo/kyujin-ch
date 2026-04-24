@@ -87,8 +87,8 @@ export function checkMinWage(
   const minWage = MIN_WAGE_BY_PREFECTURE[prefecture];
   if (!minWage) return { ok: true }; // 都道府県不明の場合はスキップ
 
-  const monthlyHours = annualHolidayCount != null
-    ? calcMonthlyHours(annualHolidayCount)
+  const monthlyHours = (annualHolidayCount != null && annualHolidayCount !== undefined)
+    ? calcMonthlyHours(annualHolidayCount as number)
     : DEFAULT_MONTHLY_HOURS;
   const monthlyHoursLabel = Math.round(monthlyHours);
 

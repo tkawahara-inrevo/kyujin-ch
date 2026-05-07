@@ -61,7 +61,7 @@ export async function submitInquiry(data: {
           "お問い合わせ内容:",
           body,
           "",
-          `管理画面: ${process.env.AUTH_URL || process.env.NEXTAUTH_URL || "https://kyujin-ch.com"}/admin/inquiries`,
+          `管理画面: ${process.env.AUTH_URL || process.env.NEXTAUTH_URL || "https://kyujin-ch.jp"}/admin/inquiries`,
         ].join("\n"),
         html: `
           <p>求人ちゃんねるで新しいお問い合わせを受信しました。</p>
@@ -74,7 +74,7 @@ export async function submitInquiry(data: {
           <p>お問い合わせ内容:</p>
           <pre style="white-space:pre-wrap;font-family:inherit;">${escapeHtml(body)}</pre>
           <p><a href="${escapeHtml(
-            `${process.env.AUTH_URL || process.env.NEXTAUTH_URL || "https://kyujin-ch.com"}/admin/inquiries`
+            `${process.env.AUTH_URL || process.env.NEXTAUTH_URL || "https://kyujin-ch.jp"}/admin/inquiries`
           )}">管理画面で確認する</a></p>
         `,
       }),

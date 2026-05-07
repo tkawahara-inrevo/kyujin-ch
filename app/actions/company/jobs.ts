@@ -323,7 +323,7 @@ export async function createJob(data: JobData, submissionMode: JobSubmissionMode
 
   if (submissionMode === "review") {
     await postJobReviewSlack(
-      `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${job.id}`
+      `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.jp/admin/jobs/${job.id}`
     );
   }
 
@@ -380,7 +380,7 @@ export async function updateJob(
 
     if (submissionMode === "review") {
       await postJobReviewSlack(
-        `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.com/admin/jobs/${jobId}`
+        `📋 *審査申請が届きました*\n企業: ${company.name}\n求人: ${data.title}\nhttps://kyujin-ch.jp/admin/jobs/${jobId}`
       );
     }
 

@@ -6,22 +6,21 @@ import { ColumnForm } from "../../column-form";
 
 type Params = Promise<{ id: string }>;
 
-export default async function AdminColumnEditPage({
-  params,
-}: {
-  params: Params;
-}) {
+export default async function AdminColumnEditPage({ params }: { params: Params }) {
   await requireColumnEditor();
   const { id } = await params;
 
-  const post = await prisma.columnPost.findUnique({ where: { id } });
+  const [post, templates] = await Promise.all([
+    prisma.columnPost.findUnique({ where: { id } }),
+    prisma.columnTemplate.findMany({ orderBy: { createdAt: "desc" } }),
+  ]);
   if (!post) notFound();
 
   return (
     <ColumnForm
       title="コラム編集"
-      submitLabel="更新する"
       action={updateColumnPost.bind(null, id)}
+      templates={templates}
       values={{
         title: post.title,
         summary: post.summary ?? "",
@@ -29,6 +28,9 @@ export default async function AdminColumnEditPage({
         thumbnailUrl: post.thumbnailUrl ?? "",
         tags: post.tags.join(", "),
         isPublished: post.isPublished,
+        publishedAt: post.publishedAt,
+        metaTitle: (post as { metaTitle?: string | null }).metaTitle ?? null,
+        metaDescription: (post as { metaDescription?: string | null }).metaDescription ?? null,
       }}
     />
   );

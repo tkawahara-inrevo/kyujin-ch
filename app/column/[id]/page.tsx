@@ -11,11 +11,29 @@ export const revalidate = 0;
 
 type Params = Promise<{ id: string }>;
 
+export async function generateMetadata({ params }: { params: Params }) {
+  const { id } = await params;
+  const post = await prisma.columnPost.findFirst({
+    where: { id, isPublished: true, OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }] },
+    select: { title: true, metaTitle: true, metaDescription: true, summary: true, thumbnailUrl: true } as never,
+  }) as { title: string; metaTitle?: string | null; metaDescription?: string | null; summary?: string | null; thumbnailUrl?: string | null } | null;
+  if (!post) return {};
+  return {
+    title: (post.metaTitle || post.title) + " | 求人ちゃんねる",
+    description: post.metaDescription || post.summary || undefined,
+    openGraph: { images: post.thumbnailUrl ? [post.thumbnailUrl] : [] },
+  };
+}
+
 export default async function ColumnDetailPage({ params }: { params: Params }) {
   const { id } = await params;
 
   const post = await prisma.columnPost.findFirst({
-    where: { id, isPublished: true },
+    where: {
+      id,
+      isPublished: true,
+      OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }],
+    },
   });
 
   if (!post) notFound();

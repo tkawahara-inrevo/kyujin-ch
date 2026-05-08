@@ -15,10 +15,12 @@ export default async function ColumnListPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
+  const now = new Date();
   const posts = await prisma.columnPost.findMany({
     where: {
       isPublished: true,
-      ...(q ? { OR: [{ title: { contains: q, mode: "insensitive" } }, { body: { contains: q, mode: "insensitive" } }] } : {}),
+      OR: [{ publishedAt: null }, { publishedAt: { lte: now } }],
+      ...(q ? { AND: [{ OR: [{ title: { contains: q, mode: "insensitive" } }, { body: { contains: q, mode: "insensitive" } }] }] } : {}),
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: 50,

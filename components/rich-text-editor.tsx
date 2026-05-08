@@ -2,8 +2,9 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import { useEffect } from "react";
+import TiptapLink from "@tiptap/extension-link";
+import TiptapImage from "@tiptap/extension-image";
+import { useRef } from "react";
 
 type Props = {
   name: string;
@@ -11,10 +12,13 @@ type Props = {
 };
 
 export function RichTextEditor({ name, defaultValue = "" }: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Link.configure({ openOnClick: false }),
+      TiptapLink.configure({ openOnClick: false }),
+      TiptapImage.configure({ inline: false }),
     ],
     content: defaultValue,
     editorProps: {
@@ -26,9 +30,27 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
 
   const html = editor?.getHTML() ?? defaultValue;
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) {
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } else {
+        alert(data.error ?? "アップロードに失敗しました");
+      }
+    } catch {
+      alert("アップロードに失敗しました");
+    }
+    e.target.value = "";
+  }
+
   return (
     <div className="rounded-lg border border-[#d7dee9] focus-within:border-[#2f6cff]">
-      {/* ツールバー */}
       <div className="flex flex-wrap gap-1 border-b border-[#d7dee9] bg-[#f8fafc] px-2 py-1.5">
         <ToolBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")} title="太字">
           <strong>B</strong>
@@ -48,34 +70,41 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
         <ToolBtn onClick={() => editor?.chain().focus().toggleOrderedList().run()} active={editor?.isActive("orderedList")} title="番号リスト">
           1. リスト
         </ToolBtn>
+        <ToolBtn onClick={() => editor?.chain().focus().toggleBlockquote().run()} active={editor?.isActive("blockquote")} title="引用">
+          引用
+        </ToolBtn>
         <ToolBtn onClick={() => {
           const url = window.prompt("URL:");
           if (url) editor?.chain().focus().setLink({ href: url }).run();
         }} active={editor?.isActive("link")} title="リンク">
-          🔗 リンク
+          🔗
         </ToolBtn>
         <ToolBtn onClick={() => editor?.chain().focus().unsetLink().run()} title="リンク解除">
           ✕リンク
+        </ToolBtn>
+        <ToolBtn onClick={() => fileInputRef.current?.click()} title="画像を挿入">
+          🖼 画像
         </ToolBtn>
         <ToolBtn onClick={() => editor?.chain().focus().setHardBreak().run()} title="改行">
           ↵
         </ToolBtn>
       </div>
 
-      <EditorContent editor={editor} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleImageUpload}
+      />
 
-      {/* hidden input で formData に含める */}
+      <EditorContent editor={editor} />
       <input type="hidden" name={name} value={html} />
     </div>
   );
 }
 
-function ToolBtn({
-  onClick,
-  active,
-  title,
-  children,
-}: {
+function ToolBtn({ onClick, active, title, children }: {
   onClick: () => void;
   active?: boolean;
   title?: string;

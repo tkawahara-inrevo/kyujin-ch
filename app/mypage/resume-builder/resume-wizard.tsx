@@ -81,6 +81,7 @@ export function ResumeWizard({
     outputFormat: ["pdf"],
     careerJobType: "general",
     ...user,
+    birthDate: user.birthDate || "2000-04-01",
     educations: savedEducations,
     workExperiences: savedWorkExperiences,
     certifications: savedCertifications,

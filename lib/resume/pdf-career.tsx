@@ -1,30 +1,15 @@
 import React from "react";
-import path from "path";
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import type { ResumeData } from "./types";
+import { registerNotoSansJP } from "./font-loader";
 
-const FONT_DIR = path.join(process.cwd(), "node_modules/@fontsource/noto-sans-jp/files");
-
-Font.register({
-  family: "NotoSansJP",
-  fonts: [
-    {
-      src: path.join(FONT_DIR, "noto-sans-jp-japanese-400-normal.woff2"),
-      fontWeight: "normal",
-    },
-    {
-      src: path.join(FONT_DIR, "noto-sans-jp-japanese-700-normal.woff2"),
-      fontWeight: "bold",
-    },
-  ],
-});
+registerNotoSansJP();
 
 const styles = StyleSheet.create({
   page: {

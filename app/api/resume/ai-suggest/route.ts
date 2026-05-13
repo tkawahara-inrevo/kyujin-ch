@@ -52,7 +52,7 @@ const SECTION_PROMPTS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "USER") {
+  if (!session?.user?.id) {
     return new Response("Unauthorized", { status: 401 });
   }
 

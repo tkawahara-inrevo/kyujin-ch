@@ -17,7 +17,7 @@ export async function saveEducations(
   }[]
 ) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "USER") throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
   const userId = session.user.id;
 
   await prisma.$transaction([

@@ -13,6 +13,7 @@
     "seed:scenario-test": "tsx scripts/seed-scenario-test.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.2",
     "@auth/prisma-adapter": "^2.11.1",
     "@aws-sdk/client-s3": "^3.1006.0",
     "@aws-sdk/client-sesv2": "^3.1006.0",
@@ -20,12 +21,14 @@
     "@next/third-parties": "^16.2.2",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
+    "@react-pdf/renderer": "^4.5.1",
     "@tiptap/extension-image": "^3.22.2",
     "@tiptap/extension-link": "^3.22.2",
     "@tiptap/react": "^3.22.2",
     "@tiptap/starter-kit": "^3.22.2",
     "@types/bcryptjs": "^3.0.0",
     "bcryptjs": "^3.0.3",
+    "exceljs": "^4.4.0",
     "jose": "^5.10.0",
     "next": "16.1.6",
     "next-auth": "5.0.0-beta.30",

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ActionSidebar } from "@/components/action-sidebar";
@@ -43,7 +44,23 @@ export default async function MyPage() {
               createdAt={currentUser.createdAt}
             />
 
+            {/* AI書類作成バナー */}
             <section className="mt-10">
+              <Link
+                href="/mypage/resume-builder"
+                className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[#7c3aed] to-[#2f6cff] px-5 py-4 text-white shadow-sm transition hover:opacity-90"
+              >
+                <div>
+                  <div className="text-[15px] font-bold">✨ AI書類作成</div>
+                  <div className="mt-0.5 text-[12px] opacity-90">
+                    履歴書・職務経歴書をAIのサポートで自動作成
+                  </div>
+                </div>
+                <span className="text-[20px]">→</span>
+              </Link>
+            </section>
+
+            <section className="mt-8">
               <h2 className="text-[22px] font-bold text-[#333]">書類アップロード</h2>
               <p className="mt-3 text-[14px] font-semibold text-[#777]">
                 対応形式：PDF / DOCX / XLSX（最大10MB）

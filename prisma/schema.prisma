@@ -98,15 +98,19 @@ model User {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  applications Application[]
-  accounts     Account[]
-  bookmarks    Bookmark[]
-  favorites    Favorite[]
-  reviews      Review[]
-  sessions     Session[]
-  inquiries    Inquiry[]
-  columnPosts  ColumnPost[] @relation("ColumnAuthor")
-  company      Company?   @relation("CompanyUser")
+  applications    Application[]
+  accounts        Account[]
+  bookmarks       Bookmark[]
+  favorites       Favorite[]
+  reviews         Review[]
+  sessions        Session[]
+  inquiries       Inquiry[]
+  columnPosts     ColumnPost[]     @relation("ColumnAuthor")
+  company         Company?         @relation("CompanyUser")
+  educations      Education[]
+  workExperiences WorkExperience[]
+  certifications  Certification[]
+  resumeProfile   ResumeProfile?
 }
 
 model Account {
@@ -486,6 +490,73 @@ model Inquiry {
 
   @@index([status, createdAt])
   @@index([category, createdAt])
+}
+
+// ---- AI書類作成（履歴書・職務経歴書） ----
+
+model Education {
+  id         String   @id @default(cuid())
+  userId     String
+  schoolType String   // 小学校/中学校/高等学校/大学/短期大学/専門学校/大学院/その他
+  schoolName String
+  faculty    String?  // 学部・学科
+  status     String   // 入学/卒業/中退/在学中
+  year       Int
+  month      Int
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+}
+
+model WorkExperience {
+  id          String   @id @default(cuid())
+  userId      String
+  companyName String
+  department  String?  // 部署・役職
+  jobType     String?  // 職種カテゴリ（職務経歴書フォーマット選択用）
+  startYear   Int
+  startMonth  Int
+  endYear     Int?
+  endMonth    Int?
+  isCurrent   Boolean  @default(false)
+  description String?  // 業務内容
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+}
+
+model Certification {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  year      Int
+  month     Int
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+}
+
+model ResumeProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  prText        String?  // 自己PR・特技・アピールポイント
+  jobPreference String?  // 本人希望欄
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ColumnPost {

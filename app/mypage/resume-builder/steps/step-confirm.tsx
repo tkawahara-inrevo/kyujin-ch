@@ -95,9 +95,9 @@ export function StepConfirm({ state, onBack }: Props) {
 
   return (
     <div>
-      <h2 className="mb-2 text-[18px] font-bold text-[#1f2937]">確認・生成</h2>
+      <h2 className="mb-2 text-[18px] font-bold text-[#1f2937]">確認・ダウンロード</h2>
       <p className="mb-6 text-[13px] text-[#6b7280]">
-        入力内容を確認して書類を生成・ダウンロードしてください。
+        入力内容を確認し、下のボタンを押すと書類が生成されてすぐにダウンロードされます。
       </p>
 
       {/* 確認サマリー */}
@@ -142,7 +142,7 @@ export function StepConfirm({ state, onBack }: Props) {
 
       {/* 生成ボタン */}
       <div className="mb-6">
-        <h3 className="mb-3 text-[14px] font-bold text-[#444]">書類を生成・ダウンロード</h3>
+        <h3 className="mb-3 text-[14px] font-bold text-[#444]">ボタンを押してダウンロード</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {generateButtons.map(({ docType, format, label, key }) => {
             const status = statuses[key] ?? "idle";

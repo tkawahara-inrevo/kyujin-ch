@@ -1,4 +1,5 @@
 import React from "react";
+import path from "path";
 import {
   Document,
   Page,
@@ -9,15 +10,17 @@ import {
 } from "@react-pdf/renderer";
 import type { ResumeData } from "./types";
 
+const FONT_DIR = path.join(process.cwd(), "node_modules/@fontsource/noto-sans-jp/files");
+
 Font.register({
   family: "NotoSansJP",
   fonts: [
     {
-      src: "https://fonts.gstatic.com/s/notosansjp/v53/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFBEj75vY0rw-oME.woff2",
+      src: path.join(FONT_DIR, "noto-sans-jp-japanese-400-normal.woff2"),
       fontWeight: "normal",
     },
     {
-      src: "https://fonts.gstatic.com/s/notosansjp/v53/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFJEm75vY0rw-oME.woff2",
+      src: path.join(FONT_DIR, "noto-sans-jp-japanese-700-normal.woff2"),
       fontWeight: "bold",
     },
   ],

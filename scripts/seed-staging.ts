@@ -151,7 +151,7 @@ async function main() {
           title,
           description: `${company.name}では、${company.prefecture}拠点の組織強化に向けて新しい仲間を募集しています。\n\n入社後は既存メンバーのサポートを受けながら業務理解を深め、段階的に担当範囲を広げていける体制です。\n\n現場目線の改善提案も歓迎しており、日々の業務をより良くしていく動きに関われます。`,
           location: company.prefecture,
-          prefecture: company.prefecture,
+          region: company.prefecture,
           employmentType: j % 5 === 0 ? EmploymentType.CONTRACT : EmploymentType.FULL_TIME,
           salaryMin,
           salaryMax,

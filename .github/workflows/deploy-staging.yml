@@ -40,17 +40,15 @@ jobs:
 
       - name: Deploy to staging server
         run: |
-          # ビルド済みファイルを転送
+          # .nextとnode_modulesをビルド環境のまま転送（ハッシュ一致を保証）
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             --exclude='.git' \
-            --exclude='node_modules' \
             ./ ubuntu@${{ secrets.STAGING_HOST }}:~/kyujin-ch/
 
-          # サーバー側: 依存関係インストール(production only) + PM2再起動
+          # サーバー側: PM2再起動のみ（npm installは不要）
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.STAGING_HOST }} << 'ENDSSH'
             cd ~/kyujin-ch
-            npm ci --omit=dev
             pm2 describe kyujin-ch-staging > /dev/null 2>&1 \
               && pm2 restart kyujin-ch-staging \
               || pm2 start npm --name kyujin-ch-staging -- start

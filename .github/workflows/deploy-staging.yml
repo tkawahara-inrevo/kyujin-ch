@@ -46,9 +46,10 @@ jobs:
             --exclude='.git' \
             ./ ubuntu@${{ secrets.STAGING_HOST }}:~/kyujin-ch/
 
-          # サーバー側: PM2再起動のみ（npm installは不要）
+          # サーバー側: マイグレーション + PM2再起動
           ssh -i ~/.ssh/deploy_key ubuntu@${{ secrets.STAGING_HOST }} << 'ENDSSH'
             cd ~/kyujin-ch
+            node_modules/.bin/prisma migrate deploy
             pm2 describe kyujin-ch-staging > /dev/null 2>&1 \
               && pm2 restart kyujin-ch-staging \
               || pm2 start npm --name kyujin-ch-staging -- start

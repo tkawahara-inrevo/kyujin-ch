@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // PDF生成ライブラリはTurbopackに含めずNode.jsから直接ロード
+  serverExternalPackages: ["@react-pdf/renderer", "exceljs"],
   images: {
     remotePatterns: [
       {

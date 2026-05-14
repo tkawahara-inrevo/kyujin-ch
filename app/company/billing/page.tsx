@@ -91,7 +91,7 @@ export default async function CompanyBillingPage() {
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e3a5f]">請求管理</h1>
       <p className="mt-3 rounded-[10px] border border-[#dbe7ff] bg-[#f3f7ff] px-4 py-3 text-[13px] font-medium text-[#2b4ea2]">
-        アカウント発行日から3ヶ月間は無料期間のため、応募が発生しても請求は発生しません。
+        6月末まで応募が発生しても請求は発生しません。
       </p>
       <p className="mt-2 text-[13px] text-[#555]">
         料金・支払条件の詳細は

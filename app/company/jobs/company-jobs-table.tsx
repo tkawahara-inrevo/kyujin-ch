@@ -38,7 +38,7 @@ const SORT_OPTIONS = [
 const REVIEW_LABELS: Record<JobRow["reviewStatus"], string> = {
   DRAFT: "下書き",
   PENDING_REVIEW: "審査中",
-  PUBLISHED: "審査済み",
+  PUBLISHED: "公開中",
   RETURNED: "要修正",
 };
 
@@ -48,6 +48,16 @@ const REVIEW_BADGES: Record<JobRow["reviewStatus"], string> = {
   PUBLISHED: "bg-emerald-100 text-emerald-700",
   RETURNED: "bg-rose-100 text-rose-700",
 };
+
+function getStatusLabel(job: JobRow): string {
+  if (job.reviewStatus === "PUBLISHED" && !job.isPublished) return "非公開";
+  return REVIEW_LABELS[job.reviewStatus];
+}
+
+function getStatusBadge(job: JobRow): string {
+  if (job.reviewStatus === "PUBLISHED" && !job.isPublished) return "bg-gray-100 text-gray-500";
+  return REVIEW_BADGES[job.reviewStatus];
+}
 
 function PublishToggle({
   job,
@@ -296,13 +306,13 @@ export function CompanyJobsTable({
                             <button
                               type="button"
                               onClick={() => setTargetJob(job)}
-                              className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${REVIEW_BADGES[job.reviewStatus]}`}
+                              className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${getStatusBadge(job)}`}
                             >
-                              {REVIEW_LABELS[job.reviewStatus]}
+                              {getStatusLabel(job)}
                             </button>
                           ) : (
-                            <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${REVIEW_BADGES[job.reviewStatus]}`}>
-                              {REVIEW_LABELS[job.reviewStatus]}
+                            <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${getStatusBadge(job)}`}>
+                              {getStatusLabel(job)}
                             </span>
                           )}
                         </div>
@@ -370,13 +380,13 @@ export function CompanyJobsTable({
                           <button
                             type="button"
                             onClick={() => setTargetJob(job)}
-                            className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${REVIEW_BADGES[job.reviewStatus]}`}
+                            className={`rounded-full px-3 py-1 text-[12px] font-bold transition ${getStatusBadge(job)}`}
                           >
-                            {REVIEW_LABELS[job.reviewStatus]}
+                            {getStatusLabel(job)}
                           </button>
                         ) : (
-                          <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${REVIEW_BADGES[job.reviewStatus]}`}>
-                            {REVIEW_LABELS[job.reviewStatus]}
+                          <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${getStatusBadge(job)}`}>
+                            {getStatusLabel(job)}
                           </span>
                         )}
                       </td>

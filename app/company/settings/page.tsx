@@ -3,6 +3,7 @@ import { requireCompany } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { checkCompanyProfileComplete } from "@/lib/company-profile";
 import SettingsEditForm from "./settings-edit-form";
+import { CompanyDeleteAccountSection } from "./delete-account-section";
 
 type SearchParams = Promise<{ alert?: string }>;
 
@@ -122,6 +123,8 @@ export default async function CompanySettingsPage({
           メッセージテンプレートを管理する
         </Link>
       </div>
+
+      <CompanyDeleteAccountSection />
     </div>
   );
 }

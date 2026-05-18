@@ -69,11 +69,11 @@ export default async function FocusTopPage({
           <div className="flex flex-col gap-6">
             <div>
               <Image
-                src="/assets/Focus_ロゴ@2x.png"
+                src="/assets/Focus-fv.png"
                 alt="Focus"
-                height={60}
-                width={225}
-                className="h-15 w-auto"
+                height={138}
+                width={388}
+                className="h-34.5 w-auto max-w-full"
                 priority
               />
               <p className="mt-5 text-[14px] font-bold text-white leading-relaxed">

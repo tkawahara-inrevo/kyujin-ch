@@ -68,10 +68,18 @@ export default async function FocusTopPage({
         <div className="flex flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-6">
             <div>
-              <p className="text-[56px] font-bold italic text-white tracking-tight leading-none">
-                Focus
-              </p>
-              <p className="mt-4 text-[14px] font-bold text-white leading-relaxed">
+              {/* ロゴ：紺背景なので白背景のコンテナに収めて視認性を確保 */}
+              <div className="inline-block rounded-xl bg-white px-5 py-3">
+                <Image
+                  src="/assets/Focus_ロゴ@2x.png"
+                  alt="Focus"
+                  height={50}
+                  width={188}
+                  className="h-12.5 w-auto"
+                  priority
+                />
+              </div>
+              <p className="mt-5 text-[14px] font-bold text-white leading-relaxed">
                 『Focus』は一社一社の魅力やストーリーにスポットライトを当て、<br />
                 想いを紡ぐインタビューを通じてその価値を発信します。
               </p>

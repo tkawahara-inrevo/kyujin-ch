@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { FocusHeader } from "@/components/focus-header";
 
 export default function FocusLayout({ children }: { children: React.ReactNode }) {
@@ -9,7 +10,13 @@ export default function FocusLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-[270px]">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <span className="text-[28px] font-bold italic text-[#1f2775] tracking-tight">Focus</span>
+              <Image
+                src="/assets/Focus_ロゴ@2x.png"
+                alt="Focus"
+                height={28}
+                width={105}
+                className="h-7 w-auto"
+              />
               <p className="mt-3 text-[14px] text-[#333] leading-relaxed">
                 『Focus』は一社一社の魅力やストーリーにスポットライトを当て、<br />
                 想いを紡ぐインタビューを通じてその価値を発信します。

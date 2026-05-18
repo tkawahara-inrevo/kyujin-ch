@@ -7,9 +7,14 @@ export function FocusHeader() {
       <div className="mx-auto flex h-[75px] max-w-[1400px] items-center justify-between px-6 md:px-[270px]">
         {/* ロゴ */}
         <Link href="/focus" className="flex items-center">
-          <span className="text-[28px] font-bold italic text-[#1f2775] tracking-tight">
-            Focus
-          </span>
+          <Image
+            src="/assets/Focus_ロゴ@2x.png"
+            alt="Focus"
+            height={32}
+            width={120}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
 
         {/* ナビ */}

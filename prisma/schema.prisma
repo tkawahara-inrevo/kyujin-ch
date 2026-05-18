@@ -559,6 +559,30 @@ model ResumeProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// ---- Focus（企業特集メディア） ----
+
+model FocusArticle {
+  id             String   @id @default(cuid())
+  slug           String   @unique // 法人番号（URL slug）
+  companyName    String
+  title          String
+  summary        String?
+  body           String   // TipTap HTML
+  thumbnailUrl   String?
+  tags           String[] @default([])
+  isPublished    Boolean  @default(false)
+  isHot          Boolean  @default(false) // PICK UP注目
+  publishedAt    DateTime?
+  authorName     String?
+  authorBio      String?
+  authorImageUrl String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isPublished, publishedAt])
+  @@index([slug])
+}
+
 model ColumnPost {
   id              String   @id @default(cuid())
   title           String

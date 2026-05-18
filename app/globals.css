@@ -140,3 +140,90 @@ input {
   border-top: 2px solid #e5e7eb;
   margin: 2em 0;
 }
+
+/* Focus記事本文スタイル（Figmaデザイン準拠） */
+.focus-article-body {
+  font-size: 16px;
+  line-height: 26px;
+  color: #333;
+}
+.focus-article-body p {
+  margin: 1em 0;
+}
+/* H1: 左縦線 + 大見出し */
+.focus-article-body h1 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 2em 0 0.75em;
+  color: #333;
+}
+.focus-article-body h1::before {
+  content: "";
+  display: block;
+  width: 10px;
+  min-height: 1.3em;
+  background-color: #1f2775;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+/* H2: 青四角 + 中見出し */
+.focus-article-body h2 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 1.8em 0 0.6em;
+  color: #333;
+}
+.focus-article-body h2::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background-color: #1f2775;
+  flex-shrink: 0;
+}
+/* H3: 装飾なし + 小見出し */
+.focus-article-body h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 1.4em 0 0.5em;
+  color: #333;
+}
+.focus-article-body strong {
+  font-weight: 700;
+}
+.focus-article-body a {
+  color: #1f2775;
+  text-decoration: underline;
+}
+.focus-article-body ul {
+  list-style: disc;
+  padding-left: 1.5em;
+  margin: 0.75em 0;
+}
+.focus-article-body ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+  margin: 0.75em 0;
+}
+.focus-article-body li {
+  margin: 0.3em 0;
+}
+.focus-article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1em 0;
+}
+.focus-article-body blockquote {
+  border-left: 4px solid #1f2775;
+  margin: 1.5em 0;
+  padding: 0.5em 1em;
+  background: #f0f4ff;
+  color: #333;
+}

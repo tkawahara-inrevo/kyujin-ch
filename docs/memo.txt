@@ -1,0 +1,50 @@
+お疲れさまです。
+デザイン
+Focusを事業化することになりましてこちらのページでサイト構築をお願いします！
+ヘッダーに関しては掲載希望以外は一旦見えない状態にしておき、
+今後、完成したら各ページを作成する形にしたいです。
+また、タグについては現状は2個しかありませんがこちらも徐々に増やせるようにしたいです。
+サイトマップは下記を想定しています。
+新-9chシート
+確認ください。
+
+デザインデータは今古田さんにもらっているのでもらい次第、お渡し可能です。
+現行の記事もこちらに移動したいと考えておりまして記事のページに関しては原稿のものを色だけ変更する形で良いと考えています。
+
+その他必要な情報があれば教えてください。
+一旦、こちらで開発依頼をしたいのですがいつ頃までに可能でしょうか？
+ご確認お願いいたします。 （編集済み） 
+Figma無題Created with Figma河原 宝/Takara Kawahara  [09:52]
+@外山 雄大/Yudai Toyama
+お疲れまです、ご連絡ありがとうございます。
+
+いただいたデザインでサイトを構築する旨、了解です。
+イメージ的には、求職者が見るページのどっかからfocusの記事一覧ページに飛んで、各クライアントさんの記事ページに飛べる形で認識しました。
+
+＜作業内容＞
+・記事一覧と各クライアント記事詳細の2ページの開発構築。
+・記事一覧には各種（タグ、キーワード、注目）検索,フィルタ機能を搭載。
+＜質問事項＞
+・記事作成って今はStudioとかでやってるんですかね？記事作成とか投稿用のページ（機能）も必要になりますか？　投稿用ページは必要です！
+⇒記事作成に関してはAIを利用しているので現状は不要です。
+・掲載希望はこちらというのは、9chへの企業登録？focus記事の掲載希望？
+⇒Focusの掲載希望になるので別途でフォームの作成をします。
+・現状ヒトトレでお付き合いある会社さんをフォーカスして記事を書いてらっしゃるんですよね？　それは引き続き続行？　それを廃止して9ch配下に置く感じですか？（今いち背景理解できてなくてすみません。）
+⇒ヒトトレの付き合いある会社も引き続き継続、現状だとヒトトレの付き合いある会社にかしか見えないのでオウンドメディアとして独立させて一般にも販促をしていくことを想定しています。
+https://inrevo.co.jp/hitotore-recruit/focus
+
+
+https://www.figma.com/proto/VvGmTqchOxBb7j0fsHQbMW/%E7%84%A1%E9%A1%8C?node-id=1-255&t=xbcHll0eUX94JxB2-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A255
+
+https://www.figma.com/proto/VvGmTqchOxBb7j0fsHQbMW/%E7%84%A1%E9%A1%8C?node-id=1-441&t=2kT4xCMn2dVdpMDL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A255
+
+https://www.figma.com/proto/VvGmTqchOxBb7j0fsHQbMW/%E7%84%A1%E9%A1%8C?node-id=57-249&t=nH8ARZgdVH6biLpS-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A255
+
+https://www.figma.com/proto/VvGmTqchOxBb7j0fsHQbMW/%E7%84%A1%E9%A1%8C?node-id=58-1403&t=XMkbu3tOC4Uy5Bb6-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A255
+
+メインページ	/focus	https://kyujin.co.jp/focus/			
+                                                            記事	/法人番号	https://kyujin.co.jp/focus/法人番号		
+					                                        タグ	   /tag       https://kyujin.co.jp/focus/tag		
+					                                        探す	/search	https://kyujin.co.jp/focus/search		
+					                                        注目	/hot	https://kyujin.co.jp/focus/hot		
+					                                        掲載する	/contact			

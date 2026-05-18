@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/admin/jobseekers", label: "求職者一覧", icon: "👤", key: "jobseekers" },
   { href: "/admin/jobs", label: "求人一覧", icon: "📄", key: "jobs" },
   { href: "/admin/columns", label: "コラム管理", icon: "📝", key: "columns" },
+  { href: "/admin/focus", label: "Focus記事管理", icon: "🔍", key: "focus" },
   { href: "/admin/billing", label: "請求単価管理", icon: "💳", key: "billing" },
   { href: "/admin/invoices", label: "請求一覧", icon: "🧮", key: "invoices" },
   { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠", key: "invalidRequests" },

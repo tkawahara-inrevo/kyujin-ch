@@ -19,6 +19,7 @@ export function FocusHeader() {
 
         {/* ナビ */}
         <div className="flex items-center gap-[60px]">
+          {/* 記事数が増えるまで一時的に非表示
           <nav className="hidden items-center gap-[60px] md:flex">
             <Link
               href="/focus?sort=new"
@@ -33,6 +34,7 @@ export function FocusHeader() {
               人気の企業
             </Link>
           </nav>
+          */}
           <Link
             href="/focus/contact"
             className="rounded-full bg-[#1f2775] px-[30px] py-[10px] text-[16px] font-bold text-white transition hover:opacity-90"

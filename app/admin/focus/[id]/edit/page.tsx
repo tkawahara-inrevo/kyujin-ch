@@ -48,7 +48,6 @@ export default async function AdminFocusEditPage({ params }: { params: Params })
           <button
             type="submit"
             className="text-[13px] text-[#ef4444] hover:underline"
-            onClick={() => {/* confirm handled by browser default */}}
           >
             この記事を削除する
           </button>

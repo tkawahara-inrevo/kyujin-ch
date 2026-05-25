@@ -53,11 +53,11 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
       <h1 className="text-[24px] font-bold text-[#1e293b]">{title}</h1>
 
       <form action={action} className="mt-6 space-y-5 rounded-xl bg-white p-6 shadow-sm">
-        {/* slug (法人番号) */}
+        {/* 法人番号 */}
         <div>
-          <label className={labelCls}>slug（法人番号） *</label>
+          <label className={labelCls}>法人番号 *</label>
           <input name="slug" defaultValue={initial.slug} required className={inputCls} placeholder="6290001104501" />
-          <p className="mt-1 text-[11px] text-[#888]">URL: /focus/[slug]。法人番号13桁を推奨。</p>
+          <p className="mt-1 text-[11px] text-[#888]">URL: /focus/[法人番号]。13桁の半角数字。</p>
         </div>
 
         {/* 企業名 */}

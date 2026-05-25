@@ -155,10 +155,11 @@ input {
 /* H1: 左縦線 + 大見出し */
 .focus-article-body h1 {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 15px;
   font-size: 36px;
   font-weight: 700;
+  line-height: 1.4;
   margin: 2em 0 0.75em;
   color: #333;
 }
@@ -166,10 +167,8 @@ input {
   content: "";
   display: block;
   width: 10px;
-  min-height: 1.3em;
   background-color: #1f2775;
   flex-shrink: 0;
-  align-self: stretch;
 }
 /* H2: 青四角 + 中見出し */
 .focus-article-body h2 {
@@ -178,6 +177,7 @@ input {
   gap: 15px;
   font-size: 24px;
   font-weight: 700;
+  line-height: 1.4;
   margin: 1.8em 0 0.6em;
   color: #333;
 }
@@ -193,6 +193,7 @@ input {
 .focus-article-body h3 {
   font-size: 18px;
   font-weight: 700;
+  line-height: 1.5;
   margin: 1.4em 0 0.5em;
   color: #333;
 }

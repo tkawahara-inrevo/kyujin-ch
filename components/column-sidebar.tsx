@@ -39,24 +39,26 @@ export async function ColumnSidebar() {
           {darkTags.length > 0 && (
             <div className="flex flex-wrap gap-[5px] mb-2">
               {darkTags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="cursor-pointer rounded-full bg-[#333] px-[15px] py-[3px] text-[12px] font-semibold text-white transition hover:opacity-80"
+                  href={`/column?tag=${encodeURIComponent(tag)}`}
+                  className="rounded-full bg-[#333] px-[15px] py-[3px] text-[12px] font-semibold text-white transition hover:opacity-80"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}
           {grayTags.length > 0 && (
             <div className="flex flex-wrap gap-[5px]">
               {grayTags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="cursor-pointer rounded-full bg-[#ccc] px-[15px] py-[3px] text-[12px] font-semibold text-[#333] transition hover:opacity-80"
+                  href={`/column?tag=${encodeURIComponent(tag)}`}
+                  className="rounded-full bg-[#ccc] px-[15px] py-[3px] text-[12px] font-semibold text-[#333] transition hover:opacity-80"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}

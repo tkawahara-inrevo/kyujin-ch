@@ -12,15 +12,16 @@ export const revalidate = 0;
 export default async function ColumnListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, tag } = await searchParams;
   const now = new Date();
   const posts = await prisma.columnPost.findMany({
     where: {
       isPublished: true,
       OR: [{ publishedAt: null }, { publishedAt: { lte: now } }],
       ...(q ? { AND: [{ OR: [{ title: { contains: q, mode: "insensitive" } }, { body: { contains: q, mode: "insensitive" } }] }] } : {}),
+      ...(tag ? { tags: { has: tag } } : {}),
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: 50,
@@ -35,7 +36,9 @@ export default async function ColumnListPage({
         <div className="grid gap-8 lg:grid-cols-[1fr_260px]">
           {/* メインコンテンツ */}
           <section>
-            <h1 className="text-[22px] font-bold text-[#222]">今知りたい！最新就職情報</h1>
+            <h1 className="text-[22px] font-bold text-[#222]">
+              {tag ? `#${tag}` : q ? `「${q}」の検索結果` : "今知りたい！最新就職情報"}
+            </h1>
 
             <div className="mt-1 mb-4 text-[12px] text-[#999]">{posts.length}件</div>
 

@@ -11,7 +11,7 @@ export function ColumnSearchForm() {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
-    router.push(`/column-preview?${params.toString()}`);
+    router.push(`/column?${params.toString()}`);
   }
 
   return (

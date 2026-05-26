@@ -12,12 +12,12 @@ export function ColumnHero({ defaultQ = "" }: { defaultQ?: string }) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
-    router.push(`/column-preview?${params.toString()}`);
+    router.push(`/column?${params.toString()}`);
   }
 
   function handleReset() {
     setQ("");
-    router.push("/column-preview");
+    router.push("/column");
   }
 
   return (

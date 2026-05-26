@@ -61,9 +61,7 @@ export function TopFVSection({
           {/* タブ */}
           <div className="flex gap-[2px]">
             <Link
-              href="https://kyujin-ch.jp/column/"
-              target="_blank"
-              rel="noreferrer"
+              href="/column"
               className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
             >
               就職最新情報
@@ -102,9 +100,7 @@ export function TopFVSection({
                   ▼就活お役立ち・資格情報
                 </p>
                 <Link
-                  href="https://kyujin-ch.jp/column/"
-                  target="_blank"
-                  rel="noreferrer"
+                  href="/column"
                   className="mb-2 flex w-full items-center justify-center rounded-[5px] bg-[#1d63e3] py-2 font-bold !text-white transition hover:opacity-90"
                   style={{ fontSize: "11px", fontWeight: 700 }}
                 >

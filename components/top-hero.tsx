@@ -204,9 +204,7 @@ export function TopHero({
         {showTabs && (
           <div className="grid grid-cols-2 overflow-hidden rounded-t-[14px]">
             <Link
-              href="https://kyujin-ch.jp/column/"
-              target="_blank"
-              rel="noreferrer"
+              href="/column"
               className={`block py-3 text-center text-[14px] font-bold transition ${
                 activeTab === "news" ? "bg-white text-[#3b6ff6]" : "bg-[#f5f5f5] text-[#aaa]"
               }`}

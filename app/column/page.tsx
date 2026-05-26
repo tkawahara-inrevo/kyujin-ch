@@ -68,6 +68,7 @@ export default async function ColumnListPage({
 
 type Post = {
   id: string;
+  slug: string;
   title: string;
   summary: string | null;
   thumbnailUrl: string | null;
@@ -85,7 +86,7 @@ function ColumnCard({ post }: { post: Post }) {
 
   return (
     <Link
-      href={`/column/${post.id}`}
+      href={`/column/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       {/* サムネイル */}

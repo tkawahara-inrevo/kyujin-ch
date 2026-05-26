@@ -9,6 +9,8 @@ function parseTags(raw: string) {
   return raw.split(",").map((tag) => tag.trim()).filter(Boolean);
 }
 
+const SLUG_RE = /^[a-z0-9_\-]+$/;
+
 type ColumnStatus = "draft" | "published" | "scheduled";
 
 function buildPublishData(status: ColumnStatus, scheduledAt: string | null, currentPublishedAt: Date | null | undefined) {
@@ -19,6 +21,7 @@ function buildPublishData(status: ColumnStatus, scheduledAt: string | null, curr
 
 export async function createColumnPost(formData: FormData) {
   const session = await requireColumnEditor() as { user: { id: string } };
+  const slug = String(formData.get("slug") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -28,11 +31,15 @@ export async function createColumnPost(formData: FormData) {
   const metaDescription = String(formData.get("metaDescription") ?? "").trim() || null;
   const status = (formData.get("status") as ColumnStatus) ?? "draft";
   const scheduledAt = String(formData.get("scheduledAt") ?? "").trim() || null;
+  if (!slug) throw new Error("スラッグは必須です");
+  if (!SLUG_RE.test(slug)) throw new Error("スラッグは半角英数字・ハイフン・アンダースコアのみ使用できます");
   if (!title) throw new Error("タイトルは必須です");
   if (!body) throw new Error("本文は必須です");
+  const exists = await prisma.columnPost.findUnique({ where: { slug }, select: { id: true } });
+  if (exists) throw new Error(`スラッグ「${slug}」は既に使われています`);
   await prisma.columnPost.create({
     data: {
-      title, summary: summary || null, body,
+      slug, title, summary: summary || null, body,
       thumbnailUrl: thumbnailUrl || null, tags, metaTitle, metaDescription,
       ...buildPublishData(status, scheduledAt, null),
       authorId: session.user.id,
@@ -45,6 +52,7 @@ export async function createColumnPost(formData: FormData) {
 
 export async function updateColumnPost(id: string, formData: FormData) {
   await requireColumnEditor();
+  const slug = String(formData.get("slug") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
@@ -54,20 +62,26 @@ export async function updateColumnPost(id: string, formData: FormData) {
   const metaDescription = String(formData.get("metaDescription") ?? "").trim() || null;
   const status = (formData.get("status") as ColumnStatus) ?? "draft";
   const scheduledAt = String(formData.get("scheduledAt") ?? "").trim() || null;
+  if (!slug) throw new Error("スラッグは必須です");
+  if (!SLUG_RE.test(slug)) throw new Error("スラッグは半角英数字・ハイフン・アンダースコアのみ使用できます");
   if (!title) throw new Error("タイトルは必須です");
   if (!body) throw new Error("本文は必須です");
-  const current = await prisma.columnPost.findUnique({ where: { id }, select: { publishedAt: true } });
+  const current = await prisma.columnPost.findUnique({ where: { id }, select: { publishedAt: true, slug: true } });
   if (!current) throw new Error("コラム記事が見つかりません");
+  if (slug !== current.slug) {
+    const dup = await prisma.columnPost.findUnique({ where: { slug }, select: { id: true } });
+    if (dup) throw new Error(`スラッグ「${slug}」は既に使われています`);
+  }
   await prisma.columnPost.update({
     where: { id },
     data: {
-      title, summary: summary || null, body,
+      slug, title, summary: summary || null, body,
       thumbnailUrl: thumbnailUrl || null, tags, metaTitle, metaDescription,
       ...buildPublishData(status, scheduledAt, current.publishedAt),
     },
   });
   revalidatePath("/column");
-  revalidatePath(`/column/${id}`);
+  revalidatePath(`/column/${slug}`);
   revalidatePath("/admin/columns");
   revalidatePath(`/admin/columns/${id}/edit`);
   redirect("/admin/columns");
@@ -82,7 +96,7 @@ export async function deleteColumnPost(id: string) {
 
 export async function toggleColumnPublished(id: string) {
   await requireColumnEditor();
-  const post = await prisma.columnPost.findUnique({ where: { id }, select: { isPublished: true } });
+  const post = await prisma.columnPost.findUnique({ where: { id }, select: { isPublished: true, slug: true } });
   if (!post) throw new Error("コラム記事が見つかりません");
   const nextPublished = !post.isPublished;
   await prisma.columnPost.update({
@@ -90,7 +104,7 @@ export async function toggleColumnPublished(id: string) {
     data: { isPublished: nextPublished, publishedAt: nextPublished ? new Date() : null },
   });
   revalidatePath("/column");
-  revalidatePath(`/column/${id}`);
+  revalidatePath(`/column/${post.slug}`);
   revalidatePath("/admin/columns");
 }
 

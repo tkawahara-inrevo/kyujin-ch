@@ -9,12 +9,12 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type Params = Promise<{ id: string }>;
+type Params = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: Params }) {
-  const { id } = await params;
+  const { slug } = await params;
   const post = await prisma.columnPost.findFirst({
-    where: { id, isPublished: true, OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }] },
+    where: { slug, isPublished: true, OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }] },
     select: { title: true, metaTitle: true, metaDescription: true, summary: true, thumbnailUrl: true } as never,
   }) as { title: string; metaTitle?: string | null; metaDescription?: string | null; summary?: string | null; thumbnailUrl?: string | null } | null;
   if (!post) return {};
@@ -26,11 +26,11 @@ export async function generateMetadata({ params }: { params: Params }) {
 }
 
 export default async function ColumnDetailPage({ params }: { params: Params }) {
-  const { id } = await params;
+  const { slug } = await params;
 
   const post = await prisma.columnPost.findFirst({
     where: {
-      id,
+      slug,
       isPublished: true,
       OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }],
     },

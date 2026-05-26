@@ -55,7 +55,7 @@ export default async function AdminColumnsPage() {
                 return (
                   <tr key={post.id} className="border-b border-[#eef2f8] last:border-b-0">
                     <td className="px-4 py-3 font-medium text-[#1f2937]">
-                      <Link href={`/column/${post.id}`} className="hover:text-[#2f6cff]" target="_blank">{post.title}</Link>
+                      <Link href={`/column/${post.slug}`} className="hover:text-[#2f6cff]" target="_blank">{post.title}</Link>
                     </td>
                     <td className="px-4 py-3 text-[#4b5563] text-[12px]">{post.tags.length ? post.tags.join(", ") : "-"}</td>
                     <td className="px-4 py-3">

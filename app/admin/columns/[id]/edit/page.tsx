@@ -22,6 +22,7 @@ export default async function AdminColumnEditPage({ params }: { params: Params }
       action={updateColumnPost.bind(null, id)}
       templates={templates}
       values={{
+        slug: post.slug,
         title: post.title,
         summary: post.summary ?? "",
         body: post.body,

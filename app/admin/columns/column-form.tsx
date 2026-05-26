@@ -13,7 +13,7 @@ const PRESET_TAGS = [
 type Status = "draft" | "published" | "scheduled";
 type Template = { id: string; name: string; body: string };
 type ColumnFormValues = {
-  title?: string; summary?: string; body?: string; thumbnailUrl?: string;
+  slug?: string; title?: string; summary?: string; body?: string; thumbnailUrl?: string;
   tags?: string; isPublished?: boolean; publishedAt?: Date | null;
   metaTitle?: string | null; metaDescription?: string | null;
 };
@@ -103,6 +103,20 @@ export function ColumnForm({ title, action, values, templates = [] }: Props) {
           <div>
             <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">タイトル *</label>
             <input name="title" defaultValue={values?.title ?? ""} required className={inputCls} />
+          </div>
+          <div>
+            <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">スラッグ（URL）*</label>
+            <input
+              name="slug"
+              defaultValue={values?.slug ?? ""}
+              required
+              pattern="[a-z0-9_\-]+"
+              className={inputCls}
+              placeholder="例: tenshoku-agent_hoshu"
+            />
+            <p className="mt-1 text-[11px] text-[#888]">
+              半角英数字・ハイフン・アンダースコアのみ。URLは /column/[スラッグ] になります
+            </p>
           </div>
           <div>
             <label className="mb-2 block text-[13px] font-bold text-[#4b5565]">概要（一覧サマリー）</label>

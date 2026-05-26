@@ -585,6 +585,7 @@ model FocusArticle {
 
 model ColumnPost {
   id              String   @id @default(cuid())
+  slug            String   @unique
   title           String
   summary         String?
   body            String
@@ -601,6 +602,7 @@ model ColumnPost {
   author User? @relation("ColumnAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([isPublished, publishedAt, createdAt])
+  @@index([slug])
 }
 
 model ColumnTemplate {

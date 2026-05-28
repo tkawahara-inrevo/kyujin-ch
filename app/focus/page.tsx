@@ -1,65 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { FocusArticleCard } from "@/components/focus-article-card";
-import { FocusSidebar } from "@/components/focus-sidebar";
+import { FocusArticleList } from "@/components/focus-article-list";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const metadata = { title: "記事一覧" };
 
-type SearchParams = Promise<{
-  q?: string;
-  tag?: string;
-  sort?: string;
-}>;
+type SearchParams = Promise<{ q?: string; tag?: string }>;
 
 export default async function FocusTopPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, tag, sort } = await searchParams;
+  const { q, tag } = await searchParams;
 
-  // 検索条件
-  const where = {
-    isPublished: true,
-    ...(q ? {
-      OR: [
-        { title: { contains: q, mode: "insensitive" as const } },
-        { companyName: { contains: q, mode: "insensitive" as const } },
-        { summary: { contains: q, mode: "insensitive" as const } },
-      ],
-    } : {}),
-    ...(tag ? { tags: { has: tag } } : {}),
-    ...(sort === "hot" ? { isHot: true } : {}),
-  };
+  const pickUp = await prisma.focusArticle.findFirst({
+    where: { isPublished: true, isHot: true },
+    orderBy: { publishedAt: "desc" },
+    select: { slug: true, companyName: true, title: true, thumbnailUrl: true },
+  });
 
-  const [articles, pickUp, allArticles] = await Promise.all([
-    prisma.focusArticle.findMany({
-      where,
-      orderBy: sort === "new"
-        ? { publishedAt: "desc" }
-        : [{ isHot: "desc" }, { publishedAt: "desc" }],
-      select: {
-        id: true, slug: true, companyName: true, title: true,
-        thumbnailUrl: true, tags: true, publishedAt: true, isHot: true,
-      },
-    }),
-    // ヒーローエリアのPICK UP記事
-    prisma.focusArticle.findFirst({
-      where: { isPublished: true, isHot: true },
-      orderBy: { publishedAt: "desc" },
-      select: { slug: true, companyName: true, title: true, thumbnailUrl: true },
-    }),
-    // サイドバー用全タグ
-    prisma.focusArticle.findMany({
-      where: { isPublished: true },
-      select: { tags: true },
-    }),
-  ]);
-
-  const allTags = [...new Set(allArticles.flatMap((a) => a.tags))];
+  const heading = tag ? `#${tag}` : q ? `「${q}」の検索結果` : "記事一覧";
 
   return (
     <div>
@@ -76,7 +39,7 @@ export default async function FocusTopPage({
                 className="h-34.5 w-auto max-w-full"
                 priority
               />
-              <p className="mt-5 text-[14px] font-bold text-white leading-relaxed">
+              <p className="mt-5 text-[14px] font-bold leading-relaxed text-white">
                 『Focus』は一社一社の魅力やストーリーにスポットライトを当て、<br />
                 想いを紡ぐインタビューを通じてその価値を発信します。
               </p>
@@ -109,7 +72,7 @@ export default async function FocusTopPage({
               </div>
               <div className="bg-gradient-to-b from-white/50 to-white px-6 py-3">
                 <p className="text-[14px] text-[#333]">{pickUp.companyName}</p>
-                <p className="text-[18px] font-semibold text-[#333] leading-[1.3] tracking-tight">
+                <p className="text-[18px] font-semibold leading-[1.3] tracking-tight text-[#333]">
                   {pickUp.title}
                 </p>
               </div>
@@ -118,43 +81,8 @@ export default async function FocusTopPage({
         </div>
       </section>
 
-      {/* メインコンテンツ */}
-      <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-[270px]">
-        <div className="flex gap-8">
-          {/* 記事一覧 */}
-          <div className="flex-1 min-w-0">
-            <h2 className="mb-6 text-[24px] font-bold text-[#333]">
-              {tag ? `#${tag}` : q ? `"${q}" の検索結果` : "記事一覧"}
-            </h2>
-
-            {articles.length === 0 ? (
-              <p className="text-[14px] text-[#888]">記事がありません。</p>
-            ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                {articles.map((article) => (
-                  <FocusArticleCard
-                    key={article.id}
-                    slug={article.slug}
-                    title={article.title}
-                    companyName={article.companyName}
-                    thumbnailUrl={article.thumbnailUrl}
-                    tags={article.tags}
-                    publishedAt={article.publishedAt}
-                    isHot={article.isHot}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* サイドバー */}
-          <div className="hidden lg:block">
-            <Suspense>
-              <FocusSidebar allTags={allTags} />
-            </Suspense>
-          </div>
-        </div>
-      </div>
+      {/* 記事一覧 + サイドバー */}
+      <FocusArticleList heading={heading} q={q} tag={tag} />
     </div>
   );
 }

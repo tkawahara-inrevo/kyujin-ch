@@ -143,7 +143,9 @@
       "Bash(nslookup kyujin-ch.jp 8.8.8.8)",
       "Bash(curl -sI --max-time 10 \"https://kyujin-ch.jp/column/nonexistent-slug-test123\")",
       "Bash(curl -s --max-time 10 \"https://kyujin-ch.jp/column\")",
-      "Bash(curl -sI --max-time 10 \"https://kyujin-ch.jp/wp-content/uploads/2026/04/no137.png\")"
+      "Bash(curl -sI --max-time 10 \"https://kyujin-ch.jp/wp-content/uploads/2026/04/no137.png\")",
+      "mcp__claude_ai_Figma__get_metadata",
+      "Bash(timeout 400 npx next build)"
     ],
     "additionalDirectories": [
       "\\tmp",

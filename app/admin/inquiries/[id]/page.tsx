@@ -79,7 +79,8 @@ export default async function AdminInquiryDetailPage({
           <h2 className="text-[16px] font-bold text-[#333]">送信者情報</h2>
           <dl className="mt-5 space-y-4 text-[14px]">
             <InfoRow label="お名前" value={inquiry.name} />
-            <InfoRow label="メール" value={inquiry.email} breakAll />
+            {inquiry.companyName && <InfoRow label="会社名" value={inquiry.companyName} />}
+            <InfoRow label="メール" value={inquiry.email || "未入力"} breakAll />
             <InfoRow label="電話番号" value={inquiry.phone || "未入力"} />
             <InfoRow
               label="会員"

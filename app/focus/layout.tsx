@@ -1,5 +1,15 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { FocusHeader } from "@/components/focus-header";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Focus｜企業の魅力を伝えるインタビューメディア",
+    template: "%s | Focus",
+  },
+  description:
+    "『Focus』は一社一社の魅力やストーリーにスポットライトを当て、想いを紡ぐインタビューを通じてその価値を発信します。",
+};
 
 export default function FocusLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,9 +40,7 @@ export default function FocusLayout({ children }: { children: React.ReactNode })
               </div>
               <div className="flex flex-col gap-3">
                 <p className="font-bold text-[12px]">サポート</p>
-                <a href="/contact" className="underline hover:text-[#1f2775]">お問い合わせ</a>
-                <a href="/kiyaku" className="underline hover:text-[#1f2775]">利用規約（求職者）</a>
-                <a href="/kiyaku-company" className="underline hover:text-[#1f2775]">利用規約（企業）</a>
+                <a href="/focus/contact" className="underline hover:text-[#1f2775]">お問い合わせ</a>
                 <a href="https://inrevo.co.jp/privacy-policy" className="underline hover:text-[#1f2775]" target="_blank" rel="noreferrer">プライバシーポリシー</a>
               </div>
             </div>

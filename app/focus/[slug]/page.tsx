@@ -10,6 +10,20 @@ export const revalidate = 0;
 
 type Params = Promise<{ slug: string }>;
 
+export async function generateMetadata({ params }: { params: Params }) {
+  const { slug } = await params;
+  const article = await prisma.focusArticle.findUnique({
+    where: { slug, isPublished: true },
+    select: { title: true, companyName: true, summary: true, thumbnailUrl: true },
+  });
+  if (!article) return {};
+  return {
+    title: `${article.title}｜${article.companyName}`,
+    description: article.summary || undefined,
+    openGraph: { images: article.thumbnailUrl ? [article.thumbnailUrl] : [] },
+  };
+}
+
 export default async function FocusArticlePage({ params }: { params: Params }) {
   const { slug } = await params;
 

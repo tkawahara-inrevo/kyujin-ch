@@ -462,7 +462,7 @@ export function WorkingHoursSection({
             value={value.note}
             onChange={(e) => onChange({ note: e.target.value })}
             className={textareaCls}
-            placeholder="例）繁忙期の月◯時間程度"
+            placeholder="例）繁忙期のみ月◯時間程度"
             maxLength={150}
           />
           <p className="mt-1 text-right text-[12px] text-[#7b8797]">{value.note.length} / 150文字</p>

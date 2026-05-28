@@ -119,7 +119,7 @@ export default async function JobsPage({
         categoryGroups={categoryGroups}
         searchPath="/jobs"
         includeSearchTabParam={false}
-        showTabs={false}
+        showTabs={true}
       />
 
       <div className="mx-auto max-w-[1200px] px-4 pb-10 md:px-6">

@@ -53,7 +53,7 @@ function PrefectureMultiSelect({
         className="flex w-full items-center justify-between rounded-[6px] bg-white px-2 py-2 text-left text-[12px] outline-none"
       >
         <span className={selected.length > 0 ? "text-[#333]" : "text-[#999]"}>
-          {selected.length > 0 ? `${selected.length}都道府県選択中` : "都道府県を選択"}
+          {selected.length > 0 ? `${selected.length}件選択中` : "勤務地を選択"}
         </span>
         <span className="text-[10px] text-[#666]">{open ? "▴" : "▾"}</span>
       </button>
@@ -301,7 +301,7 @@ export function TopHero({
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
+                      <label className="mb-1 block text-[11px] font-bold text-white">勤務地</label>
                       <div className="max-h-[160px] overflow-y-auto rounded-[6px] bg-white p-2">
                         {Object.entries(PREFECTURES_BY_AREA).map(([area, prefs]) => (
                           <div key={area} className="mb-2">
@@ -382,7 +382,7 @@ export function TopHero({
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-[11px] font-bold text-white">都道府県</label>
+                    <label className="mb-1 block text-[11px] font-bold text-white">勤務地</label>
                     <PrefectureMultiSelect selected={prefectures} onChange={setPrefectures} />
                   </div>
                 </div>

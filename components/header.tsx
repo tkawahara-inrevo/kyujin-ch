@@ -19,7 +19,7 @@ export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean 
   const [currentYear, nextYear] = getActiveGraduationYears();
 
   return (
-    <header className="border-b border-[#e9e9e9] bg-white">
+    <header className="sticky top-0 z-40 border-b border-[#e9e9e9] bg-white">
       <div className="mx-auto flex h-[60px] max-w-[1280px] items-center justify-between gap-3 px-4 md:h-[74px] md:px-6">
 
         {/* 左：ロゴ + バッジ */}

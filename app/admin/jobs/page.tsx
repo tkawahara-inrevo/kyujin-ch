@@ -65,7 +65,12 @@ export default async function AdminJobsPage({
 
   return (
     <div className="p-6 lg:p-10">
-      <h1 className="text-[24px] font-bold text-[#1e293b]">求人一覧</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-[24px] font-bold text-[#1e293b]">求人一覧</h1>
+        <Link href="/admin/jobs/returned" className="text-[13px] text-[#dc2626] hover:underline">
+          差し戻し履歴を見る →
+        </Link>
+      </div>
 
       <form className="mt-4 flex flex-wrap gap-2" action="/admin/jobs">
         <input

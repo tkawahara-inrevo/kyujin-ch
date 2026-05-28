@@ -61,7 +61,7 @@ export function FocusSidebar({ allTags, ranking = [] }: Props) {
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="キッチン、エンジニア"
+          placeholder=""
           className="h-[20px] w-[181px] rounded-[4px] border border-[#ccc] bg-[#fafafa] px-[5px] text-[12px] outline-none focus:border-[#1f2775]"
         />
       </form>

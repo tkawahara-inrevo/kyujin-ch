@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   },
   description:
     "『Focus』は一社一社の魅力やストーリーにスポットライトを当て、想いを紡ぐインタビューを通じてその価値を発信します。",
+  icons: {
+    icon: "/focus/icon.png",
+    shortcut: "/focus/icon.png",
+    apple: "/focus/icon.png",
+  },
 };
 
 export default function FocusLayout({ children }: { children: React.ReactNode }) {

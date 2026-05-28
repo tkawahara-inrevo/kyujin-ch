@@ -1,7 +1,7 @@
 import { FocusContactForm } from "./contact-form";
 
 export const metadata = {
-  title: "掲載に関するお問い合わせ | Focus",
+  title: "掲載に関するお問い合わせ",
 };
 
 export default function FocusContactPage() {

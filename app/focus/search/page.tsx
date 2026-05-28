@@ -4,7 +4,7 @@ import { FocusArticleList } from "@/components/focus-article-list";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const metadata = { title: "カテゴリー・検索 | Focus" };
+export const metadata = { title: "カテゴリー・検索" };
 
 type SearchParams = Promise<{ q?: string; tag?: string }>;
 

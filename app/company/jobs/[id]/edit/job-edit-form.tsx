@@ -682,6 +682,16 @@ export function JobEditForm({
       return;
     }
 
+    if (
+      (salaryType === "annual" || salaryType === "monthly") &&
+      hasFixedOvertime === false &&
+      overtimeTreatment === "no_overtime" &&
+      Number(workingHours.avgMonthlyOvertimeHour || "0") > 0
+    ) {
+      showError("「原則時間外労働なし」を選択している場合は、月平均残業時間を入力できません");
+      return;
+    }
+
     if ((salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === null) {
       showError("みなし残業制度のあり・なしを選択してください");
       return;

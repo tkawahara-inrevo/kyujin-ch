@@ -328,6 +328,7 @@ export default async function JobDetailPage({
     experienceType?: string | null;
     experienceYears?: number | null;
     hasFixedOvertime?: boolean | null;
+    overtimeTreatment?: string | null;
     fixedOvertime?: string | null;
     trialPeriodExists?: boolean | null;
     trialPeriodMonths?: number | null;
@@ -513,6 +514,11 @@ export default async function JobDetailPage({
                       <span>{j.hasFixedOvertime ? "あり" : "なし"}</span>
                       {j.hasFixedOvertime && j.fixedOvertime && (
                         <p className="mt-1 text-[12px] text-[#666]">{formatFixedOvertime(j.fixedOvertime)}</p>
+                      )}
+                      {!j.hasFixedOvertime && j.overtimeTreatment && (
+                        <p className="mt-1 text-[12px] text-[#666]">
+                          時間外労働発生時: {j.overtimeTreatment === "separate_pay" ? "残業代を別途支給" : j.overtimeTreatment === "no_overtime" ? "原則時間外労働なし" : j.overtimeTreatment}
+                        </p>
                       )}
                     </InfoRow>
                   )}

@@ -440,6 +440,11 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
+      if ((smokingPolicyIndoor === "その他" || smokingPolicyOutdoor === "その他") && !smokingNote.trim()) {
+        setValidationError("受動喫煙対策で「その他」を選択した場合は特記事項を入力してください");
+        return;
+      }
+
       const minWageResult = checkMinWage(salaryType, Number(salaryMinVal), selectedLocation, annualHolidayCount ? Number(annualHolidayCount) : null);
       if (!minWageResult.ok) {
         setValidationError(minWageResult.message);
@@ -747,8 +752,8 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                 </div>
               )}
             </Field>
-            <Field label="求める人物像" required>
-              <textarea name="desiredAptitude" required rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
+            <Field label="求める人物像">
+              <textarea name="desiredAptitude" rows={3} className={textareaCls} placeholder="例：主体的に動ける方、新しいことへの挑戦が好きな方、キャリアアップを目指したい方" />
             </Field>
             <SectionTags label="応募要件の特徴" tags={REQUIREMENT_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
             <Field label="求人タグ">
@@ -828,15 +833,19 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   type="text"
                   value={postalCode}
                   onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9-]/g, "");
-                    setPostalCode(val);
-                    const digits = val.replace(/-/g, "");
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 7);
+                    const formatted = digits.length > 3 ? `${digits.slice(0, 3)}-${digits.slice(3)}` : digits;
+                    setPostalCode(formatted);
                     if (digits.length === 7) handlePostalCode(digits);
                   }}
+                  inputMode="numeric"
                   className={inputCls}
                   placeholder="例）123-4568"
                   maxLength={8}
                 />
+                {postalCode && postalCode.replace(/\D/g, "").length !== 7 && (
+                  <span className="shrink-0 text-[12px] text-[#eb0937]">7桁の数字で入力</span>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -1188,20 +1197,6 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                         <input type="number" value={trialSalaryMaxVal} onChange={(e) => setTrialSalaryMaxVal(e.target.value)} className={inputCls} placeholder={SALARY_PLACEHOLDER[trialSalaryType]?.[1] ?? ""} />
                         <span className="shrink-0 text-[14px] text-[#555]">円</span>
                       </div>
-                      {trialSalaryType === "monthly" && (
-                        <div>
-                          <p className="mb-1 text-[13px] font-medium text-[#333]">試用期間中の想定年収</p>
-                          <div className="flex items-center gap-2">
-                            <input type="number" value={trialAnnualSalaryMinNum} onChange={(e) => { setTrialAnnualSalaryMinNum(e.target.value); setTrialAnnualNumManual(true); }} className={inputCls} placeholder="例：4200000" />
-                            <span className="shrink-0 text-[14px] text-[#555]">円〜</span>
-                            <input type="number" value={trialAnnualSalaryMaxNum} onChange={(e) => { setTrialAnnualSalaryMaxNum(e.target.value); setTrialAnnualNumManual(true); }} className={inputCls} placeholder="例：4800000" />
-                            <span className="shrink-0 text-[14px] text-[#555]">円</span>
-                          </div>
-                          {!trialAnnualNumManual && trialAnnualSalaryText && (
-                            <p className="mt-1 text-[12px] text-[#7b8797]">給与の下限・上限から自動計算: {trialAnnualSalaryText}</p>
-                          )}
-                        </div>
-                      )}
                     </div>
                   )}
                 </Field>
@@ -1414,7 +1409,13 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                 </select>
               </Field>
             </div>
-            <Field label="受動喫煙対策・特記事項">
+            <Field
+              label="受動喫煙対策・特記事項"
+              required={smokingPolicyIndoor === "その他" || smokingPolicyOutdoor === "その他"}
+            >
+              {(smokingPolicyIndoor === "その他" || smokingPolicyOutdoor === "その他") && (
+                <p className="mb-1 text-[12px] font-bold text-[#eb0937]">「その他」を選択した場合は記入してください</p>
+              )}
               <textarea
                 rows={2}
                 value={smokingNote}
@@ -1529,7 +1530,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
 }
 
 const inputCls =
-  "w-full rounded-[5px] border border-[#ccc] bg-[#fafafa] px-[10px] py-[5px] text-[14px] text-[#333] outline-none transition placeholder:text-[#ccc] focus:border-[#1d63e3]";
+  "w-full rounded-[5px] border border-[#ccc] bg-[#fafafa] px-[10px] py-[5px] text-[14px] text-[#333] outline-none transition placeholder:text-[#ccc] focus:border-[#1d63e3] focus:bg-white focus:ring-2 focus:ring-[#1d63e3]/30";
 
 const textareaCls = `${inputCls} min-h-[100px] resize-y`;
 

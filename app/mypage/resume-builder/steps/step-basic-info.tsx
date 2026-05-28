@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ALL_PREFECTURES } from "@/lib/job-locations";
+import { saveBasicInfo } from "@/app/actions/resume-builder/basic-info";
 import type { WizardState } from "../resume-wizard";
 
 type Props = {
@@ -16,6 +17,33 @@ const labelCls = "mb-1.5 block text-[13px] font-bold text-[#444]";
 
 export function StepBasicInfo({ state, update, onNext, onBack }: Props) {
   const [postalLoading, setPostalLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  async function handleNext() {
+    setSaving(true);
+    try {
+      await saveBasicInfo({
+        lastName: state.lastName,
+        firstName: state.firstName,
+        lastNameKana: state.lastNameKana,
+        firstNameKana: state.firstNameKana,
+        birthDate: state.birthDate,
+        gender: state.gender,
+        phone: state.phone,
+        postalCode: state.postalCode,
+        prefecture: state.prefecture,
+        cityTown: state.cityTown,
+        addressLine: state.addressLine,
+      });
+      onNext();
+    } catch (e) {
+      console.error("Failed to save basic info to profile", e);
+      // 保存失敗してもウィザード自体は進行させる
+      onNext();
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handlePostalLookup() {
     const digits = state.postalCode.replace(/-/g, "");
@@ -180,11 +208,11 @@ export function StepBasicInfo({ state, update, onNext, onBack }: Props) {
           ← 戻る
         </button>
         <button
-          onClick={onNext}
-          disabled={!isValid}
+          onClick={handleNext}
+          disabled={!isValid || saving}
           className="rounded-lg bg-[#2f6cff] px-8 py-3 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-40"
         >
-          次へ →
+          {saving ? "保存中..." : "次へ →"}
         </button>
       </div>
     </div>

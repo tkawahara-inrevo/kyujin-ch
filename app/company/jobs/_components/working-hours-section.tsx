@@ -45,6 +45,8 @@ export type WorkingHoursState = {
   variablePeriod: string;
   variableH: string;
   variableM: string;
+  breakMinutes: string;
+  avgMonthlyOvertimeHour: string;
   note: string;
 };
 
@@ -71,6 +73,8 @@ export const DEFAULT_WORKING_HOURS_STATE: WorkingHoursState = {
   variablePeriod: "",
   variableH: "8",
   variableM: "00",
+  breakMinutes: "60",
+  avgMonthlyOvertimeHour: "",
   note: "",
 };
 
@@ -103,6 +107,8 @@ export function workingHoursStateFromDetail(
     variablePeriod: d.variablePeriod ?? "",
     variableH: d.variableWorkHour != null ? String(d.variableWorkHour) : "8",
     variableM: d.variableWorkMin != null ? String(d.variableWorkMin).padStart(2, "0") : "00",
+    breakMinutes: d.breakMinutes != null ? String(d.breakMinutes) : "60",
+    avgMonthlyOvertimeHour: d.avgMonthlyOvertimeHour != null ? String(d.avgMonthlyOvertimeHour) : "",
     note: d.note ?? "",
   };
 }
@@ -132,6 +138,8 @@ export function workingHoursStateToData(s: WorkingHoursState): {
     variablePeriod: s.type === "変形労働制" ? s.variablePeriod || null : null,
     variableWorkHour: s.type === "変形労働制" ? Number(s.variableH) : null,
     variableWorkMin: s.type === "変形労働制" ? Number(s.variableM) : null,
+    breakMinutes: s.breakMinutes ? Number(s.breakMinutes) : null,
+    avgMonthlyOvertimeHour: s.avgMonthlyOvertimeHour ? Number(s.avgMonthlyOvertimeHour) : null,
     note: s.note,
   };
   return { workingHoursType: s.type, workingHoursDetail: detail };
@@ -393,6 +401,47 @@ export function WorkingHoursSection({
         </div>
       )}
 
+      {/* 休憩の所要時間（全タイプ共通・必須） */}
+      {type && (
+        <div>
+          <p className="mb-1.5 text-[13px] font-bold text-[#333]">
+            休憩の所要時間 <span className="ml-1 rounded bg-[#eb0937] px-1.5 py-0.5 text-[11px] text-white">必須</span>
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="number"
+              min={0}
+              step={5}
+              value={value.breakMinutes}
+              onChange={(e) => onChange({ breakMinutes: e.target.value })}
+              className={`${inputCls} w-[88px]`}
+              placeholder="60"
+            />
+            <span className="text-[14px] text-[#555]">分</span>
+          </div>
+        </div>
+      )}
+
+      {/* 月平均残業時間（全タイプ共通・任意） */}
+      {type && (
+        <div>
+          <p className="mb-1.5 text-[13px] font-bold text-[#333]">
+            月平均残業時間 <span className="ml-1 text-[12px] font-normal text-[#7b8797]">任意</span>
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="number"
+              min={0}
+              value={value.avgMonthlyOvertimeHour}
+              onChange={(e) => onChange({ avgMonthlyOvertimeHour: e.target.value })}
+              className={`${inputCls} w-[88px]`}
+              placeholder="20"
+            />
+            <span className="text-[14px] text-[#555]">時間</span>
+          </div>
+        </div>
+      )}
+
       {/* 備考（全タイプ共通） */}
       {type && (
         <div>
@@ -413,7 +462,7 @@ export function WorkingHoursSection({
             value={value.note}
             onChange={(e) => onChange({ note: e.target.value })}
             className={textareaCls}
-            placeholder="例）◎実働8時間・休憩1時間&#10;◎残業は月平均20時間程度です。"
+            placeholder="例）繁忙期の月◯時間程度"
             maxLength={150}
           />
           <p className="mt-1 text-right text-[12px] text-[#7b8797]">{value.note.length} / 150文字</p>

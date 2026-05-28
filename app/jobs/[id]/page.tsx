@@ -560,7 +560,7 @@ export default async function JobDetailPage({
                           <InfoRow label="試用中の想定労働時間" value={`月${j.trialWorkingHours}時間`} />
                         )}
                         {j.trialSalarySame === false && (trialSalaryRange || j.trialAnnualSalary) && (
-                          <InfoRow label="試用中の給与" value={j.trialAnnualSalary || trialSalaryRange} />
+                          <InfoRow label="試用中の給与" value={trialSalaryRange || j.trialAnnualSalary} />
                         )}
                         {j.trialSalarySame === true && (
                           <InfoRow label="試用中の給与" value="本採用時と同じ" />

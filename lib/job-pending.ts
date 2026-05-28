@@ -37,6 +37,10 @@ export type WorkingHoursDetail = {
   variablePeriod: string | null;
   variableWorkHour: number | null;
   variableWorkMin: number | null;
+  // 休憩の所要時間（分単位）— 全タイプ共通・必須
+  breakMinutes: number | null;
+  // 月平均残業時間（時間単位）— 全タイプ共通・任意
+  avgMonthlyOvertimeHour: number | null;
   // 備考（全タイプ共通）
   note: string;
 };
@@ -234,6 +238,8 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
         variablePeriod: asString(r.variablePeriod),
         variableWorkHour: asNumber(r.variableWorkHour),
         variableWorkMin: asNumber(r.variableWorkMin),
+        breakMinutes: asNumber(r.breakMinutes),
+        avgMonthlyOvertimeHour: asNumber(r.avgMonthlyOvertimeHour),
         note: asString(r.note) ?? "",
       } satisfies WorkingHoursDetail;
     })(),

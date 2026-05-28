@@ -296,8 +296,8 @@ export function CompanyJobsTable({
                         </p>
                       </div>
                       <div>
-                        <p className="text-[#98a2b3]">応募数 / 閲覧数</p>
-                        <p className="mt-1 font-semibold text-[#344054]">{job.applicationsCount} / {job.viewCount}</p>
+                        <p className="text-[#98a2b3]">応募数</p>
+                        <p className="mt-1 font-semibold text-[#344054]">{job.applicationsCount}</p>
                       </div>
                       <div>
                         <p className="text-[#98a2b3]">審査状況</p>
@@ -333,10 +333,9 @@ export function CompanyJobsTable({
                 <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
                 <th className="w-[90px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
                 <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
-                <th className="w-[60px] whitespace-nowrap px-3 py-4 text-center font-bold">閲覧数</th>
                 <th className="w-[120px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
                 <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
-                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">プレビュー</th>
+                <th className="w-[80px] whitespace-nowrap px-3 py-4 text-center font-bold">編集</th>
                 <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">メモ</th>
                 <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
                 <th className="w-[48px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
@@ -345,7 +344,7 @@ export function CompanyJobsTable({
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-[#9aa3b2]">
+                  <td colSpan={9} className="px-4 py-12 text-center text-[#9aa3b2]">
                     条件に合う求人はありません
                   </td>
                 </tr>
@@ -374,7 +373,6 @@ export function CompanyJobsTable({
                         </span>
                       </td>
                       <td className="px-3 py-4 text-center font-bold text-[#333]">{job.applicationsCount}</td>
-                      <td className="px-3 py-4 text-center text-[#555]">{job.viewCount}</td>
                       <td className="px-3 py-4 text-center">
                         {canWithdraw ? (
                           <button
@@ -393,25 +391,39 @@ export function CompanyJobsTable({
                       <td className="px-3 py-4 text-center">
                         <PublishToggle job={job} disabled={visibilityDisabled} onToggle={handleToggleVisibility} />
                       </td>
-                      <td className="px-3 py-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => setPreviewJob(job)}
-                          title="プレビューを表示"
-                          className="rounded-[8px] border border-[#d0d7e6] px-2 py-1.5 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
-                        >
-                          表示
-                        </button>
+                      <td className="px-3 py-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewJob(job)}
+                            title="プレビューを表示"
+                            className="w-full rounded-[8px] border border-[#d0d7e6] px-2 py-1 text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
+                          >
+                            表示
+                          </button>
+                          <Link
+                            href={`/company/jobs/${job.id}/edit`}
+                            className="w-full rounded-[8px] border border-[#d0d7e6] px-2 py-1 text-center text-[12px] font-medium text-[#445063] hover:bg-[#f4f7fb] transition"
+                          >
+                            編集
+                          </Link>
+                        </div>
                       </td>
                       <td className="px-3 py-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => openNote(job)}
-                          title={job.note ? job.note : "メモを追加"}
-                          className={`rounded-[8px] border px-2 py-1.5 text-[12px] font-medium transition ${job.note ? "border-[#2f6cff] text-[#2f6cff] hover:bg-[#f0f5ff]" : "border-[#d0d7e6] text-[#445063] hover:bg-[#f4f7fb]"}`}
-                        >
-                          {job.note ? "編集" : "追加"}
-                        </button>
+                        <div className="group relative inline-block">
+                          <button
+                            type="button"
+                            onClick={() => openNote(job)}
+                            className={`rounded-[8px] border px-2 py-1.5 text-[12px] font-medium transition ${job.note ? "border-[#2f6cff] text-[#2f6cff] hover:bg-[#f0f5ff]" : "border-[#d0d7e6] text-[#445063] hover:bg-[#f4f7fb]"}`}
+                          >
+                            {job.note ? "編集" : "追加"}
+                          </button>
+                          {job.note && (
+                            <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 hidden w-[240px] -translate-x-1/2 rounded-[8px] bg-[#1f2937] px-3 py-2 text-left text-[12px] leading-[1.5] text-white shadow-lg group-hover:block whitespace-pre-wrap">
+                              {job.note}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-4 text-center">
                         <button

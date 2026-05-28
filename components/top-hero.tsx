@@ -50,7 +50,7 @@ function PrefectureMultiSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between rounded-[6px] bg-white px-2 py-2 text-left text-[12px] outline-none"
+        className="flex h-[36px] w-full items-center justify-between rounded-[6px] bg-white px-2 text-left text-[12px] leading-none outline-none"
       >
         <span className={selected.length > 0 ? "text-[#333]" : "text-[#999]"}>
           {selected.length > 0 ? `${selected.length}件選択中` : "勤務地を選択"}

@@ -24,14 +24,14 @@ export function MembersSection({ members, currentUserId }: { members: Member[]; 
     setError("");
     setSuccess("");
     startTransition(async () => {
-      try {
-        await inviteCompanyMember(email, name);
+      const res = await inviteCompanyMember(email, name);
+      if (res.ok) {
         setSuccess(`${email} に初期パスワードを送信しました`);
         setEmail("");
         setName("");
         router.refresh();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "発行に失敗しました");
+      } else {
+        setError(res.error);
       }
     });
   }
@@ -41,12 +41,12 @@ export function MembersSection({ members, currentUserId }: { members: Member[]; 
     setError("");
     setSuccess("");
     startTransition(async () => {
-      try {
-        await removeCompanyMember(memberId);
+      const res = await removeCompanyMember(memberId);
+      if (res.ok) {
         setSuccess("メンバーを削除しました");
         router.refresh();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "削除に失敗しました");
+      } else {
+        setError(res.error);
       }
     });
   }
@@ -54,7 +54,6 @@ export function MembersSection({ members, currentUserId }: { members: Member[]; 
   return (
     <div className="mt-8 rounded-[16px] border border-[#e8edf5] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
       <h2 className="text-[18px] font-bold text-[#2b2f38]">アカウント管理</h2>
-      <p className="mt-1 text-[13px] text-[#666]">同じ企業の複数メンバーがログインできます。全員フル権限です。</p>
 
       {error && (
         <div className="mt-4 rounded-[8px] bg-[#fef2f2] px-4 py-3 text-[13px] font-medium text-[#dc2626]">{error}</div>

@@ -20,22 +20,27 @@ async function getCompanyForUser(userId: string) {
   return company;
 }
 
-export async function inviteCompanyMember(email: string, name: string) {
+export async function inviteCompanyMember(email: string, name: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
+  if (!session?.user?.id || session.user.role !== "COMPANY") return { ok: false, error: "Unauthorized" };
 
   const trimmedEmail = email.trim().toLowerCase();
   const trimmedName = name.trim();
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-    throw new Error("正しいメールアドレスを入力してください");
+    return { ok: false, error: "正しいメールアドレスを入力してください" };
   }
-  if (!trimmedName) throw new Error("名前を入力してください");
+  if (!trimmedName) return { ok: false, error: "名前を入力してください" };
 
   const exists = await prisma.user.findUnique({ where: { email: trimmedEmail }, select: { id: true } });
-  if (exists) throw new Error("このメールアドレスは既に使用されています");
+  if (exists) return { ok: false, error: "このメールアドレスは既に使用されています" };
 
-  const company = await getCompanyForUser(session.user.id);
+  let company;
+  try {
+    company = await getCompanyForUser(session.user.id);
+  } catch {
+    return { ok: false, error: "企業情報が見つかりません" };
+  }
   const tempPassword = genTempPassword();
   const hashed = await bcrypt.hash(tempPassword, 10);
 
@@ -74,23 +79,29 @@ export async function inviteCompanyMember(email: string, name: string) {
   }
 
   revalidatePath("/company/settings");
+  return { ok: true } as const;
 }
 
-export async function removeCompanyMember(targetUserId: string) {
+export async function removeCompanyMember(targetUserId: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
+  if (!session?.user?.id || session.user.role !== "COMPANY") return { ok: false, error: "Unauthorized" };
 
-  const company = await getCompanyForUser(session.user.id);
+  let company;
+  try {
+    company = await getCompanyForUser(session.user.id);
+  } catch {
+    return { ok: false, error: "企業情報が見つかりません" };
+  }
 
   const member = await prisma.user.findFirst({
     where: { id: targetUserId, companyId: company.id },
     select: { id: true },
   });
-  if (!member) throw new Error("対象のメンバーが見つかりません");
+  if (!member) return { ok: false, error: "対象のメンバーが見つかりません" };
 
   const count = await prisma.user.count({ where: { companyId: company.id, isActive: true } });
   if (count <= 1) {
-    throw new Error("最後の1アカウントは削除できません。退会する場合はアカウント削除を行ってください。");
+    return { ok: false, error: "最後の1アカウントは削除できません。退会する場合はアカウント削除を行ってください。" };
   }
 
   await prisma.user.update({
@@ -105,4 +116,5 @@ export async function removeCompanyMember(targetUserId: string) {
   });
 
   revalidatePath("/company/settings");
+  return { ok: true } as const;
 }

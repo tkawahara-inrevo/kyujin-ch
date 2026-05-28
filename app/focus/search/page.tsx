@@ -28,7 +28,7 @@ export default async function FocusSearchPage({
     <div>
       {/* カテゴリ（タグ）一覧 */}
       {!q && !tag && (
-        <div className="mx-auto max-w-[1400px] px-6 pt-10 md:px-[270px]">
+        <div className="mx-auto max-w-[1280px] px-6 pt-10 md:px-12">
           <div className="mb-2 h-[5px] w-[50px] bg-[#1f2775]" />
           <h1 className="mb-5 text-[24px] font-bold text-[#333]">カテゴリーから探す</h1>
           <div className="flex flex-wrap gap-[8px]">

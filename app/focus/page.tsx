@@ -27,8 +27,8 @@ export default async function FocusTopPage({
   return (
     <div>
       {/* ヒーローセクション */}
-      <section className="bg-[#1f2775] px-6 py-12 md:px-[270px]">
-        <div className="flex flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
+      <section className="bg-[#1f2775] px-6 py-12 md:px-12">
+        <div className="mx-auto flex max-w-[1280px] flex-col items-start gap-8 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-6">
             <div>
               <Image

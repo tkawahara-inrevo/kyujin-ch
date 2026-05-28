@@ -17,7 +17,7 @@ export default function FocusLayout({ children }: { children: React.ReactNode })
       <FocusHeader />
       {children}
       <footer className="mt-12 border-t border-[#eee]">
-        <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-[270px]">
+        <div className="mx-auto max-w-[1280px] px-6 py-10 md:px-12">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <Image

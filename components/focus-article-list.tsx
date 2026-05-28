@@ -68,7 +68,7 @@ export async function FocusArticleList({ heading, q, tag, sort }: Props) {
   const allTags = [...new Set(allArticles.flatMap((a) => a.tags))];
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-[270px]">
+    <div className="mx-auto max-w-[1280px] px-6 py-10 md:px-12">
       <div className="flex gap-8">
         <div className="min-w-0 flex-1">
           <h1 className="mb-6 text-[24px] font-bold text-[#333]">{heading}</h1>

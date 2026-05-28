@@ -49,7 +49,7 @@ export default async function FocusArticlePage({ params }: { params: Params }) {
     : "";
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-[270px]">
+    <div className="mx-auto max-w-[1280px] px-6 py-10 md:px-12">
       <div className="flex gap-8">
         {/* 記事本文エリア */}
         <article className="flex-1 min-w-0">

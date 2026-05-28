@@ -40,8 +40,8 @@ export default function FocusAboutPage() {
   return (
     <div>
       {/* ヒーロー */}
-      <section className="bg-white px-6 py-16 md:px-[270px]">
-        <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
+      <section className="bg-white px-6 py-16 md:px-12">
+        <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8 md:flex-row md:justify-between">
           <Image
             src="/assets/Focus-fv.png"
             alt="Focus"
@@ -58,7 +58,7 @@ export default function FocusAboutPage() {
         </div>
       </section>
 
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-[80px] px-6 py-12 md:px-[270px]">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-[80px] px-6 py-12 md:px-12">
         {/* Focusに込めた思い */}
         <section>
           <SectionHeading

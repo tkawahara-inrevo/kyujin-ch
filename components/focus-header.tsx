@@ -4,7 +4,7 @@ import Link from "next/link";
 export function FocusHeader() {
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-[#eee]">
-      <div className="mx-auto flex h-[75px] max-w-[1400px] items-center justify-between px-6 md:px-[270px]">
+      <div className="mx-auto flex h-[75px] max-w-[1280px] items-center justify-between px-6 md:px-12">
         {/* ロゴ */}
         <Link href="/focus" className="flex items-center">
           <Image

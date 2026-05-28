@@ -28,9 +28,17 @@ function parseFormData(formData: FormData) {
   };
 }
 
+/** 新規入稿のslug（法人番号）は13桁の半角数字のみ。既存71件はSTUDIO移行の会社名slugを許容するためupdate側はスキップ */
+function validateCorporateNumber(slug: string) {
+  if (!/^\d{13}$/.test(slug)) {
+    throw new Error("法人番号は13桁の半角数字で入力してください");
+  }
+}
+
 export async function createFocusArticle(formData: FormData) {
   await requireAdmin();
   const data = parseFormData(formData);
+  validateCorporateNumber(data.slug);
 
   await prisma.focusArticle.create({ data });
 

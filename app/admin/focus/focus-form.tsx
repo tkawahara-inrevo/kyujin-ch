@@ -56,7 +56,17 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
         {/* 法人番号 */}
         <div>
           <label className={labelCls}>法人番号 *</label>
-          <input name="slug" defaultValue={initial.slug} required className={inputCls} placeholder="6290001104501" />
+          <input
+            name="slug"
+            defaultValue={initial.slug}
+            required
+            pattern="\d{13}"
+            inputMode="numeric"
+            maxLength={13}
+            className={inputCls}
+            placeholder="6290001104501"
+            title="13桁の半角数字"
+          />
           <p className="mt-1 text-[11px] text-[#888]">URL: /focus/[法人番号]。13桁の半角数字。</p>
         </div>
 

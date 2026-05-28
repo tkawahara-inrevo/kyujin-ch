@@ -12,7 +12,7 @@ export const revalidate = 0;
 export default async function CompanyBillingPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
 
   if (!company) {

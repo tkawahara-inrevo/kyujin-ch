@@ -107,6 +107,8 @@ model User {
   inquiries       Inquiry[]
   columnPosts     ColumnPost[]     @relation("ColumnAuthor")
   company         Company?         @relation("CompanyUser")
+  companyId       String?
+  memberOfCompany Company?         @relation("CompanyMembers", fields: [companyId], references: [id], onDelete: SetNull)
   educations      Education[]
   workExperiences WorkExperience[]
   certifications  Certification[]
@@ -177,6 +179,7 @@ model Company {
   updatedAt     DateTime @updatedAt
 
   companyUser     User?            @relation("CompanyUser", fields: [companyUserId], references: [id])
+  users           User[]           @relation("CompanyMembers")
   jobs            Job[]
   reviews         Review[]
   invalidRequests InvalidRequest[]

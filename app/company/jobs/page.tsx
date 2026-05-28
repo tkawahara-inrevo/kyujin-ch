@@ -42,7 +42,7 @@ export default async function CompanyJobsPage({
   const normalizedSort = sort && SORT_OPTIONS.has(sort) ? sort : "status";
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
 
   if (!company) {

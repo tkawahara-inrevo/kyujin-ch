@@ -25,7 +25,7 @@ export default async function CompanyMessagesPage({
   const { jobId, applicationId } = await searchParams;
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
     select: { id: true },
   });
 

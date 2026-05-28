@@ -11,7 +11,7 @@ export async function updateApplicationStatus(applicationId: string, status: App
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) throw new Error("Company not found");
 
@@ -52,7 +52,7 @@ export async function sendCompanyMessage(
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) throw new Error("Company not found");
 
@@ -115,7 +115,7 @@ export async function updateApplicationNote(applicationId: string, note: string)
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) throw new Error("Company not found");
 
@@ -137,7 +137,7 @@ async function getCompanyIdForSession() {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
     select: { id: true },
   });
   if (!company) throw new Error("Company not found");

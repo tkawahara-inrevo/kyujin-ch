@@ -5,7 +5,7 @@ import { requireCompany } from "@/lib/auth-helpers";
 export async function GET(req: NextRequest) {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) {
     return NextResponse.json([], { status: 403 });

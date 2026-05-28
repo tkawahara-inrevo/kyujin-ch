@@ -6,7 +6,7 @@ import { countUniqueViews } from "@/lib/view-metrics";
 export default async function CompanyAnalyticsPage() {
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) return <div className="p-10 text-[#888]">企業情報が見つかりません</div>;
 

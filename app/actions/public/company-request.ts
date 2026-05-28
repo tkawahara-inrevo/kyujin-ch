@@ -158,13 +158,15 @@ export async function submitCompanyRequest(formData: {
           phone,
         },
       });
-      return tx.company.create({
+      const c = await tx.company.create({
         data: {
           name: companyName,
           corporateNumber,
           companyUserId: user.id,
         },
       });
+      await tx.user.update({ where: { id: user.id }, data: { companyId: c.id } });
+      return c;
     });
     companyId = company.id;
   } catch (err) {

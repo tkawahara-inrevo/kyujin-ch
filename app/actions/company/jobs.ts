@@ -14,7 +14,7 @@ async function getCompany() {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "COMPANY") throw new Error("Unauthorized");
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
     select: { id: true, name: true },
   });
   if (!company) throw new Error("Company not found");

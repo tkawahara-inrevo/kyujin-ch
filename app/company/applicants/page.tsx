@@ -17,7 +17,7 @@ export default async function CompanyApplicantsPage({
   const { jobId, name, statuses, sort } = await searchParams;
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
 
   if (!company) {

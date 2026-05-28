@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { checkCompanyProfileComplete } from "@/lib/company-profile";
 import SettingsEditForm from "./settings-edit-form";
 import { CompanyDeleteAccountSection } from "./delete-account-section";
+import { MembersSection } from "./members-section";
 
 type SearchParams = Promise<{ alert?: string }>;
 
@@ -15,8 +16,15 @@ export default async function CompanySettingsPage({
   const params = await searchParams;
   const session = await requireCompany();
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
-    include: { companyUser: true },
+    where: { users: { some: { id: session.user.id } } },
+    include: {
+      companyUser: true,
+      users: {
+        where: { isActive: true },
+        select: { id: true, name: true, email: true, createdAt: true },
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 
   if (!company) {
@@ -129,6 +137,8 @@ export default async function CompanySettingsPage({
           メッセージテンプレートを管理する
         </Link>
       </div>
+
+      <MembersSection members={company.users} currentUserId={session.user.id} />
 
       <CompanyDeleteAccountSection />
     </div>

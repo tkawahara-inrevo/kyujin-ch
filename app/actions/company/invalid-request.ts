@@ -12,7 +12,7 @@ export async function submitInvalidRequest(applicationId: string, reason: string
   }
 
   const company = await prisma.company.findFirst({
-    where: { companyUserId: session.user.id },
+    where: { users: { some: { id: session.user.id } } },
   });
   if (!company) {
     throw new Error("企業情報が見つかりません");

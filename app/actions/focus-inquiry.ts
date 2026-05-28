@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getAdminInquiryEmail, sendTransactionalEmail } from "@/lib/email";
+import { postToSlack } from "@/lib/slack";
 import { revalidatePath } from "next/cache";
 
 const REASON_LABELS = {
@@ -85,6 +86,20 @@ export async function submitFocusInquiry(data: {
     console.error("Failed to send Focus inquiry email", error);
     mailWarning = "お問い合わせは保存しましたが、通知メールの送信に失敗しました。";
   }
+
+  // Slack通知 (C0AQ4S7KLNA)
+  const adminUrl = `${process.env.AUTH_URL || process.env.NEXTAUTH_URL || "https://kyujin-ch.jp"}/admin/inquiries`;
+  await postToSlack(
+    [
+      "📩 *Focus 掲載に関するお問い合わせ*",
+      `• 会社名: ${companyName}`,
+      `• お名前: ${name}`,
+      `• 電話番号: ${phone}`,
+      `• 理由: ${reasonLabel}`,
+      other ? `• その他: ${other}` : "",
+      `<${adminUrl}|管理画面で確認>`,
+    ].filter(Boolean).join("\n"),
+  );
 
   revalidatePath("/admin/inquiries");
   return { inquiryId: inquiry.id, mailWarning };

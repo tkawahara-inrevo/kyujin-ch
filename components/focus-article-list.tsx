@@ -30,7 +30,7 @@ export async function FocusArticleList({ heading, q, tag, sort }: Props) {
     ...(sort === "hot" ? { isHot: true } : {}),
   };
 
-  const [articles, allArticles] = await Promise.all([
+  const [articles, allArticles, rankingArticles] = await Promise.all([
     prisma.focusArticle.findMany({
       where,
       orderBy:
@@ -52,6 +52,17 @@ export async function FocusArticleList({ heading, q, tag, sort }: Props) {
       where: { isPublished: true },
       select: { tags: true },
     }),
+    prisma.focusArticle.findMany({
+      where: { isPublished: true },
+      orderBy: [{ isHot: "desc" }, { publishedAt: "desc" }],
+      take: 5,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        thumbnailUrl: true,
+      },
+    }),
   ]);
 
   const allTags = [...new Set(allArticles.flatMap((a) => a.tags))];
@@ -65,7 +76,7 @@ export async function FocusArticleList({ heading, q, tag, sort }: Props) {
           {articles.length === 0 ? (
             <p className="text-[14px] text-[#888]">記事がありません。</p>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
               {articles.map((article) => (
                 <FocusArticleCard
                   key={article.id}
@@ -84,7 +95,7 @@ export async function FocusArticleList({ heading, q, tag, sort }: Props) {
 
         <div className="hidden lg:block">
           <Suspense>
-            <FocusSidebar allTags={allTags} />
+            <FocusSidebar allTags={allTags} ranking={rankingArticles} />
           </Suspense>
         </div>
       </div>

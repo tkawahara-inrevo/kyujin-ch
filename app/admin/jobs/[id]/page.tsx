@@ -160,6 +160,7 @@ export default async function AdminJobDetailPage({
     include: {
       company: true,
       applications: { select: { id: true }, orderBy: { createdAt: "desc" } },
+      reviewLogs: { orderBy: { changedAt: "desc" }, take: 20 },
     },
   });
 
@@ -226,6 +227,22 @@ export default async function AdminJobDetailPage({
             )}
             {job.reviewComment && (
               <span className="text-[13px] text-[#a16207]">差し戻し理由: {formatReviewComment(job.reviewComment)}</span>
+            )}
+            {job.reviewLogs.length > 0 && (
+              <details className="ml-auto text-[12px] text-[#555]">
+                <summary className="cursor-pointer text-[#2563eb] hover:underline">審査履歴 ({job.reviewLogs.length}件)</summary>
+                <ul className="mt-2 space-y-1 rounded-[8px] border border-[#e5e7eb] bg-white p-3 max-h-[200px] overflow-y-auto">
+                  {job.reviewLogs.map((log) => (
+                    <li key={log.id} className="border-b border-[#f3f4f6] pb-1 last:border-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold">{JOB_REVIEW_STATUS_LABELS[log.status]}</span>
+                        <span className="text-[#9ca3af]">{new Date(log.changedAt).toLocaleString("ja-JP")}</span>
+                      </div>
+                      {log.comment && <p className="text-[#92400e]">{formatReviewComment(log.comment)}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </details>
             )}
             <span className="ml-auto text-[12px] text-[#aaa]">
               PV: {job.viewCount} ／ 応募: {job.applications.length} ／ 投稿: {job.createdAt.toLocaleDateString("ja-JP")}

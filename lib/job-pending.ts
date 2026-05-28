@@ -99,6 +99,7 @@ export type JobPendingContent = {
   joinTiming: string | null;
   salaryType: string | null;
   hasFixedOvertime: boolean | null;
+  overtimeTreatment: string | null;
   trialPeriodExists: boolean | null;
   trialPeriodMonths: number | null;
   trialPeriodWeeks: number | null;
@@ -197,6 +198,7 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     joinTiming: asString(record.joinTiming),
     salaryType: asString(record.salaryType),
     hasFixedOvertime: typeof record.hasFixedOvertime === "boolean" ? record.hasFixedOvertime : null,
+    overtimeTreatment: asString(record.overtimeTreatment),
     trialPeriodExists: typeof record.trialPeriodExists === "boolean" ? record.trialPeriodExists : null,
     trialPeriodMonths: asNumber(record.trialPeriodMonths),
     trialPeriodWeeks: asNumber(record.trialPeriodWeeks),

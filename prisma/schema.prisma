@@ -197,6 +197,9 @@ model Job {
   reviewStatus          JobReviewStatus @default(DRAFT)
   reviewComment         String?
   reviewStatusChangedAt DateTime?
+  reviewLogs            JobReviewLog[]
+  // みなし残業なしを選択した場合の時間外労働の取扱い: "separate_pay" | "no_overtime"
+  overtimeTreatment     String?
   pendingContent Json?
   viewCount      Int            @default(0)
   categoryTag    String?
@@ -472,6 +475,19 @@ model JobView {
   job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@index([jobId, viewedAt])
+}
+
+// 求人の審査状況変更ログ（差戻し履歴含む）
+model JobReviewLog {
+  id          String          @id @default(cuid())
+  jobId       String
+  job         Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status      JobReviewStatus
+  comment     String?
+  changedAt   DateTime        @default(now())
+  changedById String?
+
+  @@index([jobId, changedAt])
 }
 
 model Inquiry {

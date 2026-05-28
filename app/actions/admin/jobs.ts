@@ -75,6 +75,7 @@ export async function approveJob(jobId: string) {
             annualPaymentMethod: pendingContent.annualPaymentMethod,
             annualPaymentNote: pendingContent.annualPaymentNote,
             hasFixedOvertime: pendingContent.hasFixedOvertime,
+            overtimeTreatment: pendingContent.overtimeTreatment,
             fixedOvertime: pendingContent.fixedOvertime,
             experienceType: pendingContent.experienceType,
             experienceYears: pendingContent.experienceYears,
@@ -107,6 +108,10 @@ export async function approveJob(jobId: string) {
     },
   });
 
+  await prisma.jobReviewLog.create({
+    data: { jobId, status: "PUBLISHED" },
+  });
+
   revalidatePath("/admin/jobs");
   revalidatePath(`/admin/jobs/${jobId}`);
   revalidatePath("/company/jobs");
@@ -128,15 +133,24 @@ export async function returnJob(jobId: string, comments: Record<string, string>)
   const filtered = Object.fromEntries(Object.entries(comments).filter(([, v]) => v.trim()));
   const commentJson = Object.keys(filtered).length > 0 ? JSON.stringify(filtered) : JSON.stringify({ other: "差し戻し理由を確認してください" });
 
-  await prisma.job.update({
-    where: { id: jobId },
-    data: {
-      reviewStatus: "RETURNED",
-      isPublished: hasPendingVersion,
-      reviewComment: commentJson,
-      reviewStatusChangedAt: new Date(),
-    },
-  });
+  await prisma.$transaction([
+    prisma.job.update({
+      where: { id: jobId },
+      data: {
+        reviewStatus: "RETURNED",
+        isPublished: hasPendingVersion,
+        reviewComment: commentJson,
+        reviewStatusChangedAt: new Date(),
+      },
+    }),
+    prisma.jobReviewLog.create({
+      data: {
+        jobId,
+        status: "RETURNED",
+        comment: commentJson,
+      },
+    }),
+  ]);
 
   revalidatePath("/admin/jobs");
   revalidatePath(`/admin/jobs/${jobId}`);

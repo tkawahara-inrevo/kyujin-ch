@@ -75,6 +75,7 @@ type JobData = {
   joinTiming?: string;
   salaryType?: string;
   hasFixedOvertime?: boolean;
+  overtimeTreatment?: string;
   trialPeriodExists?: boolean;
   trialPeriodMonths?: number;
   trialPeriodWeeks?: number;
@@ -209,6 +210,7 @@ function normalizeJobData(data: JobData): JobPendingContent {
     joinTiming: data.joinTiming || null,
     salaryType: data.salaryType || null,
     hasFixedOvertime: data.hasFixedOvertime ?? null,
+    overtimeTreatment: data.overtimeTreatment ?? null,
     trialPeriodExists: data.trialPeriodExists ?? null,
     trialPeriodMonths: data.trialPeriodMonths ?? null,
     trialPeriodWeeks: data.trialPeriodWeeks ?? null,
@@ -289,6 +291,7 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     joinTiming: normalized.joinTiming,
     salaryType: normalized.salaryType,
     hasFixedOvertime: normalized.hasFixedOvertime,
+    overtimeTreatment: normalized.overtimeTreatment,
     annualPaymentMethod: normalized.annualPaymentMethod,
     annualPaymentNote: normalized.annualPaymentNote,
     trialPeriodExists: normalized.trialPeriodExists,

@@ -175,6 +175,7 @@ type Job = {
   joinTiming?: string | null;
   salaryType?: string | null;
   hasFixedOvertime?: boolean | null;
+  overtimeTreatment?: string | null;
   annualPaymentMethod?: string | null;
   annualPaymentNote?: string | null;
   trialPeriodExists?: boolean | null;
@@ -269,6 +270,7 @@ export function JobEditForm({
   const [annualSalaryMinNum, setAnnualSalaryMinNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMin ? String(job.salaryMin) : ""));
   const [annualSalaryMaxNum, setAnnualSalaryMaxNum] = useState(() => computeAnnualNum(job.salaryType || "annual", job.salaryMax ? String(job.salaryMax) : ""));
   const [hasFixedOvertime, setHasFixedOvertime] = useState<boolean | null>(job.hasFixedOvertime ?? null);
+  const [overtimeTreatment, setOvertimeTreatment] = useState<string>(job.overtimeTreatment ?? "");
   const [bonusExists, setBonusExists] = useState<boolean | null>(
     job.bonus === "あり" ? true : job.bonus === "なし" ? false : null
   );
@@ -551,6 +553,7 @@ export function JobEditForm({
       annualPaymentMethod: salaryType === "annual" ? annualPaymentMethod : undefined,
       annualPaymentNote: salaryType === "annual" ? annualPaymentNote || undefined : undefined,
       hasFixedOvertime: (salaryType === "annual" || salaryType === "monthly") ? (hasFixedOvertime ?? undefined) : undefined,
+      overtimeTreatment: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === false ? (overtimeTreatment || undefined) : undefined,
       fixedOvertime: (salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime ? JSON.stringify({
         payType: fixedOvertimePayType,
         payFixed: fixedOvertimePayFixed ? Number(fixedOvertimePayFixed) : null,
@@ -671,6 +674,11 @@ export function JobEditForm({
 
     if (trialPeriodExists && trialSalarySame === null) {
       showError("試用期間中の給与を選択してください");
+      return;
+    }
+
+    if ((salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === false && !overtimeTreatment) {
+      showError("時間外労働発生時の取扱いを選択してください");
       return;
     }
 
@@ -1224,6 +1232,22 @@ export function JobEditForm({
                     </label>
                   ))}
                 </div>
+                {hasFixedOvertime === false && (
+                  <div className="mt-4 rounded-[8px] border border-[#d0d7e6] bg-[#f8fafd] p-4">
+                    <p className="mb-2 text-[14px] font-bold text-[#333]">時間外労働発生時の取扱い<span className="ml-1 text-[#eb0937]">*必須</span></p>
+                    <div className="flex flex-wrap gap-6">
+                      {([
+                        { value: "separate_pay", label: "残業代を別途支給" },
+                        { value: "no_overtime", label: "原則時間外労働なし" },
+                      ] as const).map((opt) => (
+                        <label key={opt.value} className="flex cursor-pointer items-center gap-2 text-[14px]">
+                          <input type="radio" checked={overtimeTreatment === opt.value} onChange={() => setOvertimeTreatment(opt.value)} className="h-[18px] w-[18px] accent-[#1d63e3]" />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Field>
             )}
 

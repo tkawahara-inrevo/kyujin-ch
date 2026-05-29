@@ -14,6 +14,8 @@ type Props = {
 export function RichTextEditor({ name, defaultValue = "" }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [html, setHtml] = useState(defaultValue);
+  // カーソル位置の変化でツールバーをリレンダさせるための tick
+  const [, setSelectionTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -28,6 +30,7 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
       },
     },
     onUpdate: ({ editor }) => setHtml(editor.getHTML()),
+    onSelectionUpdate: () => setSelectionTick((n) => n + 1),
     immediatelyRender: false,
   });
 

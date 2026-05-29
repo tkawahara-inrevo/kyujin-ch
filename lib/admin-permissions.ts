@@ -4,6 +4,7 @@ export type AdminPermissions = {
   jobseekers: boolean;
   jobs: boolean;
   columns: boolean;
+  focus: boolean;
   billing: boolean;
   invoices: boolean;
   invalidRequests: boolean;
@@ -17,6 +18,7 @@ export const ALL_PERMISSIONS: AdminPermissions = {
   jobseekers: true,
   jobs: true,
   columns: true,
+  focus: true,
   billing: true,
   invoices: true,
   invalidRequests: true,
@@ -30,6 +32,7 @@ export const EMPTY_PERMISSIONS: AdminPermissions = {
   jobseekers: false,
   jobs: false,
   columns: false,
+  focus: false,
   billing: false,
   invoices: false,
   invalidRequests: false,
@@ -43,6 +46,7 @@ export const PERMISSION_LABELS: Record<keyof AdminPermissions, string> = {
   jobseekers: "求職者一覧",
   jobs: "求人一覧",
   columns: "コラム管理",
+  focus: "Focus記事管理",
   billing: "請求単価管理",
   invoices: "請求一覧",
   invalidRequests: "無効申請",
@@ -59,6 +63,7 @@ export function parsePermissions(raw: unknown): AdminPermissions {
     jobseekers: obj.jobseekers === true,
     jobs: obj.jobs === true,
     columns: obj.columns === true,
+    focus: obj.focus === true,
     billing: obj.billing === true,
     invoices: obj.invoices === true,
     invalidRequests: obj.invalidRequests === true,

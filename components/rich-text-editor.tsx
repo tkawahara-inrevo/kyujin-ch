@@ -4,7 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
 import TiptapImage from "@tiptap/extension-image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 type Props = {
   name: string;
@@ -13,6 +13,7 @@ type Props = {
 
 export function RichTextEditor({ name, defaultValue = "" }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [html, setHtml] = useState(defaultValue);
 
   const editor = useEditor({
     extensions: [
@@ -23,12 +24,12 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
     content: defaultValue,
     editorProps: {
       attributes: {
-        class: "min-h-[320px] px-4 py-3 text-[14px] leading-[1.8] text-[#374151] outline-none",
+        class: "rich-editor min-h-[320px] px-4 py-3 text-[14px] leading-[1.8] text-[#374151] outline-none",
       },
     },
+    onUpdate: ({ editor }) => setHtml(editor.getHTML()),
+    immediatelyRender: false,
   });
-
-  const html = editor?.getHTML() ?? defaultValue;
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

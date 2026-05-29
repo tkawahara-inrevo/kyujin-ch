@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RichTextEditor } from "@/components/rich-text-editor";
+import { FocusArticleView } from "@/components/focus-article-view";
 
 type FocusFormValues = {
   slug: string;
@@ -47,12 +48,42 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
 
   const [isPublished, setIsPublished] = useState(initial.isPublished);
   const [isHot, setIsHot] = useState(initial.isHot);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewData, setPreviewData] = useState<null | {
+    slug: string;
+    companyName: string;
+    title: string;
+    summary: string;
+    body: string;
+    thumbnailUrl: string;
+    tags: string[];
+    authorName: string;
+    authorBio: string;
+    authorImageUrl: string;
+  }>(null);
+
+  function openPreview() {
+    if (!formRef.current) return;
+    const fd = new FormData(formRef.current);
+    setPreviewData({
+      slug: (fd.get("slug") as string) ?? "",
+      companyName: (fd.get("companyName") as string) ?? "",
+      title: (fd.get("title") as string) ?? "",
+      summary: (fd.get("summary") as string) ?? "",
+      body: (fd.get("body") as string) ?? "",
+      thumbnailUrl: (fd.get("thumbnailUrl") as string) ?? "",
+      tags: ((fd.get("tags") as string) ?? "").split(",").map((t) => t.trim()).filter(Boolean),
+      authorName: (fd.get("authorName") as string) ?? "",
+      authorBio: (fd.get("authorBio") as string) ?? "",
+      authorImageUrl: (fd.get("authorImageUrl") as string) ?? "",
+    });
+  }
 
   return (
     <div className="p-6 lg:p-10">
       <h1 className="text-[24px] font-bold text-[#1e293b]">{title}</h1>
 
-      <form action={action} className="mt-6 space-y-5 rounded-xl bg-white p-6 shadow-sm">
+      <form ref={formRef} action={action} className="mt-6 space-y-5 rounded-xl bg-white p-6 shadow-sm">
         {/* 法人番号 */}
         <div>
           <label className={labelCls}>法人番号 *</label>
@@ -137,13 +168,30 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
           </label>
         </div>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap gap-2 pt-2">
           <button
             type="submit"
             className="rounded-lg bg-[#1f2775] px-5 py-2.5 text-[14px] font-bold text-white hover:opacity-90 transition"
           >
             {submitLabel}
           </button>
+          <button
+            type="button"
+            onClick={openPreview}
+            className="rounded-lg border border-[#1f2775] bg-white px-5 py-2.5 text-[14px] font-bold text-[#1f2775] hover:bg-[#f0f3ff] transition"
+          >
+            プレビュー
+          </button>
+          {initial.slug && (
+            <a
+              href={`/focus/${initial.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-[#d1d5db] px-5 py-2.5 text-[14px] text-[#4b5565] hover:bg-[#f8fafc] transition"
+            >
+              公開ページを開く ↗
+            </a>
+          )}
           <Link
             href="/admin/focus"
             className="rounded-lg border border-[#d1d5db] px-5 py-2.5 text-[14px] text-[#4b5565] hover:bg-[#f8fafc] transition"
@@ -152,6 +200,48 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
           </Link>
         </div>
       </form>
+
+      {/* プレビューモーダル */}
+      {previewData && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 p-4"
+          onClick={() => setPreviewData(null)}
+        >
+          <div
+            className="my-8 w-full max-w-[1280px] rounded-[12px] bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#eee] bg-white px-6 py-3 rounded-t-[12px]">
+              <p className="text-[14px] font-bold text-[#333]">プレビュー（保存前 / 未公開状態を再現）</p>
+              <button
+                type="button"
+                onClick={() => setPreviewData(null)}
+                className="rounded-lg border border-[#d1d5db] px-3 py-1 text-[12px] text-[#4b5565] hover:bg-[#f8fafc] transition"
+              >
+                閉じる
+              </button>
+            </div>
+            <div className="px-6 py-8 md:px-12">
+              <div className="flex gap-8">
+                <FocusArticleView
+                  slug={previewData.slug}
+                  companyName={previewData.companyName || "（企業名未入力）"}
+                  title={previewData.title || "（タイトル未入力）"}
+                  summary={previewData.summary}
+                  body={previewData.body || "<p>（本文未入力）</p>"}
+                  thumbnailUrl={previewData.thumbnailUrl}
+                  tags={previewData.tags}
+                  publishedAt={null}
+                  authorName={previewData.authorName}
+                  authorBio={previewData.authorBio}
+                  authorImageUrl={previewData.authorImageUrl}
+                  preview
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

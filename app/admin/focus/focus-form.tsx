@@ -48,6 +48,8 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
 
   const [isPublished, setIsPublished] = useState(initial.isPublished);
   const [isHot, setIsHot] = useState(initial.isHot);
+  const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl);
+  const [authorImageUrl, setAuthorImageUrl] = useState(initial.authorImageUrl);
   const formRef = useRef<HTMLFormElement>(null);
   const [previewData, setPreviewData] = useState<null | {
     slug: string;
@@ -121,8 +123,13 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
 
         {/* サムネイルURL */}
         <div>
-          <label className={labelCls}>サムネイルURL</label>
-          <input name="thumbnailUrl" defaultValue={initial.thumbnailUrl} className={inputCls} placeholder="https://..." />
+          <label className={labelCls}>サムネイル画像</label>
+          <ImageUploadInput
+            name="thumbnailUrl"
+            value={thumbnailUrl}
+            onChange={setThumbnailUrl}
+            placeholder="画像をアップロード または URLを貼り付け"
+          />
         </div>
 
         {/* タグ */}
@@ -143,7 +150,12 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
           <p className="text-[13px] font-bold text-[#4b5565]">著者情報（任意）</p>
           <input name="authorName" defaultValue={initial.authorName} className={inputCls} placeholder="著者名" />
           <textarea name="authorBio" defaultValue={initial.authorBio} rows={3} className={`${inputCls} resize-none`} placeholder="著者の経歴・プロフィール" />
-          <input name="authorImageUrl" defaultValue={initial.authorImageUrl} className={inputCls} placeholder="著者顔写真URL" />
+          <ImageUploadInput
+            name="authorImageUrl"
+            value={authorImageUrl}
+            onChange={setAuthorImageUrl}
+            placeholder="著者顔写真をアップロード または URLを貼り付け"
+          />
         </div>
 
         {/* 公開・PICK UP */}
@@ -241,6 +253,71 @@ export function FocusForm({ title, submitLabel, action, values }: Props) {
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function ImageUploadInput({
+  name, value, onChange, placeholder,
+}: {
+  name: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        onChange(data.url);
+      } else {
+        setError(data.error ?? "アップロードに失敗しました");
+      }
+    } catch {
+      setError("アップロードに失敗しました");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          name={name}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder ?? "https://..."}
+          className="flex-1 rounded-lg border border-[#d7dee9] px-4 py-2.5 text-[14px] outline-none focus:border-[#1f2775]"
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="shrink-0 rounded-lg bg-[#1f2775] px-4 py-2.5 text-[13px] font-bold text-white hover:opacity-90 transition disabled:opacity-50"
+        >
+          {uploading ? "アップロード中..." : "画像を選択"}
+        </button>
+        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFile} />
+      </div>
+      {error && <p className="text-[12px] text-[#dc2626]">{error}</p>}
+      {value && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={value} alt="プレビュー" className="h-[120px] rounded-[6px] border border-[#e5e7eb] object-cover" />
       )}
     </div>
   );

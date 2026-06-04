@@ -35,11 +35,13 @@ export function MobileTargetSwitchButton({ currentYear, nextYear }: Props) {
   const isMid = target === "mid";
   const isCurrentYear = target === String(currentYear);
   const isNextYear = target === String(nextYear);
+  const isPartTime = target === "parttime";
 
   const options = [];
   if (!isCurrentYear) options.push({ href: `/?target=${currentYear}`, label: `${String(currentYear).slice(-2)}卒`, value: String(currentYear), color: "text-[#eb0937]" });
   if (!isNextYear) options.push({ href: `/?target=${nextYear}`, label: `${String(nextYear).slice(-2)}卒`, value: String(nextYear), color: "text-[#eb0937]" });
   if (!isMid) options.push({ href: "/?target=mid", label: "中途", value: "mid", color: "text-[#2f6cff]" });
+  if (!isPartTime) options.push({ href: "/?target=parttime", label: "アルバイト・インターン", value: "parttime", color: "text-[#16a34a]" });
 
   function handleSwitch(value: string) {
     localStorage.setItem("kyujin-target", value);
@@ -110,13 +112,20 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
   const isMid = target === "mid";
   const isCurrentYear = target === String(currentYear);
   const isNextYear = target === String(nextYear);
+  const isPartTime = target === "parttime";
 
   const badgeLabel = isMid
     ? "中途"
-    : isNextYear
-      ? `${String(nextYear).slice(-2)}卒`
-      : `${String(currentYear).slice(-2)}卒`;
-  const badgeBg = isMid ? "bg-[#2f6cff]" : "bg-[#ff3158]";
+    : isPartTime
+      ? "アルバイト"
+      : isNextYear
+        ? `${String(nextYear).slice(-2)}卒`
+        : `${String(currentYear).slice(-2)}卒`;
+  const badgeBg = isMid
+    ? "bg-[#2f6cff]"
+    : isPartTime
+      ? "bg-[#22c55e]"
+      : "bg-[#ff3158]";
 
   type Option = { href: string; label: string; value: string; color: string };
   const options: Option[] = [];
@@ -143,6 +152,14 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
       label: "中途",
       value: "mid",
       color: "text-[#2f6cff]",
+    });
+  }
+  if (!isPartTime) {
+    options.push({
+      href: "/?target=parttime",
+      label: "アルバイト・インターン",
+      value: "parttime",
+      color: "text-[#16a34a]",
     });
   }
 

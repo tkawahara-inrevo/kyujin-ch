@@ -198,7 +198,8 @@
       "Bash(curl -sI https://kyujin-ch.jp/contact)",
       "Bash(xargs sed -i 's|where: { companyUserId: session\\\\.user\\\\.id }|where: { users: { some: { id: session.user.id } } }|g')",
       "Bash(curl -sI https://kyujin-ch.jp/ https://kyujin-ch.jp/jobs https://kyujin-ch.jp/company/login)",
-      "Bash(mkdir -p app/feed/kyujinbox.xml)"
+      "Bash(mkdir -p app/feed/kyujinbox.xml)",
+      "Bash(curl -s \"https://kyujin-ch.jp/feed/kyujinbox.xml\")"
     ],
     "additionalDirectories": [
       "\\tmp",

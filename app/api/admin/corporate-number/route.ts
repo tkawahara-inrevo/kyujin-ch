@@ -25,7 +25,7 @@ function parseNtaCsvLine(line: string): string[] {
 
 export async function GET(request: Request) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
+  if (!session?.user?.id || !["ADMIN", "SUPER_ADMIN"].includes(session.user.role ?? "")) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

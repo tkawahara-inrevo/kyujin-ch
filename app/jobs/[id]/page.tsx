@@ -35,6 +35,7 @@ function formatTarget(job: {
   if (job.targetType === "NEW_GRAD" && job.graduationYear) {
     return graduationYearLabel(job.graduationYear);
   }
+  if (job.targetType === "PART_TIME_INTERN") return "アルバイト・インターン";
   return "中途";
 }
 

@@ -1,12 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import PriceTable from "./price-table";
+import PartTimePriceSection from "./part-time-price-section";
 
 export default async function AdminBillingPage() {
   await requireAdmin();
 
+  // 通常の料金表（MID_CAREER / NEW_GRAD）
   const priceEntries = await prisma.priceEntry.findMany({
+    where: { targetType: { not: "PART_TIME_INTERN" } },
     orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
+  });
+
+  // アルバイト・インターン固定料金
+  const partTimeFixed = await prisma.priceEntry.findFirst({
+    where: { targetType: "PART_TIME_INTERN", category: "アルバイト・インターン", subcategory: "固定料金" },
+    select: { experiencedPrice: true, inexperiencedPrice: true },
   });
 
   // Group by category
@@ -27,6 +36,10 @@ export default async function AdminBillingPage() {
         料金を編集すると、企業側の請求管理ページにも反映されます
       </p>
       <PriceTable grouped={grouped} categories={categories} />
+      <PartTimePriceSection
+        initialPrice={partTimeFixed?.experiencedPrice ?? 0}
+        initialPriceInexp={partTimeFixed?.inexperiencedPrice ?? null}
+      />
     </div>
   );
 }

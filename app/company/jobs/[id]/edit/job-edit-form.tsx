@@ -866,6 +866,9 @@ export function JobEditForm({
                     {graduationYearLabel(year)}
                   </TargetButton>
                 ))}
+                <TargetButton active={targetType === "PART_TIME_INTERN"} onClick={() => setTargetType("PART_TIME_INTERN")}>
+                  アルバイト・インターン
+                </TargetButton>
               </div>
             </Field>
           </Section>

@@ -197,14 +197,16 @@
       "Bash(curl -sI https://kyujin-ch.jp/contact_form/)",
       "Bash(curl -sI https://kyujin-ch.jp/contact)",
       "Bash(xargs sed -i 's|where: { companyUserId: session\\\\.user\\\\.id }|where: { users: { some: { id: session.user.id } } }|g')",
-      "Bash(curl -sI https://kyujin-ch.jp/ https://kyujin-ch.jp/jobs https://kyujin-ch.jp/company/login)"
+      "Bash(curl -sI https://kyujin-ch.jp/ https://kyujin-ch.jp/jobs https://kyujin-ch.jp/company/login)",
+      "Bash(mkdir -p app/feed/kyujinbox.xml)"
     ],
     "additionalDirectories": [
       "\\tmp",
       "C:\\Users\\takar\\.aws",
       "\\mnt\\e\\tmp",
       "e:\\dev\\kyujin-ch\\app\\focus",
-      "e:\\dev\\kyujin-ch\\app\\admin\\focus\\[id]"
+      "e:\\dev\\kyujin-ch\\app\\admin\\focus\\[id]",
+      "E:\\dev\\kyujin-ch\\app\\feed"
     ]
   }
 }

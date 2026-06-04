@@ -141,3 +141,33 @@ export async function reorderCategories(orderedCategories: string[]) {
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
 }
+
+const PART_TIME_FIXED_KEY = {
+  targetType: "PART_TIME_INTERN",
+  category: "アルバイト・インターン",
+  subcategory: "固定料金",
+};
+
+export async function upsertPartTimeFixedPrice(experiencedPrice: number, inexperiencedPrice: number | null) {
+  await requireAdminAction();
+  const existing = await prisma.priceEntry.findFirst({
+    where: PART_TIME_FIXED_KEY,
+    select: { id: true },
+  });
+  if (existing) {
+    await prisma.priceEntry.update({
+      where: { id: existing.id },
+      data: { experiencedPrice, inexperiencedPrice },
+    });
+  } else {
+    await prisma.priceEntry.create({
+      data: {
+        ...PART_TIME_FIXED_KEY,
+        experiencedPrice,
+        inexperiencedPrice,
+      },
+    });
+  }
+  revalidatePath("/admin/billing");
+  revalidatePath("/company/billing");
+}

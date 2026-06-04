@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
   if (file.size > MAX_SIZE) return NextResponse.json({ error: "10MB以下にしてください" }, { status: 400 });
 
   const ext = path.extname(file.name) || ".jpg";
-  const key = `column-images/${randomUUID()}${ext}`;
+  // バケットポリシーで images/* のみ公開許可されているのでそのprefix配下に置く
+  const key = `images/column/${randomUUID()}${ext}`;
   const bytes = await file.arrayBuffer();
 
   try {

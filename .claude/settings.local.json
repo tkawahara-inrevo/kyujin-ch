@@ -199,7 +199,10 @@
       "Bash(xargs sed -i 's|where: { companyUserId: session\\\\.user\\\\.id }|where: { users: { some: { id: session.user.id } } }|g')",
       "Bash(curl -sI https://kyujin-ch.jp/ https://kyujin-ch.jp/jobs https://kyujin-ch.jp/company/login)",
       "Bash(mkdir -p app/feed/kyujinbox.xml)",
-      "Bash(curl -s \"https://kyujin-ch.jp/feed/kyujinbox.xml\")"
+      "Bash(curl -s \"https://kyujin-ch.jp/feed/kyujinbox.xml\")",
+      "Bash(curl -sI \"https://kyujin-ch-documents.s3.ap-northeast-1.amazonaws.com/images/sample.png\")",
+      "Bash(curl -sI \"https://kyujin-ch-documents.s3.ap-northeast-1.amazonaws.com/column-images/test.png\")",
+      "Bash(aws s3api *)"
     ],
     "additionalDirectories": [
       "\\tmp",

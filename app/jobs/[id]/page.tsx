@@ -65,11 +65,12 @@ const SALARY_TYPE_LABELS: Record<string, string> = {
 
 function formatSalaryRange(type: string | null, min?: number | null, max?: number | null) {
   const label = type ? (SALARY_TYPE_LABELS[type] ?? "") : "";
+  const prefix = label ? `${label} ` : "";
   const fmt = (n: number) => `${n.toLocaleString()}円`;
   if (!min && !max) return null;
-  if (min && max) return `${label} ${fmt(min)}〜${fmt(max)}`;
-  if (min) return `${label} ${fmt(min)}〜`;
-  return `${label} 〜${fmt(max!)}`;
+  if (min && max) return `${prefix}${fmt(min)}〜${fmt(max)}`;
+  if (min) return `${prefix}${fmt(min)}〜`;
+  return `${prefix}〜${fmt(max!)}`;
 }
 
 function formatFixedOvertime(json: string): string {
@@ -539,6 +540,21 @@ export default async function JobDetailPage({
                         j.workingHoursDetail as WorkingHoursDetail | null,
                       )}
                     />
+                    {(() => {
+                      const d = j.workingHoursDetail as WorkingHoursDetail | null;
+                      const breakMin = d?.breakMinutes;
+                      const avgOT = d?.avgMonthlyOvertimeHour;
+                      return (
+                        <>
+                          {breakMin != null && (
+                            <InfoRow label="休憩時間" value={`${breakMin}分`} />
+                          )}
+                          {avgOT != null && avgOT > 0 && (
+                            <InfoRow label="月平均残業時間" value={`${avgOT}時間`} />
+                          )}
+                        </>
+                      );
+                    })()}
                   </dl>
                 </div>
               )}

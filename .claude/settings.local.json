@@ -202,7 +202,20 @@
       "Bash(curl -s \"https://kyujin-ch.jp/feed/kyujinbox.xml\")",
       "Bash(curl -sI \"https://kyujin-ch-documents.s3.ap-northeast-1.amazonaws.com/images/sample.png\")",
       "Bash(curl -sI \"https://kyujin-ch-documents.s3.ap-northeast-1.amazonaws.com/column-images/test.png\")",
-      "Bash(aws s3api *)"
+      "Bash(aws s3api *)",
+      "Bash(nslookup wp.kyujin-ch.jp)",
+      "Bash(curl -sI -k https://wp.kyujin-ch.jp)",
+      "Bash(curl -sI https://wp.kyujin-ch.jp/wp-login.php)",
+      "Bash(curl -sI https://wp.kyujin-ch.jp/wp-admin/)",
+      "Bash(curl -sI -k https://wp.kyujin-ch.jp/wp-login.php)",
+      "Bash(curl -sI -k https://wp.kyujin-ch.jp/kc-login)",
+      "Bash(curl -sI -k \"https://wp.kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso/\")",
+      "Bash(curl -s -k \"https://wp.kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso/\")",
+      "Bash(ssh -i e:/tmp/prod_key.pem bitnami@18.179.136.107 'scp -i /home/bitnami/.ssh/id_rsa /tmp/post_1027_clean.html ubuntu@13.159.236.233:/tmp/ 2>&1' 2>&1 | tail -3; echo \"---\"; ssh -i e:/tmp/prod_key.pem bitnami@18.179.136.107 'cat /tmp/post_1027_clean.html' > e:/tmp/post_1027_clean.html 2>&1 && wc -c e:/tmp/post_1027_clean.html)",
+      "Bash(scp -i e:/tmp/prod_key.pem e:/tmp/post_1027_clean.html ubuntu@13.159.236.233:/tmp/post_1027.html)",
+      "Bash(curl -sI \"https://kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso/\")",
+      "Bash(curl -sI \"https://kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso\")",
+      "Bash(gh secret *)"
     ],
     "additionalDirectories": [
       "\\tmp",
@@ -210,7 +223,8 @@
       "\\mnt\\e\\tmp",
       "e:\\dev\\kyujin-ch\\app\\focus",
       "e:\\dev\\kyujin-ch\\app\\admin\\focus\\[id]",
-      "E:\\dev\\kyujin-ch\\app\\feed"
+      "E:\\dev\\kyujin-ch\\app\\feed",
+      "e:\\tmp"
     ]
   }
 }

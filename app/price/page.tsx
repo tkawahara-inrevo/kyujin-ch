@@ -25,8 +25,11 @@ export default async function PricePage() {
     <main className="min-h-screen bg-[#f8fafc] px-4 py-12">
       <div className="mx-auto max-w-4xl">
         <h1 className="mb-2 text-center text-[28px] font-bold text-gray-900">料金表</h1>
-        <p className="mb-10 text-center text-[13px] text-gray-500">
+        <p className="mb-1 text-center text-[13px] text-gray-500">
           応募がきた場合のみ費用が発生する完全成功報酬型です
+        </p>
+        <p className="mb-10 text-center text-[12px] text-gray-400">
+          ※表示価格はすべて税抜です
         </p>
 
         <div className="space-y-6">

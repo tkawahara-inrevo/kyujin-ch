@@ -16,6 +16,7 @@ export default function KeisaiIraiPage() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<"issued" | "contact_later" | null>(null);
+  const [agreed, setAgreed] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -170,11 +171,35 @@ export default function KeisaiIraiPage() {
             </p>
           )}
 
+          {/* 利用規約同意 */}
+          <div className="rounded-lg bg-[#f8fafc] border border-[#e5e7eb] px-4 py-3">
+            <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                required
+                className="mt-0.5 h-4 w-4 accent-[#f07050]"
+              />
+              <span>
+                <a
+                  href="/kiyaku-company"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#1d63e3] underline hover:opacity-80"
+                >
+                  求人ちゃんねるお申込みに関する注意事項
+                </a>
+                （企業規約）に同意します<span className="text-[#eb0937]">（必須）</span>
+              </span>
+            </label>
+          </div>
+
           <div className="pt-2">
             <button
               type="submit"
-              disabled={isPending}
-              className="bg-[#f07050] hover:bg-[#e05f40] disabled:bg-[#f0a090] text-white font-semibold rounded-lg px-8 py-2.5 text-sm transition-colors"
+              disabled={isPending || !agreed}
+              className="bg-[#f07050] hover:bg-[#e05f40] disabled:bg-[#f0a090] disabled:cursor-not-allowed text-white font-semibold rounded-lg px-8 py-2.5 text-sm transition-colors"
             >
               {isPending ? "送信中..." : "送信"}
             </button>

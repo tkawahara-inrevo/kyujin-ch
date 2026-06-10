@@ -215,7 +215,10 @@
       "Bash(scp -i e:/tmp/prod_key.pem e:/tmp/post_1027_clean.html ubuntu@13.159.236.233:/tmp/post_1027.html)",
       "Bash(curl -sI \"https://kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso/\")",
       "Bash(curl -sI \"https://kyujin-ch.jp/column/tenshoku-agent_mendan-fukuso\")",
-      "Bash(gh secret *)"
+      "Bash(gh secret *)",
+      "Bash(mkdir -p app/biz-column/\\\\[slug\\\\])",
+      "Bash(mkdir -p app/admin/biz-columns/new app/admin/biz-columns/\\\\[id\\\\])",
+      "Bash(mkdir -p app/admin/biz-columns/\\\\[id\\\\]/edit)"
     ],
     "additionalDirectories": [
       "\\tmp",
@@ -224,7 +227,10 @@
       "e:\\dev\\kyujin-ch\\app\\focus",
       "e:\\dev\\kyujin-ch\\app\\admin\\focus\\[id]",
       "E:\\dev\\kyujin-ch\\app\\feed",
-      "e:\\tmp"
+      "e:\\tmp",
+      "E:\\dev\\kyujin-ch\\app\\biz-column",
+      "E:\\dev\\kyujin-ch\\app\\admin\\biz-columns",
+      "E:\\dev\\kyujin-ch\\app\\admin\\biz-columns\\[id]"
     ]
   }
 }

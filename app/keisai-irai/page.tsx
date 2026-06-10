@@ -188,9 +188,9 @@ export default function KeisaiIraiPage() {
                   rel="noreferrer"
                   className="text-[#1d63e3] underline hover:opacity-80"
                 >
-                  求人ちゃんねるお申込みに関する注意事項
+                  利用規約
                 </a>
-                （企業規約）に同意します<span className="text-[#eb0937]">（必須）</span>
+                に同意
               </span>
             </label>
           </div>

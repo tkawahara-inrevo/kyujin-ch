@@ -1,8 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { BizColumnCTA } from "@/components/biz-column-cta";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -49,9 +46,7 @@ export default async function BizColumnListPage({
   const allTags = [...new Set(all.flatMap((p) => p.tags))];
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
-      <Header />
-
+    <main>
       {/* ヒーロー */}
       <section className="bg-gradient-to-br from-[#1a3a8f] to-[#2f6cff] px-6 py-12 md:px-12">
         <div className="mx-auto max-w-[1280px]">
@@ -83,7 +78,6 @@ export default async function BizColumnListPage({
               </div>
             )}
 
-            <BizColumnCTA variant="footer" className="mt-12" />
           </section>
 
           {/* 右サイドバー */}
@@ -103,12 +97,9 @@ export default async function BizColumnListPage({
                 ))}
               </div>
             </div>
-            <BizColumnCTA variant="sidebar" />
           </aside>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }

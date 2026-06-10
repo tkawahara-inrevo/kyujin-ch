@@ -218,7 +218,8 @@
       "Bash(gh secret *)",
       "Bash(mkdir -p app/biz-column/\\\\[slug\\\\])",
       "Bash(mkdir -p app/admin/biz-columns/new app/admin/biz-columns/\\\\[id\\\\])",
-      "Bash(mkdir -p app/admin/biz-columns/\\\\[id\\\\]/edit)"
+      "Bash(mkdir -p app/admin/biz-columns/\\\\[id\\\\]/edit)",
+      "Bash(curl -sI https://kyujin-ch.jp/biz-column)"
     ],
     "additionalDirectories": [
       "\\tmp",

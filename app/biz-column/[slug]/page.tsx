@@ -1,9 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { BizColumnCTA } from "@/components/biz-column-cta";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -47,16 +44,13 @@ export default async function BizColumnDetailPage({ params }: { params: Params }
   const isHtml = post.body.trim().startsWith("<");
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7]">
-      <Header />
-
-      {/* toB CTA バー */}
-      <div className="bg-[#1f2775] px-6 py-3 md:px-12">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3">
-          <Link href="/biz-column" className="text-[13px] font-bold text-white hover:underline">
+    <main>
+      {/* パンくずバー */}
+      <div className="border-b border-[#e5e7eb] bg-white px-6 py-3 md:px-12">
+        <div className="mx-auto max-w-[1280px]">
+          <Link href="/biz-column" className="text-[12px] text-[#1f2775] hover:underline">
             ← 採用お役立ち情報トップ
           </Link>
-          <BizColumnCTA variant="header" />
         </div>
       </div>
 
@@ -121,10 +115,7 @@ export default async function BizColumnDetailPage({ params }: { params: Params }
                 )}
               </div>
 
-              {/* 記事下部 CTA */}
-              <BizColumnCTA variant="footer" className="mt-10" />
-
-              <div className="mt-8 border-t border-[#eee] pt-6">
+              <div className="mt-10 border-t border-[#eee] pt-6">
                 <Link href="/biz-column" className="text-[13px] text-[#2f6cff] hover:underline">
                   ← 採用お役立ち情報一覧に戻る
                 </Link>
@@ -133,12 +124,21 @@ export default async function BizColumnDetailPage({ params }: { params: Params }
           </article>
 
           <aside className="hidden lg:block">
-            <BizColumnCTA variant="sidebar" />
+            <div className="sticky top-[90px] rounded-xl bg-white p-5 shadow-sm">
+              <p className="text-[14px] font-bold text-[#1f2937]">採用にお悩みなら</p>
+              <p className="mt-2 text-[12px] leading-relaxed text-[#6b7280]">
+                スカウト運用・求人作成・採用戦略まで一括サポート。
+              </p>
+              <Link
+                href="/contact"
+                className="mt-3 block rounded-full bg-[#1f2775] px-4 py-2 text-center text-[12px] font-bold text-white hover:opacity-90"
+              >
+                無料相談
+              </Link>
+            </div>
           </aside>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }

@@ -42,6 +42,8 @@ export const EMPLOYMENT_OPTIONS = [
   { value: "FULL_TIME", label: "正社員" },
   { value: "CONTRACT", label: "契約社員" },
   { value: "TEMPORARY", label: "派遣社員" },
+  { value: "PART_TIME", label: "アルバイト" },
+  { value: "OUTSOURCING", label: "業務委託" },
 ] as const;
 
 export const EMPLOYMENT_FILTER_OPTIONS = [

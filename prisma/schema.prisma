@@ -26,6 +26,7 @@ enum EmploymentType {
   CONTRACT
   TEMPORARY
   INTERN
+  OUTSOURCING
   OTHER
 }
 

@@ -7,17 +7,17 @@ export function BizColumnFooter() {
       {/* CTA帯 */}
       <div className="border-b border-white/15 px-6 py-10 md:px-12">
         <div className="mx-auto max-w-[1280px] text-center">
-          <p className="text-[20px] font-bold text-white md:text-[24px]">採用でお困りではないですか？</p>
+          <p className="text-[20px] font-bold text-white md:text-[24px]">応募0なのに、掲載費を払い続けていませんか？</p>
           <p className="mt-3 text-[13px] leading-relaxed text-white/80">
-            求人ちゃんねるは、母集団形成からスカウト運用までを伴走支援。<br className="hidden md:inline" />
-            中小企業の採用責任者から多くの相談をいただいています。
+            掲載費はかからず、応募が来た分だけ課金。<br className="hidden md:inline" />
+            エージェントを介さない自主応募型だから、志望度の高い応募が集まります。
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
-              href="/contact"
+              href="/shiryouseikyuu/"
               className="rounded-full bg-white px-7 py-3 text-[14px] font-bold text-[#1f2775] hover:opacity-90 transition"
             >
-              無料で相談する
+              資料ダウンロード
             </Link>
             <Link
               href="/service"

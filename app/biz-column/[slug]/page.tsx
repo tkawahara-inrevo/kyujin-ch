@@ -125,16 +125,24 @@ export default async function BizColumnDetailPage({ params }: { params: Params }
 
           <aside className="hidden lg:block">
             <div className="sticky top-[90px] rounded-xl bg-white p-5 shadow-sm">
-              <p className="text-[14px] font-bold text-[#1f2937]">採用にお悩みなら</p>
+              <p className="text-[14px] font-bold text-[#1f2937]">応募0なのに、<br />掲載費を払い続けていませんか？</p>
               <p className="mt-2 text-[12px] leading-relaxed text-[#6b7280]">
-                スカウト運用・求人作成・採用戦略まで一括サポート。
+                掲載費はかからず、応募が来た分だけ課金。志望度の高い自主応募が集まります。
               </p>
-              <Link
-                href="/contact"
-                className="mt-3 block rounded-full bg-[#1f2775] px-4 py-2 text-center text-[12px] font-bold text-white hover:opacity-90"
-              >
-                無料相談
-              </Link>
+              <div className="mt-3 flex flex-col gap-2">
+                <Link
+                  href="/shiryouseikyuu/"
+                  className="block rounded-full bg-[#1f2775] px-4 py-2 text-center text-[12px] font-bold text-white hover:opacity-90"
+                >
+                  資料ダウンロード
+                </Link>
+                <Link
+                  href="/service"
+                  className="block rounded-full border border-[#1f2775] px-4 py-2 text-center text-[12px] font-bold text-[#1f2775] hover:bg-[#f0f3ff] transition"
+                >
+                  サービス詳細
+                </Link>
+              </div>
             </div>
           </aside>
         </div>

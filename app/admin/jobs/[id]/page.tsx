@@ -45,11 +45,12 @@ function formatFixedOvertime(raw: string | null | undefined): string | null {
 
 function formatSalaryRange(type: string | null | undefined, min?: number | null, max?: number | null) {
   const label = type ? (SALARY_TYPE_LABELS[type] ?? "") : "";
+  const prefix = label ? `${label} ` : "";
   const fmt = (n: number) => `${n.toLocaleString()}円`;
   if (!min && !max) return null;
-  if (min && max) return `${label} ${fmt(min)}〜${fmt(max)}`;
-  if (min) return `${label} ${fmt(min)}〜`;
-  return `${label} 〜${fmt(max!)}`;
+  if (min && max) return `${prefix}${fmt(min)}〜${fmt(max)}`;
+  if (min) return `${prefix}${fmt(min)}〜`;
+  return `${prefix}〜${fmt(max!)}`;
 }
 
 function formatTarget(targetType: string, graduationYear: number | null) {
@@ -327,6 +328,19 @@ export default async function AdminJobDetailPage({
               <InfoRow label="最寄・アクセス" value={d.access} />
               <InfoRow label="勤務形態" value={d.workingHoursType} />
               <InfoRow label="勤務時間" value={d.workingHours ?? workingHoursDetailFormatted} />
+              {(() => {
+                const whd = d.workingHoursDetail as WorkingHoursDetail | null;
+                return (
+                  <>
+                    {whd?.breakMinutes != null && (
+                      <InfoRow label="休憩時間" value={`${whd.breakMinutes}分`} />
+                    )}
+                    {whd?.avgMonthlyOvertimeHour != null && whd.avgMonthlyOvertimeHour > 0 && (
+                      <InfoRow label="月平均残業時間" value={`${whd.avgMonthlyOvertimeHour}時間`} />
+                    )}
+                  </>
+                );
+              })()}
               <InfoRow label="研修情報" value={d.trainingInfo} />
               <InfoRow label="掲載終了日" value={d.closingDate ? new Date(d.closingDate).toLocaleDateString("ja-JP") : null} />
             </dl>
@@ -354,6 +368,11 @@ export default async function AdminJobDetailPage({
                     const formatted = formatFixedOvertime(d.fixedOvertime);
                     return formatted ? <p className="mt-1 text-[12px] text-[#666]">{formatted}</p> : null;
                   })()}
+                  {!d.hasFixedOvertime && d.overtimeTreatment && (
+                    <p className="mt-1 text-[12px] text-[#666]">
+                      時間外労働発生時: {d.overtimeTreatment === "separate_pay" ? "残業代を別途支給" : d.overtimeTreatment === "no_overtime" ? "原則時間外労働なし" : d.overtimeTreatment}
+                    </p>
+                  )}
                 </InfoRow>
               )}
             </dl>
@@ -383,7 +402,7 @@ export default async function AdminJobDetailPage({
                     <InfoRow label="労働時間" value={d.trialWorkingHours ? `${d.trialWorkingHours}時間/月` : null} />
                     <InfoRow label="給与" value={
                       d.trialSalarySame === true ? "本採用時と同じ" :
-                      d.trialSalarySame === false ? (d.trialAnnualSalary || trialSalaryRange) : null
+                      d.trialSalarySame === false ? (trialSalaryRange || d.trialAnnualSalary) : null
                     } />
                     {d.trialPeriod && <InfoRow label="変更となる条件" value={d.trialPeriod} />}
                   </>

@@ -219,7 +219,8 @@
       "Bash(mkdir -p app/biz-column/\\\\[slug\\\\])",
       "Bash(mkdir -p app/admin/biz-columns/new app/admin/biz-columns/\\\\[id\\\\])",
       "Bash(mkdir -p app/admin/biz-columns/\\\\[id\\\\]/edit)",
-      "Bash(curl -sI https://kyujin-ch.jp/biz-column)"
+      "Bash(curl -sI https://kyujin-ch.jp/biz-column)",
+      "Bash(curl -sL -o e:/tmp/focus_about_figma.png \"https://www.figma.com/api/mcp/asset/18b5ae59-7aa4-41e5-b044-5037b92ac053\")"
     ],
     "additionalDirectories": [
       "\\tmp",

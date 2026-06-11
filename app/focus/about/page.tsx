@@ -7,22 +7,26 @@ const VALUES = [
   {
     title: "完全無料で自社をPR",
     body: "外部メディアであるFocusが、貴社の魅力を客観的なコンテンツとして無償で紹介・拡散します。",
-    icon: "📣",
+    img: "/assets/focus_about/value-01.png",
+    alt: "拡声器のイラスト",
   },
   {
     title: "SEO効果の期待",
     body: "良質な外部リンクが増加することで検索エンジンからの評価が高まり、Web上での露出機会が増加します。",
-    icon: "🔍",
+    img: "/assets/focus_about/value-02.png",
+    alt: "SEOと書かれたノートPCのイラスト",
   },
   {
     title: "応募者の信頼度アップ",
     body: "検索時に、第三者による紹介記事が存在することで、企業の社会的信用や安心感が大きく高まります。",
-    icon: "🤝",
+    img: "/assets/focus_about/value-03.png",
+    alt: "握手のイラスト",
   },
   {
     title: "広報ツールに",
     body: "企業としての想いや魅力を深掘りしたインタビュー内容になるため、求職者向けだけでなく、社内エンゲージメントを高める「社内報」としても二次利用が可能です。",
-    icon: "📰",
+    img: "/assets/focus_about/value-04.png",
+    alt: "雑誌のイラスト",
   },
 ];
 
@@ -60,40 +64,63 @@ export default function FocusAboutPage() {
 
       <div className="mx-auto flex max-w-[1280px] flex-col gap-[80px] px-6 py-12 md:px-12">
         {/* Focusに込めた思い */}
-        <section>
-          <SectionHeading
-            title={<>輝きに焦点を当て、<br />採用の可能性を最大化する。</>}
-            sub="Focusに込めた思い"
-          />
-          <div className="mt-6 space-y-4 text-[15px] font-bold leading-[1.9] text-[#333] md:text-[16px]">
-            <p>「Focus」という名前には、2つの強い想いが込められています。</p>
-            <p>
-              1つは、INREVOが一社一社の企業様に深く焦点を当て、その魅力を世の中に発信していくという意味。
-              そしてもう1つは、企業様の「採用支援」に徹底的にフォーカス（注力）するという意味です。
-            </p>
-            <p>
-              私たちは、ヒトトレ採用をハブとしながら、クライアント企業様と手を携えた広報活動を展開します。
-              お互いの強みを掛け合わせることで、これまでにない情報の拡散力を生み出します。
-            </p>
+        <section className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+          <div>
+            <SectionHeading
+              title={<>輝きに焦点を当て、<br />採用の可能性を最大化する。</>}
+              sub="Focusに込めた思い"
+            />
+            <div className="mt-6 space-y-4 text-[15px] font-bold leading-[1.9] text-[#333] md:text-[16px]">
+              <p>「Focus」という名前には、2つの強い想いが込められています。</p>
+              <p>
+                1つは、INREVOが一社一社の企業様に深く焦点を当て、その魅力を世の中に発信していくという意味。
+                そしてもう1つは、企業様の「採用支援」に徹底的にフォーカス（注力）するという意味です。
+              </p>
+              <p>
+                私たちは、ヒトトレ採用をハブとしながら、クライアント企業様と手を携えた広報活動を展開します。
+                お互いの強みを掛け合わせることで、これまでにない情報の拡散力を生み出します。
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center md:justify-end">
+            <Image
+              src="/assets/focus_about/about-img01.png"
+              alt=""
+              width={520}
+              height={320}
+              className="h-auto w-full max-w-[520px]"
+            />
           </div>
         </section>
 
         {/* Focusが目指すもの */}
-        <section>
-          <SectionHeading
-            title={<>第三者視点の情報が、<br />求職者の「信頼」と「応募」をつなぐ</>}
-            sub="Focusが目指すもの"
-          />
-          <div className="mt-6 space-y-4 text-[15px] font-bold leading-[1.9] text-[#333] md:text-[16px]">
-            <p>
-              私たちが目指すのは、求職者が企業名を検索した際に、自社発信の情報だけでなく、
-              第三者からの紹介情報やインタビューが自然と目に留まる仕組みです。
-            </p>
-            <p>
-              求職者にとって「他者からどう評価されているか」は、応募を決意する重要な安心材料になります。
-              客観的な視点から企業様の魅力を届けることで、応募者の信頼度を飛躍的に向上させ、
-              採用ブランディングの強化という相乗効果を創出します。
-            </p>
+        <section className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
+          {/* 画像は左、テキストは右（Figma準拠の交互レイアウト） */}
+          <div className="order-1 flex justify-center md:order-1 md:justify-start">
+            <Image
+              src="/assets/focus_about/about-img02.png"
+              alt=""
+              width={520}
+              height={320}
+              className="h-auto w-full max-w-[520px]"
+            />
+          </div>
+          <div className="order-2 md:order-2">
+            <SectionHeading
+              title={<>第三者視点の情報が、<br />求職者の「信頼」と「応募」をつなぐ</>}
+              sub="Focusが目指すもの"
+            />
+            <div className="mt-6 space-y-4 text-[15px] font-bold leading-[1.9] text-[#333] md:text-[16px]">
+              <p>
+                私たちが目指すのは、求職者が企業名を検索した際に、自社発信の情報だけでなく、
+                第三者からの紹介情報やインタビューが自然と目に留まる仕組みです。
+              </p>
+              <p>
+                求職者にとって「他者からどう評価されているか」は、応募を決意する重要な安心材料になります。
+                客観的な視点から企業様の魅力を届けることで、応募者の信頼度を飛躍的に向上させ、
+                採用ブランディングの強化という相乗効果を創出します。
+              </p>
+            </div>
           </div>
         </section>
 
@@ -107,12 +134,35 @@ export default function FocusAboutPage() {
             {VALUES.map((v) => (
               <div key={v.title} className="flex flex-col items-center gap-4 text-center">
                 <p className="text-[20px] font-bold text-[#333]">{v.title}</p>
-                <div className="flex h-[100px] w-full items-center justify-center text-[48px]">{v.icon}</div>
+                <div className="flex h-[100px] w-full items-center justify-center">
+                  <Image
+                    src={v.img}
+                    alt={v.alt}
+                    width={180}
+                    height={100}
+                    className="h-auto max-h-[100px] w-auto"
+                  />
+                </div>
                 <p className="text-[15px] font-bold leading-[1.65] text-[#333]">{v.body}</p>
               </div>
             ))}
           </div>
         </section>
+
+        {/* バナー */}
+        <Link
+          href="/"
+          className="block transition hover:opacity-90"
+          aria-label="求人ちゃんねるトップへ"
+        >
+          <Image
+            src="/assets/focus_about/banner.png"
+            alt="変えるのは自分だ。求人ちゃんねる"
+            width={1200}
+            height={200}
+            className="h-auto w-full"
+          />
+        </Link>
 
         {/* CTA */}
         <section className="flex flex-col items-center gap-5 rounded-2xl bg-[#1f2775] px-6 py-12 text-center">

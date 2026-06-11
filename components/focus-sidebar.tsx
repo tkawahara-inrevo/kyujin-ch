@@ -33,7 +33,7 @@ export function FocusSidebar({ allTags, ranking = [] }: Props) {
   }
 
   return (
-    <div className="sticky top-[95px] rounded-[15px] bg-white/80 shadow-[0_2px_2px_rgba(0,0,0,0.1)] px-[10px] py-[20px] w-[211px] flex flex-col gap-[15px]">
+    <div className="sticky top-[95px] max-h-[calc(100vh-110px)] overflow-y-auto rounded-[15px] bg-white/80 shadow-[0_2px_2px_rgba(0,0,0,0.1)] px-[10px] py-[20px] w-[211px] flex flex-col gap-[15px]">
       {/* タグ */}
       <p className="text-[12px] font-bold text-[#333]">タグから探す</p>
       <div className="flex flex-wrap gap-[8px_5px]">

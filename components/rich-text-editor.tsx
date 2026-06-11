@@ -55,7 +55,18 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
 
   return (
     <div className="rounded-lg border border-[#d7dee9] focus-within:border-[#2f6cff]">
-      <div className="flex flex-wrap gap-1 border-b border-[#d7dee9] bg-[#f8fafc] px-2 py-1.5">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleImageUpload}
+      />
+
+      <EditorContent editor={editor} />
+
+      {/* ツールバー：エディタ下に固定、ビューポート下端にもsticky */}
+      <div className="sticky bottom-0 z-10 flex flex-wrap gap-1 border-t border-[#d7dee9] bg-[#f8fafc] px-2 py-1.5 backdrop-blur">
         <ToolBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")} title="太字">
           <strong>B</strong>
         </ToolBtn>
@@ -94,15 +105,6 @@ export function RichTextEditor({ name, defaultValue = "" }: Props) {
         </ToolBtn>
       </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        className="hidden"
-        onChange={handleImageUpload}
-      />
-
-      <EditorContent editor={editor} />
       <input type="hidden" name={name} value={html} />
     </div>
   );

@@ -25,10 +25,10 @@ export function BizColumnHeader() {
             サービス詳細
           </Link>
           <Link
-            href="/contact"
+            href="/shiryouseikyuu/"
             className="rounded-full bg-white px-4 py-1.5 text-[12px] font-bold text-[#1f2775] shadow-sm transition hover:opacity-90"
           >
-            お問い合わせ
+            資料ダウンロード
           </Link>
         </div>
       </div>

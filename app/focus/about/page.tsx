@@ -54,7 +54,7 @@ export default async function FocusAboutPage() {
         <div className="mx-auto flex h-[400px] max-w-[1440px] items-center px-6 md:px-[270px]">
           <div className="flex w-full flex-col items-center justify-between gap-8 md:flex-row md:gap-12">
             <Image
-              src="/assets/Focus-fv.png"
+              src="/assets/Focus_ロゴ@2x.png"
               alt="Focus"
               height={143}
               width={400}

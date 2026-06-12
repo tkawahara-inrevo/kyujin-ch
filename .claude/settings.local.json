@@ -222,7 +222,19 @@
       "Bash(curl -sI https://kyujin-ch.jp/biz-column)",
       "Bash(curl -sL -o e:/tmp/focus_about_figma.png \"https://www.figma.com/api/mcp/asset/18b5ae59-7aa4-41e5-b044-5037b92ac053\")",
       "Bash(curl -s \"https://kyujin-ch.jp/jobs/cmpxsdg2x001z68pesr693tjo\")",
-      "Bash(grep -oE \"休憩時間|時間外労働発生時|月給[^<]{0,30}|月平均残業\")"
+      "Bash(grep -oE \"休憩時間|時間外労働発生時|月給[^<]{0,30}|月平均残業\")",
+      "Bash(curl -sI \"https://kyujin-ch.jp/biz-column/test/\")",
+      "Bash(curl -sI \"https://kyujin-ch.jp/biz-column/test\")",
+      "Bash(curl -sI \"https://wp.kyujin-ch.jp/biz-column/test/\")",
+      "Bash(python -c \"import sys, json; data = json.load\\(sys.stdin\\); [print\\(k, '->', v.get\\('rest_base', '?'\\), '/', v.get\\('slug', '?'\\)\\) for k, v in data.items\\(\\)]\")",
+      "Bash(ssh -i e:/tmp/prod_key.pem bitnami@18.179.136.107 'cat /tmp/bizcol_1041.html' > e:/tmp/bizcol_1041.html 2>&1; cat e:/tmp/bizcol_1041.html; echo \"[end]\")",
+      "Bash(scp -i e:/tmp/prod_key.pem e:/tmp/bizcol_1041.html ubuntu@13.159.236.233:/tmp/bizcol_1041.html)",
+      "Bash(curl -sI https://kyujin-ch.jp/biz-column/test)",
+      "Bash(curl -s https://kyujin-ch.jp/biz-column)",
+      "Bash(curl -s \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
+      "Bash(curl -s -w \"\\\\n%{http_code}\" \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
+      "Bash(curl -v \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
+      "Bash(node -e \"console.log\\(require.resolve\\('undici'\\)\\)\")"
     ],
     "additionalDirectories": [
       "\\tmp",

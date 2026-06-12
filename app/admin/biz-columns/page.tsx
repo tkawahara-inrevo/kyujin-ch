@@ -2,6 +2,7 @@ import Link from "next/link";
 import { deleteBizColumnPost } from "@/app/actions/admin/biz-columns";
 import { requireColumnEditor } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { SyncWpButton } from "./sync-wp-button";
 
 function getStatus(isPublished: boolean, publishedAt: Date | null) {
   if (!isPublished) return { label: "下書き", cls: "bg-[#e5e7eb] text-[#4b5563]" };
@@ -21,9 +22,12 @@ export default async function AdminBizColumnsPage() {
     <div className="p-6 lg:p-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[24px] font-bold text-[#1e293b]">toBコラム管理</h1>
-        <Link href="/admin/biz-columns/new" className="rounded-lg bg-[#1f2775] px-4 py-2.5 text-[13px] font-bold text-white hover:opacity-90">
-          新規作成
-        </Link>
+        <div className="flex gap-2">
+          <SyncWpButton />
+          <Link href="/admin/biz-columns/new" className="rounded-lg bg-[#1f2775] px-4 py-2.5 text-[13px] font-bold text-white hover:opacity-90">
+            新規作成
+          </Link>
+        </div>
       </div>
       <p className="mt-2 text-[12px] text-[#888]">採用担当者向け「採用お役立ち情報」記事の管理画面です。公開URL: /biz-column/[slug]</p>
 

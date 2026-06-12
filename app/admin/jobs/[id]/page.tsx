@@ -88,7 +88,10 @@ function formatWorkingHoursDetail(type: string | null | undefined, detail: Worki
     } else {
       lines.push("コアタイムなし");
     }
-    if (detail.standardWorkHour != null) lines.push(`標準労働時間: ${detail.standardWorkHour}時間${detail.standardWorkMin ?? 0}分`);
+    if (detail.standardWorkHour != null) {
+      const period = detail.standardWorkPeriod ? `（${detail.standardWorkPeriod}あたり）` : "";
+      lines.push(`標準労働時間: ${detail.standardWorkHour}時間${detail.standardWorkMin ?? 0}分${period}`);
+    }
   } else if (type === "裁量労働制") {
     if (detail.discretionaryType) lines.push(`制度: ${detail.discretionaryType}`);
     if (detail.maxWorkHour != null) lines.push(`みなし労働時間: ${detail.maxWorkHour}時間${detail.maxWorkMin ?? 0}分`);

@@ -22,6 +22,7 @@ type Props = {
   action: (formData: FormData) => Promise<void>;
   values?: ColumnFormValues;
   templates?: Template[];
+  cancelHref?: string;
 };
 
 function deriveStatus(values?: ColumnFormValues): Status {
@@ -37,7 +38,7 @@ function toDatetimeLocal(date: Date | null | undefined): string {
   return d.toISOString().slice(0, 16);
 }
 
-export function ColumnForm({ title, action, values, templates = [] }: Props) {
+export function ColumnForm({ title, action, values, templates = [], cancelHref = "/admin/columns" }: Props) {
   const initialStatus = deriveStatus(values);
   const [status, setStatus] = useState<Status>(initialStatus);
   const [scheduledAt, setScheduledAt] = useState(
@@ -205,7 +206,7 @@ export function ColumnForm({ title, action, values, templates = [] }: Props) {
               status === "draft" ? "bg-[#6b7280]" : status === "published" ? "bg-[#16a34a]" : "bg-[#d97706]"}`}>
             {status === "draft" ? "下書き保存" : status === "published" ? "公開する" : "予約投稿する"}
           </button>
-          <Link href="/admin/columns" className="rounded-lg border border-[#d1d5db] px-6 py-2.5 text-[14px] text-[#4b5565] hover:bg-[#f8fafc]">
+          <Link href={cancelHref} className="rounded-lg border border-[#d1d5db] px-6 py-2.5 text-[14px] text-[#4b5565] hover:bg-[#f8fafc]">
             キャンセル
           </Link>
         </div>

@@ -12,6 +12,7 @@ export default async function AdminBizColumnNewPage() {
       title="toBコラム新規作成"
       action={createBizColumnPost}
       templates={templates}
+      cancelHref="/admin/biz-columns"
     />
   );
 }

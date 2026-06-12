@@ -234,7 +234,9 @@
       "Bash(curl -s \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
       "Bash(curl -s -w \"\\\\n%{http_code}\" \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
       "Bash(curl -v \"https://wp.kyujin-ch.jp/wp-json/wp/v2/biz-column?per_page=1\")",
-      "Bash(node -e \"console.log\\(require.resolve\\('undici'\\)\\)\")"
+      "Bash(node -e \"console.log\\(require.resolve\\('undici'\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(24\\).toString\\('base64url'\\)\\)\")",
+      "Bash(curl -s -H \"Authorization: Bearer 2y6lmD8XiaYeRbDLm7AAMR0j4DBpx724\" https://kyujin-ch.jp/api/cron/sync-biz-columns)"
     ],
     "additionalDirectories": [
       "\\tmp",

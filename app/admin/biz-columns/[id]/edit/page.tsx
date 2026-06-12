@@ -21,6 +21,7 @@ export default async function AdminBizColumnEditPage({ params }: { params: Param
       title="toBコラム編集"
       action={updateBizColumnPost.bind(null, id)}
       templates={templates}
+      cancelHref="/admin/biz-columns"
       values={{
         slug: post.slug,
         title: post.title,

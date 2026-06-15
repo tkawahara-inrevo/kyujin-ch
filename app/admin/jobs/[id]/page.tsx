@@ -328,7 +328,11 @@ export default async function AdminJobDetailPage({
               <InfoRow label="勤務地" value={workLocation} />
               {d.postalCode && <InfoRow label="郵便番号" value={d.postalCode} />}
               {d.region && <InfoRow label="エリア" value={d.region} />}
+              {d.isDirectDispatch && d.handlingArea && (
+                <InfoRow label="担当エリア" value={d.handlingArea} />
+              )}
               <InfoRow label="最寄・アクセス" value={d.access} />
+              <InfoRow label="会社所在地" value={d.companyLocationSameAsJob ? `${workLocation}（勤務地と同じ）` : d.companyLocation} />
               <InfoRow label="勤務形態" value={d.workingHoursType} />
               <InfoRow label="勤務時間" value={d.workingHours ?? workingHoursDetailFormatted} />
               {(() => {

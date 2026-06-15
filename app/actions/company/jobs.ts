@@ -48,6 +48,10 @@ type JobData = {
   officeName?: string;
   officeDetail?: string;
   postalCode?: string;
+  companyLocation?: string;
+  companyLocationSameAsJob?: boolean;
+  isDirectDispatch?: boolean;
+  handlingArea?: string;
   benefits?: string[];
   selectionProcess?: string;
   workingHours?: string;
@@ -177,6 +181,10 @@ function normalizeJobData(data: JobData): JobPendingContent {
     officeName: data.officeName || null,
     officeDetail: normalizeOfficeDetail(normalizedLocation.location ?? undefined, data.officeDetail),
     postalCode: data.postalCode || null,
+    companyLocation: data.companyLocationSameAsJob ? null : (data.companyLocation || null),
+    companyLocationSameAsJob: data.companyLocationSameAsJob ?? false,
+    isDirectDispatch: data.isDirectDispatch ?? false,
+    handlingArea: data.isDirectDispatch ? (data.handlingArea || null) : null,
     benefits: data.benefits || [],
     benefitNote: data.benefitNote || null,
     selectionProcess: data.selectionProcess || null,
@@ -258,6 +266,10 @@ function toLiveJobPrismaData(data: JobData, submissionMode: JobSubmissionMode) {
     officeName: normalized.officeName,
     officeDetail: normalized.officeDetail,
     postalCode: normalized.postalCode,
+    companyLocation: normalized.companyLocation,
+    companyLocationSameAsJob: normalized.companyLocationSameAsJob,
+    isDirectDispatch: normalized.isDirectDispatch,
+    handlingArea: normalized.handlingArea,
     benefits: normalized.benefits,
     benefitNote: normalized.benefitNote,
     selectionProcess: normalized.selectionProcess,

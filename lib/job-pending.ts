@@ -66,6 +66,10 @@ export type JobPendingContent = {
   officeName: string | null;
   officeDetail: string | null;
   postalCode: string | null;
+  companyLocation: string | null;
+  companyLocationSameAsJob: boolean;
+  isDirectDispatch: boolean;
+  handlingArea: string | null;
   benefits: string[];
   benefitNote: string | null;
   selectionProcess: string | null;
@@ -165,6 +169,10 @@ export function parsePendingContent(value: Prisma.JsonValue | null | undefined):
     officeName: asString(record.officeName),
     officeDetail: asString(record.officeDetail),
     postalCode: asString(record.postalCode),
+    companyLocation: asString(record.companyLocation),
+    companyLocationSameAsJob: typeof record.companyLocationSameAsJob === "boolean" ? record.companyLocationSameAsJob : false,
+    isDirectDispatch: typeof record.isDirectDispatch === "boolean" ? record.isDirectDispatch : false,
+    handlingArea: asString(record.handlingArea),
     benefits: asStringArray(record.benefits),
     benefitNote: asString(record.benefitNote),
     selectionProcess: asString(record.selectionProcess),

@@ -481,6 +481,9 @@ export default async function JobDetailPage({
                   <InfoRow label="カテゴリ" value={categoryLabel} />
                   <InfoRow label="職種" value={job.jobSubcategory} />
                   <InfoRow label="勤務地" value={workLocation} />
+                  {job.isDirectDispatch && job.handlingArea && (
+                    <InfoRow label="担当エリア" value={job.handlingArea} />
+                  )}
                   <InfoRow label="最寄・アクセス" value={job.access} />
                 </dl>
               </div>
@@ -665,6 +668,14 @@ export default async function JobDetailPage({
                 </div>
               </div>
             )}
+
+            {/* 会社所在地 */}
+            <div className="mt-5 rounded-[18px] border border-[#e5e5e5] bg-white p-6">
+              <h3 className="text-[16px] font-bold text-[#1a1a1a]">会社所在地</h3>
+              <p className="mt-2 text-[13px] text-[#555]">
+                {job.companyLocationSameAsJob ? workLocation : (job.companyLocation || "—")}
+              </p>
+            </div>
 
             {/* 企業情報 */}
             <div className="mt-5">

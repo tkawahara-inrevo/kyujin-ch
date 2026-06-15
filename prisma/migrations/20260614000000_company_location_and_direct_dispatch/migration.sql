@@ -1,0 +1,5 @@
+-- 会社所在地と直行直帰関連フィールドを Job に追加
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "companyLocation" TEXT;
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "companyLocationSameAsJob" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "isDirectDispatch" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Job" ADD COLUMN IF NOT EXISTS "handlingArea" TEXT;

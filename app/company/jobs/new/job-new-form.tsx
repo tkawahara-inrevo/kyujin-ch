@@ -157,6 +157,10 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
   const [smokingPolicyIndoor, setSmokingPolicyIndoor] = useState("");
   const [smokingPolicyOutdoor, setSmokingPolicyOutdoor] = useState("");
   const [smokingNote, setSmokingNote] = useState("");
+  const [companyLocation, setCompanyLocation] = useState("");
+  const [companyLocationSameAsJob, setCompanyLocationSameAsJob] = useState(false);
+  const [isDirectDispatch, setIsDirectDispatch] = useState(false);
+  const [handlingArea, setHandlingArea] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [isWidePreview, setIsWidePreview] = useState(false);
   const [showBenefitModal, setShowBenefitModal] = useState(false);
@@ -436,6 +440,16 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
         return;
       }
 
+      if (isDirectDispatch && !handlingArea.trim()) {
+        setValidationError("直行直帰を選択した場合は担当エリアを入力してください");
+        return;
+      }
+
+      if (!companyLocationSameAsJob && !companyLocation.trim()) {
+        setValidationError("会社所在地を入力してください（勤務地と同じ場合はチェックを入れてください）");
+        return;
+      }
+
       if (!imageUrl) {
         setValidationError("メイン画像をアップロードしてください");
         return;
@@ -488,6 +502,10 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
           officeName: fd.get("officeName") as string || undefined,
           officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
           postalCode: postalCode || undefined,
+          companyLocation: companyLocationSameAsJob ? undefined : (companyLocation || undefined),
+          companyLocationSameAsJob,
+          isDirectDispatch,
+          handlingArea: isDirectDispatch ? (handlingArea || undefined) : undefined,
           selectionProcess: fd.get("selectionProcess") as string,
           imageUrl,
           tags: mergedTags,
@@ -923,6 +941,32 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
             <Field label="アクセス">
               <input name="access" className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
             </Field>
+
+            {/* 直行直帰 */}
+            <Field label="直行直帰">
+              <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                <input
+                  type="checkbox"
+                  checked={isDirectDispatch}
+                  onChange={(e) => setIsDirectDispatch(e.target.checked)}
+                  className="h-4 w-4 accent-[#1d63e3]"
+                />
+                直行直帰あり
+              </label>
+              {isDirectDispatch && (
+                <div className="mt-3">
+                  <p className="mb-1 text-[12px] font-bold text-[#333]">担当エリア <span className="text-[#eb0937]">*必須</span></p>
+                  <input
+                    type="text"
+                    value={handlingArea}
+                    onChange={(e) => setHandlingArea(e.target.value)}
+                    className={inputCls}
+                    placeholder="例）東京23区内・神奈川県川崎市"
+                  />
+                </div>
+              )}
+            </Field>
+
             <SectionTags tags={LOCATION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
@@ -1458,6 +1502,28 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                 onChange={(e) => setSmokingNote(e.target.value)}
                 className={textareaCls}
                 placeholder="例：2025年4月より全館禁煙予定"
+              />
+            </Field>
+          </Section>
+
+          <Section title="会社所在地">
+            <Field label="会社所在地" required>
+              <label className="mb-2 flex cursor-pointer items-center gap-2 text-[14px]">
+                <input
+                  type="checkbox"
+                  checked={companyLocationSameAsJob}
+                  onChange={(e) => setCompanyLocationSameAsJob(e.target.checked)}
+                  className="h-4 w-4 accent-[#1d63e3]"
+                />
+                勤務地と同じ
+              </label>
+              <input
+                type="text"
+                value={companyLocationSameAsJob ? "（勤務地住所が自動で反映されます）" : companyLocation}
+                onChange={(e) => setCompanyLocation(e.target.value)}
+                disabled={companyLocationSameAsJob}
+                className={`${inputCls} ${companyLocationSameAsJob ? "bg-[#f0f0f0] text-[#999]" : ""}`}
+                placeholder="例）東京都渋谷区神南1-2-3 ○○ビル5F"
               />
             </Field>
           </Section>

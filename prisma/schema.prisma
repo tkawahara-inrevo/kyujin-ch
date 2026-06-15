@@ -225,6 +225,10 @@ model Job {
   officeName            String?   // 勤務地名称
   officeDetail          String?   // 勤務地名称詳細
   postalCode            String?   // 郵便番号
+  companyLocation       String?   // 会社所在地（勤務地と別の本社所在地）
+  companyLocationSameAsJob Boolean @default(false) // 勤務地と同じ場合true
+  isDirectDispatch      Boolean   @default(false)  // 直行直帰の有無
+  handlingArea          String?   // 担当エリア（直行直帰の場合必須）
   benefits              String[]  // 福利厚生（選択式）
   benefitNote           String?   // 独自の福利厚生・補足メモ
   selectionProcess      String?   // 選考プロセス

@@ -148,6 +148,10 @@ type Job = {
   officeName: string | null;
   officeDetail: string | null;
   postalCode?: string | null;
+  companyLocation?: string | null;
+  companyLocationSameAsJob?: boolean | null;
+  isDirectDispatch?: boolean | null;
+  handlingArea?: string | null;
   benefits: string[];
   selectionProcess: string | null;
   workingHours: string | null;
@@ -255,6 +259,10 @@ export function JobEditForm({
   const [streetAddrVal, setStreetAddrVal] = useState("");
   const [postalCode, setPostalCode] = useState(job.postalCode ?? "");
   const [postalLoading, setPostalLoading] = useState(false);
+  const [companyLocation, setCompanyLocation] = useState(job.companyLocation ?? "");
+  const [companyLocationSameAsJob, setCompanyLocationSameAsJob] = useState(job.companyLocationSameAsJob ?? false);
+  const [isDirectDispatch, setIsDirectDispatch] = useState(job.isDirectDispatch ?? false);
+  const [handlingArea, setHandlingArea] = useState(job.handlingArea ?? "");
   const [trainingInfo, setTrainingInfo] = useState(job.trainingInfo ?? "");
   const [youthStats, setYouthStats] = useState<YouthYearStats[]>(
     (job.youthEmploymentStats && job.youthEmploymentStats.length > 0)
@@ -528,6 +536,10 @@ export function JobEditForm({
       officeName: fd.get("officeName") as string || undefined,
       officeDetail: [officeDetail, streetAddrVal].filter(Boolean).join(" ") || undefined,
       postalCode: postalCode || undefined,
+      companyLocation: companyLocationSameAsJob ? undefined : (companyLocation || undefined),
+      companyLocationSameAsJob,
+      isDirectDispatch,
+      handlingArea: isDirectDispatch ? (handlingArea || undefined) : undefined,
       benefits: mergedBenefits,
       benefitNote: benefitNote.trim() || undefined,
       selectionProcess: fd.get("selectionProcess") as string,
@@ -709,6 +721,16 @@ export function JobEditForm({
 
     if (!selectedLocation) {
       showError("勤務地（都道府県）を選択してください");
+      return;
+    }
+
+    if (isDirectDispatch && !handlingArea.trim()) {
+      showError("直行直帰を選択した場合は担当エリアを入力してください");
+      return;
+    }
+
+    if (!companyLocationSameAsJob && !companyLocation.trim()) {
+      showError("会社所在地を入力してください（勤務地と同じ場合はチェックを入れてください）");
       return;
     }
 
@@ -1182,6 +1204,32 @@ export function JobEditForm({
             <Field label="アクセス">
               <input name="access" defaultValue={job.access ?? ""} className={inputCls} placeholder="JR渋谷駅 徒歩5分" />
             </Field>
+
+            {/* 直行直帰 */}
+            <Field label="直行直帰">
+              <label className="flex cursor-pointer items-center gap-2 text-[14px]">
+                <input
+                  type="checkbox"
+                  checked={isDirectDispatch}
+                  onChange={(e) => setIsDirectDispatch(e.target.checked)}
+                  className="h-4 w-4 accent-[#1d63e3]"
+                />
+                直行直帰あり
+              </label>
+              {isDirectDispatch && (
+                <div className="mt-3">
+                  <p className="mb-1 text-[12px] font-bold text-[#333]">担当エリア <span className="text-[#eb0937]">*必須</span></p>
+                  <input
+                    type="text"
+                    value={handlingArea}
+                    onChange={(e) => setHandlingArea(e.target.value)}
+                    className={inputCls}
+                    placeholder="例）東京23区内・神奈川県川崎市"
+                  />
+                </div>
+              )}
+            </Field>
+
             <SectionTags tags={LOCATION_TAGS} selectedTags={selectedTags} onToggle={(tag) => toggleItem(selectedTags, setSelectedTags, tag)} />
           </Section>
 
@@ -1698,6 +1746,28 @@ export function JobEditForm({
                 </Field>
               );
             })()}
+          </Section>
+
+          <Section title="会社所在地">
+            <Field label="会社所在地" required>
+              <label className="mb-2 flex cursor-pointer items-center gap-2 text-[14px]">
+                <input
+                  type="checkbox"
+                  checked={companyLocationSameAsJob}
+                  onChange={(e) => setCompanyLocationSameAsJob(e.target.checked)}
+                  className="h-4 w-4 accent-[#1d63e3]"
+                />
+                勤務地と同じ
+              </label>
+              <input
+                type="text"
+                value={companyLocationSameAsJob ? "（勤務地住所が自動で反映されます）" : companyLocation}
+                onChange={(e) => setCompanyLocation(e.target.value)}
+                disabled={companyLocationSameAsJob}
+                className={`${inputCls} ${companyLocationSameAsJob ? "bg-[#f0f0f0] text-[#999]" : ""}`}
+                placeholder="例）東京都渋谷区神南1-2-3 ○○ビル5F"
+              />
+            </Field>
           </Section>
 
           <div className="flex flex-wrap items-center gap-3 pt-8">

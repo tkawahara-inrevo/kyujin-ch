@@ -719,7 +719,7 @@ export function JobEditForm({
       return;
     }
 
-    if (!selectedLocation) {
+    if (!isDirectDispatch && !selectedLocation) {
       showError("勤務地（都道府県）を選択してください");
       return;
     }
@@ -1128,7 +1128,7 @@ export function JobEditForm({
           </Section>
 
           <Section title="勤務地">
-            <Field label="郵便番号" required>
+            <Field label="郵便番号" required={!isDirectDispatch}>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -1160,7 +1160,7 @@ export function JobEditForm({
               </div>
             </Field>
 
-            <Field label="都道府県" required>
+            <Field label="都道府県" required={!isDirectDispatch}>
               <select
                 name="location"
                 value={selectedLocation}
@@ -1181,7 +1181,7 @@ export function JobEditForm({
               </select>
             </Field>
 
-            <Field label="市町村" required>
+            <Field label="市町村" required={!isDirectDispatch}>
               <input
                 type="text"
                 value={officeDetail}

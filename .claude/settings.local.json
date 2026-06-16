@@ -239,7 +239,10 @@
       "Bash(curl -s -H \"Authorization: Bearer 2y6lmD8XiaYeRbDLm7AAMR0j4DBpx724\" https://kyujin-ch.jp/api/cron/sync-biz-columns)",
       "Bash(curl -s \"https://kyujin-ch.jp/jobs/cmo0pckd0000200pewpxbv2fj\")",
       "Bash(grep -oE \"標準労働時間[^<]{0,40}|1週間|1ヶ月|あたり\")",
-      "Bash(mkdir -p mobile && cd mobile && ls 2>&1)"
+      "Bash(mkdir -p mobile && cd mobile && ls 2>&1)",
+      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"nonexistent@test.invalid\",\"password\":\"wrongpw1\"}')",
+      "Bash(curl -s https://kyujin-ch.jp/api/v1/me)",
+      "Bash(curl -s -H \"Authorization: Bearer invalidtoken\" https://kyujin-ch.jp/api/v1/me)"
     ],
     "additionalDirectories": [
       "\\tmp",

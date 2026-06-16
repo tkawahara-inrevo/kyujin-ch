@@ -42,3 +42,14 @@ export function requireRole(ctx: AuthContext, ...allowedRoles: string[]): void {
     throw new ApiAuthError(`このAPIは ${allowedRoles.join("/")} のみアクセス可能です`);
   }
 }
+
+/** 任意認証: トークンがあれば検証して返す、なければ null */
+export async function authenticateOptional(req: NextRequest): Promise<AuthContext | null> {
+  const header = req.headers.get("authorization");
+  if (!header) return null;
+  try {
+    return await authenticate(req);
+  } catch {
+    return null;
+  }
+}

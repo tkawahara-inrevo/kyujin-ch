@@ -1,0 +1,965 @@
+openapi: 3.0.3
+info:
+  title: 求人ちゃんねる Mobile API
+  description: |
+    iOS/Android ネイティブアプリ向け REST API（MVPスコープ）。
+    既存の Next.js Web フロントとは独立しており、`/api/v1/*` 配下で提供します。
+    Web 側の挙動には影響しません。
+  version: 1.0.0
+  contact:
+    name: 求人ちゃんねる開発チーム
+    email: dev@kyujin-ch.jp
+
+servers:
+  - url: https://kyujin-ch.jp/api/v1
+    description: 本番
+  - url: http://localhost:3000/api/v1
+    description: ローカル
+
+tags:
+  - name: Auth
+    description: 認証（ログイン・トークン発行・退会）
+  - name: Profile
+    description: プロフィール・履歴書
+  - name: Jobs
+    description: 求人検索・閲覧
+  - name: Applications
+    description: 応募
+  - name: Messages
+    description: メッセージ
+  - name: Favorites
+    description: お気に入り
+  - name: Reports
+    description: 通報
+  - name: Blocks
+    description: ブロック
+  - name: Notifications
+    description: 通知・Pushトークン
+  - name: Master
+    description: マスタデータ（都道府県・カテゴリ等）
+
+security:
+  - bearerAuth: []
+
+paths:
+  # =========== 認証 ===========
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: 新規会員登録
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                name: { type: string }
+                agreedTerms: { type: boolean, description: 利用規約への同意 }
+                agreedPrivacy: { type: boolean, description: PPへの同意 }
+      responses:
+        "201":
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "409":
+          description: 既に登録済み
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: ログイン
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: アクセストークン再発行
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        "200":
+          description: 新トークン
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: ログアウト（リフレッシュトークン失効）
+      responses:
+        "204": { description: ログアウト完了 }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: パスワードリセット用メール送信
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        "204": { description: メール送信完了 }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: パスワードリセット実行
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token: { type: string, description: メール内のリセットトークン }
+                password: { type: string, minLength: 8 }
+      responses:
+        "204": { description: 完了 }
+
+  /auth/apple:
+    post:
+      tags: [Auth]
+      summary: Sign in with Apple
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identityToken]
+              properties:
+                identityToken: { type: string }
+                authorizationCode: { type: string }
+                fullName: { type: string, nullable: true }
+                email: { type: string, nullable: true }
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+
+  /auth/google:
+    post:
+      tags: [Auth]
+      summary: Sign in with Google
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [idToken]
+              properties:
+                idToken: { type: string }
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokens"
+
+  # =========== プロフィール ===========
+  /me:
+    get:
+      tags: [Profile]
+      summary: 自分のプロフィール取得
+      responses:
+        "200":
+          description: プロフィール
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserProfile" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      tags: [Profile]
+      summary: プロフィール更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserProfilePatch" }
+      responses:
+        "200":
+          description: 更新後
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserProfile" }
+    delete:
+      tags: [Profile]
+      summary: 退会（アカウント削除）
+      responses:
+        "204": { description: 退会完了 }
+
+  /me/avatar:
+    post:
+      tags: [Profile]
+      summary: アバター画像アップロード
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "200":
+          description: アップロードURL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string, format: uri }
+
+  /me/resume:
+    get:
+      tags: [Profile]
+      summary: 履歴書データ取得
+      responses:
+        "200":
+          description: 履歴書
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resume" }
+
+  # =========== 求人 ===========
+  /jobs:
+    get:
+      tags: [Jobs]
+      summary: 求人一覧・検索
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: フリーワード
+        - in: query
+          name: prefectures
+          schema: { type: string }
+          description: 都道府県（カンマ区切り）
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: subcategory
+          schema: { type: string }
+        - in: query
+          name: employmentType
+          schema: { type: string }
+        - in: query
+          name: experience
+          schema: { type: string }
+        - in: query
+          name: salary
+          schema: { type: string }
+        - in: query
+          name: target
+          schema: { type: string, enum: [mid, parttime, "2026", "2027"] }
+        - in: query
+          name: sort
+          schema: { type: string, enum: [new, popular] }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 20, maximum: 50 }
+      responses:
+        "200":
+          description: 求人リスト
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedJobs"
+
+  /jobs/{id}:
+    get:
+      tags: [Jobs]
+      summary: 求人詳細
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 求人詳細
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobDetail" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /jobs/{id}/view:
+    post:
+      tags: [Jobs]
+      summary: 閲覧記録（PV計上）
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 計上完了 }
+
+  /jobs/recommended:
+    get:
+      tags: [Jobs]
+      summary: おすすめ求人
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/JobSummary" }
+
+  # =========== 応募 ===========
+  /applications:
+    get:
+      tags: [Applications]
+      summary: 自分の応募一覧
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: 応募一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Application" }
+    post:
+      tags: [Applications]
+      summary: 求人へ応募
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [jobId]
+              properties:
+                jobId: { type: string }
+                motivation: { type: string, description: 志望動機 }
+      responses:
+        "201":
+          description: 応募完了
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "409":
+          description: 既に応募済み
+
+  /applications/{id}:
+    get:
+      tags: [Applications]
+      summary: 応募詳細
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: 詳細
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+
+  # =========== メッセージ ===========
+  /messages/threads:
+    get:
+      tags: [Messages]
+      summary: メッセージスレッド一覧
+      responses:
+        "200":
+          description: スレッドリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Thread" }
+
+  /messages/threads/{id}:
+    get:
+      tags: [Messages]
+      summary: スレッド内のメッセージ取得
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: before
+          schema: { type: string, format: date-time }
+          description: ページネーション用カーソル
+      responses:
+        "200":
+          description: メッセージリスト
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ThreadDetail" }
+
+  /messages/threads/{id}/messages:
+    post:
+      tags: [Messages]
+      summary: メッセージ送信
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
+      responses:
+        "201":
+          description: 送信完了
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+
+  /messages/threads/{id}/read:
+    post:
+      tags: [Messages]
+      summary: スレッドを既読にする
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 既読化完了 }
+
+  # =========== お気に入り ===========
+  /favorites:
+    get:
+      tags: [Favorites]
+      summary: お気に入り一覧
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/JobSummary" }
+    post:
+      tags: [Favorites]
+      summary: お気に入り追加
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [jobId]
+              properties:
+                jobId: { type: string }
+      responses:
+        "201": { description: 追加完了 }
+
+  /favorites/{jobId}:
+    delete:
+      tags: [Favorites]
+      summary: お気に入り削除
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 削除完了 }
+
+  # =========== 通報 ===========
+  /reports:
+    post:
+      tags: [Reports]
+      summary: 通報送信
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetType, targetId, reason]
+              properties:
+                targetType: { type: string, enum: [job, company, user, message] }
+                targetId: { type: string }
+                reason: { type: string }
+                detail: { type: string }
+      responses:
+        "201": { description: 通報受付完了 }
+
+  # =========== ブロック ===========
+  /blocks:
+    get:
+      tags: [Blocks]
+      summary: ブロック中ユーザー一覧
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId: { type: string }
+                    name: { type: string }
+                    blockedAt: { type: string, format: date-time }
+    post:
+      tags: [Blocks]
+      summary: ユーザーをブロック
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string }
+      responses:
+        "201": { description: ブロック完了 }
+
+  /blocks/{userId}:
+    delete:
+      tags: [Blocks]
+      summary: ブロック解除
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 解除完了 }
+
+  # =========== 通知 ===========
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: 通知一覧
+      responses:
+        "200":
+          description: 通知リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notification" }
+
+  /notifications/{id}/read:
+    post:
+      tags: [Notifications]
+      summary: 通知を既読化
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 既読化完了 }
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: 全通知を既読化
+      responses:
+        "204": { description: 完了 }
+
+  /devices:
+    post:
+      tags: [Notifications]
+      summary: Pushトークン登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, platform]
+              properties:
+                token: { type: string, description: APNs/FCM token }
+                platform: { type: string, enum: [ios, android] }
+                deviceId: { type: string }
+      responses:
+        "201": { description: 登録完了 }
+
+  /devices/{deviceId}:
+    delete:
+      tags: [Notifications]
+      summary: デバイス登録解除
+      parameters:
+        - in: path
+          name: deviceId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: 解除完了 }
+
+  # =========== マスタ ===========
+  /master/prefectures:
+    get:
+      tags: [Master]
+      summary: 都道府県一覧
+      security: []
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    area: { type: string }
+                    prefectures:
+                      type: array
+                      items: { type: string }
+
+  /master/categories:
+    get:
+      tags: [Master]
+      summary: カテゴリ一覧
+      security: []
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category: { type: string }
+                    subcategories:
+                      type: array
+                      items: { type: string }
+
+  /master/employment-types:
+    get:
+      tags: [Master]
+      summary: 雇用形態一覧
+      security: []
+      responses:
+        "200":
+          description: リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value: { type: string }
+                    label: { type: string }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AuthTokens:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken: { type: string, description: JWT (15分有効) }
+        refreshToken: { type: string, description: リフレッシュトークン (30日有効) }
+        user: { $ref: "#/components/schemas/UserProfile" }
+
+    UserProfile:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        name: { type: string }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        firstNameKana: { type: string, nullable: true }
+        lastNameKana: { type: string, nullable: true }
+        birthDate: { type: string, format: date, nullable: true }
+        gender: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        postalCode: { type: string, nullable: true }
+        prefecture: { type: string, nullable: true }
+        cityTown: { type: string, nullable: true }
+        addressLine: { type: string, nullable: true }
+        avatarUrl: { type: string, nullable: true }
+        notificationsEnabled: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    UserProfilePatch:
+      type: object
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        firstNameKana: { type: string }
+        lastNameKana: { type: string }
+        birthDate: { type: string, format: date }
+        gender: { type: string }
+        phone: { type: string }
+        postalCode: { type: string }
+        prefecture: { type: string }
+        cityTown: { type: string }
+        addressLine: { type: string }
+        notificationsEnabled: { type: boolean }
+
+    JobSummary:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        companyName: { type: string }
+        location: { type: string, nullable: true }
+        salaryMin: { type: integer, nullable: true }
+        salaryMax: { type: integer, nullable: true }
+        salaryType: { type: string, nullable: true }
+        employmentType: { type: string }
+        targetType: { type: string }
+        imageUrl: { type: string, nullable: true }
+        tags:
+          type: array
+          items: { type: string }
+        publishedAt: { type: string, format: date-time, nullable: true }
+        isFavorite: { type: boolean, default: false }
+
+    JobDetail:
+      allOf:
+        - $ref: "#/components/schemas/JobSummary"
+        - type: object
+          properties:
+            description: { type: string }
+            requirements: { type: string, nullable: true }
+            desiredAptitude: { type: string, nullable: true }
+            recommendedFor: { type: string, nullable: true }
+            access: { type: string, nullable: true }
+            officeName: { type: string, nullable: true }
+            officeDetail: { type: string, nullable: true }
+            workingHours: { type: string, nullable: true }
+            workingHoursType: { type: string, nullable: true }
+            workingHoursDetail: { type: object, nullable: true }
+            benefits:
+              type: array
+              items: { type: string }
+            benefitNote: { type: string, nullable: true }
+            selectionProcess: { type: string, nullable: true }
+            trialPeriod: { type: string, nullable: true }
+            hasFixedOvertime: { type: boolean, nullable: true }
+            overtimeTreatment: { type: string, nullable: true }
+            fixedOvertime: { type: string, nullable: true }
+            smokingPolicyIndoor: { type: string, nullable: true }
+            smokingPolicyOutdoor: { type: string, nullable: true }
+            smokingNote: { type: string, nullable: true }
+            company:
+              type: object
+              properties:
+                id: { type: string }
+                name: { type: string }
+                description: { type: string, nullable: true }
+                websiteUrl: { type: string, nullable: true }
+            hasApplied: { type: boolean }
+
+    PagedJobs:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/JobSummary" }
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+        hasMore: { type: boolean }
+
+    Application:
+      type: object
+      properties:
+        id: { type: string }
+        jobId: { type: string }
+        job: { $ref: "#/components/schemas/JobSummary" }
+        motivation: { type: string, nullable: true }
+        status: { type: string, enum: [APPLIED, IN_PROGRESS, ACCEPTED, REJECTED, WITHDRAWN] }
+        createdAt: { type: string, format: date-time }
+
+    Thread:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        companyName: { type: string }
+        latestMessage:
+          type: object
+          properties:
+            body: { type: string }
+            createdAt: { type: string, format: date-time }
+            senderType: { type: string, enum: [user, company] }
+        unreadCount: { type: integer }
+        updatedAt: { type: string, format: date-time }
+
+    ThreadDetail:
+      type: object
+      properties:
+        thread: { $ref: "#/components/schemas/Thread" }
+        messages:
+          type: array
+          items: { $ref: "#/components/schemas/Message" }
+        hasMore: { type: boolean }
+
+    Message:
+      type: object
+      properties:
+        id: { type: string }
+        threadId: { type: string }
+        senderId: { type: string }
+        senderType: { type: string, enum: [user, company] }
+        senderName: { type: string }
+        body: { type: string }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              url: { type: string }
+              type: { type: string }
+        createdAt: { type: string, format: date-time }
+        readAt: { type: string, format: date-time, nullable: true }
+
+    Resume:
+      type: object
+      properties:
+        basic: { $ref: "#/components/schemas/UserProfile" }
+        educations:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              schoolName: { type: string }
+              department: { type: string, nullable: true }
+              startedAt: { type: string, format: date }
+              endedAt: { type: string, format: date, nullable: true }
+        workExperiences:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              companyName: { type: string }
+              jobTitle: { type: string }
+              startedAt: { type: string, format: date }
+              endedAt: { type: string, format: date, nullable: true }
+              description: { type: string, nullable: true }
+        certifications:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              acquiredAt: { type: string, format: date, nullable: true }
+        prText: { type: string, nullable: true }
+        jobPreference: { type: string, nullable: true }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [message, application_update, recommend, system] }
+        title: { type: string }
+        body: { type: string }
+        link: { type: string, nullable: true, description: アプリ内遷移先 }
+        readAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        details: { type: object }
+
+  responses:
+    Unauthorized:
+      description: 認証が必要・トークン無効
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: 見つからない
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ValidationError:
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

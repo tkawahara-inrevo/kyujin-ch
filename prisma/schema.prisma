@@ -115,6 +115,9 @@ model User {
   workExperiences WorkExperience[]
   certifications  Certification[]
   resumeProfile   ResumeProfile?
+  // モバイルアプリ用JWT
+  refreshTokens   RefreshToken[]
+  pushDevices     PushDevice[]
 }
 
 model Account {
@@ -588,6 +591,43 @@ model ResumeProfile {
   updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ---- モバイルアプリ用 ----
+
+/// JWT リフレッシュトークン管理。アクセストークンは短命 (15分)・リフレッシュは30日。
+/// tokenHash は SHA-256 を保存（生トークンは保存しない）。
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  device    String?  @db.VarChar(120) // 端末識別子 (任意)
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Push 通知デバイストークン (APNs/FCM)
+model PushDevice {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @db.Text
+  platform  String   // "ios" | "android"
+  deviceId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId])
 }
 
 // ---- Focus（企業特集メディア） ----

@@ -245,7 +245,8 @@
       "Bash(curl -s -H \"Authorization: Bearer invalidtoken\" https://kyujin-ch.jp/api/v1/me)",
       "Bash(curl -s \"https://kyujin-ch.jp/api/v1/jobs?pageSize=2\")",
       "Bash(curl -s https://kyujin-ch.jp/api/v1/applications)",
-      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/applications -H \"Content-Type: application/json\" -d '{}')"
+      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/applications -H \"Content-Type: application/json\" -d '{}')",
+      "Bash(curl -s https://kyujin-ch.jp/api/v1/messages/threads)"
     ],
     "additionalDirectories": [
       "\\tmp",

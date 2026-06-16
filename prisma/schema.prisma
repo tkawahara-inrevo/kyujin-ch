@@ -630,6 +630,38 @@ model PushDevice {
   @@index([userId])
 }
 
+/// ユーザーからの通報（求人/企業/ユーザー/メッセージ）
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String   // 通報者 (User.id)
+  targetType  String   // "job" | "company" | "user" | "message"
+  targetId    String
+  reason      String
+  detail      String?
+  status      String   @default("OPEN") // OPEN | REVIEWED | DISMISSED
+  reviewNote  String?  // 管理者メモ
+  reviewedAt  DateTime?
+  reviewedBy  String?  // 管理者 User.id
+  createdAt   DateTime @default(now())
+
+  @@index([reporterId])
+  @@index([targetType, targetId])
+  @@index([status])
+}
+
+/// ユーザー同士のブロック（求職者←→企業ユーザ）
+/// blockerId が blockedId を見えなくする・メッセージ受信を拒否
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
 // ---- Focus（企業特集メディア） ----
 
 model FocusArticle {

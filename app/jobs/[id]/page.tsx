@@ -1,5 +1,6 @@
 import type React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -702,6 +703,18 @@ export default async function JobDetailPage({
                 className="block rounded-[12px] bg-[#2f6cff] px-6 py-4 text-center text-[15px] font-bold !text-white transition hover:opacity-90"
               />
             </div>
+
+            {/* 通報リンク */}
+            {isLoggedIn && (
+              <div className="mt-6 text-right">
+                <Link
+                  href={`/report?type=job&id=${job.id}`}
+                  className="text-[12px] text-[#888] underline hover:text-[#d32f2f]"
+                >
+                  この求人を通報する
+                </Link>
+              </div>
+            )}
 
             {recommendedJobs.length > 0 && (
               <RecommendSection jobs={recommendedJobs} />

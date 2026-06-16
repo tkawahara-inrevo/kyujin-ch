@@ -26,7 +26,14 @@ export async function deleteAccount() {
       careerHistoryUrl: null,
       image: null,
       notificationsEnabled: false, // メール通知を止める
+      isActive: false,
     },
+  });
+
+  // モバイルアプリ用リフレッシュトークン失効
+  await prisma.refreshToken.updateMany({
+    where: { userId: user.id, revokedAt: null },
+    data: { revokedAt: now },
   });
 
   await signOut({ redirectTo: "/" });

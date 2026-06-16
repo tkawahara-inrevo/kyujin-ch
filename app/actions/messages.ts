@@ -20,6 +20,27 @@ export async function sendMessage(
 
   const user = await getCurrentUser();
 
+  // 相手企業ユーザーとの間でブロックが存在する場合は送信不可
+  const conv = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: { application: { select: { job: { select: { company: { select: { companyUserId: true } } } } } } },
+  });
+  const companyUserId = conv?.application?.job?.company?.companyUserId;
+  if (companyUserId) {
+    const blocked = await prisma.block.findFirst({
+      where: {
+        OR: [
+          { blockerId: user.id, blockedId: companyUserId },
+          { blockerId: companyUserId, blockedId: user.id },
+        ],
+      },
+      select: { id: true },
+    });
+    if (blocked) {
+      throw new Error("このスレッドへのメッセージ送信はブロックされています");
+    }
+  }
+
   await prisma.message.create({
     data: {
       conversationId,

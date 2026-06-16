@@ -242,7 +242,8 @@
       "Bash(mkdir -p mobile && cd mobile && ls 2>&1)",
       "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"nonexistent@test.invalid\",\"password\":\"wrongpw1\"}')",
       "Bash(curl -s https://kyujin-ch.jp/api/v1/me)",
-      "Bash(curl -s -H \"Authorization: Bearer invalidtoken\" https://kyujin-ch.jp/api/v1/me)"
+      "Bash(curl -s -H \"Authorization: Bearer invalidtoken\" https://kyujin-ch.jp/api/v1/me)",
+      "Bash(curl -s \"https://kyujin-ch.jp/api/v1/jobs?pageSize=2\")"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -709,6 +709,34 @@ export function JobEditForm({
       return;
     }
 
+    // みなし残業=あり の場合の必須入力チェック
+    if ((salaryType === "annual" || salaryType === "monthly") && hasFixedOvertime === true) {
+      if (fixedOvertimePayType === "fixed" && !fixedOvertimePayFixed) {
+        showError("みなし残業代（固定額）を入力してください");
+        return;
+      }
+      if (fixedOvertimePayType === "range" && (!fixedOvertimePayMin || !fixedOvertimePayMax)) {
+        showError("みなし残業代（範囲）の下限・上限を入力してください");
+        return;
+      }
+      if (fixedOvertimePayType === "minimum" && !fixedOvertimePayFloor) {
+        showError("みなし残業代（下限額）を入力してください");
+        return;
+      }
+      if (fixedOvertimeHoursType === "fixed" && !fixedOvertimeHoursFixed) {
+        showError("みなし残業時間（固定）を入力してください");
+        return;
+      }
+      if (fixedOvertimeHoursType === "range" && (!fixedOvertimeHoursMin || !fixedOvertimeHoursMax)) {
+        showError("みなし残業時間（範囲）の下限・上限を入力してください");
+        return;
+      }
+      if (!overtimeExcessPaid) {
+        showError("「みなし残業時間を超過した分は全額支給する」にチェックを入れてください（必須）");
+        return;
+      }
+    }
+
     if (!experienceType) {
       showError("経験要件を選択してください");
       return;

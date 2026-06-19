@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -23,7 +24,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix = ".debug"  // Firebase の google-services.json と applicationId を一致させるため一時的に無効化
             isDebuggable = true
             buildConfigField("String", "API_BASE_URL", "\"https://kyujin-ch.jp/api/v1/\"")
         }
@@ -105,6 +106,7 @@ dependencies {
     // FCM
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Test
     testImplementation(libs.junit)

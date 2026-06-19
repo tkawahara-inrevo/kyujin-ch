@@ -35,4 +35,14 @@ interface KyujinchApi {
 
     @GET("jobs/recommended")
     suspend fun recommendedJobs(): List<JobSummary>
+
+    @POST("me/devices")
+    suspend fun registerDevice(@Body req: RegisterDeviceRequest)
 }
+
+@kotlinx.serialization.Serializable
+data class RegisterDeviceRequest(
+    val token: String,
+    val platform: String = "android",
+    val deviceId: String,
+)

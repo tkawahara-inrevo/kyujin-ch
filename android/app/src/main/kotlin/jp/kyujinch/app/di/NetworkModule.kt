@@ -8,6 +8,7 @@ import dagger.hilt.components.SingletonComponent
 import jp.kyujinch.app.BuildConfig
 import jp.kyujinch.app.core.network.AuthInterceptor
 import jp.kyujinch.app.core.network.KyujinchApi
+import jp.kyujinch.app.core.network.TokenAuthenticator
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -29,7 +30,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttp(authInterceptor: AuthInterceptor): OkHttpClient {
+    fun provideOkHttp(
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator,
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
             else HttpLoggingInterceptor.Level.NONE
@@ -37,6 +41,7 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(logging)
+            .authenticator(tokenAuthenticator)
             .build()
     }
 

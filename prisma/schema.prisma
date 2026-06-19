@@ -621,7 +621,7 @@ model PushDevice {
   userId    String
   token     String   @db.Text
   platform  String   // "ios" | "android"
-  deviceId  String?
+  deviceId  String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

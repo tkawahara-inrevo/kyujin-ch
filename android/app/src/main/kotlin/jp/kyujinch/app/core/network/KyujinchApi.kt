@@ -56,10 +56,7 @@ interface KyujinchApi {
 
     // ===== お気に入り =====
     @GET("favorites")
-    suspend fun favorites(
-        @Query("page") page: Int = 1,
-        @Query("pageSize") pageSize: Int = 20,
-    ): PagedJobs
+    suspend fun favorites(): List<JobSummary>
 
     @POST("favorites")
     suspend fun addFavorite(@Body req: FavoriteRequest)

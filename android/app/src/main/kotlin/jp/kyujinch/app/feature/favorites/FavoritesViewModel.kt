@@ -31,9 +31,9 @@ class FavoritesViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _ui.value = _ui.value.copy(isLoading = true, error = null)
-            runCatching { api.favorites(pageSize = 50) }
-                .onSuccess { paged ->
-                    _ui.value = FavoritesUiState(isLoading = false, jobs = paged.items)
+            runCatching { api.favorites() }
+                .onSuccess { items ->
+                    _ui.value = FavoritesUiState(isLoading = false, jobs = items)
                 }
                 .onFailure { e ->
                     _ui.value = FavoritesUiState(

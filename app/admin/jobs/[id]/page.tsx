@@ -308,7 +308,7 @@ export default async function AdminJobDetailPage({
               <InfoRow label="仕事内容" value={d.description} />
               <InfoRow label="応募条件" value={d.requirements} />
               <InfoRow label="経験要件" value={d.experienceType} />
-              {d.experienceYears && <InfoRow label="必要経験年数" value={`${d.experienceYears}年以上`} />}
+              {d.experienceYears != null && d.experienceYears > 0 && <InfoRow label="必要経験年数" value={`${d.experienceYears}年以上`} />}
               <InfoRow label="求める人物像" value={d.desiredAptitude} />
               <InfoRow label="おすすめの方" value={d.recommendedFor} />
               <InfoRow label="ポジション役割" value={d.positionMission} />
@@ -424,7 +424,7 @@ export default async function AdminJobDetailPage({
               <SectionHeader title="休日休暇" />
               <dl className="px-5">
                 <InfoRow label="休みの取り方" value={d.holidayType} />
-                {d.annualHolidayCount && <InfoRow label="年間休日" value={`${d.annualHolidayCount}日`} />}
+                {d.annualHolidayCount != null && d.annualHolidayCount > 0 && <InfoRow label="年間休日" value={`${d.annualHolidayCount}日`} />}
                 {d.holidayFeatures && d.holidayFeatures.length > 0 && (
                   <InfoRow label="特徴">
                     <div className="flex flex-wrap gap-1.5">

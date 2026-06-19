@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Authorization: Bearer ヘッダーをリクエストに自動付与する。
- * トークンがない or 認証不要のエンドポイント（auth/*）はそのまま通す。
+ * トークンがない or 認証不要のエンドポイント (auth プレフィックス) はそのまま通す。
  */
 @Singleton
 class AuthInterceptor @Inject constructor(

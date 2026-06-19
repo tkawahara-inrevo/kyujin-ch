@@ -9,8 +9,8 @@ const ACCESS_TTL = process.env.JWT_ACCESS_TTL || "15m"; // 15分
 const REFRESH_TTL_DAYS = Number(process.env.JWT_REFRESH_TTL_DAYS || "30"); // 30日
 
 function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-  if (!secret) throw new Error("JWT_SECRET or NEXTAUTH_SECRET must be set");
+  const secret = process.env.JWT_SECRET || process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) throw new Error("JWT_SECRET, AUTH_SECRET, or NEXTAUTH_SECRET must be set");
   return new TextEncoder().encode(secret);
 }
 

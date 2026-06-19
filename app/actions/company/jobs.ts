@@ -5,7 +5,7 @@ import { EmploymentType, Prisma, type JobReviewStatus } from "@prisma/client";
 import { parsePendingContent, toPendingContentJson, type JobPendingContent, type WorkingHoursDetail } from "@/lib/job-pending";
 import { OTHER_CATEGORY_VALUE } from "@/lib/job-options";
 import { ALL_PREFECTURES, PREFECTURES_BY_AREA } from "@/lib/job-locations";
-import { isJobPublished } from "@/lib/job-review";
+import { isJobPublished, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { postJobReviewSlack } from "@/lib/slack";
@@ -18,7 +18,7 @@ async function getCompany() {
     select: { id: true, name: true },
   });
   if (!company) throw new Error("Company not found");
-  return company;
+  return { ...company, userId: session.user.id };
 }
 
 async function getCompanyId() {
@@ -119,6 +119,10 @@ export type YouthYearStats = {
 
 function resolveReviewStatus(submissionMode: JobSubmissionMode): JobReviewStatus {
   return submissionMode === "review" ? "PENDING_REVIEW" : "DRAFT";
+}
+
+function labelForStatus(s: JobReviewStatus): string {
+  return JOB_REVIEW_STATUS_LABELS[s];
 }
 
 function normalizeOfficeDetail(location?: string, officeDetail?: string) {
@@ -333,6 +337,16 @@ export async function createJob(data: JobData, submissionMode: JobSubmissionMode
   const job = await prisma.job.create({
     data: { companyId: company.id, ...toLiveJobPrismaData(data, submissionMode) },
   });
+
+  await prisma.jobReviewLog.create({
+    data: {
+      jobId: job.id,
+      status: resolveReviewStatus(submissionMode),
+      changedById: company.userId,
+      comment: submissionMode === "review" ? "企業: 新規作成 → 審査申請" : "企業: 新規作成 → 下書き保存",
+    },
+  });
+
   revalidatePath("/company/jobs");
   revalidatePath("/admin/jobs");
 
@@ -369,12 +383,16 @@ export async function updateJob(
     const hasPendingVersion = !!parsePendingContent(job.pendingContent);
     const hasPublishedVersion = job.isPublished || job.reviewStatus === "PUBLISHED" || hasPendingVersion;
 
+    const newStatus: JobReviewStatus = hasPublishedVersion
+      ? (submissionMode === "review" ? "PENDING_REVIEW" : job.reviewStatus)
+      : resolveReviewStatus(submissionMode);
+
     if (hasPublishedVersion) {
       await prisma.job.update({
         where: { id: jobId, companyId },
         data: {
           pendingContent: toPendingContentJson(normalized),
-          reviewStatus: submissionMode === "review" ? "PENDING_REVIEW" : job.reviewStatus,
+          reviewStatus: newStatus,
           reviewComment: submissionMode === "review" ? null : job.reviewComment,
           isPublished: true,
         },
@@ -383,6 +401,17 @@ export async function updateJob(
       await prisma.job.update({
         where: { id: jobId, companyId },
         data: toLiveJobPrismaData(data, submissionMode),
+      });
+    }
+
+    if (newStatus !== job.reviewStatus) {
+      await prisma.jobReviewLog.create({
+        data: {
+          jobId,
+          status: newStatus,
+          changedById: company.userId,
+          comment: `企業: ${labelForStatus(job.reviewStatus)} → ${labelForStatus(newStatus)}（${submissionMode === "review" ? "審査申請" : "下書き保存"}）`,
+        },
       });
     }
 
@@ -434,7 +463,8 @@ export async function duplicateJob(jobId: string): Promise<string> {
 }
 
 export async function withdrawJobSubmission(jobId: string) {
-  const companyId = await getCompanyId();
+  const company = await getCompany();
+  const companyId = company.id;
   const job = await prisma.job.findFirst({
     where: { id: jobId, companyId, isDeleted: false },
     select: {
@@ -449,6 +479,7 @@ export async function withdrawJobSubmission(jobId: string) {
   if (job.reviewStatus !== "PENDING_REVIEW") throw new Error("Only pending jobs can be withdrawn");
 
   const hasPendingVersion = !!parsePendingContent(job.pendingContent);
+  const newStatus: JobReviewStatus = hasPendingVersion ? "PUBLISHED" : "DRAFT";
 
   await prisma.job.update({
     where: { id: jobId, companyId },
@@ -464,6 +495,15 @@ export async function withdrawJobSubmission(jobId: string) {
           reviewComment: null,
           isPublished: false,
         },
+  });
+
+  await prisma.jobReviewLog.create({
+    data: {
+      jobId,
+      status: newStatus,
+      changedById: company.userId,
+      comment: `企業: 審査中 → ${labelForStatus(newStatus)}（取り下げ）`,
+    },
   });
 
   revalidatePath("/company/jobs");

@@ -249,7 +249,10 @@
       "Bash(curl -s https://kyujin-ch.jp/api/v1/messages/threads)",
       "Bash(curl -s https://kyujin-ch.jp/api/v1/favorites)",
       "Bash(curl -s -X PATCH https://kyujin-ch.jp/api/v1/me)",
-      "Bash(curl -s https://kyujin-ch.jp/api/v1/me/resume)"
+      "Bash(curl -s https://kyujin-ch.jp/api/v1/me/resume)",
+      "Bash(curl -sI https://kyujin-ch.jp/mypage/blocks)",
+      "Bash(curl -sI \"https://kyujin-ch.jp/report?type=job&id=test\")",
+      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/reports -H \"Content-Type: application/json\" -d '{}')"
     ],
     "additionalDirectories": [
       "\\tmp",

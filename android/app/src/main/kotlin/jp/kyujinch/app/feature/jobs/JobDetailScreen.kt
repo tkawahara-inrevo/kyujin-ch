@@ -106,7 +106,7 @@ private fun JobDetailContent(job: JobDetail) {
             Text(job.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                job.companyName,
+                job.companyName ?: "",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
@@ -114,7 +114,7 @@ private fun JobDetailContent(job: JobDetail) {
             Spacer(modifier = Modifier.height(16.dp))
 
             InfoCard(label = "勤務地", value = listOfNotNull(job.region, job.location, job.officeDetail).joinToString(" "))
-            InfoCard(label = "雇用形態", value = employmentLabel(job.employmentType))
+            InfoCard(label = "雇用形態", value = employmentLabel(job.employmentType ?: ""))
             InfoCard(label = "給与", value = formatSalary(job))
             job.categoryTag?.let { InfoCard(label = "カテゴリ", value = it) }
 

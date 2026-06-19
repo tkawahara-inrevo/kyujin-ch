@@ -53,7 +53,7 @@ retrofit-kotlinx-serialization = { module = "com.jakewharton.retrofit:retrofit2-
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
-androidx-biometric = { module = "androidx.biometric:biometric-ktx", version.ref = "biometric" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx" }

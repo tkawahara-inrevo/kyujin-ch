@@ -489,11 +489,13 @@ export async function withdrawJobSubmission(jobId: string) {
           reviewComment: null,
           isPublished: true,
           pendingContent: Prisma.DbNull,
+          reviewStatusChangedAt: new Date(),
         }
       : {
           reviewStatus: "DRAFT",
           reviewComment: null,
           isPublished: false,
+          reviewStatusChangedAt: new Date(),
         },
   });
 

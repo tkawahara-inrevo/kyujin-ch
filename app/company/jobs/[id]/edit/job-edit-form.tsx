@@ -837,6 +837,7 @@ export function JobEditForm({
 
   const isSubmitting = pendingAction !== null;
   const canWithdraw = currentReviewStatus === "PENDING_REVIEW";
+  const isReadOnly = canWithdraw;
   const showDraftSave = !canWithdraw && !hasPublishedVersion;
 
   const parsedReturnComments: Record<string, string> = (() => {
@@ -884,6 +885,13 @@ export function JobEditForm({
         </div>
       ) : null}
 
+      {isReadOnly ? (
+        <div className="mt-4 rounded-[12px] border border-[#f5c36b] bg-[#fff8ea] px-4 py-4 text-[13px] leading-[1.8] text-[#92670a]">
+          <strong className="font-bold">この求人は審査中のため編集できません。</strong>
+          {" "}内容を修正したい場合は、ページ下部の「審査を取り下げる」ボタンを押してから編集してください。
+        </div>
+      ) : null}
+
       <div
         className={`mt-6 grid items-start gap-6 2xl:gap-8 ${
           showPreview && isWidePreview ? "2xl:grid-cols-[minmax(520px,0.78fr)_minmax(760px,1.22fr)]" : ""
@@ -898,6 +906,7 @@ export function JobEditForm({
             showPreview && isWidePreview ? "" : "max-w-[1120px]"
           }`}
         >
+          <fieldset disabled={isReadOnly} className={`contents ${isReadOnly ? "opacity-70" : ""}`}>
           <Section title="ターゲット">
             <Field label="対象" required>
               <div className="flex flex-wrap gap-2.5">
@@ -1797,6 +1806,7 @@ export function JobEditForm({
               />
             </Field>
           </Section>
+          </fieldset>
 
           <div className="flex flex-wrap items-center gap-3 pt-8">
             {!canWithdraw ? (

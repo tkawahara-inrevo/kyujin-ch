@@ -8,5 +8,6 @@
 /captures
 .externalNativeBuild
 .cxx
+.kotlin/
 google-services.json
 release/

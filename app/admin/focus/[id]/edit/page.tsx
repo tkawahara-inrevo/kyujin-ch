@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { updateFocusArticle, deleteFocusArticle } from "@/app/actions/admin/focus";
 import { FocusForm } from "../../focus-form";
@@ -7,7 +7,7 @@ import { FocusForm } from "../../focus-form";
 type Params = Promise<{ id: string }>;
 
 export default async function AdminFocusEditPage({ params }: { params: Params }) {
-  await requireAdmin();
+  await requireAdminPermission("focus");
   const { id } = await params;
 
   const article = await prisma.focusArticle.findUnique({ where: { id } });

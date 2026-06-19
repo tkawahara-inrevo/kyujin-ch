@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 
 export default async function AdminDashboardPage() {
-  await requireAdmin();
+  await requireAdminPermission("dashboard");
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 

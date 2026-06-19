@@ -11,7 +11,7 @@ type JobRow = {
   title: string;
   employmentTypeLabel: string;
   location: string;
-  reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED";
+  reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED" | "WITHDRAWN";
   isPublished: boolean;
   applicationsCount: number;
   viewCount: number;
@@ -26,6 +26,7 @@ const FILTER_OPTIONS = [
   { value: "PENDING_REVIEW", label: "審査中" },
   { value: "PUBLISHED", label: "審査済み" },
   { value: "RETURNED", label: "要修正" },
+  { value: "WITHDRAWN", label: "取り下げ済" },
 ];
 
 const SORT_OPTIONS = [
@@ -40,6 +41,7 @@ const REVIEW_LABELS: Record<JobRow["reviewStatus"], string> = {
   PENDING_REVIEW: "審査中",
   PUBLISHED: "公開中",
   RETURNED: "要修正",
+  WITHDRAWN: "取り下げ済",
 };
 
 const REVIEW_BADGES: Record<JobRow["reviewStatus"], string> = {
@@ -47,6 +49,7 @@ const REVIEW_BADGES: Record<JobRow["reviewStatus"], string> = {
   PENDING_REVIEW: "bg-amber-100 text-amber-700 hover:bg-amber-200",
   PUBLISHED: "bg-emerald-100 text-emerald-700",
   RETURNED: "bg-rose-100 text-rose-700",
+  WITHDRAWN: "bg-orange-100 text-orange-700",
 };
 
 function getStatusLabel(job: JobRow): string {
@@ -226,6 +229,7 @@ export function CompanyJobsTable({
                   isPending ||
                   job.reviewStatus === "DRAFT" ||
                   job.reviewStatus === "RETURNED" ||
+                  job.reviewStatus === "WITHDRAWN" ||
                   (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
                 return (
                   <div key={job.id} className="px-4 py-4">
@@ -494,7 +498,7 @@ export function CompanyJobsTable({
             <p className="mt-3 text-[14px] leading-[1.8] text-[#5f6775]">
               {targetJob.hasPublishedVersion
                 ? "取り下げると、掲載中の求人はそのままで審査状況のみ審査済みに戻ります。"
-                : "取り下げると、この求人は下書きの非公開状態に戻ります。"}
+                : "取り下げると、この求人は「取り下げ済」状態になります。編集して再度「審査に提出」することで再申請できます。"}
             </p>
             <div className="mt-5 rounded-[14px] bg-[#f7f9fc] px-4 py-3 text-[14px] font-semibold text-[#2b2f38]">
               {targetJob.title}

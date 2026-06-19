@@ -1,13 +1,13 @@
 "use server";
 
 import { EmploymentType, Prisma } from "@prisma/client";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 async function ensureAdmin() {
-  await requireAdmin();
+  await requireAdminPermission("jobs");
 }
 
 export async function approveJob(jobId: string) {
@@ -15,9 +15,12 @@ export async function approveJob(jobId: string) {
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { pendingContent: true },
+    select: { pendingContent: true, reviewStatus: true },
   });
   if (!job) throw new Error("Job not found");
+  if (job.reviewStatus !== "PENDING_REVIEW") {
+    throw new Error("審査中の求人のみ承認できます");
+  }
 
   const pendingContent = parsePendingContent(job.pendingContent);
 
@@ -129,9 +132,12 @@ export async function returnJob(jobId: string, comments: Record<string, string>)
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { pendingContent: true },
+    select: { pendingContent: true, reviewStatus: true },
   });
   if (!job) throw new Error("Job not found");
+  if (job.reviewStatus !== "PENDING_REVIEW" && job.reviewStatus !== "PUBLISHED") {
+    throw new Error("審査中または公開中の求人のみ差し戻しできます");
+  }
 
   const hasPendingVersion = !!parsePendingContent(job.pendingContent);
   const filtered = Object.fromEntries(Object.entries(comments).filter(([, v]) => v.trim()));

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { JobseekersTable, type JobseekerRow } from "./jobseekers-table";
 
 type SearchParams = Promise<{ q?: string }>;
@@ -10,7 +10,7 @@ export default async function AdminJobseekersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("jobseekers");
   const { q } = await searchParams;
 
   const users = await prisma.user.findMany({

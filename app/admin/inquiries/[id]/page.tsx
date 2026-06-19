@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 
 const CATEGORY_LABELS = {
   QUESTION: "質問",
@@ -19,7 +19,7 @@ export default async function AdminInquiryDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("inquiries");
   const { id } = await params;
 
   const inquiry = await prisma.inquiry.findUnique({

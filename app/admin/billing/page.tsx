@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import PriceTable from "./price-table";
 import PartTimePriceSection from "./part-time-price-section";
 
 export default async function AdminBillingPage() {
-  await requireAdmin();
+  await requireAdminPermission("billing");
 
   // 通常の料金表（MID_CAREER / NEW_GRAD）
   const priceEntries = await prisma.priceEntry.findMany({

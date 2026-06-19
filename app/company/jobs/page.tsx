@@ -8,7 +8,7 @@ import { CompanyJobsTable } from "./company-jobs-table";
 
 type SearchParams = Promise<{ status?: string; sort?: string }>;
 
-const REVIEW_STATUS_FILTERS = new Set(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED"]);
+const REVIEW_STATUS_FILTERS = new Set(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "RETURNED", "WITHDRAWN"]);
 const SORT_OPTIONS = new Set(["status", "updated_desc", "updated_asc", "applications_desc"]);
 
 function getStatusRank(reviewStatus: string, isPublished: boolean): number {

@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { InvoiceMonthSwitcher } from "./invoice-month-switcher";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminInvoicesPage() {
-  await requireAdmin();
+  await requireAdminPermission("invoices");
 
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;

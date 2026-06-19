@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminFocusPage() {
-  await requireAdmin();
+  await requireAdminPermission("focus");
 
   const articles = await prisma.focusArticle.findMany({
     orderBy: { updatedAt: "desc" },

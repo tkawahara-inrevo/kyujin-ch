@@ -5,6 +5,7 @@ export const JOB_REVIEW_STATUS_LABELS: Record<JobReviewStatus, string> = {
   PENDING_REVIEW: "審査中",
   PUBLISHED: "公開",
   RETURNED: "差し戻し",
+  WITHDRAWN: "取り下げ済",
 };
 
 export const JOB_REVIEW_STATUS_BADGE_CLASSES: Record<JobReviewStatus, string> = {
@@ -12,6 +13,7 @@ export const JOB_REVIEW_STATUS_BADGE_CLASSES: Record<JobReviewStatus, string> = 
   PENDING_REVIEW: "bg-amber-100 text-amber-700",
   PUBLISHED: "bg-emerald-100 text-emerald-700",
   RETURNED: "bg-rose-100 text-rose-700",
+  WITHDRAWN: "bg-orange-100 text-orange-700",
 };
 
 export function isJobPublished(status: JobReviewStatus) {

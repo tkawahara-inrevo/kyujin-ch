@@ -68,6 +68,7 @@ enum JobReviewStatus {
   PENDING_REVIEW
   PUBLISHED
   RETURNED
+  WITHDRAWN
 }
 
 model User {

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { UserActiveToggleWithConfirm } from "./user-active-confirm";
 
 const statusLabels: Record<string, string> = {
@@ -18,7 +18,7 @@ export default async function AdminJobseekerDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("jobseekers");
   const { id } = await params;
 
   const user = await prisma.user.findUnique({

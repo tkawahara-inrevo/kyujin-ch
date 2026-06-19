@@ -1,6 +1,6 @@
 import { Prisma, type JobReviewStatus } from "@prisma/client";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { JobsTable, type AdminJobRow } from "./jobs-table";
@@ -13,7 +13,7 @@ export default async function AdminJobsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("jobs");
   const { q, category, status } = await searchParams;
 
   const where: Prisma.JobWhereInput = {

@@ -1,9 +1,9 @@
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { createFocusArticle } from "@/app/actions/admin/focus";
 import { FocusForm } from "../focus-form";
 
 export default async function AdminFocusNewPage() {
-  await requireAdmin();
+  await requireAdminPermission("focus");
 
   return (
     <FocusForm

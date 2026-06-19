@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { getDisplayFirstName, getDisplayLastName } from "@/lib/company-account";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { CompanyActiveToggle } from "../company-active-toggle";
@@ -13,7 +13,7 @@ export default async function AdminCompanyDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("companies");
   const { id } = await params;
 
   const company = await prisma.company.findUnique({

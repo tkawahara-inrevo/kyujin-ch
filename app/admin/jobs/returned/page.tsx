@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS, formatReviewComment } from "@/lib/job-review";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReturnedJobsPage() {
-  await requireAdmin();
+  await requireAdminPermission("jobs");
 
   // 過去に1回でも RETURNED ログがある求人を、最新差戻し日時の降順で
   const logs = await prisma.jobReviewLog.findMany({

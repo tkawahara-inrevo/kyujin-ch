@@ -2,7 +2,7 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import { parsePendingContent } from "@/lib/job-pending";
 import type { WorkingHoursDetail } from "@/lib/job-pending";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS, formatReviewComment } from "@/lib/job-review";
@@ -130,7 +130,7 @@ export default async function AdminJobDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdminPermission("jobs");
   const { id } = await params;
 
   const job = await prisma.job.findUnique({
@@ -530,10 +530,18 @@ export default async function AdminJobDetailPage({
         <div className="w-[340px] shrink-0 overflow-y-auto py-6 md:py-8">
           <div className="rounded-[16px] border border-[#dbe4ff] bg-white p-5 shadow-[0_2px_12px_rgba(47,108,255,0.08)]">
             <h2 className="text-[15px] font-bold text-[#1e293b]">審査アクション</h2>
-            <JobReviewActions
-              jobId={job.id}
-              isPublished={job.reviewStatus === "PUBLISHED" && !pendingContent}
-            />
+            {job.reviewStatus === "WITHDRAWN" || job.reviewStatus === "DRAFT" || job.reviewStatus === "RETURNED" ? (
+              <p className="mt-3 text-[13px] leading-[1.7] text-[#888]">
+                {job.reviewStatus === "WITHDRAWN" && "この求人は企業により取り下げられました。再申請されるまで承認・差し戻しはできません。"}
+                {job.reviewStatus === "DRAFT" && "この求人は下書き状態です。企業が「審査に提出」するまで承認・差し戻しはできません。"}
+                {job.reviewStatus === "RETURNED" && "この求人は差し戻し済みです。企業が修正・再申請するまで対応できません。"}
+              </p>
+            ) : (
+              <JobReviewActions
+                jobId={job.id}
+                isPublished={job.reviewStatus === "PUBLISHED" && !pendingContent}
+              />
+            )}
           </div>
         </div>
 

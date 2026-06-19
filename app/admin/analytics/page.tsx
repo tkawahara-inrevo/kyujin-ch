@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import {
   AnalyticsRankings,
   type TopCompanyRevenueRow,
@@ -16,7 +16,7 @@ function formatPercent(numerator: number, denominator: number) {
 }
 
 export default async function AdminAnalyticsPage() {
-  await requireAdmin();
+  await requireAdminPermission("analytics");
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

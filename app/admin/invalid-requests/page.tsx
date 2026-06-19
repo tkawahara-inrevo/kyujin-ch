@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 import {
   InvalidRequestsTable,
   type InvalidRequestRow,
 } from "./invalid-requests-table";
 
 export default async function AdminInvalidRequestsPage() {
-  await requireAdmin();
+  await requireAdminPermission("invalidRequests");
 
   const requests = await prisma.invalidRequest.findMany({
     include: {

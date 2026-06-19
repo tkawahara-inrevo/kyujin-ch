@@ -136,7 +136,7 @@ type Job = {
   salaryMax: number | null;
   categoryTag: string | null;
   tags: string[];
-  reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED";
+  reviewStatus: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "RETURNED" | "WITHDRAWN";
   reviewComment?: string | null;
   imageUrl: string | null;
   requirements: string | null;
@@ -826,7 +826,7 @@ export function JobEditForm({
     setPendingAction("withdraw");
     try {
       await withdrawJobSubmission(job.id);
-      setCurrentReviewStatus(hasPublishedVersion ? "PUBLISHED" : "DRAFT");
+      setCurrentReviewStatus(hasPublishedVersion ? "PUBLISHED" : "WITHDRAWN");
       router.refresh();
     } finally {
       setPendingAction(null);

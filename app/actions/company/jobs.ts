@@ -479,7 +479,7 @@ export async function withdrawJobSubmission(jobId: string) {
   if (job.reviewStatus !== "PENDING_REVIEW") throw new Error("Only pending jobs can be withdrawn");
 
   const hasPendingVersion = !!parsePendingContent(job.pendingContent);
-  const newStatus: JobReviewStatus = hasPendingVersion ? "PUBLISHED" : "DRAFT";
+  const newStatus: JobReviewStatus = hasPendingVersion ? "PUBLISHED" : "WITHDRAWN";
 
   await prisma.job.update({
     where: { id: jobId, companyId },
@@ -492,7 +492,7 @@ export async function withdrawJobSubmission(jobId: string) {
           reviewStatusChangedAt: new Date(),
         }
       : {
-          reviewStatus: "DRAFT",
+          reviewStatus: "WITHDRAWN",
           reviewComment: null,
           isPublished: false,
           reviewStatusChangedAt: new Date(),

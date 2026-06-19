@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdminPermission } from "@/lib/auth-helpers";
 
 const CATEGORY_LABELS = {
   QUESTION: "質問",
@@ -14,7 +14,7 @@ const STATUS_LABELS = {
 } as const;
 
 export default async function AdminInquiriesPage() {
-  await requireAdmin();
+  await requireAdminPermission("inquiries");
 
   const inquiries = await prisma.inquiry.findMany({
     orderBy: { createdAt: "desc" },

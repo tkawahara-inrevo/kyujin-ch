@@ -1,5 +1,6 @@
 package jp.kyujinch.app.feature.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,10 @@ import jp.kyujinch.app.core.network.JobSummary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    onJobClick: (String) -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel(),
+) {
     val state by viewModel.ui.collectAsState()
 
     Scaffold(
@@ -76,7 +80,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(state.jobs, key = { it.id }) { job ->
-                            JobCard(job)
+                            JobCard(job, onClick = { onJobClick(job.id) })
                         }
                     }
                 }
@@ -86,9 +90,9 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun JobCard(job: JobSummary) {
+private fun JobCard(job: JobSummary, onClick: () -> Unit = {}) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {

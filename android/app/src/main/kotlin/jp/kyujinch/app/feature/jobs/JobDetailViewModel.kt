@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.kyujinch.app.core.network.FavoriteRequest
 import jp.kyujinch.app.core.network.JobDetail
 import jp.kyujinch.app.core.network.KyujinchApi
+import jp.kyujinch.app.core.network.ReportRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,6 +45,21 @@ class JobDetailViewModel @Inject constructor(
             runCatching { api.jobDetail(jobId) }
                 .onSuccess { _ui.value = JobDetailUiState(isLoading = false, job = it) }
                 .onFailure { _ui.value = JobDetailUiState(isLoading = false, error = it.localizedMessage ?: "取得失敗") }
+        }
+    }
+
+    fun report(reason: String, detail: String) {
+        viewModelScope.launch {
+            runCatching {
+                api.report(
+                    ReportRequest(
+                        targetType = "job",
+                        targetId = jobId,
+                        reason = reason,
+                        detail = detail.ifBlank { null },
+                    ),
+                )
+            }
         }
     }
 

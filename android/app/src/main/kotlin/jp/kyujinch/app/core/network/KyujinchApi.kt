@@ -1,10 +1,13 @@
 package jp.kyujinch.app.core.network
 
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,6 +34,10 @@ interface KyujinchApi {
 
     @DELETE("me")
     suspend fun deleteMe()
+
+    @Multipart
+    @POST("me/avatar")
+    suspend fun uploadAvatar(@Part file: MultipartBody.Part): UploadResponse
 
     // ===== 求人 =====
     @GET("jobs")
@@ -103,6 +110,19 @@ interface KyujinchApi {
     @GET("master/employment-types")
     suspend fun employmentTypes(): List<EmploymentTypeOption>
 
+    // ===== 通報・ブロック =====
+    @POST("reports")
+    suspend fun report(@Body req: ReportRequest)
+
+    @GET("blocks")
+    suspend fun blocks(): List<BlockedUser>
+
+    @POST("blocks")
+    suspend fun blockUser(@Body req: BlockRequest)
+
+    @DELETE("blocks/{userId}")
+    suspend fun unblockUser(@Path("userId") userId: String)
+
     // ===== Push =====
     @POST("me/devices")
     suspend fun registerDevice(@Body req: RegisterDeviceRequest)
@@ -142,3 +162,25 @@ data class ApplyRequest(val jobId: String, val motivation: String? = null)
 
 @kotlinx.serialization.Serializable
 data class SendMessageRequest(val body: String)
+
+@kotlinx.serialization.Serializable
+data class UploadResponse(val url: String)
+
+@kotlinx.serialization.Serializable
+data class ReportRequest(
+    val targetType: String, // job | company | user | message
+    val targetId: String,
+    val reason: String,
+    val detail: String? = null,
+)
+
+@kotlinx.serialization.Serializable
+data class BlockRequest(val userId: String)
+
+@kotlinx.serialization.Serializable
+data class BlockedUser(
+    val userId: String,
+    val name: String,
+    val avatarUrl: String? = null,
+    val blockedAt: String,
+)

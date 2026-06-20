@@ -50,6 +50,7 @@ fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onFavoritesClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
+    onBlocksClick: () -> Unit = {},
     onTestJobClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -86,6 +87,7 @@ fun ProfileScreen(
                     onDeleteRequest = { showDeleteDialog = true },
                     onFavoritesClick = onFavoritesClick,
                     onEditProfileClick = onEditProfileClick,
+                    onBlocksClick = onBlocksClick,
                     onTestJobClick = onTestJobClick,
                     biometricEnabled = biometricEnabled,
                     onBiometricChange = viewModel::setBiometric,
@@ -121,6 +123,7 @@ private fun ProfileContent(
     onDeleteRequest: () -> Unit,
     onFavoritesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onBlocksClick: () -> Unit,
     onTestJobClick: () -> Unit,
     biometricEnabled: Boolean,
     onBiometricChange: (Boolean) -> Unit,
@@ -218,6 +221,15 @@ private fun ProfileContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("お気に入り一覧")
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onBlocksClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("ブロック中のユーザー")
         }
 
         if (jp.kyujinch.app.BuildConfig.DEBUG) {

@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import jp.kyujinch.app.core.network.JobSummary
 import jp.kyujinch.app.core.ui.ErrorView
+import jp.kyujinch.app.core.ui.PullRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,12 +54,13 @@ fun HomeScreen(
             )
         },
     ) { padding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
+        PullRefresh(
+            isRefreshing = state.isLoading && state.jobs.isNotEmpty(),
+            onRefresh = viewModel::load,
+            modifier = Modifier.padding(padding),
         ) {
             when {
-                state.isLoading -> {
+                state.isLoading && state.jobs.isEmpty() -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 state.error != null -> {

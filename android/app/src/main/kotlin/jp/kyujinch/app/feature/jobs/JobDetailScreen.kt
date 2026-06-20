@@ -18,6 +18,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import jp.kyujinch.app.core.ui.ReportDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,6 +55,9 @@ fun JobDetailScreen(
     viewModel: JobDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+    var menuOpen by remember { mutableStateOf(false) }
+    var showReportDialog by remember { mutableStateOf(false) }
+    var showReportedSnack by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -65,6 +75,21 @@ fun JobDetailScreen(
                                 imageVector = if (job.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "お気に入り",
                                 tint = if (job.isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+                        IconButton(onClick = { menuOpen = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "メニュー")
+                        }
+                        DropdownMenu(
+                            expanded = menuOpen,
+                            onDismissRequest = { menuOpen = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("通報する") },
+                                onClick = {
+                                    menuOpen = false
+                                    showReportDialog = true
+                                },
                             )
                         }
                     }
@@ -101,6 +126,30 @@ fun JobDetailScreen(
                 state.job != null -> JobDetailContent(state.job!!)
             }
         }
+    }
+
+    if (showReportDialog) {
+        ReportDialog(
+            title = "求人を通報",
+            onDismiss = { showReportDialog = false },
+            onSubmit = { reason, detail ->
+                showReportDialog = false
+                viewModel.report(reason, detail)
+                showReportedSnack = true
+            },
+        )
+    }
+    if (showReportedSnack) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showReportedSnack = false },
+            title = { Text("通報を受け付けました") },
+            text = { Text("ご報告ありがとうございました。運営にて確認いたします。") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showReportedSnack = false },
+                ) { Text("OK") }
+            },
+        )
     }
 }
 

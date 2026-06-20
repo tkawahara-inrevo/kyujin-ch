@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.clickable
 import jp.kyujinch.app.core.ui.ErrorView
+import jp.kyujinch.app.core.ui.PullRefresh
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -67,9 +68,13 @@ fun FavoritesScreen(
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        PullRefresh(
+            isRefreshing = state.isLoading && state.jobs.isNotEmpty(),
+            onRefresh = viewModel::load,
+            modifier = Modifier.padding(padding),
+        ) {
             when {
-                state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                state.isLoading && state.jobs.isEmpty() -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 state.error != null -> ErrorView(
                     message = state.error!!,
                     onRetry = viewModel::load,

@@ -1,8 +1,11 @@
 package jp.kyujinch.app.feature.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.kyujinch.app.core.network.KyujinchApi
 import jp.kyujinch.app.core.network.UpdateProfileRequest
 import jp.kyujinch.app.core.network.UserProfile
@@ -10,13 +13,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 data class EditProfileUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
+    val isUploadingAvatar: Boolean = false,
     val saved: Boolean = false,
     val error: String? = null,
+    val avatarUrl: String? = null,
     val firstName: String = "",
     val lastName: String = "",
     val firstNameKana: String = "",
@@ -31,6 +39,7 @@ data class EditProfileUiState(
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val api: KyujinchApi,
 ) : ViewModel() {
 
@@ -56,6 +65,7 @@ class EditProfileViewModel @Inject constructor(
     private fun applyFromServer(u: UserProfile) {
         _ui.value = _ui.value.copy(
             isLoading = false,
+            avatarUrl = u.avatarUrl,
             firstName = u.firstName.orEmpty(),
             lastName = u.lastName.orEmpty(),
             firstNameKana = u.firstNameKana.orEmpty(),
@@ -67,6 +77,38 @@ class EditProfileViewModel @Inject constructor(
             addressLine = u.addressLine.orEmpty(),
             notificationsEnabled = u.notificationsEnabled,
         )
+    }
+
+    fun uploadAvatar(uri: Uri) {
+        viewModelScope.launch {
+            _ui.value = _ui.value.copy(isUploadingAvatar = true, error = null)
+            runCatching {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                    ?: error("画像が読み取れません")
+                val bytes = inputStream.use { it.readBytes() }
+                val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                val ext = when (mimeType) {
+                    "image/png" -> "png"
+                    "image/webp" -> "webp"
+                    else -> "jpg"
+                }
+                val body = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val part = MultipartBody.Part.createFormData("file", "avatar.$ext", body)
+                api.uploadAvatar(part)
+            }
+                .onSuccess { res ->
+                    _ui.value = _ui.value.copy(
+                        isUploadingAvatar = false,
+                        avatarUrl = res.url,
+                    )
+                }
+                .onFailure { e ->
+                    _ui.value = _ui.value.copy(
+                        isUploadingAvatar = false,
+                        error = e.localizedMessage ?: "アップロード失敗",
+                    )
+                }
+        }
     }
 
     fun setLastName(v: String) { _ui.value = _ui.value.copy(lastName = v) }

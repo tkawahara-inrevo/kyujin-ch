@@ -48,6 +48,7 @@ import jp.kyujinch.app.core.notification.NotificationHelper
 import jp.kyujinch.app.feature.applications.ApplicationsListScreen
 import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
+import jp.kyujinch.app.feature.blocks.BlocksScreen
 import jp.kyujinch.app.feature.auth.LoginScreen
 import jp.kyujinch.app.feature.favorites.FavoritesScreen
 import jp.kyujinch.app.feature.home.HomeScreen
@@ -135,6 +136,7 @@ private object Routes {
     const val PROFILE = "profile"
     const val FAVORITES = "favorites"
     const val EDIT_PROFILE = "edit-profile"
+    const val BLOCKS = "blocks"
     const val JOB_DETAIL = "jobs/{id}"
     const val APPLY = "apply/{id}"
     const val THREAD_DETAIL = "threads/{id}"
@@ -225,11 +227,15 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                     onLoggedOut = onLoggedOut,
                     onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
                     onEditProfileClick = { nav.navigate(Routes.EDIT_PROFILE) },
+                    onBlocksClick = { nav.navigate(Routes.BLOCKS) },
                     onTestJobClick = { nav.navigate(Routes.jobDetail(Routes.TEST_JOB_ID)) },
                 )
             }
             composable(Routes.EDIT_PROFILE) {
                 EditProfileScreen(onBack = { nav.popBackStack() })
+            }
+            composable(Routes.BLOCKS) {
+                BlocksScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.FAVORITES) {
                 FavoritesScreen(

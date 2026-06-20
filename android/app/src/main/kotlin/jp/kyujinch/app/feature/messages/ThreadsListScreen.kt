@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jp.kyujinch.app.core.network.MessageThread
 import jp.kyujinch.app.core.ui.ErrorView
+import jp.kyujinch.app.core.ui.PullRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,9 +58,13 @@ fun ThreadsListScreen(
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        PullRefresh(
+            isRefreshing = state.isLoading && state.threads.isNotEmpty(),
+            onRefresh = viewModel::load,
+            modifier = Modifier.padding(padding),
+        ) {
             when {
-                state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                state.isLoading && state.threads.isEmpty() -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 state.error != null -> ErrorView(
                     message = state.error!!,
                     onRetry = viewModel::load,

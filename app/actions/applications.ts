@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
 import { sendTransactionalEmail } from "@/lib/email";
+import { resolveChargeAmount, currentBillingMonth } from "@/lib/charge";
 
 export type SimilarJob = {
   id: string;
@@ -25,30 +26,6 @@ const cardImages = [
   "/assets/Resume.png",
 ];
 
-// 企業アカウント発行から3ヶ月以内は無料
-function isFreeCampaignPeriod(companyCreatedAt: Date, now: Date) {
-  const threeMonthsLater = new Date(companyCreatedAt);
-  threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-  return now < threeMonthsLater;
-}
-
-async function resolveChargeAmount(categoryTag: string | null, companyCreatedAt: Date, now: Date) {
-  if (isFreeCampaignPeriod(companyCreatedAt, now)) {
-    return 0;
-  }
-
-  let chargeAmount = 11000;
-  if (categoryTag) {
-    const priceEntry = await prisma.priceEntry.findFirst({
-      where: { subcategory: categoryTag },
-    });
-    if (priceEntry) {
-      chargeAmount = priceEntry.experiencedPrice;
-    }
-  }
-
-  return chargeAmount;
-}
 
 export async function submitApplication(jobId: string, motivation: string) {
   const user = await getCurrentUser();
@@ -68,7 +45,7 @@ export async function submitApplication(jobId: string, motivation: string) {
   if (!job) throw new Error("求人が見つかりません");
 
   const now = new Date();
-  const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const billingMonth = currentBillingMonth(now);
 
   const companyCreatedAt = job.company.createdAt;
   const chargeAmount = await resolveChargeAmount(job.categoryTag, companyCreatedAt, now);

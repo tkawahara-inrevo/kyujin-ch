@@ -74,6 +74,9 @@ private object Routes {
     fun jobDetail(id: String) = "jobs/$id"
     fun apply(id: String) = "apply/$id"
     fun threadDetail(id: String) = "threads/$id"
+
+    // デバッグ用: テスト求人 ID
+    const val TEST_JOB_ID = "cmqlropd60002cppe403xawnd"
 }
 
 private data class TabItem(val route: String, val label: String, val icon: ImageVector)
@@ -149,6 +152,7 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 ProfileScreen(
                     onLoggedOut = onLoggedOut,
                     onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
+                    onTestJobClick = { nav.navigate(Routes.jobDetail(Routes.TEST_JOB_ID)) },
                 )
             }
             composable(Routes.FAVORITES) {

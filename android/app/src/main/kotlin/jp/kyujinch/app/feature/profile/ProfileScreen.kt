@@ -49,6 +49,7 @@ import jp.kyujinch.app.core.network.UserProfile
 fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onFavoritesClick: () -> Unit = {},
+    onTestJobClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
@@ -82,6 +83,7 @@ fun ProfileScreen(
                     onLogout = viewModel::logout,
                     onDeleteRequest = { showDeleteDialog = true },
                     onFavoritesClick = onFavoritesClick,
+                    onTestJobClick = onTestJobClick,
                 )
             }
         }
@@ -113,6 +115,7 @@ private fun ProfileContent(
     onLogout: () -> Unit,
     onDeleteRequest: () -> Unit,
     onFavoritesClick: () -> Unit,
+    onTestJobClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -176,6 +179,16 @@ private fun ProfileContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("お気に入り一覧")
+        }
+
+        if (jp.kyujinch.app.BuildConfig.DEBUG) {
+            Spacer(Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onTestJobClick,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("🧪 テスト求人を開く (DEBUG)")
+            }
         }
 
         Spacer(Modifier.height(12.dp))

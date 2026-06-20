@@ -5,10 +5,17 @@
  *
  * 実行: npx tsx scripts/seed-mobile-test.ts
  */
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+  ssl: { rejectUnauthorized: false },
+});
+
+const prisma = new PrismaClient({ adapter });
 
 const COMPANY_SLUG = "test-mobile-app";
 const COMPANY_USER_EMAIL = "test-mobile@example.invalid";

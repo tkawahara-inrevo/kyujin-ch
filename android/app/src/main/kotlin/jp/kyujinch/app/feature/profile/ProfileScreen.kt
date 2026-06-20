@@ -48,6 +48,7 @@ import jp.kyujinch.app.core.network.UserProfile
 @Composable
 fun ProfileScreen(
     onLoggedOut: () -> Unit,
+    onFavoritesClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
@@ -80,6 +81,7 @@ fun ProfileScreen(
                     user = state.user!!,
                     onLogout = viewModel::logout,
                     onDeleteRequest = { showDeleteDialog = true },
+                    onFavoritesClick = onFavoritesClick,
                 )
             }
         }
@@ -110,6 +112,7 @@ private fun ProfileContent(
     user: UserProfile,
     onLogout: () -> Unit,
     onDeleteRequest: () -> Unit,
+    onFavoritesClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -167,6 +170,15 @@ private fun ProfileContent(
         }
 
         Spacer(Modifier.height(24.dp))
+
+        OutlinedButton(
+            onClick = onFavoritesClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("お気に入り一覧")
+        }
+
+        Spacer(Modifier.height(12.dp))
 
         OutlinedButton(
             onClick = onLogout,

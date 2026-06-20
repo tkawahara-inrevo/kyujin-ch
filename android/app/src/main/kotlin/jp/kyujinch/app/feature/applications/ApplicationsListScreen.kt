@@ -1,22 +1,24 @@
-package jp.kyujinch.app.feature.favorites
+package jp.kyujinch.app.feature.applications
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,41 +29,28 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import coil.compose.AsyncImage
-import jp.kyujinch.app.core.network.JobSummary
+import jp.kyujinch.app.core.network.Application
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(
+fun ApplicationsListScreen(
     onJobClick: (String) -> Unit,
-    onBack: (() -> Unit)? = null,
-    viewModel: FavoritesViewModel = hiltViewModel(),
+    viewModel: ApplicationsListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("お気に入り", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    if (onBack != null) {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
-                        }
-                    }
-                },
+                title = { Text("応募", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
             )
         },
@@ -74,8 +63,8 @@ fun FavoritesScreen(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center).padding(24.dp),
                 )
-                state.jobs.isEmpty() -> Text(
-                    "お気に入りはまだありません",
+                state.applications.isEmpty() -> Text(
+                    "まだ応募がありません",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center),
                 )
@@ -83,8 +72,8 @@ fun FavoritesScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    items(state.jobs, key = { it.id }) { job ->
-                        FavCard(job, onClick = { onJobClick(job.id) })
+                    items(state.applications, key = { it.id }) { app ->
+                        ApplicationCard(app, onClick = { onJobClick(app.jobId) })
                     }
                 }
             }
@@ -93,29 +82,50 @@ fun FavoritesScreen(
 }
 
 @Composable
-private fun FavCard(job: JobSummary, onClick: () -> Unit) {
+private fun ApplicationCard(app: Application, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            job.imageUrl?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = job.title,
-                    modifier = Modifier.fillMaxWidth().height(140.dp),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                )
-                Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                StatusBadge(status = app.status)
+                Spacer(Modifier.height(0.dp))
             }
-            Text(job.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2)
+            Spacer(Modifier.height(8.dp))
+            Text(app.job.title, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2)
             Spacer(Modifier.height(4.dp))
             Text(
-                job.companyName,
+                app.job.companyName,
                 fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "応募日: ${app.createdAt.take(10)}",
+                fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
 }
+
+@Composable
+private fun StatusBadge(status: String) {
+    val (label, bg, fg) = when (status) {
+        "PENDING" -> Triple("未読", Color(0xFFFFF3CD), Color(0xFF92670A))
+        "VIEWED" -> Triple("既読", Color(0xFFE0E7FF), Color(0xFF4338CA))
+        "PASSED" -> Triple("通過", Color(0xFFD1FAE5), Color(0xFF065F46))
+        "REJECTED" -> Triple("不採用", Color(0xFFFEE2E2), Color(0xFFB91C1C))
+        else -> Triple(status, Color(0xFFEEEEEE), Color(0xFF555555))
+    }
+    Box(
+        modifier = Modifier
+            .background(color = bg, shape = RoundedCornerShape(50))
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    ) {
+        Text(label, fontSize = 11.sp, color = fg, fontWeight = FontWeight.SemiBold)
+    }
+}
+

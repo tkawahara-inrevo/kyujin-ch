@@ -54,6 +54,35 @@ interface KyujinchApi {
     @GET("jobs/recommended")
     suspend fun recommendedJobs(): List<JobSummary>
 
+    // ===== 応募 =====
+    @GET("applications")
+    suspend fun applications(@Query("status") status: String? = null): List<Application>
+
+    @POST("applications")
+    suspend fun apply(@Body req: ApplyRequest): Application
+
+    @GET("applications/{id}")
+    suspend fun applicationDetail(@Path("id") id: String): Application
+
+    // ===== メッセージ =====
+    @GET("messages/threads")
+    suspend fun threads(): List<MessageThread>
+
+    @GET("messages/threads/{id}")
+    suspend fun threadDetail(
+        @Path("id") id: String,
+        @Query("before") before: String? = null,
+    ): ThreadDetailResponse
+
+    @POST("messages/threads/{id}/messages")
+    suspend fun sendMessage(
+        @Path("id") id: String,
+        @Body req: SendMessageRequest,
+    ): MessageItem
+
+    @POST("messages/threads/{id}/read")
+    suspend fun markThreadRead(@Path("id") id: String)
+
     // ===== お気に入り =====
     @GET("favorites")
     suspend fun favorites(): List<JobSummary>
@@ -107,3 +136,9 @@ data class UpdateProfileRequest(
 
 @kotlinx.serialization.Serializable
 data class EmploymentTypeOption(val value: String, val label: String)
+
+@kotlinx.serialization.Serializable
+data class ApplyRequest(val jobId: String, val motivation: String? = null)
+
+@kotlinx.serialization.Serializable
+data class SendMessageRequest(val body: String)

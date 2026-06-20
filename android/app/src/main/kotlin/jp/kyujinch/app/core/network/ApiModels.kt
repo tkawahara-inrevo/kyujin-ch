@@ -78,6 +78,60 @@ data class ApiError(
 )
 
 @Serializable
+data class Application(
+    val id: String,
+    val jobId: String,
+    val job: JobSummary,
+    val motivation: String? = null,
+    val status: String,
+    val createdAt: String,
+)
+
+@Serializable
+data class LatestMessage(
+    val body: String,
+    val createdAt: String,
+    val senderType: String,
+)
+
+@Serializable
+data class MessageThread(
+    val id: String,
+    val title: String,
+    val companyName: String,
+    val latestMessage: LatestMessage? = null,
+    val unreadCount: Int = 0,
+    val updatedAt: String,
+)
+
+@Serializable
+data class MessageAttachment(
+    val url: String,
+    val type: String = "",
+    val name: String = "",
+)
+
+@Serializable
+data class MessageItem(
+    val id: String,
+    val threadId: String,
+    val senderId: String,
+    val senderType: String,
+    val senderName: String = "",
+    val body: String,
+    val attachments: List<MessageAttachment> = emptyList(),
+    val createdAt: String,
+    val readAt: String? = null,
+)
+
+@Serializable
+data class ThreadDetailResponse(
+    val thread: MessageThread,
+    val messages: List<MessageItem>,
+    val hasMore: Boolean = false,
+)
+
+@Serializable
 data class JobDetail(
     val id: String,
     val title: String,

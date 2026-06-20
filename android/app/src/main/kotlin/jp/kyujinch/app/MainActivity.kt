@@ -7,7 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -31,12 +32,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.kyujinch.app.feature.applications.ApplicationsListScreen
+import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
 import jp.kyujinch.app.feature.auth.LoginScreen
 import jp.kyujinch.app.feature.favorites.FavoritesScreen
 import jp.kyujinch.app.feature.home.HomeScreen
 import jp.kyujinch.app.feature.jobs.JobDetailScreen
+import jp.kyujinch.app.feature.messages.ThreadDetailScreen
+import jp.kyujinch.app.feature.messages.ThreadsListScreen
 import jp.kyujinch.app.feature.profile.ProfileScreen
+import jp.kyujinch.app.feature.search.SearchScreen
 import jp.kyujinch.app.ui.theme.KyujinchTheme
 
 @AndroidEntryPoint
@@ -58,10 +64,16 @@ private object Routes {
     const val LOGIN = "login"
     const val HOME = "home"
     const val SEARCH = "search"
-    const val FAVORITES = "favorites"
+    const val APPLICATIONS = "applications"
+    const val MESSAGES = "messages"
     const val PROFILE = "profile"
+    const val FAVORITES = "favorites"
     const val JOB_DETAIL = "jobs/{id}"
+    const val APPLY = "apply/{id}"
+    const val THREAD_DETAIL = "threads/{id}"
     fun jobDetail(id: String) = "jobs/$id"
+    fun apply(id: String) = "apply/$id"
+    fun threadDetail(id: String) = "threads/$id"
 }
 
 private data class TabItem(val route: String, val label: String, val icon: ImageVector)
@@ -69,7 +81,8 @@ private data class TabItem(val route: String, val label: String, val icon: Image
 private val TABS = listOf(
     TabItem(Routes.HOME, "ホーム", Icons.Default.Home),
     TabItem(Routes.SEARCH, "検索", Icons.Default.Search),
-    TabItem(Routes.FAVORITES, "お気に入り", Icons.Default.Favorite),
+    TabItem(Routes.APPLICATIONS, "応募", Icons.AutoMirrored.Filled.Article),
+    TabItem(Routes.MESSAGES, "メッセージ", Icons.AutoMirrored.Filled.Message),
     TabItem(Routes.PROFILE, "マイページ", Icons.Default.Person),
 )
 
@@ -122,18 +135,47 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 HomeScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
             }
             composable(Routes.SEARCH) {
-                jp.kyujinch.app.feature.search.SearchScreen(
+                SearchScreen(
                     onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
                 )
             }
-            composable(Routes.FAVORITES) {
-                FavoritesScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
+            composable(Routes.APPLICATIONS) {
+                ApplicationsListScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
+            }
+            composable(Routes.MESSAGES) {
+                ThreadsListScreen(onThreadClick = { id -> nav.navigate(Routes.threadDetail(id)) })
             }
             composable(Routes.PROFILE) {
-                ProfileScreen(onLoggedOut = onLoggedOut)
+                ProfileScreen(
+                    onLoggedOut = onLoggedOut,
+                    onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
+                )
+            }
+            composable(Routes.FAVORITES) {
+                FavoritesScreen(
+                    onBack = { nav.popBackStack() },
+                    onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
+                )
             }
             composable(Routes.JOB_DETAIL) {
-                JobDetailScreen(onBack = { nav.popBackStack() })
+                JobDetailScreen(
+                    onBack = { nav.popBackStack() },
+                    onApplyClick = { jobId -> nav.navigate(Routes.apply(jobId)) },
+                )
+            }
+            composable(Routes.APPLY) {
+                ApplyScreen(
+                    onBack = { nav.popBackStack() },
+                    onSubmitted = {
+                        // 応募完了後は応募一覧へ
+                        nav.navigate(Routes.APPLICATIONS) {
+                            popUpTo(Routes.HOME)
+                        }
+                    },
+                )
+            }
+            composable(Routes.THREAD_DETAIL) {
+                ThreadDetailScreen(onBack = { nav.popBackStack() })
             }
         }
     }

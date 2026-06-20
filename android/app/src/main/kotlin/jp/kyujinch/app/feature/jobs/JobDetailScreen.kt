@@ -44,6 +44,7 @@ import jp.kyujinch.app.core.network.JobDetail
 @Composable
 fun JobDetailScreen(
     onBack: () -> Unit,
+    onApplyClick: (String) -> Unit = {},
     viewModel: JobDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
@@ -75,6 +76,22 @@ fun JobDetailScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
             )
+        },
+        bottomBar = {
+            state.job?.let { job ->
+                if (job.hasApplied) {
+                    androidx.compose.material3.Button(
+                        onClick = {},
+                        enabled = false,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    ) { Text("応募済み") }
+                } else {
+                    androidx.compose.material3.Button(
+                        onClick = { onApplyClick(job.id) },
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    ) { Text("応募する", fontWeight = FontWeight.Bold) }
+                }
+            }
         },
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {

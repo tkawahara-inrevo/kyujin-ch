@@ -10,3 +10,8 @@ yarn-error.log*
 .DS_Store
 
 /app/generated/prisma
+
+# Firebase Service Account 等のシークレット
+*firebase-adminsdk*.json
+google-services.json
+*.serviceaccount.json

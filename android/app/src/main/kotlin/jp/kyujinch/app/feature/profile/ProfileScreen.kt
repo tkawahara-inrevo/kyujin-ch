@@ -54,6 +54,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+    val biometricEnabled by viewModel.biometricEnabled.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.loggedOut) {
@@ -86,6 +87,8 @@ fun ProfileScreen(
                     onFavoritesClick = onFavoritesClick,
                     onEditProfileClick = onEditProfileClick,
                     onTestJobClick = onTestJobClick,
+                    biometricEnabled = biometricEnabled,
+                    onBiometricChange = viewModel::setBiometric,
                 )
             }
         }
@@ -119,6 +122,8 @@ private fun ProfileContent(
     onFavoritesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
     onTestJobClick: () -> Unit,
+    biometricEnabled: Boolean,
+    onBiometricChange: (Boolean) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -172,6 +177,28 @@ private fun ProfileContent(
                 Row(label = "市区町村", value = user.cityTown ?: "-")
                 Row(label = "住所", value = user.addressLine ?: "-")
                 Row(label = "通知", value = if (user.notificationsEnabled) "ON" else "OFF")
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        ) {
+            androidx.compose.foundation.layout.Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(modifier = Modifier.padding(end = 12.dp)) {
+                    Text("起動時の生体認証", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text("指紋・顔認証でアプリ起動時にロック", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                androidx.compose.material3.Switch(
+                    checked = biometricEnabled,
+                    onCheckedChange = onBiometricChange,
+                )
             }
         }
 

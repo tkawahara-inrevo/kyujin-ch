@@ -125,7 +125,10 @@ export async function sendCompanyMessage(
       title: "新着メッセージ",
       body: body.length > 80 ? body.slice(0, 80) + "..." : body,
       type: "message",
-      data: { threadId: conversation.id },
+      data: {
+        threadId: conversation.id,
+        deepLink: `thread/${conversation.id}`,
+      },
     });
   }
 

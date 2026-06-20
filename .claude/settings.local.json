@@ -252,7 +252,9 @@
       "Bash(curl -s https://kyujin-ch.jp/api/v1/me/resume)",
       "Bash(curl -sI https://kyujin-ch.jp/mypage/blocks)",
       "Bash(curl -sI \"https://kyujin-ch.jp/report?type=job&id=test\")",
-      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/reports -H \"Content-Type: application/json\" -d '{}')"
+      "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/reports -H \"Content-Type: application/json\" -d '{}')",
+      "Bash(git check-ignore *)",
+      "Bash(scp -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no \"e:/dev/kyujin-ch/docs/kyujin-ch-firebase-adminsdk-fbsvc-948b74e0d6.json\" ubuntu@13.159.236.233:~/firebase-sa.json)"
     ],
     "additionalDirectories": [
       "\\tmp",

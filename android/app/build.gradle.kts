@@ -103,6 +103,9 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
 
+    // Splash Screen
+    implementation(libs.androidx.splashscreen)
+
     // FCM
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)

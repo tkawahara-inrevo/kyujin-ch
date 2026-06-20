@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jp.kyujinch.app.core.network.MessageThread
+import jp.kyujinch.app.core.ui.ErrorView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,10 +60,9 @@ fun ThreadsListScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                state.error != null -> Text(
-                    state.error!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                state.error != null -> ErrorView(
+                    message = state.error!!,
+                    onRetry = viewModel::load,
                 )
                 state.threads.isEmpty() -> Text(
                     "メッセージはまだありません",

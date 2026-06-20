@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Splash 用 (起動時に表示・SplashScreen API) -->
+    <style name="Theme.Kyujinch.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Kyujinch</item>
+    </style>
+
+    <!-- 本体テーマ -->
     <style name="Theme.Kyujinch" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>

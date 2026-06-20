@@ -1,15 +1,13 @@
 package jp.kyujinch.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import jp.kyujinch.app.core.notification.NotificationHelper
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -25,11 +23,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -38,6 +41,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.kyujinch.app.core.auth.BiometricAuthenticator
+import jp.kyujinch.app.core.auth.BiometricStore
+import jp.kyujinch.app.core.notification.DeepLinkBus
+import jp.kyujinch.app.core.notification.NotificationHelper
 import jp.kyujinch.app.feature.applications.ApplicationsListScreen
 import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
@@ -51,25 +58,58 @@ import jp.kyujinch.app.feature.profile.EditProfileScreen
 import jp.kyujinch.app.feature.profile.ProfileScreen
 import jp.kyujinch.app.feature.search.SearchScreen
 import jp.kyujinch.app.ui.theme.KyujinchTheme
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+
+    @Inject lateinit var biometricStore: BiometricStore
 
     private val requestNotificationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { /* 結果は無視 (ユーザー判断に委ねる) */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         NotificationHelper.ensureChannels(this)
         askNotificationPermission()
+
+        emitDeepLinkFromIntent(intent)
+        maybePromptBiometric()
+
         setContent {
             KyujinchTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppRoot()
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        emitDeepLinkFromIntent(intent)
+    }
+
+    private fun emitDeepLinkFromIntent(intent: Intent?) {
+        val raw = intent?.getStringExtra("deepLink") ?: return
+        lifecycleScope.launch { DeepLinkBus.emit(raw) }
+    }
+
+    private fun maybePromptBiometric() {
+        lifecycleScope.launch {
+            val enabled = biometricStore.enabledFlow.firstOrNull() ?: false
+            if (!enabled) return@launch
+            if (!BiometricAuthenticator.canAuthenticate(this@MainActivity)) return@launch
+            BiometricAuthenticator.prompt(
+                activity = this@MainActivity,
+                onSuccess = { /* 通過 */ },
+                onFailedFinal = { finish() },
+            )
         }
     }
 
@@ -94,10 +134,10 @@ private object Routes {
     const val MESSAGES = "messages"
     const val PROFILE = "profile"
     const val FAVORITES = "favorites"
+    const val EDIT_PROFILE = "edit-profile"
     const val JOB_DETAIL = "jobs/{id}"
     const val APPLY = "apply/{id}"
     const val THREAD_DETAIL = "threads/{id}"
-    const val EDIT_PROFILE = "edit-profile"
     fun jobDetail(id: String) = "jobs/$id"
     fun apply(id: String) = "apply/$id"
     fun threadDetail(id: String) = "threads/$id"
@@ -149,6 +189,13 @@ private fun MainShell(onLoggedOut: () -> Unit) {
     val currentEntry by nav.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
+    // Deep link 受信 → ナビゲート
+    LaunchedEffect(Unit) {
+        DeepLinkBus.events.collect { raw ->
+            handleDeepLink(raw, nav)
+        }
+    }
+
     Scaffold(
         bottomBar = {
             if (currentRoute in TABS.map { it.route }) {
@@ -165,9 +212,7 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 HomeScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
             }
             composable(Routes.SEARCH) {
-                SearchScreen(
-                    onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
-                )
+                SearchScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
             }
             composable(Routes.APPLICATIONS) {
                 ApplicationsListScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
@@ -202,7 +247,6 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 ApplyScreen(
                     onBack = { nav.popBackStack() },
                     onSubmitted = {
-                        // 応募完了後は応募一覧へ
                         nav.navigate(Routes.APPLICATIONS) {
                             popUpTo(Routes.HOME)
                         }
@@ -212,6 +256,27 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             composable(Routes.THREAD_DETAIL) {
                 ThreadDetailScreen(onBack = { nav.popBackStack() })
             }
+        }
+    }
+}
+
+private fun handleDeepLink(raw: String, nav: NavHostController) {
+    when {
+        raw.startsWith("thread/") -> {
+            val id = raw.removePrefix("thread/")
+            nav.navigate(Routes.threadDetail(id)) {
+                launchSingleTop = true
+            }
+        }
+        raw.startsWith("job/") -> {
+            val id = raw.removePrefix("job/")
+            nav.navigate(Routes.jobDetail(id)) { launchSingleTop = true }
+        }
+        raw == "applications" -> {
+            nav.navigate(Routes.APPLICATIONS) { launchSingleTop = true }
+        }
+        raw == "messages" -> {
+            nav.navigate(Routes.MESSAGES) { launchSingleTop = true }
         }
     }
 }

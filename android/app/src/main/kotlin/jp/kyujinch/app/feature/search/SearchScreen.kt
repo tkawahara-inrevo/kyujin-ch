@@ -137,6 +137,26 @@ fun SearchScreen(
                 }
             }
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("並び替え:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                listOf("new" to "新着", "pv" to "人気", "recommend" to "おすすめ").forEach { (k, label) ->
+                    FilterChip(
+                        selected = state.sort == k,
+                        onClick = {
+                            viewModel.setSort(k)
+                            if (state.hasSearched) viewModel.search()
+                        },
+                        label = { Text(label, fontSize = 12.sp) },
+                    )
+                }
+            }
+
             val activeFilterCount = state.prefectures.size +
                 (if (state.category != null) 1 else 0) +
                 (if (state.employmentType != null) 1 else 0)

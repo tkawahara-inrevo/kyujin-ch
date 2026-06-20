@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.kyujinch.app.core.auth.AuthRepository
+import jp.kyujinch.app.core.auth.BiometricStore
 import jp.kyujinch.app.core.network.KyujinchApi
 import jp.kyujinch.app.core.network.UserProfile
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,10 +26,18 @@ data class ProfileUiState(
 class ProfileViewModel @Inject constructor(
     private val api: KyujinchApi,
     private val authRepo: AuthRepository,
+    private val biometricStore: BiometricStore,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(ProfileUiState())
     val ui: StateFlow<ProfileUiState> = _ui.asStateFlow()
+
+    val biometricEnabled: StateFlow<Boolean> = biometricStore.enabledFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setBiometric(enabled: Boolean) {
+        viewModelScope.launch { biometricStore.setEnabled(enabled) }
+    }
 
     init { load() }
 

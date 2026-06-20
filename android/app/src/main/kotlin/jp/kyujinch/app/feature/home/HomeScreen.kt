@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import jp.kyujinch.app.core.network.JobSummary
+import jp.kyujinch.app.core.ui.ErrorView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,10 +62,9 @@ fun HomeScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 state.error != null -> {
-                    Text(
-                        text = state.error ?: "",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                    ErrorView(
+                        message = state.error ?: "",
+                        onRetry = viewModel::load,
                     )
                 }
                 state.jobs.isEmpty() -> {

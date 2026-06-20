@@ -74,7 +74,7 @@ async function main() {
       title: "【モバイル動作確認用】Androidエンジニア",
       description:
         "これはモバイルアプリの動作確認用に作られた求人です。\n\n実際の募集ではありません。応募テストは河原のみがアプリから行ってください。",
-      employmentType: "REGULAR",
+      employmentType: "FULL_TIME",
       categoryTag: "エンジニア",
       tags: ["テスト用", "動作確認", "アプリ動作テスト"],
       isPublished: true,

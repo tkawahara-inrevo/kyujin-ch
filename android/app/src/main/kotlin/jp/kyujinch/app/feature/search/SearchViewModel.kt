@@ -13,6 +13,10 @@ import javax.inject.Inject
 
 data class SearchUiState(
     val query: String = "",
+    val prefectures: Set<String> = emptySet(),
+    val category: String? = null,
+    val employmentType: String? = null,
+    val sort: String = "new",
     val isLoading: Boolean = false,
     val jobs: List<JobSummary> = emptyList(),
     val error: String? = null,
@@ -27,22 +31,41 @@ class SearchViewModel @Inject constructor(
     private val _ui = MutableStateFlow(SearchUiState())
     val ui: StateFlow<SearchUiState> = _ui.asStateFlow()
 
-    fun setQuery(q: String) {
-        _ui.value = _ui.value.copy(query = q)
+    fun setQuery(q: String) { _ui.value = _ui.value.copy(query = q) }
+    fun togglePrefecture(p: String) {
+        val current = _ui.value.prefectures
+        _ui.value = _ui.value.copy(
+            prefectures = if (p in current) current - p else current + p,
+        )
+    }
+    fun setCategory(v: String?) { _ui.value = _ui.value.copy(category = v) }
+    fun setEmploymentType(v: String?) { _ui.value = _ui.value.copy(employmentType = v) }
+    fun setSort(v: String) { _ui.value = _ui.value.copy(sort = v) }
+
+    fun clearFilters() {
+        _ui.value = _ui.value.copy(
+            prefectures = emptySet(),
+            category = null,
+            employmentType = null,
+        )
     }
 
     fun search() {
-        val q = _ui.value.query.trim()
+        val s = _ui.value
         viewModelScope.launch {
-            _ui.value = _ui.value.copy(isLoading = true, error = null, hasSearched = true)
+            _ui.value = s.copy(isLoading = true, error = null, hasSearched = true)
             runCatching {
-                api.jobs(q = if (q.isEmpty()) null else q, pageSize = 30)
+                api.jobs(
+                    q = s.query.trim().ifBlank { null },
+                    prefectures = s.prefectures.takeIf { it.isNotEmpty() }?.joinToString(","),
+                    category = s.category,
+                    employmentType = s.employmentType,
+                    sort = s.sort,
+                    pageSize = 30,
+                )
             }
                 .onSuccess { paged ->
-                    _ui.value = _ui.value.copy(
-                        isLoading = false,
-                        jobs = paged.items,
-                    )
+                    _ui.value = _ui.value.copy(isLoading = false, jobs = paged.items)
                 }
                 .onFailure { e ->
                     _ui.value = _ui.value.copy(

@@ -5,6 +5,7 @@ import type { ApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendTransactionalEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 
 export async function updateApplicationStatus(applicationId: string, status: ApplicationStatus) {
   const session = await auth();
@@ -116,6 +117,16 @@ export async function sendCompanyMessage(
     } catch (e) {
       console.error("メッセージ通知メール送信エラー:", e);
     }
+  }
+
+  // モバイルアプリへ Push 通知
+  if (application.user.notificationsEnabled) {
+    await sendPushToUser(application.user.id, {
+      title: "新着メッセージ",
+      body: body.length > 80 ? body.slice(0, 80) + "..." : body,
+      type: "message",
+      data: { threadId: conversation.id },
+    });
   }
 
   revalidatePath(`/company/applicants/${applicationId}`);

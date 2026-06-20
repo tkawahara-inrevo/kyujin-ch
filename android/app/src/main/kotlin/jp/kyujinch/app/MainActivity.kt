@@ -1,9 +1,15 @@
 package jp.kyujinch.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import jp.kyujinch.app.core.notification.NotificationHelper
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -41,20 +47,40 @@ import jp.kyujinch.app.feature.home.HomeScreen
 import jp.kyujinch.app.feature.jobs.JobDetailScreen
 import jp.kyujinch.app.feature.messages.ThreadDetailScreen
 import jp.kyujinch.app.feature.messages.ThreadsListScreen
+import jp.kyujinch.app.feature.profile.EditProfileScreen
 import jp.kyujinch.app.feature.profile.ProfileScreen
 import jp.kyujinch.app.feature.search.SearchScreen
 import jp.kyujinch.app.ui.theme.KyujinchTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val requestNotificationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { /* 結果は無視 (ユーザー判断に委ねる) */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        NotificationHelper.ensureChannels(this)
+        askNotificationPermission()
         setContent {
             KyujinchTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AppRoot()
                 }
+            }
+        }
+    }
+
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
@@ -71,6 +97,7 @@ private object Routes {
     const val JOB_DETAIL = "jobs/{id}"
     const val APPLY = "apply/{id}"
     const val THREAD_DETAIL = "threads/{id}"
+    const val EDIT_PROFILE = "edit-profile"
     fun jobDetail(id: String) = "jobs/$id"
     fun apply(id: String) = "apply/$id"
     fun threadDetail(id: String) = "threads/$id"
@@ -152,8 +179,12 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 ProfileScreen(
                     onLoggedOut = onLoggedOut,
                     onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
+                    onEditProfileClick = { nav.navigate(Routes.EDIT_PROFILE) },
                     onTestJobClick = { nav.navigate(Routes.jobDetail(Routes.TEST_JOB_ID)) },
                 )
+            }
+            composable(Routes.EDIT_PROFILE) {
+                EditProfileScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.FAVORITES) {
                 FavoritesScreen(

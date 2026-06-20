@@ -49,6 +49,7 @@ import jp.kyujinch.app.core.network.UserProfile
 fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onFavoritesClick: () -> Unit = {},
+    onEditProfileClick: () -> Unit = {},
     onTestJobClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -83,6 +84,7 @@ fun ProfileScreen(
                     onLogout = viewModel::logout,
                     onDeleteRequest = { showDeleteDialog = true },
                     onFavoritesClick = onFavoritesClick,
+                    onEditProfileClick = onEditProfileClick,
                     onTestJobClick = onTestJobClick,
                 )
             }
@@ -115,6 +117,7 @@ private fun ProfileContent(
     onLogout: () -> Unit,
     onDeleteRequest: () -> Unit,
     onFavoritesClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
     onTestJobClick: () -> Unit,
 ) {
     Column(
@@ -173,6 +176,15 @@ private fun ProfileContent(
         }
 
         Spacer(Modifier.height(24.dp))
+
+        Button(
+            onClick = onEditProfileClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("プロフィールを編集")
+        }
+
+        Spacer(Modifier.height(12.dp))
 
         OutlinedButton(
             onClick = onFavoritesClick,

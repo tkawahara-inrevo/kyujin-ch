@@ -17,7 +17,7 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-const COMPANY_SLUG = "test-mobile-app";
+const COMPANY_CORPORATE_NUMBER = "9999999999999"; // ダミーの法人番号 (13桁)
 const COMPANY_USER_EMAIL = "test-mobile@example.invalid";
 const COMPANY_USER_PASSWORD = "test-mobile-pass-2026";
 
@@ -26,7 +26,7 @@ async function main() {
 
   // 既存のテスト企業を削除して作り直し
   const existing = await prisma.company.findUnique({
-    where: { slug: COMPANY_SLUG },
+    where: { corporateNumber: COMPANY_CORPORATE_NUMBER },
     include: { users: true },
   });
   if (existing) {
@@ -55,7 +55,7 @@ async function main() {
   const company = await prisma.company.create({
     data: {
       name: "求人ちゃんねる動作確認用 株式会社",
-      slug: COMPANY_SLUG,
+      corporateNumber: COMPANY_CORPORATE_NUMBER,
       industry: "情報通信業",
       employeeCount: "1〜10名",
       description: "モバイルアプリの動作確認用に作られたテスト企業です。一般には公開されません。",

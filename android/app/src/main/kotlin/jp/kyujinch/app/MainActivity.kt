@@ -211,7 +211,13 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             modifier = Modifier.fillMaxSize().padding(padding),
         ) {
             composable(Routes.HOME) {
-                HomeScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })
+                HomeScreen(
+                    onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
+                    onCategoryClick = {
+                        // 当面はカテゴリ事前選択なしで検索画面に遷移
+                        nav.navigate(Routes.SEARCH) { launchSingleTop = true }
+                    },
+                )
             }
             composable(Routes.SEARCH) {
                 SearchScreen(onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) })

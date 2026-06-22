@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -168,7 +170,7 @@ private fun HeroBanner() {
             .aspectRatio(2f),
     ) {
         AsyncImage(
-            model = "https://kyujin-ch.jp/assets/top_fv.png",
+            model = "https://kyujin-ch.jp/assets/FV_fix-sp.png",
             contentDescription = "求人ちゃんねる",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().background(Color(0xFFE8E8E8)),
@@ -178,41 +180,29 @@ private fun HeroBanner() {
 
 @Composable
 private fun CategoryGrid(onClick: (String) -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CATEGORIES.chunked(4).forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                row.forEach { c ->
-                    CategoryCell(
-                        spec = c,
-                        modifier = Modifier.weight(1f),
-                        onClick = { onClick(c.key) },
-                    )
-                }
-                repeat(4 - row.size) {
-                    Box(modifier = Modifier.weight(1f))
-                }
-            }
+        items(CATEGORIES, key = { it.key }) { c ->
+            CategoryCell(spec = c, onClick = { onClick(c.key) })
         }
     }
 }
 
 @Composable
-private fun CategoryCell(spec: CategorySpec, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun CategoryCell(spec: CategorySpec, onClick: () -> Unit) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .size(width = 72.dp, height = 96.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             modifier = Modifier
-                .size(72.dp)
+                .size(64.dp)
                 .clip(CircleShape)
                 .background(Color.White),
             contentAlignment = Alignment.Center,
@@ -221,17 +211,17 @@ private fun CategoryCell(spec: CategorySpec, modifier: Modifier = Modifier, onCl
                 model = spec.iconUrl,
                 contentDescription = spec.label,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(48.dp),
             )
         }
         Spacer(Modifier.height(6.dp))
         Text(
             text = spec.label,
-            fontSize = 11.sp,
+            fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             color = TextDark,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            lineHeight = 14.sp,
+            lineHeight = 13.sp,
         )
     }
 }

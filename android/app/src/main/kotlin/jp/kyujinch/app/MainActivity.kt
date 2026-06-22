@@ -63,6 +63,7 @@ import jp.kyujinch.app.feature.profile.ProfileScreen
 import jp.kyujinch.app.feature.resume.ResumeScreen
 import jp.kyujinch.app.feature.settings.WebContentScreen
 import jp.kyujinch.app.feature.search.SearchScreen
+import jp.kyujinch.app.feature.swipe.SwipeScreen
 import jp.kyujinch.app.ui.theme.KyujinchTheme
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -141,6 +142,7 @@ private object Routes {
     const val FAVORITES = "favorites"
     const val MESSAGES = "messages"
     const val EDIT_PROFILE = "edit-profile"
+    const val SWIPE = "swipe"
     const val RESUME = "resume"
     const val TERMS = "terms"
     const val PRIVACY = "privacy"
@@ -226,6 +228,13 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                     onCategoryClick = {
                         nav.navigate(Routes.SEARCH) { launchSingleTop = true }
                     },
+                    onSwipeClick = { nav.navigate(Routes.SWIPE) },
+                )
+            }
+            composable(Routes.SWIPE) {
+                SwipeScreen(
+                    onBack = { nav.popBackStack() },
+                    onEditProfile = { nav.navigate(Routes.EDIT_PROFILE) },
                 )
             }
             composable(Routes.SEARCH) {

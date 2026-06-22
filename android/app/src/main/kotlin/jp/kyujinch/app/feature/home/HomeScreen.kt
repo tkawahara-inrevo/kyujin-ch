@@ -74,6 +74,7 @@ private val CATEGORIES = listOf(
 fun HomeScreen(
     onJobClick: (String) -> Unit = {},
     onCategoryClick: (String) -> Unit = {},
+    onSwipeClick: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
@@ -101,6 +102,7 @@ fun HomeScreen(
                     ) {
                         BrandHeader()
                         HeroBanner()
+                        SwipeEntryBanner(onClick = onSwipeClick)
                         CategoryGrid(onClick = onCategoryClick)
                         Spacer(Modifier.height(20.dp))
                         if (state.featured.isNotEmpty()) {
@@ -156,6 +158,38 @@ private fun BrandHeader() {
                 .padding(horizontal = 12.dp, vertical = 4.dp),
         ) {
             Text("中途", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun SwipeEntryBanner(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+            .background(
+                androidx.compose.ui.graphics.Brush.horizontalGradient(
+                    listOf(BrandBlue, BrandRed),
+                ),
+            )
+            .clickable(onClick = onClick)
+            .padding(20.dp),
+    ) {
+        Column {
+            Text(
+                "🎯 本日のおすすめ求人",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "スワイプで気になる求人を見つけよう",
+                color = Color.White,
+                fontSize = 12.sp,
+            )
         }
     }
 }

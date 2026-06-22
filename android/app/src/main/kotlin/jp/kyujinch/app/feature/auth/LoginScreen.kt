@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onRegisterClick: () -> Unit = {},
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -100,6 +101,19 @@ fun LoginScreen(
             } else {
                 Text("ログイン", fontWeight = FontWeight.Bold)
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        androidx.compose.material3.TextButton(
+            onClick = onRegisterClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                "アカウントをお持ちでない方はこちら",
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
     }
 }

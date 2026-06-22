@@ -52,6 +52,7 @@ import jp.kyujinch.app.feature.applications.ApplicationsListScreen
 import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
 import jp.kyujinch.app.feature.auth.LoginScreen
+import jp.kyujinch.app.feature.auth.RegisterScreen
 import jp.kyujinch.app.feature.blocks.BlocksScreen
 import jp.kyujinch.app.feature.favorites.FavoritesScreen
 import jp.kyujinch.app.feature.home.HomeScreen
@@ -135,6 +136,7 @@ class MainActivity : FragmentActivity() {
 
 private object Routes {
     const val LOGIN = "login"
+    const val REGISTER = "register"
     const val HOME = "home"
     const val SEARCH = "search"
     const val PROFILE = "profile"
@@ -183,11 +185,26 @@ private fun AppRoot() {
         startDestination = if (isLoggedIn) "main" else Routes.LOGIN,
     ) {
         composable(Routes.LOGIN) {
-            LoginScreen(onLoginSuccess = {
-                rootNav.navigate("main") {
-                    popUpTo(Routes.LOGIN) { inclusive = true }
-                }
-            })
+            LoginScreen(
+                onLoginSuccess = {
+                    rootNav.navigate("main") {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onRegisterClick = { rootNav.navigate(Routes.REGISTER) },
+            )
+        }
+        composable(Routes.REGISTER) {
+            RegisterScreen(
+                onBack = { rootNav.popBackStack() },
+                onRegistered = {
+                    rootNav.navigate("main") {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onTerms = { /* TODO 開く */ },
+                onPrivacy = { /* TODO 開く */ },
+            )
         }
         composable("main") {
             MainShell(onLoggedOut = {

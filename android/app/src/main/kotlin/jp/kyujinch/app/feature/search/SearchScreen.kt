@@ -88,6 +88,7 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+    val history by viewModel.history.collectAsState()
     var showFilters by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -188,11 +189,38 @@ fun SearchScreen(
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
                     )
-                    !state.hasSearched -> Text(
-                        "キーワードや絞り込みで検索",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.Center),
-                    )
+                    !state.hasSearched -> {
+                        if (history.isEmpty()) {
+                            Text(
+                                "キーワードや絞り込みで検索",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(Alignment.Center),
+                            )
+                        } else {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text("最近の検索", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    TextButton(onClick = viewModel::clearHistory) {
+                                        Text("クリア", fontSize = 12.sp)
+                                    }
+                                }
+                                Spacer(Modifier.height(4.dp))
+                                history.forEach { q ->
+                                    androidx.compose.material3.ListItem(
+                                        headlineContent = { Text(q, fontSize = 14.sp) },
+                                        leadingContent = {
+                                            Icon(Icons.Default.Search, contentDescription = null)
+                                        },
+                                        modifier = Modifier.clickable { viewModel.selectHistory(q) },
+                                    )
+                                }
+                            }
+                        }
+                    }
                     state.jobs.isEmpty() -> Text(
                         "条件に合う求人がありません",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

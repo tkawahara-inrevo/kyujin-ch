@@ -3,11 +3,14 @@ package jp.kyujinch.app.feature.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.data.SearchHistoryStore
 import jp.kyujinch.app.core.network.JobSummary
 import jp.kyujinch.app.core.network.KyujinchApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,10 +29,23 @@ data class SearchUiState(
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val api: KyujinchApi,
+    private val historyStore: SearchHistoryStore,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(SearchUiState())
     val ui: StateFlow<SearchUiState> = _ui.asStateFlow()
+
+    val history: StateFlow<List<String>> = historyStore.queriesFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun selectHistory(q: String) {
+        _ui.value = _ui.value.copy(query = q)
+        search()
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch { historyStore.clear() }
+    }
 
     fun setQuery(q: String) { _ui.value = _ui.value.copy(query = q) }
     fun togglePrefecture(p: String) {
@@ -54,6 +70,8 @@ class SearchViewModel @Inject constructor(
         val s = _ui.value
         viewModelScope.launch {
             _ui.value = s.copy(isLoading = true, error = null, hasSearched = true)
+            // 履歴追加 (空白でなければ)
+            if (s.query.isNotBlank()) historyStore.add(s.query)
             runCatching {
                 api.jobs(
                     q = s.query.trim().ifBlank { null },

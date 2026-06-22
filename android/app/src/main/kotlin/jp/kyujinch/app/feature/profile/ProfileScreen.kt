@@ -50,7 +50,10 @@ fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onFavoritesClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
+    onResumeClick: () -> Unit = {},
     onBlocksClick: () -> Unit = {},
+    onTermsClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
     onTestJobClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -87,7 +90,10 @@ fun ProfileScreen(
                     onDeleteRequest = { showDeleteDialog = true },
                     onFavoritesClick = onFavoritesClick,
                     onEditProfileClick = onEditProfileClick,
+                    onResumeClick = onResumeClick,
                     onBlocksClick = onBlocksClick,
+                    onTermsClick = onTermsClick,
+                    onPrivacyClick = onPrivacyClick,
                     onTestJobClick = onTestJobClick,
                     biometricEnabled = biometricEnabled,
                     onBiometricChange = viewModel::setBiometric,
@@ -123,7 +129,10 @@ private fun ProfileContent(
     onDeleteRequest: () -> Unit,
     onFavoritesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onResumeClick: () -> Unit,
     onBlocksClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onPrivacyClick: () -> Unit,
     onTestJobClick: () -> Unit,
     biometricEnabled: Boolean,
     onBiometricChange: (Boolean) -> Unit,
@@ -217,6 +226,15 @@ private fun ProfileContent(
         Spacer(Modifier.height(12.dp))
 
         OutlinedButton(
+            onClick = onResumeClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("履歴書を編集")
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedButton(
             onClick = onFavoritesClick,
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -243,6 +261,34 @@ private fun ProfileContent(
         }
 
         Spacer(Modifier.height(12.dp))
+
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onTermsClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("利用規約")
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onPrivacyClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("プライバシーポリシー")
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        Text(
+            "バージョン ${jp.kyujinch.app.BuildConfig.VERSION_NAME}",
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(Modifier.height(20.dp))
 
         OutlinedButton(
             onClick = onLogout,

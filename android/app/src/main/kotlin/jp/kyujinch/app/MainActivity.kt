@@ -60,6 +60,8 @@ import jp.kyujinch.app.feature.messages.ThreadDetailScreen
 import jp.kyujinch.app.feature.messages.ThreadsListScreen
 import jp.kyujinch.app.feature.profile.EditProfileScreen
 import jp.kyujinch.app.feature.profile.ProfileScreen
+import jp.kyujinch.app.feature.resume.ResumeScreen
+import jp.kyujinch.app.feature.settings.WebContentScreen
 import jp.kyujinch.app.feature.search.SearchScreen
 import jp.kyujinch.app.ui.theme.KyujinchTheme
 import kotlinx.coroutines.flow.firstOrNull
@@ -139,6 +141,9 @@ private object Routes {
     const val FAVORITES = "favorites"
     const val MESSAGES = "messages"
     const val EDIT_PROFILE = "edit-profile"
+    const val RESUME = "resume"
+    const val TERMS = "terms"
+    const val PRIVACY = "privacy"
     const val BLOCKS = "blocks"
     const val JOB_DETAIL = "jobs/{id}"
     const val APPLY = "apply/{id}"
@@ -242,12 +247,32 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                     onLoggedOut = onLoggedOut,
                     onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
                     onEditProfileClick = { nav.navigate(Routes.EDIT_PROFILE) },
+                    onResumeClick = { nav.navigate(Routes.RESUME) },
                     onBlocksClick = { nav.navigate(Routes.BLOCKS) },
+                    onTermsClick = { nav.navigate(Routes.TERMS) },
+                    onPrivacyClick = { nav.navigate(Routes.PRIVACY) },
                     onTestJobClick = { nav.navigate(Routes.jobDetail(Routes.TEST_JOB_ID)) },
                 )
             }
             composable(Routes.EDIT_PROFILE) {
                 EditProfileScreen(onBack = { nav.popBackStack() })
+            }
+            composable(Routes.RESUME) {
+                ResumeScreen(onBack = { nav.popBackStack() })
+            }
+            composable(Routes.TERMS) {
+                WebContentScreen(
+                    title = "利用規約",
+                    url = "https://kyujin-ch.jp/kiyaku",
+                    onBack = { nav.popBackStack() },
+                )
+            }
+            composable(Routes.PRIVACY) {
+                WebContentScreen(
+                    title = "プライバシーポリシー",
+                    url = "https://kyujin-ch.jp/privacy",
+                    onBack = { nav.popBackStack() },
+                )
             }
             composable(Routes.BLOCKS) {
                 BlocksScreen(onBack = { nav.popBackStack() })
@@ -264,6 +289,7 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                     onSubmitted = {
                         nav.navigate(Routes.APPLICATIONS) { popUpTo(Routes.HOME) }
                     },
+                    onEditProfile = { nav.navigate(Routes.EDIT_PROFILE) },
                 )
             }
             composable(Routes.THREAD_DETAIL) {

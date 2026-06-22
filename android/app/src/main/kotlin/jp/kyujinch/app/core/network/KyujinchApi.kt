@@ -39,6 +39,12 @@ interface KyujinchApi {
     @POST("me/avatar")
     suspend fun uploadAvatar(@Part file: MultipartBody.Part): UploadResponse
 
+    @GET("me/resume")
+    suspend fun resume(): Resume
+
+    @PATCH("me/resume")
+    suspend fun updateResume(@Body req: ResumePatchRequest)
+
     // ===== 求人 =====
     @GET("jobs")
     suspend fun jobs(
@@ -165,6 +171,15 @@ data class SendMessageRequest(val body: String)
 
 @kotlinx.serialization.Serializable
 data class UploadResponse(val url: String)
+
+@kotlinx.serialization.Serializable
+data class ResumePatchRequest(
+    val educations: List<Education>? = null,
+    val workExperiences: List<WorkExperience>? = null,
+    val certifications: List<Certification>? = null,
+    val prText: String? = null,
+    val jobPreference: String? = null,
+)
 
 @kotlinx.serialization.Serializable
 data class ReportRequest(

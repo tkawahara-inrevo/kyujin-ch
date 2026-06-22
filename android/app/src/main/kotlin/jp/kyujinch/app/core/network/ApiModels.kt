@@ -78,6 +78,49 @@ data class ApiError(
 )
 
 @Serializable
+data class Education(
+    val id: String? = null,
+    val schoolType: String,
+    val schoolName: String,
+    val faculty: String? = null,
+    val status: String,
+    val year: Int,
+    val month: Int,
+)
+
+@Serializable
+data class WorkExperience(
+    val id: String? = null,
+    val companyName: String,
+    val department: String? = null,
+    val jobType: String? = null,
+    val startYear: Int,
+    val startMonth: Int,
+    val endYear: Int? = null,
+    val endMonth: Int? = null,
+    val isCurrent: Boolean = false,
+    val description: String? = null,
+)
+
+@Serializable
+data class Certification(
+    val id: String? = null,
+    val name: String,
+    val year: Int,
+    val month: Int,
+)
+
+@Serializable
+data class Resume(
+    val basic: UserProfile,
+    val educations: List<Education> = emptyList(),
+    val workExperiences: List<WorkExperience> = emptyList(),
+    val certifications: List<Certification> = emptyList(),
+    val prText: String? = null,
+    val jobPreference: String? = null,
+)
+
+@Serializable
 data class Application(
     val id: String,
     val jobId: String,

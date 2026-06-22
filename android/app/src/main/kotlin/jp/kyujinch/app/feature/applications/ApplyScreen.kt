@@ -38,9 +38,31 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun ApplyScreen(
     onBack: () -> Unit,
     onSubmitted: () -> Unit,
+    onEditProfile: () -> Unit = {},
     viewModel: ApplyViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+
+    if (state.profileIncomplete) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissProfileIncomplete() },
+            title = { Text("プロフィール未完了") },
+            text = {
+                Text("応募には以下の情報が必要です: ${state.missingFields.joinToString("、")}")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.dismissProfileIncomplete()
+                    onEditProfile()
+                }) { Text("プロフィールを編集") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissProfileIncomplete() }) {
+                    Text("キャンセル")
+                }
+            },
+        )
+    }
 
     if (state.submitted) {
         AlertDialog(

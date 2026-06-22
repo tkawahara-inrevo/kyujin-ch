@@ -1,6 +1,7 @@
 package jp.kyujinch.app.core.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 
 /**
  * 共通の Pull to Refresh ラッパー。Material3 1.3+ を利用。
+ * content は BoxScope なので Modifier.align(Alignment.Center) 等が使える。
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,7 +19,7 @@ fun PullRefresh(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val state = rememberPullToRefreshState()
     PullToRefreshBox(
@@ -26,8 +28,6 @@ fun PullRefresh(
         state = state,
         modifier = modifier.fillMaxSize(),
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            content()
-        }
+        Box(modifier = Modifier.fillMaxSize(), content = content)
     }
 }

@@ -52,8 +52,8 @@ fun ThreadsListScreen(
             TopAppBar(
                 title = { Text("メッセージ", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = androidx.compose.ui.graphics.Color.White,
+                    titleContentColor = androidx.compose.ui.graphics.Color(0xFF1F2937),
                 ),
             )
         },

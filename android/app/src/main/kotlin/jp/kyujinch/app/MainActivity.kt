@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.Message
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,7 +27,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
@@ -48,8 +51,8 @@ import jp.kyujinch.app.core.notification.NotificationHelper
 import jp.kyujinch.app.feature.applications.ApplicationsListScreen
 import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
-import jp.kyujinch.app.feature.blocks.BlocksScreen
 import jp.kyujinch.app.feature.auth.LoginScreen
+import jp.kyujinch.app.feature.blocks.BlocksScreen
 import jp.kyujinch.app.feature.favorites.FavoritesScreen
 import jp.kyujinch.app.feature.home.HomeScreen
 import jp.kyujinch.app.feature.jobs.JobDetailScreen
@@ -70,7 +73,7 @@ class MainActivity : FragmentActivity() {
 
     private val requestNotificationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { /* 結果は無視 (ユーザー判断に委ねる) */ }
+    ) { /* 結果は無視 */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -131,10 +134,10 @@ private object Routes {
     const val LOGIN = "login"
     const val HOME = "home"
     const val SEARCH = "search"
-    const val APPLICATIONS = "applications"
-    const val MESSAGES = "messages"
     const val PROFILE = "profile"
+    const val APPLICATIONS = "applications"
     const val FAVORITES = "favorites"
+    const val MESSAGES = "messages"
     const val EDIT_PROFILE = "edit-profile"
     const val BLOCKS = "blocks"
     const val JOB_DETAIL = "jobs/{id}"
@@ -150,13 +153,17 @@ private object Routes {
 
 private data class TabItem(val route: String, val label: String, val icon: ImageVector)
 
+// Web の MobileNavBar と同じ 4 タブ構成
 private val TABS = listOf(
-    TabItem(Routes.HOME, "ホーム", Icons.Default.Home),
-    TabItem(Routes.SEARCH, "検索", Icons.Default.Search),
-    TabItem(Routes.APPLICATIONS, "応募", Icons.AutoMirrored.Filled.Article),
-    TabItem(Routes.MESSAGES, "メッセージ", Icons.AutoMirrored.Filled.Message),
     TabItem(Routes.PROFILE, "マイページ", Icons.Default.Person),
+    TabItem(Routes.APPLICATIONS, "応募済み", Icons.AutoMirrored.Filled.Article),
+    TabItem(Routes.FAVORITES, "気になる", Icons.Default.Favorite),
+    TabItem(Routes.MESSAGES, "メッセージ", Icons.AutoMirrored.Filled.Message),
 )
+
+// Web の MobileNavBar と同じカラー (#eb0937 active, #aaa inactive)
+private val BottomBarActive = Color(0xFFEB0937)
+private val BottomBarInactive = Color(0xFFAAAAAA)
 
 @Composable
 private fun AppRoot() {
@@ -191,18 +198,16 @@ private fun MainShell(onLoggedOut: () -> Unit) {
     val currentEntry by nav.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
-    // Deep link 受信 → ナビゲート
     LaunchedEffect(Unit) {
-        DeepLinkBus.events.collect { raw ->
-            handleDeepLink(raw, nav)
-        }
+        DeepLinkBus.events.collect { raw -> handleDeepLink(raw, nav) }
     }
+
+    // ボトムバーを出すルート (タブ + ホーム + 検索)
+    val showBottomBar = currentRoute in (TABS.map { it.route } + Routes.HOME + Routes.SEARCH)
 
     Scaffold(
         bottomBar = {
-            if (currentRoute in TABS.map { it.route }) {
-                BottomBar(nav)
-            }
+            if (showBottomBar) BottomBar(nav)
         },
     ) { padding ->
         NavHost(
@@ -214,7 +219,6 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 HomeScreen(
                     onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
                     onCategoryClick = {
-                        // 当面はカテゴリ事前選択なしで検索画面に遷移
                         nav.navigate(Routes.SEARCH) { launchSingleTop = true }
                     },
                 )
@@ -227,6 +231,11 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             }
             composable(Routes.MESSAGES) {
                 ThreadsListScreen(onThreadClick = { id -> nav.navigate(Routes.threadDetail(id)) })
+            }
+            composable(Routes.FAVORITES) {
+                FavoritesScreen(
+                    onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
+                )
             }
             composable(Routes.PROFILE) {
                 ProfileScreen(
@@ -243,12 +252,6 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             composable(Routes.BLOCKS) {
                 BlocksScreen(onBack = { nav.popBackStack() })
             }
-            composable(Routes.FAVORITES) {
-                FavoritesScreen(
-                    onBack = { nav.popBackStack() },
-                    onJobClick = { id -> nav.navigate(Routes.jobDetail(id)) },
-                )
-            }
             composable(Routes.JOB_DETAIL) {
                 JobDetailScreen(
                     onBack = { nav.popBackStack() },
@@ -259,9 +262,7 @@ private fun MainShell(onLoggedOut: () -> Unit) {
                 ApplyScreen(
                     onBack = { nav.popBackStack() },
                     onSubmitted = {
-                        nav.navigate(Routes.APPLICATIONS) {
-                            popUpTo(Routes.HOME)
-                        }
+                        nav.navigate(Routes.APPLICATIONS) { popUpTo(Routes.HOME) }
                     },
                 )
             }
@@ -274,22 +275,14 @@ private fun MainShell(onLoggedOut: () -> Unit) {
 
 private fun handleDeepLink(raw: String, nav: NavHostController) {
     when {
-        raw.startsWith("thread/") -> {
-            val id = raw.removePrefix("thread/")
-            nav.navigate(Routes.threadDetail(id)) {
-                launchSingleTop = true
-            }
+        raw.startsWith("thread/") -> nav.navigate(Routes.threadDetail(raw.removePrefix("thread/"))) {
+            launchSingleTop = true
         }
-        raw.startsWith("job/") -> {
-            val id = raw.removePrefix("job/")
-            nav.navigate(Routes.jobDetail(id)) { launchSingleTop = true }
+        raw.startsWith("job/") -> nav.navigate(Routes.jobDetail(raw.removePrefix("job/"))) {
+            launchSingleTop = true
         }
-        raw == "applications" -> {
-            nav.navigate(Routes.APPLICATIONS) { launchSingleTop = true }
-        }
-        raw == "messages" -> {
-            nav.navigate(Routes.MESSAGES) { launchSingleTop = true }
-        }
+        raw == "applications" -> nav.navigate(Routes.APPLICATIONS) { launchSingleTop = true }
+        raw == "messages" -> nav.navigate(Routes.MESSAGES) { launchSingleTop = true }
     }
 }
 
@@ -298,7 +291,11 @@ private fun BottomBar(nav: NavHostController) {
     val currentEntry by nav.currentBackStackEntryAsState()
     val currentDest = currentEntry?.destination
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color.White,
+        contentColor = BottomBarInactive,
+        tonalElevation = 0.dp,
+    ) {
         TABS.forEach { tab ->
             val selected = currentDest?.hierarchy?.any { it.route == tab.route } == true
             NavigationBarItem(
@@ -311,8 +308,16 @@ private fun BottomBar(nav: NavHostController) {
                     }
                 },
                 icon = { Icon(tab.icon, contentDescription = tab.label) },
-                label = { Text(tab.label) },
+                label = { Text(tab.label, fontSize = 10.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = BottomBarActive,
+                    selectedTextColor = BottomBarActive,
+                    unselectedIconColor = BottomBarInactive,
+                    unselectedTextColor = BottomBarInactive,
+                    indicatorColor = Color.Transparent,
+                ),
             )
         }
     }
 }
+

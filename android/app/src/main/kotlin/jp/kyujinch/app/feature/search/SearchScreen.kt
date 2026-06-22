@@ -100,13 +100,13 @@ fun SearchScreen(
                         Icon(
                             Icons.Default.FilterList,
                             contentDescription = "絞り込み",
-                            tint = MaterialTheme.colorScheme.onPrimary,
+                            tint = Color(0xFF1F2937),
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = androidx.compose.ui.graphics.Color.White,
+                    titleContentColor = androidx.compose.ui.graphics.Color(0xFF1F2937),
                 ),
             )
         },

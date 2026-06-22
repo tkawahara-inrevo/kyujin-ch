@@ -55,9 +55,9 @@ fun BlocksScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = androidx.compose.ui.graphics.Color.White,
+                    titleContentColor = androidx.compose.ui.graphics.Color(0xFF1F2937),
+                    navigationIconContentColor = androidx.compose.ui.graphics.Color(0xFF1F2937),
                 ),
             )
         },

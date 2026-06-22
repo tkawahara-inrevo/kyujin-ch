@@ -89,7 +89,7 @@ fun JobDetailScreen(
                             Icon(
                                 imageVector = if (job.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "お気に入り",
-                                tint = if (job.isFavorite) Color(0xFFFF3158) else Color.White,
+                                tint = if (job.isFavorite) Color(0xFFFF3158) else TextDark,
                             )
                         }
                         IconButton(onClick = { menuOpen = true }) {
@@ -110,10 +110,10 @@ fun JobDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PrimaryBlue,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White,
+                    containerColor = Color.White,
+                    titleContentColor = TextDark,
+                    navigationIconContentColor = TextDark,
+                    actionIconContentColor = TextDark,
                 ),
             )
         },

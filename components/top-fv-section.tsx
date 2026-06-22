@@ -62,13 +62,13 @@ export function TopFVSection({
           <div className="flex gap-[2px]">
             <Link
               href="/column"
-              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[13px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
+              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#3b6ff6] bg-white py-2.5 text-center text-[14px] font-bold text-[#3b6ff6] transition hover:bg-[#f0f4ff]"
             >
               就職最新情報
             </Link>
             <button
               onClick={() => handleTab("search")}
-              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#ff5a78] bg-white py-2.5 text-[13px] font-bold text-[#ff5a78] transition hover:bg-[#fff0f3]"
+              className="flex-1 rounded-t-[10px] border-2 border-b-0 border-[#ff5a78] bg-white py-2.5 text-center text-[14px] font-bold text-[#ff5a78] transition hover:bg-[#fff0f3]"
             >
               求人を探す
             </button>

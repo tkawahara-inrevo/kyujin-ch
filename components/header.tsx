@@ -13,7 +13,10 @@ const navItems = [
   { href: "/messages",     label: "メッセージ", icon: "/assets/Chat_Circle.png" },
 ];
 
-export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean } = {}) {
+export async function Header({
+  hideTargetSwitch,
+  hideCompanyLink,
+}: { hideTargetSwitch?: boolean; hideCompanyLink?: boolean } = {}) {
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const [currentYear, nextYear] = getActiveGraduationYears();
@@ -39,14 +42,16 @@ export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean 
         </div>
 
         {/* 中央：企業向けリンク */}
-        <Link
-          href="https://kyujin-ch.jp/service"
-          className="hidden text-[10px] text-[#1d63e3] underline md:block"
-          target="_blank"
-          rel="noreferrer"
-        >
-          求人掲載を検討中の企業様へ
-        </Link>
+        {!hideCompanyLink && (
+          <Link
+            href="https://kyujin-ch.jp/service"
+            className="hidden text-[10px] text-[#1d63e3] underline md:block"
+            target="_blank"
+            rel="noreferrer"
+          >
+            求人掲載を検討中の企業様へ
+          </Link>
+        )}
 
         {/* 右：ナビ or 認証ボタン */}
         {isLoggedIn ? (
@@ -91,11 +96,13 @@ export async function Header({ hideTargetSwitch }: { hideTargetSwitch?: boolean 
       </div>
 
       {/* モバイル：企業向けリンク */}
-      <div className="border-t border-[#f0f0f0] px-4 py-1.5 text-center md:hidden">
-        <Link href="https://kyujin-ch.jp/service" className="text-[11px] font-semibold text-[#2f6cff] hover:underline" target="_blank" rel="noreferrer">
-          求人掲載を検討中の企業様へ
-        </Link>
-      </div>
+      {!hideCompanyLink && (
+        <div className="border-t border-[#f0f0f0] px-4 py-1.5 text-center md:hidden">
+          <Link href="https://kyujin-ch.jp/service" className="text-[11px] font-semibold text-[#2f6cff] hover:underline" target="_blank" rel="noreferrer">
+            求人掲載を検討中の企業様へ
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

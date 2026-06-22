@@ -66,7 +66,9 @@ export default async function JobsPage({
   };
 
   const orderBy: Prisma.JobOrderByWithRelationInput =
-    sort === "popular" ? { viewCount: "desc" } : { createdAt: "desc" };
+    sort === "popular" ? { viewCount: "desc" }
+      : sort === "recommend" ? { reviewStatusChangedAt: "desc" }
+        : { createdAt: "desc" };
 
   const [jobs, totalCount] = await Promise.all([
     prisma.job.findMany({
@@ -105,7 +107,7 @@ export default async function JobsPage({
 
   return (
     <main className="min-h-screen bg-[#f7f7f7] pb-16 lg:pb-0">
-      <Header />
+      <Header hideCompanyLink />
 
       <TopHero
         activeTab="search"
@@ -136,6 +138,43 @@ export default async function JobsPage({
             {prefectures.length > 0 && <span>（勤務地: {prefectures.join("・")}）</span>}
           </p>
         )}
+
+        {/* 並び順切替 */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[12px] font-semibold text-[#666]">並び順:</span>
+          {([
+            { value: "", label: "新着順" },
+            { value: "popular", label: "人気順" },
+            { value: "recommend", label: "おすすめ順" },
+          ] as const).map((opt) => {
+            const isActive = (sort || "") === opt.value;
+            const params = new URLSearchParams();
+            if (q) params.set("q", q);
+            if (prefectures.length > 0) params.set("prefectures", prefectures.join(","));
+            if (tag) params.set("tag", tag);
+            if (category) params.set("category", category);
+            if (subcategory) params.set("subcategory", subcategory);
+            if (employmentType) params.set("employmentType", employmentType);
+            if (experience) params.set("experience", experience);
+            if (salary) params.set("salary", salary);
+            if (target) params.set("target", target);
+            if (opt.value) params.set("sort", opt.value);
+            const href = params.toString() ? `/jobs?${params.toString()}` : "/jobs";
+            return (
+              <Link
+                key={opt.value}
+                href={href}
+                className={`rounded-full border px-3.5 py-1 text-[12px] font-bold transition ${
+                  isActive
+                    ? "border-[#2f6cff] bg-[#2f6cff] text-white"
+                    : "border-[#d8d8d8] bg-white text-[#555] hover:border-[#2f6cff] hover:text-[#2f6cff]"
+                }`}
+              >
+                {opt.label}
+              </Link>
+            );
+          })}
+        </div>
 
         <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
           {jobs.length === 0 ? (

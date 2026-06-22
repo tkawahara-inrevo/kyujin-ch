@@ -367,7 +367,7 @@ export default async function JobDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }}
       />
       <JobViewTracker jobId={job.id} />
-      <Header />
+      <Header hideCompanyLink />
 
       <div className="mx-auto max-w-[1200px] px-4 py-6 md:px-6 md:py-10">
         <div className="grid items-start gap-6 lg:grid-cols-[1fr_252px] lg:gap-8">

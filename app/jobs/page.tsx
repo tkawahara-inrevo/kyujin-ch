@@ -1,6 +1,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { JobCard } from "@/components/job-card";
+import { JobListItem } from "@/components/job-list-item";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { TopHero } from "@/components/top-hero";
 import { prisma } from "@/lib/prisma";
@@ -28,6 +29,7 @@ type SearchParams = Promise<{
   page?: string;
   experience?: string;
   salary?: string;
+  view?: string;
 }>;
 
 export default async function JobsPage({
@@ -41,6 +43,7 @@ export default async function JobsPage({
   const tag = normalizeTextParam(search.tag);
   const category = normalizeCategoryParam(search.category);
   const subcategory = normalizeTextParam(search.subcategory);
+  const viewMode = search.view === "list" ? "list" : "grid";
   const employmentType = normalizeEmploymentTypeParam(search.employmentType);
   const target = normalizeTextParam(search.target);
   const sort = normalizeTextParam(search.sort);
@@ -66,9 +69,7 @@ export default async function JobsPage({
   };
 
   const orderBy: Prisma.JobOrderByWithRelationInput =
-    sort === "popular" ? { viewCount: "desc" }
-      : sort === "recommend" ? { reviewStatusChangedAt: "desc" }
-        : { createdAt: "desc" };
+    sort === "popular" ? { viewCount: "desc" } : { createdAt: "desc" };
 
   const [jobs, totalCount] = await Promise.all([
     prisma.job.findMany({
@@ -139,15 +140,14 @@ export default async function JobsPage({
           </p>
         )}
 
-        {/* 並び順切替 */}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-[12px] font-semibold text-[#666]">並び順:</span>
+        {/* 表示切替 (グリッド/リスト) */}
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <span className="text-[12px] font-semibold text-[#666]">表示:</span>
           {([
-            { value: "", label: "新着順" },
-            { value: "popular", label: "人気順" },
-            { value: "recommend", label: "おすすめ順" },
+            { value: "grid", label: "グリッド" },
+            { value: "list", label: "リスト" },
           ] as const).map((opt) => {
-            const isActive = (sort || "") === opt.value;
+            const isActive = viewMode === opt.value;
             const params = new URLSearchParams();
             if (q) params.set("q", q);
             if (prefectures.length > 0) params.set("prefectures", prefectures.join(","));
@@ -158,7 +158,8 @@ export default async function JobsPage({
             if (experience) params.set("experience", experience);
             if (salary) params.set("salary", salary);
             if (target) params.set("target", target);
-            if (opt.value) params.set("sort", opt.value);
+            if (sort) params.set("sort", sort);
+            if (opt.value !== "grid") params.set("view", opt.value);
             const href = params.toString() ? `/jobs?${params.toString()}` : "/jobs";
             return (
               <Link
@@ -176,13 +177,33 @@ export default async function JobsPage({
           })}
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-          {jobs.length === 0 ? (
-            <p className="col-span-3 py-10 text-center text-[14px] text-[#888]">
-              条件に合う求人が見つかりませんでした。
-            </p>
-          ) : (
-            jobs.map((job) => (
+        {jobs.length === 0 ? (
+          <p className="mt-8 py-10 text-center text-[14px] text-[#888]">
+            条件に合う求人が見つかりませんでした。
+          </p>
+        ) : viewMode === "list" ? (
+          <div className="mt-8 flex flex-col gap-3">
+            {jobs.map((job) => (
+              <JobListItem
+                key={job.id}
+                id={job.id}
+                title={job.title}
+                companyName={job.company.name}
+                location={job.location}
+                salaryMin={job.salaryMin}
+                salaryMax={job.salaryMax}
+                description={job.description}
+                imageSrc={job.imageUrl ?? undefined}
+                badge={sort === "popular" ? "注目" : "新着"}
+                categoryTag={job.categoryTag ?? undefined}
+                tags={job.tags.length > 0 ? job.tags : undefined}
+                createdAt={job.createdAt}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+            {jobs.map((job) => (
               <JobCard
                 key={job.id}
                 id={job.id}
@@ -198,9 +219,9 @@ export default async function JobsPage({
                 tags={job.tags.length > 0 ? job.tags : undefined}
                 createdAt={job.createdAt}
               />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
         {totalPages > 1 && (
           <div className="mt-10 flex items-center justify-center gap-3">

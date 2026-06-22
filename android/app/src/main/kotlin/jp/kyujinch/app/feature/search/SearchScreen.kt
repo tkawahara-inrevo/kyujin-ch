@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import jp.kyujinch.app.core.network.JobSummary
+import jp.kyujinch.app.core.ui.JobCard as SharedJobCard
 
 private val PREFECTURES = listOf(
     "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
@@ -198,11 +199,11 @@ fun SearchScreen(
                         modifier = Modifier.align(Alignment.Center),
                     )
                     else -> LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(state.jobs, key = { it.id }) { job ->
-                            SearchJobCard(job, onClick = { onJobClick(job.id) })
+                            SharedJobCard(job, onClick = { onJobClick(job.id) })
                         }
                     }
                 }
@@ -302,7 +303,7 @@ private fun SectionTitle(text: String) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun FlowChips(
     items: List<String>,
@@ -324,7 +325,7 @@ private fun FlowChips(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun SingleChips(
     items: List<String>,

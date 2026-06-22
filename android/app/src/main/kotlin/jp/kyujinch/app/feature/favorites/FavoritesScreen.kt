@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import coil.compose.AsyncImage
 import jp.kyujinch.app.core.network.JobSummary
+import jp.kyujinch.app.core.ui.JobCard as SharedJobCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,11 +86,15 @@ fun FavoritesScreen(
                     modifier = Modifier.align(Alignment.Center),
                 )
                 else -> LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(state.jobs, key = { it.id }) { job ->
-                        FavCard(job, onClick = { onJobClick(job.id) })
+                        SharedJobCard(
+                            job,
+                            onClick = { onJobClick(job.id) },
+                            onFavoriteClick = { viewModel.removeFavorite(job.id) },
+                        )
                     }
                 }
             }

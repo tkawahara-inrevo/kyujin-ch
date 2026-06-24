@@ -50,6 +50,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.auth.BiometricAuthenticator
 import jp.kyujinch.app.core.auth.BiometricStore
 import jp.kyujinch.app.core.notification.DeepLinkBus
@@ -81,6 +82,7 @@ import javax.inject.Inject
 class MainActivity : FragmentActivity() {
 
     @Inject lateinit var biometricStore: BiometricStore
+    @Inject lateinit var analytics: Analytics
 
     private val requestNotificationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -99,7 +101,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             KyujinchTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppRoot()
+                    AppRoot(analytics = analytics)
                 }
             }
         }
@@ -183,10 +185,17 @@ private val BottomBarActive = Color(0xFFEB0937)
 private val BottomBarInactive = Color(0xFFAAAAAA)
 
 @Composable
-private fun AppRoot() {
+private fun AppRoot(analytics: Analytics) {
     val rootNav = rememberNavController()
     val authVm: AuthViewModel = hiltViewModel()
     val isLoggedIn by authVm.isLoggedIn.collectAsState()
+
+    // ルートナビ (login/register/forgot-password/main) の画面遷移をトラッキング
+    val rootEntry by rootNav.currentBackStackEntryAsState()
+    LaunchedEffect(rootEntry?.destination?.route) {
+        val route = rootEntry?.destination?.route ?: return@LaunchedEffect
+        screenNameFor(route)?.let { analytics.logScreenView(it) }
+    }
 
     NavHost(
         navController = rootNav,
@@ -219,23 +228,31 @@ private fun AppRoot() {
             )
         }
         composable("main") {
-            MainShell(onLoggedOut = {
-                rootNav.navigate(Routes.LOGIN) {
-                    popUpTo("main") { inclusive = true }
-                }
-            })
+            MainShell(
+                onLoggedOut = {
+                    rootNav.navigate(Routes.LOGIN) {
+                        popUpTo("main") { inclusive = true }
+                    }
+                },
+                analytics = analytics,
+            )
         }
     }
 }
 
 @Composable
-private fun MainShell(onLoggedOut: () -> Unit) {
+private fun MainShell(onLoggedOut: () -> Unit, analytics: Analytics) {
     val nav = rememberNavController()
     val currentEntry by nav.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
 
     LaunchedEffect(Unit) {
         DeepLinkBus.events.collect { raw -> handleDeepLink(raw, nav) }
+    }
+
+    // 画面遷移トラッキング
+    LaunchedEffect(currentRoute) {
+        currentRoute?.let { screenNameFor(it) }?.let { analytics.logScreenView(it) }
     }
 
     // ボトムバーを出すルート (タブ + ホーム + 検索)
@@ -340,6 +357,30 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             }
         }
     }
+}
+
+/** Compose Navigation の route 文字列を Firebase Analytics の screen_name に変換 */
+private fun screenNameFor(route: String): String? = when {
+    route == Routes.LOGIN -> "login"
+    route == Routes.REGISTER -> "register"
+    route == Routes.FORGOT_PASSWORD -> "forgot_password"
+    route == "main" -> null // main は単なるコンテナで個別画面ではない
+    route == Routes.HOME -> "home"
+    route == Routes.SEARCH -> "search"
+    route == Routes.APPLICATIONS -> "applications"
+    route == Routes.MESSAGES -> "messages_list"
+    route == Routes.PROFILE -> "profile"
+    route == Routes.FAVORITES -> "favorites"
+    route == Routes.EDIT_PROFILE -> "profile_edit"
+    route == Routes.RESUME -> "resume_edit"
+    route == Routes.BLOCKS -> "blocks"
+    route == Routes.SWIPE -> "swipe"
+    route == Routes.TERMS -> "terms"
+    route == Routes.PRIVACY -> "privacy"
+    route == Routes.JOB_DETAIL -> "job_detail"
+    route == Routes.APPLY -> "apply"
+    route == Routes.THREAD_DETAIL -> "message_thread"
+    else -> null
 }
 
 private fun handleDeepLink(raw: String, nav: NavHostController) {

@@ -3,6 +3,7 @@ package jp.kyujinch.app.feature.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.auth.AuthRepository
 import jp.kyujinch.app.core.notification.FcmTokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ data class RegisterUiState(
 class RegisterViewModel @Inject constructor(
     private val repo: AuthRepository,
     private val fcm: FcmTokenManager,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(RegisterUiState())
@@ -55,6 +57,7 @@ class RegisterViewModel @Inject constructor(
             runCatching { repo.register(s.email.trim(), s.password, s.name.trim()) }
                 .onSuccess {
                     _ui.value = _ui.value.copy(isLoading = false, success = true)
+                    analytics.logRegister()
                     launch {
                         fcm.registerCurrentToken()
                     }

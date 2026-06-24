@@ -36,6 +36,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -238,6 +244,11 @@ private fun MainShell(onLoggedOut: () -> Unit) {
             navController = nav,
             startDestination = Routes.HOME,
             modifier = Modifier.fillMaxSize().padding(padding),
+            // タブ切替は短時間 fade、push 遷移はスライド
+            enterTransition = { slideInHorizontally(tween(220)) { it / 4 } + fadeIn(tween(220)) },
+            exitTransition = { fadeOut(tween(180)) },
+            popEnterTransition = { fadeIn(tween(180)) },
+            popExitTransition = { slideOutHorizontally(tween(220)) { it / 4 } + fadeOut(tween(220)) },
         ) {
             composable(Routes.HOME) {
                 HomeScreen(

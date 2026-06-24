@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.auth.AuthRepository
 import jp.kyujinch.app.core.notification.FcmTokenManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ data class LoginUiState(
 class AuthViewModel @Inject constructor(
     private val repo: AuthRepository,
     private val fcm: FcmTokenManager,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     val isLoggedIn: StateFlow<Boolean> = repo.isLoggedIn
@@ -53,6 +55,7 @@ class AuthViewModel @Inject constructor(
             runCatching { repo.login(s.email.trim(), s.password) }
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(isLoading = false, success = true)
+                    analytics.logLogin()
                     // ログイン成功後に FCM トークンを登録 (失敗してもログインは成功扱い)
                     launch {
                         fcm.registerCurrentToken()

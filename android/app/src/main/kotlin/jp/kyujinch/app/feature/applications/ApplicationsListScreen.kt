@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jp.kyujinch.app.core.network.Application
 import jp.kyujinch.app.core.ui.ErrorView
+import jp.kyujinch.app.core.ui.OnResume
 import jp.kyujinch.app.core.ui.PullRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +46,9 @@ fun ApplicationsListScreen(
     viewModel: ApplicationsListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+
+    // 応募完了画面から戻ってきたら最新の応募一覧をリロード
+    OnResume { viewModel.load() }
 
     Scaffold(
         topBar = {

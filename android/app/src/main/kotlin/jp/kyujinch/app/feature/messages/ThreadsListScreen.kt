@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jp.kyujinch.app.core.network.MessageThread
 import jp.kyujinch.app.core.ui.ErrorView
+import jp.kyujinch.app.core.ui.OnResume
 import jp.kyujinch.app.core.ui.PullRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +47,9 @@ fun ThreadsListScreen(
     viewModel: ThreadsListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+
+    // スレッド詳細から戻ってきたら未読カウント等を更新
+    OnResume { viewModel.load() }
 
     Scaffold(
         topBar = {

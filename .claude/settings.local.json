@@ -254,7 +254,13 @@
       "Bash(curl -sI \"https://kyujin-ch.jp/report?type=job&id=test\")",
       "Bash(curl -s -X POST https://kyujin-ch.jp/api/v1/reports -H \"Content-Type: application/json\" -d '{}')",
       "Bash(git check-ignore *)",
-      "Bash(scp -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no \"e:/dev/kyujin-ch/docs/kyujin-ch-firebase-adminsdk-fbsvc-948b74e0d6.json\" ubuntu@13.159.236.233:~/firebase-sa.json)"
+      "Bash(scp -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no \"e:/dev/kyujin-ch/docs/kyujin-ch-firebase-adminsdk-fbsvc-948b74e0d6.json\" ubuntu@13.159.236.233:~/firebase-sa.json)",
+      "Bash(curl -s -o /dev/null -w \"HTTP: %{http_code}\\\\nSSL verify: %{ssl_verify_result}\\\\nRemote IP: %{remote_ip}\\\\n\" \"https://wp.kyujin-ch.jp/\")",
+      "Bash(curl -sI \"https://wp.kyujin-ch.jp/\")",
+      "Bash(openssl s_client -servername wp.kyujin-ch.jp -connect wp.kyujin-ch.jp:443)",
+      "Bash(openssl x509 *)",
+      "Bash(curl -sI \"https://wp.kyujin-ch.jp/?p=1074&preview=true\")",
+      "Bash(curl -sI \"https://wp.kyujin-ch.jp/wp-admin/post.php?post=1074&action=elementor\")"
     ],
     "additionalDirectories": [
       "\\tmp",

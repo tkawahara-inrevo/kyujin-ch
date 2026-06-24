@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.network.ApplyRequest
 import jp.kyujinch.app.core.network.KyujinchApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,7 @@ data class ApplyUiState(
 class ApplyViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val api: KyujinchApi,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val jobId: String = savedStateHandle["id"] ?: error("jobId required")
@@ -61,7 +63,10 @@ class ApplyViewModel @Inject constructor(
             runCatching {
                 api.apply(ApplyRequest(jobId = jobId, motivation = current.motivation.ifBlank { null }))
             }
-                .onSuccess { _ui.value = _ui.value.copy(isSubmitting = false, submitted = true) }
+                .onSuccess {
+                    _ui.value = _ui.value.copy(isSubmitting = false, submitted = true)
+                    analytics.logApply(jobId, source = "detail")
+                }
                 .onFailure { e ->
                     _ui.value = _ui.value.copy(
                         isSubmitting = false,

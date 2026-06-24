@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.network.KyujinchApi
 import jp.kyujinch.app.core.network.MessageItem
 import jp.kyujinch.app.core.network.MessageThread
@@ -28,6 +29,7 @@ data class ThreadDetailUiState(
 class ThreadDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val api: KyujinchApi,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val threadId: String = savedStateHandle["id"] ?: error("threadId required")
@@ -77,6 +79,7 @@ class ThreadDetailViewModel @Inject constructor(
             _ui.value = _ui.value.copy(isSending = true)
             runCatching { api.sendMessage(threadId, SendMessageRequest(body)) }
                 .onSuccess { newMsg ->
+                    analytics.logSendMessage(threadId)
                     _ui.update { state ->
                         state.copy(
                             isSending = false,

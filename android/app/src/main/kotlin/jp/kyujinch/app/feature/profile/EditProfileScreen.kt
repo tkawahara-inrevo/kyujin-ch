@@ -233,6 +233,19 @@ fun EditProfileScreen(
                         )
                     }
 
+                    Spacer(Modifier.height(4.dp))
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            val intent = android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("プッシュ通知の詳細設定 (システム)", fontSize = 13.sp)
+                    }
+
                     state.error?.let {
                         Text(it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
                     }

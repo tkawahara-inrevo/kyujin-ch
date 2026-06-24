@@ -3,6 +3,7 @@ package jp.kyujinch.app.feature.swipe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.network.ApplyRequest
 import jp.kyujinch.app.core.network.JobDetail
 import jp.kyujinch.app.core.network.KyujinchApi
@@ -27,6 +28,7 @@ data class SwipeUiState(
 @HiltViewModel
 class SwipeViewModel @Inject constructor(
     private val api: KyujinchApi,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(SwipeUiState())
@@ -58,11 +60,13 @@ class SwipeViewModel @Inject constructor(
 
     /** スワイプ左 = やめる (カードを除去) */
     fun reject(jobId: String) {
+        analytics.logSwipe(jobId, direction = "left")
         _ui.update { it.copy(cards = it.cards.filterNot { c -> c.id == jobId }) }
     }
 
     /** スワイプ右 = 応募。プロフィール未完なら誘導 */
     fun apply(jobId: String) {
+        analytics.logSwipe(jobId, direction = "right")
         viewModelScope.launch {
             // プロフィール完全性チェック
             val profile = runCatching { api.me() }.getOrNull()
@@ -90,6 +94,7 @@ class SwipeViewModel @Inject constructor(
         _ui.value = _ui.value.copy(isApplying = true)
         runCatching { api.apply(ApplyRequest(jobId = jobId, motivation = null)) }
             .onSuccess {
+                analytics.logApply(jobId, source = "swipe")
                 _ui.update {
                     it.copy(
                         isApplying = false,

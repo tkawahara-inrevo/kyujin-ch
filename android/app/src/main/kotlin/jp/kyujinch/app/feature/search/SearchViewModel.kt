@@ -3,6 +3,7 @@ package jp.kyujinch.app.feature.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.data.SearchHistoryStore
 import jp.kyujinch.app.core.network.JobSummary
 import jp.kyujinch.app.core.network.KyujinchApi
@@ -30,6 +31,7 @@ data class SearchUiState(
 class SearchViewModel @Inject constructor(
     private val api: KyujinchApi,
     private val historyStore: SearchHistoryStore,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(SearchUiState())
@@ -72,6 +74,10 @@ class SearchViewModel @Inject constructor(
             _ui.value = s.copy(isLoading = true, error = null, hasSearched = true)
             // 履歴追加 (空白でなければ)
             if (s.query.isNotBlank()) historyStore.add(s.query)
+            val filterCount = s.prefectures.size +
+                (if (s.category != null) 1 else 0) +
+                (if (s.employmentType != null) 1 else 0)
+            analytics.logSearch(s.query.ifBlank { null }, filterCount)
             runCatching {
                 api.jobs(
                     q = s.query.trim().ifBlank { null },

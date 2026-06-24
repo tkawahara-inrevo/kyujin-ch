@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.analytics.Analytics
 import jp.kyujinch.app.core.network.FavoriteRequest
 import jp.kyujinch.app.core.network.JobDetail
 import jp.kyujinch.app.core.network.KyujinchApi
@@ -25,6 +26,7 @@ data class JobDetailUiState(
 class JobDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val api: KyujinchApi,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val jobId: String = savedStateHandle["id"] ?: error("jobId required")
@@ -34,6 +36,7 @@ class JobDetailViewModel @Inject constructor(
 
     init {
         load()
+        analytics.logViewJob(jobId, source = "detail")
         viewModelScope.launch {
             runCatching { api.trackView(jobId) }
         }
@@ -68,6 +71,7 @@ class JobDetailViewModel @Inject constructor(
         viewModelScope.launch {
             val nowFav = !current.isFavorite
             _ui.update { it.copy(job = current.copy(isFavorite = nowFav)) }
+            analytics.logFavoriteToggle(current.id, nowFav)
             val res = runCatching {
                 if (nowFav) api.addFavorite(FavoriteRequest(current.id))
                 else api.removeFavorite(current.id)

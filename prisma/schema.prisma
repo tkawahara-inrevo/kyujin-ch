@@ -97,6 +97,8 @@ model User {
   isActive             Boolean  @default(true)
   adminPermissions     Json?
   deletedAt            DateTime?
+  passwordResetToken     String?   @unique
+  passwordResetExpiresAt DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

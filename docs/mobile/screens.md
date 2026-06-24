@@ -33,6 +33,7 @@ LoginScreen ⇔ MainShell
 |---|---|---|
 | `login` | ログイン | `feature/auth/LoginScreen.kt` |
 | `register` | 新規登録 | `feature/auth/RegisterScreen.kt` |
+| `forgot-password` | パスワード再設定リクエスト | `feature/auth/ForgotPasswordScreen.kt` |
 | `home` | ホーム | `feature/home/HomeScreen.kt` |
 | `search` | 検索 | `feature/search/SearchScreen.kt` |
 | `applications` | 応募一覧 | `feature/applications/ApplicationsListScreen.kt` |

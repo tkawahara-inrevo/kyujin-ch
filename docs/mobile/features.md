@@ -34,6 +34,18 @@
 - マイページの「ログアウト」「退会する」ボタン
 - 退会は確認ダイアログ → DELETE `/me` → トークンクリア → ログイン画面
 
+### パスワードリセット
+- ファイル: `feature/auth/ForgotPasswordScreen.kt`
+- ログイン画面から「パスワードを忘れた方はこちら」
+- メアド入力 → POST `/api/v1/auth/forgot-password`
+- サーバーがメール送信 (60分有効リンク)
+- リンク先 = Web の `/reset-password?token=xxx`
+- Web ページで新パスワード入力 → POST `/api/v1/auth/reset-password`
+- 成功時: 既存 refresh token は全て失効 (セキュリティ)
+- セキュリティ:
+  - メアドの存在に関係なく成功レスポンス (アカウント列挙対策)
+  - USER ロールのみ対象 (管理者・企業は Web 別フロー)
+
 ## 求人閲覧
 
 ### ホーム

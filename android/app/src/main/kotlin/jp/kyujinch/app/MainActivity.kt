@@ -57,6 +57,7 @@ import jp.kyujinch.app.core.notification.NotificationHelper
 import jp.kyujinch.app.feature.applications.ApplicationsListScreen
 import jp.kyujinch.app.feature.applications.ApplyScreen
 import jp.kyujinch.app.feature.auth.AuthViewModel
+import jp.kyujinch.app.feature.auth.ForgotPasswordScreen
 import jp.kyujinch.app.feature.auth.LoginScreen
 import jp.kyujinch.app.feature.auth.RegisterScreen
 import jp.kyujinch.app.feature.blocks.BlocksScreen
@@ -143,6 +144,7 @@ class MainActivity : FragmentActivity() {
 private object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORGOT_PASSWORD = "forgot-password"
     const val HOME = "home"
     const val SEARCH = "search"
     const val PROFILE = "profile"
@@ -198,7 +200,11 @@ private fun AppRoot() {
                     }
                 },
                 onRegisterClick = { rootNav.navigate(Routes.REGISTER) },
+                onForgotPasswordClick = { rootNav.navigate(Routes.FORGOT_PASSWORD) },
             )
+        }
+        composable(Routes.FORGOT_PASSWORD) {
+            ForgotPasswordScreen(onBack = { rootNav.popBackStack() })
         }
         composable(Routes.REGISTER) {
             RegisterScreen(

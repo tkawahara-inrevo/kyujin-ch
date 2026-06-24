@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit = {},
+    onForgotPasswordClick: () -> Unit = {},
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -113,6 +114,17 @@ fun LoginScreen(
                 "アカウントをお持ちでない方はこちら",
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        androidx.compose.material3.TextButton(
+            onClick = onForgotPasswordClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                "パスワードを忘れた方はこちら",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

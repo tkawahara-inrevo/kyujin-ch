@@ -25,6 +25,9 @@ interface KyujinchApi {
     @POST("auth/logout")
     suspend fun logout(@Body req: RefreshRequest)
 
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(@Body req: ForgotPasswordRequest)
+
     // ===== プロフィール =====
     @GET("me")
     suspend fun me(): UserProfile
@@ -171,6 +174,9 @@ data class SendMessageRequest(val body: String)
 
 @kotlinx.serialization.Serializable
 data class UploadResponse(val url: String)
+
+@kotlinx.serialization.Serializable
+data class ForgotPasswordRequest(val email: String)
 
 @kotlinx.serialization.Serializable
 data class ResumePatchRequest(

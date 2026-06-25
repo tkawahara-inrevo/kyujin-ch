@@ -93,7 +93,10 @@ model User {
   addressLine          String?
   resumeUrl            String?
   careerHistoryUrl     String?
-  notificationsEnabled Boolean  @default(true)
+  notificationsEnabled Boolean  @default(true) // 旧フラグ・後方互換
+  notifyMessages       Boolean  @default(true) // 企業からのメッセージ通知
+  notifyApplications   Boolean  @default(true) // 応募ステータス変更通知
+  notifyMarketing      Boolean  @default(false) // お知らせ・キャンペーン通知
   isActive             Boolean  @default(true)
   adminPermissions     Json?
   deletedAt            DateTime?

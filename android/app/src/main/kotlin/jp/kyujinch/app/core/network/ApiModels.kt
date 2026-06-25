@@ -27,6 +27,9 @@ data class UserProfile(
     val addressLine: String? = null,
     val avatarUrl: String? = null,
     val notificationsEnabled: Boolean = true,
+    val notifyMessages: Boolean = true,
+    val notifyApplications: Boolean = true,
+    val notifyMarketing: Boolean = false,
     val createdAt: String,
 )
 

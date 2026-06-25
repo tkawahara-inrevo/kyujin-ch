@@ -19,6 +19,9 @@ export function toUserProfile(user: User) {
     addressLine: user.addressLine,
     avatarUrl: user.image,
     notificationsEnabled: user.notificationsEnabled,
+    notifyMessages: user.notifyMessages,
+    notifyApplications: user.notifyApplications,
+    notifyMarketing: user.notifyMarketing,
     createdAt: user.createdAt.toISOString(),
   };
 }

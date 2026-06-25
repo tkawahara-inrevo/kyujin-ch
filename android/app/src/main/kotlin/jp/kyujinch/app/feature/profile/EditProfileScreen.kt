@@ -28,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -44,6 +45,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+
+@Composable
+private fun ToggleRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontSize = 14.sp)
+            Text(subtitle, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Switch(checked = checked, onCheckedChange = onChange)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,16 +242,31 @@ fun EditProfileScreen(
                     )
 
                     Spacer(Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("メール通知を受け取る", modifier = Modifier.weight(1f), fontSize = 14.sp)
-                        Switch(
-                            checked = state.notificationsEnabled,
-                            onCheckedChange = viewModel::setNotifications,
-                        )
-                    }
+                    Text("通知設定", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    ToggleRow(
+                        title = "メール通知を受け取る",
+                        subtitle = "応募やメッセージのメール通知",
+                        checked = state.notificationsEnabled,
+                        onChange = viewModel::setNotifications,
+                    )
+                    ToggleRow(
+                        title = "メッセージ通知",
+                        subtitle = "企業からのメッセージ受信時にプッシュ",
+                        checked = state.notifyMessages,
+                        onChange = viewModel::setNotifyMessages,
+                    )
+                    ToggleRow(
+                        title = "応募ステータス通知",
+                        subtitle = "選考状況の変更時にプッシュ",
+                        checked = state.notifyApplications,
+                        onChange = viewModel::setNotifyApplications,
+                    )
+                    ToggleRow(
+                        title = "お知らせ・キャンペーン",
+                        subtitle = "新機能やおすすめ情報のプッシュ",
+                        checked = state.notifyMarketing,
+                        onChange = viewModel::setNotifyMarketing,
+                    )
 
                     Spacer(Modifier.height(4.dp))
                     val context = androidx.compose.ui.platform.LocalContext.current

@@ -63,8 +63,9 @@ export async function PATCH(req: NextRequest) {
     } else if (body.birthDate === null) {
       data.birthDate = null;
     }
-    if (typeof body.notificationsEnabled === "boolean") {
-      data.notificationsEnabled = body.notificationsEnabled;
+    const boolFields = ["notificationsEnabled", "notifyMessages", "notifyApplications", "notifyMarketing"] as const;
+    for (const f of boolFields) {
+      if (typeof body[f] === "boolean") data[f] = body[f] as boolean;
     }
 
     // 氏名フルネームを name に同期

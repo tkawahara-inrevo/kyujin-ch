@@ -35,6 +35,9 @@ data class EditProfileUiState(
     val cityTown: String = "",
     val addressLine: String = "",
     val notificationsEnabled: Boolean = true,
+    val notifyMessages: Boolean = true,
+    val notifyApplications: Boolean = true,
+    val notifyMarketing: Boolean = false,
 )
 
 @HiltViewModel
@@ -76,6 +79,9 @@ class EditProfileViewModel @Inject constructor(
             cityTown = u.cityTown.orEmpty(),
             addressLine = u.addressLine.orEmpty(),
             notificationsEnabled = u.notificationsEnabled,
+            notifyMessages = u.notifyMessages,
+            notifyApplications = u.notifyApplications,
+            notifyMarketing = u.notifyMarketing,
         )
     }
 
@@ -121,6 +127,9 @@ class EditProfileViewModel @Inject constructor(
     fun setCityTown(v: String) { _ui.value = _ui.value.copy(cityTown = v) }
     fun setAddressLine(v: String) { _ui.value = _ui.value.copy(addressLine = v) }
     fun setNotifications(v: Boolean) { _ui.value = _ui.value.copy(notificationsEnabled = v) }
+    fun setNotifyMessages(v: Boolean) { _ui.value = _ui.value.copy(notifyMessages = v) }
+    fun setNotifyApplications(v: Boolean) { _ui.value = _ui.value.copy(notifyApplications = v) }
+    fun setNotifyMarketing(v: Boolean) { _ui.value = _ui.value.copy(notifyMarketing = v) }
 
     fun save() {
         val s = _ui.value
@@ -139,6 +148,9 @@ class EditProfileViewModel @Inject constructor(
                         cityTown = s.cityTown.ifBlank { null },
                         addressLine = s.addressLine.ifBlank { null },
                         notificationsEnabled = s.notificationsEnabled,
+                        notifyMessages = s.notifyMessages,
+                        notifyApplications = s.notifyApplications,
+                        notifyMarketing = s.notifyMarketing,
                     ),
                 )
             }

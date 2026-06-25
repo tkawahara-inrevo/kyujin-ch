@@ -209,6 +209,17 @@ export function AuthDialog({ initialMode = "register", onClose }: Props) {
                 ? "登録する"
                 : "ログイン"}
           </button>
+
+          {mode === "login" && (
+            <p className="mt-1 text-right text-[12px]">
+              <a
+                href="/forgot-password"
+                className="text-[#666] hover:text-[#2f6cff] hover:underline"
+              >
+                パスワードを忘れた方はこちら
+              </a>
+            </p>
+          )}
         </form>
 
         <p className="mt-5 text-center text-[13px] text-[#666]">

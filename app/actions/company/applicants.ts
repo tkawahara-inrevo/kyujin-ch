@@ -63,7 +63,7 @@ export async function sendCompanyMessage(
       invalidRequests: {
         where: { status: "APPROVED" },
       },
-      user: { select: { id: true, email: true, name: true, notificationsEnabled: true } },
+      user: { select: { id: true, email: true, name: true, notificationsEnabled: true, notifyMessages: true } },
     },
   });
   if (!application) throw new Error("Application not found");
@@ -119,8 +119,8 @@ export async function sendCompanyMessage(
     }
   }
 
-  // モバイルアプリへ Push 通知
-  if (application.user.notificationsEnabled) {
+  // モバイルアプリへ Push 通知 (細分化フラグ尊重)
+  if (application.user.notificationsEnabled && application.user.notifyMessages) {
     await sendPushToUser(application.user.id, {
       title: "新着メッセージ",
       body: body.length > 80 ? body.slice(0, 80) + "..." : body,

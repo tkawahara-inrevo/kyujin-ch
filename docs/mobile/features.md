@@ -128,7 +128,12 @@
 - ファイル: `feature/profile/EditProfileScreen.kt`
 - アバター画像アップロード (PickVisualMedia → multipart)
 - 氏名・フリガナ・電話・住所
-- メール通知 ON/OFF
+- 通知設定 (細分化):
+  - メール通知 ON/OFF
+  - メッセージ通知 (Push) ON/OFF
+  - 応募ステータス通知 ON/OFF
+  - お知らせ・キャンペーン ON/OFF (デフォルト OFF)
+- システム通知設定への遷移ボタン
 - PATCH `/me`
 
 ### 履歴書編集

@@ -161,6 +161,9 @@ data class UpdateProfileRequest(
     val cityTown: String? = null,
     val addressLine: String? = null,
     val notificationsEnabled: Boolean? = null,
+    val notifyMessages: Boolean? = null,
+    val notifyApplications: Boolean? = null,
+    val notifyMarketing: Boolean? = null,
 )
 
 @kotlinx.serialization.Serializable

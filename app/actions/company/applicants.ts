@@ -69,18 +69,6 @@ export async function sendCompanyMessage(
   if (!application) throw new Error("Application not found");
   if (application.invalidRequests.length > 0) throw new Error("Invalidated application");
 
-  // ブロック判定（応募者と企業ユーザ間）
-  const blocked = await prisma.block.findFirst({
-    where: {
-      OR: [
-        { blockerId: session.user.id, blockedId: application.user.id },
-        { blockerId: application.user.id, blockedId: session.user.id },
-      ],
-    },
-    select: { id: true },
-  });
-  if (blocked) throw new Error("このユーザーへのメッセージ送信はブロックされています");
-
   // Find or create conversation
   let conversation = await prisma.conversation.findFirst({
     where: { applicationId },

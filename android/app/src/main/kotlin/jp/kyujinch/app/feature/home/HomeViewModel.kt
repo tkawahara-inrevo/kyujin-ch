@@ -3,13 +3,16 @@ package jp.kyujinch.app.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kyujinch.app.core.data.DailyPromoStore
 import jp.kyujinch.app.core.network.JobSummary
 import jp.kyujinch.app.core.network.KyujinchApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,10 +26,19 @@ data class HomeUiState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val api: KyujinchApi,
+    private val promoStore: DailyPromoStore,
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(HomeUiState())
     val ui: StateFlow<HomeUiState> = _ui.asStateFlow()
+
+    /** 「本日のおすすめ求人」モーダルを今日まだ表示してないか */
+    val shouldShowDailyPromo: StateFlow<Boolean> = promoStore.shouldShowTodayFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun markPromoShown() {
+        viewModelScope.launch { promoStore.markShownToday() }
+    }
 
     init { load() }
 

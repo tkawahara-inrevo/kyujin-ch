@@ -3,6 +3,7 @@ package jp.kyujinch.app.feature.swipe
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -170,6 +171,16 @@ private fun CardStack(
     onLongPress: (JobDetail) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
+        // 操作ヒント
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("✕ 左スワイプで見送る", color = RejectGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.size(16.dp))
+            Text("✓ 右スワイプで応募", color = AcceptGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        }
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             // 後ろから順に描画 (上のカードが手前)
             cards.take(3).reversed().forEachIndexed { reversedIndex, job ->
@@ -269,7 +280,7 @@ private fun SwipeCard(
                 ),
         ) {
             CardBody(job)
-            // YES/NO オーバーレイ (上カードのみ)
+            // ドラッグ中のYES/NO オーバーレイ (上カードのみ)
             if (isTopCard) {
                 val alphaRight = (offsetX.value / swipeThresholdPx).coerceIn(0f, 1f)
                 val alphaLeft = (-offsetX.value / swipeThresholdPx).coerceIn(0f, 1f)
@@ -277,24 +288,26 @@ private fun SwipeCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(20.dp)
+                            .padding(24.dp)
                             .graphicsLayer { alpha = alphaRight }
                             .borderTag(AcceptGreen)
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                            .background(AcceptGreen.copy(alpha = 0.1f))
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
                     ) {
-                        Text("応募", color = AcceptGreen, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("✓ 応募する", color = AcceptGreen, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                     }
                 }
                 if (alphaLeft > 0f) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(20.dp)
+                            .padding(24.dp)
                             .graphicsLayer { alpha = alphaLeft }
                             .borderTag(RejectGray)
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                            .background(RejectGray.copy(alpha = 0.1f))
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
                     ) {
-                        Text("スキップ", color = RejectGray, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("✕ 見送る", color = RejectGray, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                     }
                 }
             }
@@ -384,19 +397,27 @@ private fun ActionButtons(onReject: () -> Unit, onApply: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        FloatingActionButton(
-            onClick = onReject,
-            containerColor = Color.White,
-            contentColor = RejectGray,
-        ) {
-            Icon(Icons.Default.Close, contentDescription = "スキップ", modifier = Modifier.size(28.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            FloatingActionButton(
+                onClick = onReject,
+                containerColor = Color.White,
+                contentColor = RejectGray,
+            ) {
+                Icon(Icons.Default.Close, contentDescription = "見送る", modifier = Modifier.size(28.dp))
+            }
+            Spacer(Modifier.height(6.dp))
+            Text("← 見送る", color = RejectGray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
-        FloatingActionButton(
-            onClick = onApply,
-            containerColor = AcceptGreen,
-            contentColor = Color.White,
-        ) {
-            Icon(Icons.Default.Check, contentDescription = "応募", modifier = Modifier.size(28.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            FloatingActionButton(
+                onClick = onApply,
+                containerColor = AcceptGreen,
+                contentColor = Color.White,
+            ) {
+                Icon(Icons.Default.Check, contentDescription = "応募する", modifier = Modifier.size(28.dp))
+            }
+            Spacer(Modifier.height(6.dp))
+            Text("応募する →", color = AcceptGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -462,12 +483,10 @@ private fun EmptyState(onReload: () -> Unit) {
 }
 
 private fun Modifier.borderTag(color: Color): Modifier =
-    this.then(
-        androidx.compose.foundation.border(
-            width = 3.dp,
-            color = color,
-            shape = RoundedCornerShape(8.dp),
-        ),
+    this.border(
+        width = 3.dp,
+        color = color,
+        shape = RoundedCornerShape(8.dp),
     )
 
 private fun employmentLabel(code: String): String = when (code) {

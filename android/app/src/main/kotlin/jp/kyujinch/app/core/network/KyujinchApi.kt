@@ -119,18 +119,9 @@ interface KyujinchApi {
     @GET("master/employment-types")
     suspend fun employmentTypes(): List<EmploymentTypeOption>
 
-    // ===== 通報・ブロック =====
+    // ===== 通報 =====
     @POST("reports")
     suspend fun report(@Body req: ReportRequest)
-
-    @GET("blocks")
-    suspend fun blocks(): List<BlockedUser>
-
-    @POST("blocks")
-    suspend fun blockUser(@Body req: BlockRequest)
-
-    @DELETE("blocks/{userId}")
-    suspend fun unblockUser(@Path("userId") userId: String)
 
     // ===== Push =====
     @POST("me/devices")
@@ -198,13 +189,3 @@ data class ReportRequest(
     val detail: String? = null,
 )
 
-@kotlinx.serialization.Serializable
-data class BlockRequest(val userId: String)
-
-@kotlinx.serialization.Serializable
-data class BlockedUser(
-    val userId: String,
-    val name: String,
-    val avatarUrl: String? = null,
-    val blockedAt: String,
-)

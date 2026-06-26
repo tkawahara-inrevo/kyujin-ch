@@ -26,8 +26,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,6 +82,26 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.ui.collectAsState()
+    val shouldShowPromo by viewModel.shouldShowDailyPromo.collectAsState()
+    var showPromoDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(shouldShowPromo) {
+        if (shouldShowPromo) showPromoDialog = true
+    }
+
+    if (showPromoDialog) {
+        DailyPromoDialog(
+            onSeeSwipe = {
+                showPromoDialog = false
+                viewModel.markPromoShown()
+                onSwipeClick()
+            },
+            onDismiss = {
+                showPromoDialog = false
+                viewModel.markPromoShown()
+            },
+        )
+    }
 
     Scaffold(
         containerColor = PageBg,
@@ -167,31 +191,67 @@ private fun SwipeEntryBanner(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp)
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
             .background(
                 androidx.compose.ui.graphics.Brush.horizontalGradient(
                     listOf(BrandBlue, BrandRed),
                 ),
             )
             .clickable(onClick = onClick)
-            .padding(20.dp),
+            .padding(horizontal = 24.dp, vertical = 24.dp),
     ) {
         Column {
             Text(
                 "🎯 本日のおすすめ求人",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                fontSize = 20.sp,
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(8.dp))
             Text(
                 "スワイプで気になる求人を見つけよう",
                 color = Color.White,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
             )
+            Spacer(Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .background(Color.White.copy(alpha = 0.25f), androidx.compose.foundation.shape.RoundedCornerShape(50))
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+            ) {
+                Text("見てみる ➜", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
+}
+
+@Composable
+private fun DailyPromoDialog(onSeeSwipe: () -> Unit, onDismiss: () -> Unit) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text("🎯 本日のおすすめ求人", fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Text(
+                "あなたにぴったりの求人をスワイプで簡単チェック！\n" +
+                    "気になる求人があれば右にスワイプで応募できます。",
+                fontSize = 14.sp,
+                lineHeight = 22.sp,
+            )
+        },
+        confirmButton = {
+            androidx.compose.material3.Button(onClick = onSeeSwipe) {
+                Text("見てみる")
+            }
+        },
+        dismissButton = {
+            androidx.compose.material3.TextButton(onClick = onDismiss) {
+                Text("あとで")
+            }
+        },
+    )
 }
 
 @Composable

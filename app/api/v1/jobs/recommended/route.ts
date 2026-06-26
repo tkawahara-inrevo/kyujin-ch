@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       { viewCount: "desc" },
       { reviewStatusChangedAt: "desc" },
     ],
-    take: 20,
+    take: 10,
     include: {
       company: { select: { id: true, name: true, description: true, websiteUrl: true } },
     },

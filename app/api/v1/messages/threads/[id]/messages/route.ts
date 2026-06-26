@@ -32,29 +32,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const conv = await prisma.conversation.findFirst({
     where: { id, application: { userId: ctx.userId } },
-    select: {
-      id: true,
-      application: {
-        select: { job: { select: { company: { select: { companyUserId: true } } } } },
-      },
-    },
+    select: { id: true },
   });
   if (!conv) return notFound("スレッドが見つかりません");
-
-  // ブロック判定
-  const companyUserId = conv.application?.job?.company?.companyUserId;
-  if (companyUserId) {
-    const blocked = await prisma.block.findFirst({
-      where: {
-        OR: [
-          { blockerId: ctx.userId, blockedId: companyUserId },
-          { blockerId: companyUserId, blockedId: ctx.userId },
-        ],
-      },
-      select: { id: true },
-    });
-    if (blocked) return badRequest("このスレッドへのメッセージ送信はブロックされています");
-  }
 
   const msg = await prisma.$transaction(async (tx) => {
     const m = await tx.message.create({

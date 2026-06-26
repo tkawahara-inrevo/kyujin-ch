@@ -104,19 +104,6 @@ export default async function MyPage() {
               </div>
             </section>
 
-            <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-              <h2 className="text-[16px] font-bold text-[#333]">ブロック中のユーザー</h2>
-              <p className="mt-2 text-[12px] text-[#666]">
-                ブロック中のユーザーとはメッセージのやり取りができません。
-              </p>
-              <Link
-                href="/mypage/blocks"
-                className="mt-4 inline-block rounded-full border border-[#d0d7e6] px-5 py-2 text-[13px] font-bold text-[#445063] hover:bg-[#f4f7fb]"
-              >
-                ブロック一覧を見る
-              </Link>
-            </section>
-
             <DeleteAccountSection />
           </div>
 

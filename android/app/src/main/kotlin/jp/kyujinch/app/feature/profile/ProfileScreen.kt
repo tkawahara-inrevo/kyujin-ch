@@ -51,7 +51,6 @@ fun ProfileScreen(
     onFavoritesClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
     onResumeClick: () -> Unit = {},
-    onBlocksClick: () -> Unit = {},
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
     onTestJobClick: () -> Unit = {},
@@ -91,7 +90,6 @@ fun ProfileScreen(
                     onFavoritesClick = onFavoritesClick,
                     onEditProfileClick = onEditProfileClick,
                     onResumeClick = onResumeClick,
-                    onBlocksClick = onBlocksClick,
                     onTermsClick = onTermsClick,
                     onPrivacyClick = onPrivacyClick,
                     onTestJobClick = onTestJobClick,
@@ -130,7 +128,6 @@ private fun ProfileContent(
     onFavoritesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onBlocksClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
     onTestJobClick: () -> Unit,
@@ -239,15 +236,6 @@ private fun ProfileContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("お気に入り一覧")
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = onBlocksClick,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("ブロック中のユーザー")
         }
 
         if (jp.kyujinch.app.BuildConfig.DEBUG) {

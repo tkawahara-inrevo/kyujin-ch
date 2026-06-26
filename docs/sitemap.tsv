@@ -1,0 +1,97 @@
+区分	階層	画面名	URL	対象	認証	主な遷移元	主な遷移先	説明
+Web	L1	トップ	/	全員	不要	(直接アクセス) / Header ロゴ	求人一覧 / コラム / Focus / ログイン / 新規登録 / お問い合わせ	ヒーロー画像・カテゴリ選択・注目/新着求人セクション
+Web	L2	求人一覧	/jobs	全員	不要	トップ / Header「求人を探す」/ カテゴリタップ	求人詳細 / 求人検索結果（絞り込み）	キーワード/絞り込み検索、グリッド/リスト表示切替
+Web	L3	求人詳細	/jobs/[id]	全員	不要	求人一覧 / トップ注目/新着 / 検索結果 / Focus内リンク	応募フォーム / 企業詳細 / お気に入り追加 / 通報フォーム	求人内容・応募ボタン
+Web	L4	応募フォーム	/jobs/[id]/apply	求職者	要ログイン	求人詳細「応募する」	応募完了モーダル → 応募一覧	志望動機入力 → 送信
+Web	L3	企業詳細	/companies/[id]	全員	不要	求人詳細「企業名リンク」	求人一覧（その企業の） / 求人詳細	企業情報・掲載中の求人
+Web	L2	求職者向けコラム一覧	/column	全員	不要	トップタブ「就職最新情報」/ Header	求職者向けコラム詳細	就職活動お役立ち記事
+Web	L3	求職者向けコラム詳細	/column/[slug]	全員	不要	求職者向けコラム一覧	求人一覧 / 別記事	個別記事
+Web	L2	企業向けコラム一覧	/biz-column	企業	不要	Footer リンク / 直接アクセス	企業向けコラム詳細	採用担当者向け記事
+Web	L3	企業向けコラム詳細	/biz-column/[slug]	企業	不要	企業向けコラム一覧	別記事	個別記事
+Web	L2	Focus トップ	/focus	全員	不要	Header / 直接アクセス	Focus 各セクション	特集記事 LP
+Web	L3	Focus 記事詳細	/focus/[slug]	全員	不要	Focus 各一覧	求人一覧 / 関連記事	個別特集記事
+Web	L3	Focus について	/focus/about	全員	不要	Focus トップ	-	Focus 紹介ページ
+Web	L3	Focus 注目	/focus/hot	全員	不要	Focus トップ	Focus 記事詳細	注目記事一覧
+Web	L3	Focus 新着	/focus/new	全員	不要	Focus トップ	Focus 記事詳細	新着記事一覧
+Web	L3	Focus 検索	/focus/search	全員	不要	Focus 内のメニュー	Focus 記事詳細	記事検索
+Web	L3	Focus お問い合わせ	/focus/contact	全員	不要	Focus トップ	-	Focus 関連の問い合わせ
+Web	L2	料金表	/price	全員	不要	Footer / Header	求人掲載依頼	求人掲載の料金プラン
+Web	L2	求人掲載依頼	/keisai-irai	企業	不要	料金表 / Header / Footer	(送信完了)	掲載依頼フォーム
+Web	L2	お問い合わせ	/contact	全員	不要	Footer	(送信完了)	問い合わせフォーム
+Web	L2	お知らせ	/news	全員	不要	Header / Footer	-	運営からのお知らせ一覧
+Web	L2	利用規約	/kiyaku	全員	不要	Footer / 新規登録ダイアログ	-	求職者向け利用規約
+Web	L2	利用規約（企業）	/kiyaku-company	企業	不要	Footer / 求人掲載依頼	-	企業向け利用規約
+Web	L2	パスワードリセット申請	/forgot-password	全員	不要	ログインダイアログ「パスワード忘れ」	(メール送信)	メアド入力 → 再設定リンク送信
+Web	L2	パスワード再設定	/reset-password?token	全員	不要	メールのリンク	(完了)	トークン経由で新パスワード設定
+Web	L2	通報フォーム	/report?type&id	求職者	要ログイン	求人詳細・企業詳細・メッセージ画面の「通報」	(送信完了)	不適切な求人・企業・ユーザーの通報
+Web	求職	マイページ	/mypage	求職者	要ログイン	Header「マイページ」/ ログイン直後 / ボトムナビ	プロフィール編集 / 履歴書ビルダー / お気に入り / 応募一覧 / メッセージ / ブロック	ダッシュボード・各種リンク
+Web	求職	プロフィール編集	/mypage/edit	求職者	要ログイン	マイページ	マイページ	基本情報・住所等の編集
+Web	求職	履歴書ビルダー	/mypage/resume-builder	求職者	要ログイン	マイページ	マイページ / PDFダウンロード	学歴・職歴・資格の登録
+Web	求職	ブロック中のユーザー	/mypage/blocks	求職者	要ログイン	マイページ	マイページ	ブロック一覧と解除
+Web	求職	応募一覧	/applications	求職者	要ログイン	Header / ボトムナビ「応募済み」/ 応募完了後	メッセージスレッド / 求人詳細	自分の応募状況とステータス
+Web	求職	お気に入り一覧	/favorites	求職者	要ログイン	Header / ボトムナビ「気になる」	求人詳細	気になる求人一覧
+Web	求職	メッセージスレッド一覧	/messages	求職者	要ログイン	Header / ボトムナビ「メッセージ」	メッセージスレッド詳細	企業とのやり取り一覧
+Web	求職	メッセージスレッド詳細	/messages/[id]	求職者	要ログイン	メッセージスレッド一覧 / 応募詳細から	メッセージ送信	個別スレッドのチャット
+Web	求職	応募メモ	/application-notes	求職者	要ログイン	マイページ	マイページ	(任意) 応募に関するメモ
+Web	企業	企業ログイン	/company/login	企業	不要	直接アクセス / 招待メール	企業ダッシュボード	企業アカウントでログイン
+Web	企業	ダッシュボード	/company/dashboard	企業	要ログイン	ログイン直後	求人管理 / 応募者管理 / 設定	応募数・公開求人数・未読等
+Web	企業	求人一覧	/company/jobs	企業	要ログイン	ダッシュボード	求人新規 / 求人編集	自社の求人管理
+Web	企業	求人新規作成	/company/jobs/new	企業	要ログイン	求人一覧	求人一覧（保存後）	求人作成フォーム
+Web	企業	求人編集	/company/jobs/[id]/edit	企業	要ログイン	求人一覧	求人一覧（保存後）	既存求人の編集・審査依頼・取り下げ
+Web	企業	応募者一覧	/company/applicants	企業	要ログイン	ダッシュボード	応募者詳細	全求人への応募者
+Web	企業	応募者詳細	/company/applicants/[id]	企業	要ログイン	応募者一覧	メッセージ送信 / ステータス変更	応募者情報・履歴書・メッセージ
+Web	企業	メッセージ	/company/messages	企業	要ログイン	ダッシュボード	応募者詳細	応募者とのメッセージ
+Web	企業	請求	/company/billing	企業	要ログイン	ダッシュボード	請求書PDF	請求書ダウンロード・履歴
+Web	企業	分析	/company/analytics	企業	要ログイン	ダッシュボード	-	求人別 PV・応募数
+Web	企業	設定	/company/settings	企業	要ログイン	ダッシュボード	メール設定 / パスワード変更 / メッセージテンプレ	企業情報の編集
+Web	企業	メール設定	/company/settings/email	企業	要ログイン	設定	設定	通知メール設定
+Web	企業	パスワード変更	/company/settings/password	企業	要ログイン	設定	設定	パスワード変更
+Web	企業	メッセージテンプレ	/company/settings/message-templates	企業	要ログイン	設定	設定	よく使うメッセージのテンプレ管理
+Web	管理	管理者ログイン	/admin/login	運営	不要	直接アクセス	ダッシュボード	管理者ログイン
+Web	管理	ダッシュボード	/admin/dashboard	運営	要ログイン	ログイン直後	(各メニュー)	全体の指標
+Web	管理	アカウント管理	/admin/accounts	SUPER_ADMIN	要ログイン	左サイドバー	-	管理者アカウントの追加・権限設定
+Web	管理	分析	/admin/analytics	運営	要ログイン	左サイドバー	-	新規登録・公開求人数等の統計
+Web	管理	請求単価管理	/admin/billing	運営	要ログイン	左サイドバー	-	カテゴリ別 応募単価設定
+Web	管理	請求一覧	/admin/invoices	運営	要ログイン	左サイドバー	請求書PDF	月次請求書一覧
+Web	管理	無効申請	/admin/invalid-requests	運営	要ログイン	左サイドバー	-	スパム的応募の対応
+Web	管理	問い合わせ一覧	/admin/inquiries	運営	要ログイン	左サイドバー	問い合わせ詳細	問い合わせ対応
+Web	管理	問い合わせ詳細	/admin/inquiries/[id]	運営	要ログイン	問い合わせ一覧	(対応完了)	個別対応
+Web	管理	企業一覧	/admin/companies	運営	要ログイン	左サイドバー	企業詳細 / 企業新規追加	企業管理
+Web	管理	企業詳細	/admin/companies/[id]	運営	要ログイン	企業一覧	代理ログイン → 企業ダッシュボード	企業情報編集・代理ログイン
+Web	管理	企業新規追加	/admin/companies/new	運営	要ログイン	企業一覧	企業一覧（保存後）	企業アカウント発行
+Web	管理	求人一覧	/admin/jobs	運営	要ログイン	左サイドバー / ダッシュボード	求人詳細 / 差し戻し求人	全求人の審査
+Web	管理	求人詳細	/admin/jobs/[id]	運営	要ログイン	求人一覧 / Slack 通知リンク	承認 → 公開 / 差し戻し → 編集者へ	求人内容・承認・差し戻し
+Web	管理	差し戻し求人	/admin/jobs/returned	運営	要ログイン	求人一覧	求人詳細	差し戻し済み求人一覧
+Web	管理	求職者一覧	/admin/jobseekers	運営	要ログイン	左サイドバー	求職者詳細	求職者管理
+Web	管理	求職者詳細	/admin/jobseekers/[id]	運営	要ログイン	求職者一覧	(編集 / 無効化)	求職者情報・応募履歴
+Web	管理	メッセージ詳細	/admin/messages/[id]	運営	要ログイン	(通報対応 / 問い合わせ)	-	会話確認
+Web	管理	コラム一覧	/admin/columns	運営/SEO	要ログイン	左サイドバー	コラム新規 / コラム編集	求職者向けコラム管理
+Web	管理	コラム新規	/admin/columns/new	運営/SEO	要ログイン	コラム一覧	コラム一覧（保存後）	新規記事作成
+Web	管理	コラム編集	/admin/columns/[id]/edit	運営/SEO	要ログイン	コラム一覧	コラム一覧（保存後）	記事編集
+Web	管理	コラムテンプレ一覧	/admin/columns/templates	運営/SEO	要ログイン	コラム一覧	テンプレ新規 / テンプレ編集	テンプレ管理
+Web	管理	コラムテンプレ新規	/admin/columns/templates/new	運営/SEO	要ログイン	テンプレ一覧	テンプレ一覧	新規テンプレ作成
+Web	管理	コラムテンプレ編集	/admin/columns/templates/[id]/edit	運営/SEO	要ログイン	テンプレ一覧	テンプレ一覧	テンプレ編集
+Web	管理	toBコラム一覧	/admin/biz-columns	運営/SEO	要ログイン	左サイドバー	toBコラム新規 / 編集	企業向けコラム管理 (WP連携)
+Web	管理	toBコラム新規	/admin/biz-columns/new	運営/SEO	要ログイン	toBコラム一覧	toBコラム一覧	新規記事作成
+Web	管理	toBコラム編集	/admin/biz-columns/[id]/edit	運営/SEO	要ログイン	toBコラム一覧	toBコラム一覧	記事編集
+Web	管理	Focus記事一覧	/admin/focus	運営	要ログイン	左サイドバー	Focus新規 / 編集	特集記事管理
+Web	管理	Focus新規	/admin/focus/new	運営	要ログイン	Focus一覧	Focus一覧	新規特集作成
+Web	管理	Focus編集	/admin/focus/[id]/edit	運営	要ログイン	Focus一覧	Focus一覧	特集編集
+アプリ	認証	ログイン	(LoginScreen)	求職者	不要	アプリ起動時 (未ログイン)	ホーム (成功時) / 新規登録 / パスワード再設定	メアド+PWでログイン
+アプリ	認証	新規会員登録	(RegisterScreen)	求職者	不要	ログイン画面	ホーム (成功時)	氏名・メアド・PW+規約同意
+アプリ	認証	パスワード再設定申請	(ForgotPasswordScreen)	求職者	不要	ログイン画面	(メール送信完了)	メアド入力 → メール送信
+アプリ	タブ	ホーム	(HomeScreen) ※startDest	求職者	要ログイン	ログイン直後 / アプリ起動時 (ログイン済) / ブランドヘッダー	求人詳細 / 検索 (カテゴリ) / 本日のおすすめ求人	ヒーロー・カテゴリ・注目/新着求人
+アプリ	タブ	検索	(SearchScreen)	求職者	要ログイン	ホーム (カテゴリ) / ボトムナビ「検索」	求人詳細	キーワード・フィルタ・ソート・履歴
+アプリ	タブ	応募済み	(ApplicationsListScreen)	求職者	要ログイン	ボトムナビ「応募済み」/ 応募完了後	求人詳細	自分の応募一覧・ステータス
+アプリ	タブ	メッセージ	(ThreadsListScreen)	求職者	要ログイン	ボトムナビ「メッセージ」/ 通知タップ (Deep Link)	スレッド詳細	スレッド一覧・未読バッジ
+アプリ	タブ	マイページ	(ProfileScreen)	求職者	要ログイン	ボトムナビ「マイページ」	プロフィール編集 / 履歴書 / お気に入り / ブロック / 利用規約 / プライバシー	プロフィール・各種設定リンク
+アプリ	詳細	求人詳細	(JobDetailScreen)	求職者	要ログイン	ホーム / 検索 / 応募済み / お気に入り	応募フォーム / お気に入り追加 / 通報ダイアログ	求人内容・お気に入り・応募ボタン
+アプリ	詳細	応募フォーム	(ApplyScreen)	求職者	要ログイン	求人詳細「応募する」	応募完了 → 応募済みタブ / プロフィール編集 (未完時)	志望動機入力 → 送信
+アプリ	詳細	スレッド詳細	(ThreadDetailScreen)	求職者	要ログイン	メッセージタブ / 通知タップ	(メッセージ送信)	LINE風チャット
+アプリ	マイページ	プロフィール編集	(EditProfileScreen)	求職者	要ログイン	マイページ	マイページ	アバター・氏名・住所・通知設定（4種類）
+アプリ	マイページ	履歴書編集	(ResumeScreen)	求職者	要ログイン	マイページ	マイページ	自己PR・学歴・職歴・資格
+アプリ	マイページ	お気に入り一覧	(FavoritesScreen)	求職者	要ログイン	マイページ	求人詳細	❤️で解除可
+アプリ	マイページ	ブロック中のユーザー	(BlocksScreen)	求職者	要ログイン	マイページ	マイページ	一覧と解除
+アプリ	マイページ	利用規約 (WebView)	(WebContentScreen)	求職者	要ログイン	マイページ	マイページ	WebViewで /kiyaku 表示
+アプリ	マイページ	プライバシーポリシー (WebView)	(WebContentScreen)	求職者	要ログイン	マイページ	マイページ	WebViewで /privacy 表示
+アプリ	特殊	本日のおすすめ求人 (マッチング)	(SwipeScreen)	求職者	要ログイン	ホームの「🎯本日のおすすめ求人」バナー	(応募 → 応募一覧 / プロフィール編集)	Tinder風スワイプUI、右で応募・左でスキップ

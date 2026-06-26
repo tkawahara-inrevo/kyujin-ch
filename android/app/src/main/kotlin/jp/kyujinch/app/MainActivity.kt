@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -61,7 +62,6 @@ import jp.kyujinch.app.feature.auth.AuthViewModel
 import jp.kyujinch.app.feature.auth.ForgotPasswordScreen
 import jp.kyujinch.app.feature.auth.LoginScreen
 import jp.kyujinch.app.feature.auth.RegisterScreen
-import jp.kyujinch.app.feature.blocks.BlocksScreen
 import jp.kyujinch.app.feature.favorites.FavoritesScreen
 import jp.kyujinch.app.feature.home.HomeScreen
 import jp.kyujinch.app.feature.jobs.JobDetailScreen
@@ -158,7 +158,6 @@ private object Routes {
     const val RESUME = "resume"
     const val TERMS = "terms"
     const val PRIVACY = "privacy"
-    const val BLOCKS = "blocks"
     const val JOB_DETAIL = "jobs/{id}"
     const val APPLY = "apply/{id}"
     const val THREAD_DETAIL = "threads/{id}"
@@ -172,12 +171,13 @@ private object Routes {
 
 private data class TabItem(val route: String, val label: String, val icon: ImageVector)
 
-// Web の MobileNavBar と同じ 4 タブ構成
+// アプリ用 5 タブ構成 (ホームを先頭に追加。Web のロゴタップ→トップ相当)
 private val TABS = listOf(
-    TabItem(Routes.PROFILE, "マイページ", Icons.Default.Person),
+    TabItem(Routes.HOME, "ホーム", Icons.Default.Home),
     TabItem(Routes.APPLICATIONS, "応募済み", Icons.AutoMirrored.Filled.Article),
     TabItem(Routes.FAVORITES, "気になる", Icons.Default.Favorite),
     TabItem(Routes.MESSAGES, "メッセージ", Icons.AutoMirrored.Filled.Message),
+    TabItem(Routes.PROFILE, "マイページ", Icons.Default.Person),
 )
 
 // Web の MobileNavBar と同じカラー (#eb0937 active, #aaa inactive)
@@ -308,7 +308,6 @@ private fun MainShell(onLoggedOut: () -> Unit, analytics: Analytics) {
                     onFavoritesClick = { nav.navigate(Routes.FAVORITES) },
                     onEditProfileClick = { nav.navigate(Routes.EDIT_PROFILE) },
                     onResumeClick = { nav.navigate(Routes.RESUME) },
-                    onBlocksClick = { nav.navigate(Routes.BLOCKS) },
                     onTermsClick = { nav.navigate(Routes.TERMS) },
                     onPrivacyClick = { nav.navigate(Routes.PRIVACY) },
                     onTestJobClick = { nav.navigate(Routes.jobDetail(Routes.TEST_JOB_ID)) },
@@ -333,9 +332,6 @@ private fun MainShell(onLoggedOut: () -> Unit, analytics: Analytics) {
                     url = "https://kyujin-ch.jp/privacy",
                     onBack = { nav.popBackStack() },
                 )
-            }
-            composable(Routes.BLOCKS) {
-                BlocksScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.JOB_DETAIL) {
                 JobDetailScreen(
@@ -373,7 +369,6 @@ private fun screenNameFor(route: String): String? = when {
     route == Routes.FAVORITES -> "favorites"
     route == Routes.EDIT_PROFILE -> "profile_edit"
     route == Routes.RESUME -> "resume_edit"
-    route == Routes.BLOCKS -> "blocks"
     route == Routes.SWIPE -> "swipe"
     route == Routes.TERMS -> "terms"
     route == Routes.PRIVACY -> "privacy"

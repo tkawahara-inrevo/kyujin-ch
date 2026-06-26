@@ -7,6 +7,7 @@ type RecommendJob = {
   location: string | null;
   salaryMin: number | null;
   salaryMax: number | null;
+  salaryType: string | null;
   categoryTag: string | null;
   tags: string[];
   createdAt: Date;
@@ -34,6 +35,7 @@ export function RecommendSection({ title = "こちらもおすすめ", jobs }: R
             location={job.location}
             salaryMin={job.salaryMin}
             salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
             description={job.description}
             imageSrc={job.imageUrl ?? undefined}
             badge="注目"

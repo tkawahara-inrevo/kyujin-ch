@@ -13,6 +13,7 @@ export type SimilarJob = {
   location: string | null;
   salaryMin: number | null;
   salaryMax: number | null;
+  salaryType: string | null;
   description: string;
   categoryTag: string | null;
   tags: string[];
@@ -124,6 +125,7 @@ export async function submitApplication(jobId: string, motivation: string) {
       location: j.location,
       salaryMin: j.salaryMin,
       salaryMax: j.salaryMax,
+      salaryType: j.salaryType,
       description: j.description,
       categoryTag: j.categoryTag,
       tags: j.tags,

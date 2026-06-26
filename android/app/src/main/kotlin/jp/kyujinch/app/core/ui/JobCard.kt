@@ -243,12 +243,26 @@ private fun badgeFor(job: JobSummary): String? {
 }
 
 private fun formatSalary(job: JobSummary): String {
-    val min = job.salaryMin?.let { "${it / 10000}万" }
-    val max = job.salaryMax?.let { "${it / 10000}万" }
-    return when {
-        min != null && max != null -> "$min 〜 $max 円"
-        min != null -> "$min 円〜"
-        max != null -> "〜 $max 円"
-        else -> ""
+    val isYenUnit = job.salaryType == "hourly" || job.salaryType == "daily"
+    return if (isYenUnit) {
+        val min = job.salaryMin?.let { "%,d円".format(it) }
+        val max = job.salaryMax?.let { "%,d円".format(it) }
+        when {
+            min != null && max != null && job.salaryMin == job.salaryMax -> min
+            min != null && max != null -> "$min 〜 $max"
+            min != null -> "$min 〜"
+            max != null -> "〜 $max"
+            else -> ""
+        }
+    } else {
+        val min = job.salaryMin?.let { "${it / 10000}万円" }
+        val max = job.salaryMax?.let { "${it / 10000}万円" }
+        when {
+            min != null && max != null && job.salaryMin == job.salaryMax -> min
+            min != null && max != null -> "$min 〜 $max"
+            min != null -> "$min 〜"
+            max != null -> "〜 $max"
+            else -> ""
+        }
     }
 }

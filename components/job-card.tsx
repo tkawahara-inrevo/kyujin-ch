@@ -10,6 +10,7 @@ type JobCardProps = {
   location?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  salaryType?: string | null;
   description: string;
   imageSrc?: string;
   badge?: string;
@@ -39,6 +40,7 @@ export function JobCard({
   location,
   salaryMin,
   salaryMax,
+  salaryType,
   description,
   imageSrc = "/assets/Resume.png",
   badge = "注目",
@@ -121,7 +123,7 @@ export function JobCard({
           </div>
           <div className="flex items-center gap-1.5 text-[12px] text-[#666]">
             <span className="text-[14px] font-semibold leading-none">¥</span>
-            <span>{formatSalary(salaryMin, salaryMax)}</span>
+            <span>{formatSalary(salaryMin, salaryMax, salaryType)}</span>
           </div>
         </div>
 

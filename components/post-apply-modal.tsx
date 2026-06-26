@@ -177,7 +177,7 @@ function SwipeCard({
         </div>
         <div className="mt-0.5 flex items-center gap-1 text-[13px] font-semibold text-[#2f6cff]">
           <span>¥</span>
-          <span>{formatSalary(job.salaryMin, job.salaryMax)}</span>
+          <span>{formatSalary(job.salaryMin, job.salaryMax, job.salaryType)}</span>
         </div>
         <p className="mt-2 line-clamp-2 text-[11px] leading-[1.7] text-[#888]">
           {job.description}
@@ -421,7 +421,7 @@ export function PostApplyModal({ jobs }: Props) {
                     </div>
                     <div className="mt-0.5 flex items-center gap-1 text-[11px] text-[#666]">
                       <span>¥</span>
-                      <span>{formatSalary(job.salaryMin, job.salaryMax)}</span>
+                      <span>{formatSalary(job.salaryMin, job.salaryMax, job.salaryType)}</span>
                     </div>
                     <p className="mt-1.5 line-clamp-2 text-[10px] leading-[1.6] text-[#888]">
                       {job.description}

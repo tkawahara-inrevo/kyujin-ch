@@ -9,6 +9,7 @@ type ApplicationListItemProps = {
   location?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  salaryType?: string | null;
   appliedAt?: string;
   conversationId?: string;
   imageSrc?: string;
@@ -21,6 +22,7 @@ export function ApplicationListItem({
   location,
   salaryMin,
   salaryMax,
+  salaryType,
   appliedAt,
   conversationId,
   imageSrc = "/assets/Resume.png",
@@ -68,7 +70,7 @@ export function ApplicationListItem({
 
             <div className="flex items-center gap-2">
               <span className="font-semibold">¥</span>
-              <span>{formatSalary(salaryMin, salaryMax)}</span>
+              <span>{formatSalary(salaryMin, salaryMax, salaryType)}</span>
             </div>
           </div>
 

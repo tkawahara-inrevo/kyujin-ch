@@ -99,7 +99,7 @@ export default async function ApplyPage({
                 </div>
                 <div className="flex items-center gap-3 text-[14px] text-[#444]">
                   <span className="text-[28px] leading-none">¥</span>
-                  <span>{formatSalary(job.salaryMin, job.salaryMax)}</span>
+                  <span>{formatSalary(job.salaryMin, job.salaryMax, job.salaryType)}</span>
                 </div>
               </div>
             </div>

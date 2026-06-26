@@ -10,6 +10,7 @@ type FavoriteListItemProps = {
   location?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  salaryType?: string | null;
   savedAt?: string;
   imageSrc?: string;
 };
@@ -21,6 +22,7 @@ export function FavoriteListItem({
   location,
   salaryMin,
   salaryMax,
+  salaryType,
   savedAt = "2026/02/20",
   imageSrc = "/assets/Resume.png",
 }: FavoriteListItemProps) {
@@ -77,7 +79,7 @@ export function FavoriteListItem({
 
             <div className="flex items-center gap-2">
               <span className="font-semibold">¥</span>
-              <span>{formatSalary(salaryMin, salaryMax)}</span>
+              <span>{formatSalary(salaryMin, salaryMax, salaryType)}</span>
             </div>
           </div>
 

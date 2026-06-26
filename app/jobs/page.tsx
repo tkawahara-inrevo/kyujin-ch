@@ -192,6 +192,7 @@ export default async function JobsPage({
                 location={job.location}
                 salaryMin={job.salaryMin}
                 salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
                 description={job.description}
                 imageSrc={job.imageUrl ?? undefined}
                 badge={sort === "popular" ? "注目" : "新着"}
@@ -212,6 +213,7 @@ export default async function JobsPage({
                 location={job.location}
                 salaryMin={job.salaryMin}
                 salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
                 description={job.description}
                 imageSrc={job.imageUrl ?? undefined}
                 badge={sort === "popular" ? "注目" : "新着"}

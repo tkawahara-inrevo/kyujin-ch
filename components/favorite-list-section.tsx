@@ -9,6 +9,7 @@ type FavoriteItem = {
     location: string | null;
     salaryMin: number | null;
     salaryMax: number | null;
+    salaryType: string | null;
     company: {
       name: string;
     };
@@ -51,6 +52,7 @@ export function FavoriteListSection({
             location={favorite.job.location}
             salaryMin={favorite.job.salaryMin}
             salaryMax={favorite.job.salaryMax}
+            salaryType={favorite.job.salaryType}
             savedAt={formatDate(favorite.createdAt)}
             imageSrc={favoriteImages[index % favoriteImages.length]}
           />

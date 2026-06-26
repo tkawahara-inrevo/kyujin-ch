@@ -10,6 +10,7 @@ type ApplicationWithRelations = {
     location: string | null;
     salaryMin: number | null;
     salaryMax: number | null;
+    salaryType: string | null;
     company: { name: string };
   };
   conversation: { id: string } | null;
@@ -41,6 +42,7 @@ export function ApplicationListSection({ applications }: ApplicationListSectionP
             location={application.job.location}
             salaryMin={application.job.salaryMin}
             salaryMax={application.job.salaryMax}
+            salaryType={application.job.salaryType}
             appliedAt={new Date(application.createdAt).toLocaleDateString("ja-JP", {
               year: "numeric",
               month: "2-digit",

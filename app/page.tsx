@@ -133,6 +133,7 @@ export default async function HomePage({
                         location={job.location}
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
                         description={job.description}
                         imageSrc={job.imageUrl ?? undefined}
                         badge={
@@ -164,6 +165,7 @@ export default async function HomePage({
                         location={job.location}
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
                         description={job.description}
                         imageSrc={job.imageUrl ?? undefined}
                         badge="注目"
@@ -199,6 +201,7 @@ export default async function HomePage({
                         location={job.location}
                         salaryMin={job.salaryMin}
                         salaryMax={job.salaryMax}
+                salaryType={job.salaryType}
                         description={job.description}
                         imageSrc={job.imageUrl ?? undefined}
                         badge="新着"

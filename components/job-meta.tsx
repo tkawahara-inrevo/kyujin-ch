@@ -6,6 +6,7 @@ type JobMetaProps = {
   location?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  salaryType?: string | null;
 };
 
 export function JobMeta({
@@ -13,6 +14,7 @@ export function JobMeta({
   location,
   salaryMin,
   salaryMax,
+  salaryType,
 }: JobMetaProps) {
   return (
     <div className="mt-4">
@@ -26,7 +28,7 @@ export function JobMeta({
 
         <div className="flex items-center gap-3 text-[14px] text-[#444]">
           <span className="text-[28px] leading-none">¥</span>
-          <span>{formatSalary(salaryMin, salaryMax)}</span>
+          <span>{formatSalary(salaryMin, salaryMax, salaryType)}</span>
         </div>
       </div>
     </div>

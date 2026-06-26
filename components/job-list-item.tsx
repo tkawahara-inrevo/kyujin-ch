@@ -10,6 +10,7 @@ type Props = {
   location?: string | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
+  salaryType?: string | null;
   description: string;
   imageSrc?: string;
   badge?: string;
@@ -39,6 +40,7 @@ export function JobListItem({
   location,
   salaryMin,
   salaryMax,
+  salaryType,
   imageSrc = "/assets/Resume.png",
   badge,
   categoryTag,
@@ -87,7 +89,7 @@ export function JobListItem({
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-[#666]">
             {location && <span>📍 {location}</span>}
-            {(salaryMin || salaryMax) && <span>💰 {formatSalary(salaryMin, salaryMax)}</span>}
+            {(salaryMin || salaryMax) && <span>💰 {formatSalary(salaryMin, salaryMax, salaryType)}</span>}
           </div>
 
           <div className="mt-1.5 flex flex-wrap gap-1">

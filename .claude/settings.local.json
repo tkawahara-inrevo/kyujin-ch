@@ -268,7 +268,8 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && npx prisma migrate deploy && npm run build && pm2 reload kyujin-ch\")"
+      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && npx prisma migrate deploy && npm run build && pm2 reload kyujin-ch\")",
+      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && npm run build && pm2 reload kyujin-ch\")"
     ],
     "additionalDirectories": [
       "\\tmp",

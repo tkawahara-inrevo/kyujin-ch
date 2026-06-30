@@ -48,6 +48,10 @@ export function buildTargetFilter(target?: string): Prisma.JobWhereInput {
     return { targetType: "PART_TIME_INTERN" };
   }
 
+  if (normalizedTarget === "dispatch" || normalizedTarget === "temporary") {
+    return { targetType: "TEMPORARY" };
+  }
+
   const year = Number(normalizedTarget);
   if (Number.isFinite(year)) {
     return { targetType: "NEW_GRAD", graduationYear: year };

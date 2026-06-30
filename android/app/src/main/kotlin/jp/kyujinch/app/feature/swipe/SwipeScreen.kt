@@ -1,6 +1,8 @@
 package jp.kyujinch.app.feature.swipe
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -258,37 +261,72 @@ private fun SwipeCard(
                 .background(Color.White)
                 .pointerInput(job.id, isTopCard) {
                     if (!isTopCard) return@pointerInput
+                    val velocityTracker = VelocityTracker()
                     detectDragGestures(
+                        onDragStart = { velocityTracker.resetTracking() },
+                        onDragCancel = { velocityTracker.resetTracking() },
                         onDragEnd = {
                             scope.launch {
+                                val vx = velocityTracker.calculateVelocity().x
+                                // しきい値 OR 速くフリック (1500px/s) で決定
+                                val flickRight = vx > 1500f
+                                val flickLeft = vx < -1500f
                                 when {
-                                    offsetX.value > swipeThresholdPx -> {
-                                        offsetX.animateTo(1500f, tween(300))
+                                    offsetX.value > swipeThresholdPx || flickRight -> {
+                                        offsetX.animateTo(
+                                            targetValue = 2000f,
+                                            animationSpec = tween(durationMillis = 250),
+                                        )
                                         onSwipedRight()
                                     }
-                                    offsetX.value < -swipeThresholdPx -> {
-                                        offsetX.animateTo(-1500f, tween(300))
+                                    offsetX.value < -swipeThresholdPx || flickLeft -> {
+                                        offsetX.animateTo(
+                                            targetValue = -2000f,
+                                            animationSpec = tween(durationMillis = 250),
+                                        )
                                         onSwipedLeft()
                                     }
                                     else -> {
-                                        offsetX.animateTo(0f, tween(200))
-                                        offsetY.animateTo(0f, tween(200))
+                                        // Spring で元の位置に戻す (Tinder 風)
+                                        launch {
+                                            offsetX.animateTo(
+                                                targetValue = 0f,
+                                                animationSpec = spring(
+                                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                    stiffness = Spring.StiffnessLow,
+                                                ),
+                                            )
+                                        }
+                                        launch {
+                                            offsetY.animateTo(
+                                                targetValue = 0f,
+                                                animationSpec = spring(
+                                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                    stiffness = Spring.StiffnessLow,
+                                                ),
+                                            )
+                                        }
                                     }
                                 }
                             }
                         },
                         onDrag = { change, drag ->
                             change.consume()
+                            velocityTracker.addPosition(change.uptimeMillis, change.position)
                             scope.launch {
                                 offsetX.snapTo(offsetX.value + drag.x)
-                                offsetY.snapTo(offsetY.value + drag.y)
+                                // 縦移動は減衰 (横スワイプ中心)
+                                offsetY.snapTo(offsetY.value + drag.y * 0.4f)
                             }
                         },
                     )
                 }
                 .pointerInput(job.id, isTopCard) {
                     if (!isTopCard) return@pointerInput
-                    detectTapGestures(onLongPress = { onLongPress() })
+                    detectTapGestures(
+                        onTap = { onLongPress() },          // 単タップ → 詳細
+                        onLongPress = { onLongPress() },     // 長押しも残しておく
+                    )
                 },
         ) {
             CardBody(job)
@@ -360,7 +398,7 @@ private fun CardBody(job: JobDetail) {
             TagGrid(job)
             Spacer(Modifier.height(12.dp))
             Text(
-                "💡 長押しで詳細",
+                "💡 タップで詳細",
                 fontSize = 11.sp,
                 color = TextMuted,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

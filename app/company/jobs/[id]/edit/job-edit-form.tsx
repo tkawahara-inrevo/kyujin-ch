@@ -928,6 +928,9 @@ export function JobEditForm({
                 <TargetButton active={targetType === "PART_TIME_INTERN"} onClick={() => setTargetType("PART_TIME_INTERN")}>
                   アルバイト・インターン
                 </TargetButton>
+                <TargetButton active={targetType === "TEMPORARY"} onClick={() => setTargetType("TEMPORARY")}>
+                  派遣
+                </TargetButton>
               </div>
             </Field>
           </Section>

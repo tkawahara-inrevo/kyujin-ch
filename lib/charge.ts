@@ -1,7 +1,18 @@
 import { prisma } from "@/lib/prisma";
 
-/** 企業アカウント発行から3ヶ月以内は無料キャンペーン期間 */
+/**
+ * グローバル無料キャンペーン終了: 2026/07/31 23:59:59 JST = 2026/07/31 14:59:59.999 UTC
+ * この日時までに発生した応募は全社、請求 0 円。
+ */
+const GLOBAL_FREE_UNTIL_UTC = Date.UTC(2026, 6, 31, 14, 59, 59, 999);
+
+/**
+ * 無料期間判定。次のいずれかを満たせば無料:
+ * 1. グローバル無料期間内 (〜 2026/07/31 JST)
+ * 2. 企業アカウント発行から 3 ヶ月以内
+ */
 export function isFreeCampaignPeriod(companyCreatedAt: Date, now: Date) {
+  if (now.getTime() <= GLOBAL_FREE_UNTIL_UTC) return true;
   const threeMonthsLater = new Date(companyCreatedAt);
   threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
   return now < threeMonthsLater;

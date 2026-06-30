@@ -148,10 +148,19 @@ const PART_TIME_FIXED_KEY = {
   subcategory: "固定料金",
 };
 
-export async function upsertPartTimeFixedPrice(experiencedPrice: number, inexperiencedPrice: number | null) {
-  await requireAdminAction();
+const TEMPORARY_FIXED_KEY = {
+  targetType: "TEMPORARY",
+  category: "派遣",
+  subcategory: "固定料金",
+};
+
+async function upsertFixedPrice(
+  key: { targetType: string; category: string; subcategory: string },
+  experiencedPrice: number,
+  inexperiencedPrice: number | null,
+) {
   const existing = await prisma.priceEntry.findFirst({
-    where: PART_TIME_FIXED_KEY,
+    where: key,
     select: { id: true },
   });
   if (existing) {
@@ -162,7 +171,7 @@ export async function upsertPartTimeFixedPrice(experiencedPrice: number, inexper
   } else {
     await prisma.priceEntry.create({
       data: {
-        ...PART_TIME_FIXED_KEY,
+        ...key,
         experiencedPrice,
         inexperiencedPrice,
       },
@@ -170,4 +179,14 @@ export async function upsertPartTimeFixedPrice(experiencedPrice: number, inexper
   }
   revalidatePath("/admin/billing");
   revalidatePath("/company/billing");
+}
+
+export async function upsertPartTimeFixedPrice(experiencedPrice: number, inexperiencedPrice: number | null) {
+  await requireAdminAction();
+  await upsertFixedPrice(PART_TIME_FIXED_KEY, experiencedPrice, inexperiencedPrice);
+}
+
+export async function upsertTemporaryFixedPrice(experiencedPrice: number, inexperiencedPrice: number | null) {
+  await requireAdminAction();
+  await upsertFixedPrice(TEMPORARY_FIXED_KEY, experiencedPrice, inexperiencedPrice);
 }

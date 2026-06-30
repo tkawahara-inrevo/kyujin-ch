@@ -2,19 +2,26 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminPermission } from "@/lib/auth-helpers";
 import PriceTable from "./price-table";
 import PartTimePriceSection from "./part-time-price-section";
+import TemporaryPriceSection from "./temporary-price-section";
 
 export default async function AdminBillingPage() {
   await requireAdminPermission("billing");
 
   // 通常の料金表（MID_CAREER / NEW_GRAD）
   const priceEntries = await prisma.priceEntry.findMany({
-    where: { targetType: { not: "PART_TIME_INTERN" } },
+    where: { targetType: { notIn: ["PART_TIME_INTERN", "TEMPORARY"] } },
     orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
   });
 
   // アルバイト・インターン固定料金
   const partTimeFixed = await prisma.priceEntry.findFirst({
     where: { targetType: "PART_TIME_INTERN", category: "アルバイト・インターン", subcategory: "固定料金" },
+    select: { experiencedPrice: true, inexperiencedPrice: true },
+  });
+
+  // 派遣固定料金
+  const temporaryFixed = await prisma.priceEntry.findFirst({
+    where: { targetType: "TEMPORARY", category: "派遣", subcategory: "固定料金" },
     select: { experiencedPrice: true, inexperiencedPrice: true },
   });
 
@@ -39,6 +46,10 @@ export default async function AdminBillingPage() {
       <PartTimePriceSection
         initialPrice={partTimeFixed?.experiencedPrice ?? 0}
         initialPriceInexp={partTimeFixed?.inexperiencedPrice ?? null}
+      />
+      <TemporaryPriceSection
+        initialPrice={temporaryFixed?.experiencedPrice ?? 0}
+        initialPriceInexp={temporaryFixed?.inexperiencedPrice ?? null}
       />
     </div>
   );

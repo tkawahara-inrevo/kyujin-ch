@@ -56,6 +56,7 @@ function formatSalaryRange(type: string | null | undefined, min?: number | null,
 function formatTarget(targetType: string, graduationYear: number | null) {
   if (targetType === "NEW_GRAD" && graduationYear) return graduationYearLabel(graduationYear);
   if (targetType === "PART_TIME_INTERN") return "アルバイト・インターン";
+  if (targetType === "TEMPORARY") return "派遣";
   return "中途";
 }
 

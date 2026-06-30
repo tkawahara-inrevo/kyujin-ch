@@ -36,12 +36,14 @@ export function MobileTargetSwitchButton({ currentYear, nextYear }: Props) {
   const isCurrentYear = target === String(currentYear);
   const isNextYear = target === String(nextYear);
   const isPartTime = target === "parttime";
+  const isDispatch = target === "dispatch";
 
   const options = [];
   if (!isCurrentYear) options.push({ href: `/?target=${currentYear}`, label: `${String(currentYear).slice(-2)}卒`, value: String(currentYear), color: "text-[#eb0937]" });
   if (!isNextYear) options.push({ href: `/?target=${nextYear}`, label: `${String(nextYear).slice(-2)}卒`, value: String(nextYear), color: "text-[#eb0937]" });
   if (!isMid) options.push({ href: "/?target=mid", label: "中途", value: "mid", color: "text-[#2f6cff]" });
   if (!isPartTime) options.push({ href: "/?target=parttime", label: "アルバイト・インターン", value: "parttime", color: "text-[#16a34a]" });
+  if (!isDispatch) options.push({ href: "/?target=dispatch", label: "派遣", value: "dispatch", color: "text-[#7c3aed]" });
 
   function handleSwitch(value: string) {
     localStorage.setItem("kyujin-target", value);
@@ -113,19 +115,24 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
   const isCurrentYear = target === String(currentYear);
   const isNextYear = target === String(nextYear);
   const isPartTime = target === "parttime";
+  const isDispatch = target === "dispatch";
 
   const badgeLabel = isMid
     ? "中途"
     : isPartTime
       ? "アルバイト"
-      : isNextYear
-        ? `${String(nextYear).slice(-2)}卒`
-        : `${String(currentYear).slice(-2)}卒`;
+      : isDispatch
+        ? "派遣"
+        : isNextYear
+          ? `${String(nextYear).slice(-2)}卒`
+          : `${String(currentYear).slice(-2)}卒`;
   const badgeBg = isMid
     ? "bg-[#2f6cff]"
     : isPartTime
       ? "bg-[#22c55e]"
-      : "bg-[#ff3158]";
+      : isDispatch
+        ? "bg-[#7c3aed]"
+        : "bg-[#ff3158]";
 
   type Option = { href: string; label: string; value: string; color: string };
   const options: Option[] = [];
@@ -160,6 +167,14 @@ export function HeaderTargetBadge({ currentYear, nextYear }: Props) {
       label: "アルバイト・インターン",
       value: "parttime",
       color: "text-[#16a34a]",
+    });
+  }
+  if (!isDispatch) {
+    options.push({
+      href: "/?target=dispatch",
+      label: "派遣",
+      value: "dispatch",
+      color: "text-[#7c3aed]",
     });
   }
 

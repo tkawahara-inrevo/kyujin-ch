@@ -28,6 +28,7 @@ const TARGET_LABELS: Record<string, string> = {
   NEW_GRAD: "新卒",
   MID_CAREER: "中途",
   PART_TIME_INTERN: "アルバイト・インターン",
+  TEMPORARY: "派遣",
 };
 
 export async function GET() {

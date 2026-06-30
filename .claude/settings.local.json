@@ -260,7 +260,15 @@
       "Bash(openssl s_client -servername wp.kyujin-ch.jp -connect wp.kyujin-ch.jp:443)",
       "Bash(openssl x509 *)",
       "Bash(curl -sI \"https://wp.kyujin-ch.jp/?p=1074&preview=true\")",
-      "Bash(curl -sI \"https://wp.kyujin-ch.jp/wp-admin/post.php?post=1074&action=elementor\")"
+      "Bash(curl -sI \"https://wp.kyujin-ch.jp/wp-admin/post.php?post=1074&action=elementor\")",
+      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && pm2 logs kyujin-ch --lines 5000 --nostream | grep -i 'konishi\\\\|asahi-kasei\\\\|company-request\\\\|sendTransactionalEmail\\\\|SES' | tail -30\")",
+      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"which aws && aws --version 2>&1; aws ses get-suppressed-destination --email-address konishi.sg@om.asahi-kasei.co.jp --region ap-northeast-1 2>&1 | head -10\")",
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"cd ~/kyujin-ch && git pull origin main && npx prisma migrate deploy && npm run build && pm2 reload kyujin-ch\")"
     ],
     "additionalDirectories": [
       "\\tmp",

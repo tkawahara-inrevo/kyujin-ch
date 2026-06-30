@@ -655,6 +655,29 @@ model Report {
   @@index([status])
 }
 
+/// SES経由で送信したトランザクションメールの送信ログ
+/// 送信履歴の追跡・障害調査用
+model EmailLog {
+  id          String      @id @default(cuid())
+  toAddresses String      // カンマ区切り (TO 宛先)
+  subject     String
+  bodyPreview String      @db.Text // 本文先頭 500 文字程度
+  senderTag   String?     // 機能識別タグ (例: "company-request", "password-reset")
+  messageId   String?     // SES から返ってきた MessageId
+  status      EmailStatus
+  errorText   String?     @db.Text
+  sentAt      DateTime    @default(now())
+
+  @@index([sentAt])
+  @@index([senderTag])
+  @@index([status])
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+}
+
 // ---- Focus（企業特集メディア） ----
 
 model FocusArticle {

@@ -41,6 +41,7 @@ ${url}
 このメールに心当たりがない場合は無視してください。
 
 求人ちゃんねる`,
+        senderTag: "password-reset",
       });
     } catch (e) {
       console.error("パスワードリセットメール送信失敗:", e);

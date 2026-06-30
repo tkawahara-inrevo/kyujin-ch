@@ -123,6 +123,7 @@ fun SwipeScreen(
                         onReject = viewModel::reject,
                         onApply = viewModel::apply,
                         onLongPress = { job -> detailJob = job },
+                        applyBlockedJobId = state.pendingJobId.takeIf { state.profileIncomplete },
                     )
                     if (state.isApplying) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -169,6 +170,7 @@ private fun CardStack(
     onReject: (String) -> Unit,
     onApply: (String) -> Unit,
     onLongPress: (JobDetail) -> Unit,
+    applyBlockedJobId: String?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // 操作ヒント
@@ -186,14 +188,17 @@ private fun CardStack(
             cards.take(3).reversed().forEachIndexed { reversedIndex, job ->
                 val depth = 2 - reversedIndex  // 0=top, 1=second, 2=third
                 val isTop = depth == 0
-                SwipeCard(
-                    job = job,
-                    isTopCard = isTop,
-                    depth = depth,
-                    onSwipedLeft = { onReject(job.id) },
-                    onSwipedRight = { onApply(job.id) },
-                    onLongPress = { onLongPress(job) },
-                )
+                androidx.compose.runtime.key(job.id) {
+                    SwipeCard(
+                        job = job,
+                        isTopCard = isTop,
+                        depth = depth,
+                        applyBlocked = applyBlockedJobId == job.id,
+                        onSwipedLeft = { onReject(job.id) },
+                        onSwipedRight = { onApply(job.id) },
+                        onLongPress = { onLongPress(job) },
+                    )
+                }
             }
         }
         ActionButtons(
@@ -208,6 +213,7 @@ private fun SwipeCard(
     job: JobDetail,
     isTopCard: Boolean,
     depth: Int,
+    applyBlocked: Boolean,
     onSwipedLeft: () -> Unit,
     onSwipedRight: () -> Unit,
     onLongPress: () -> Unit,
@@ -217,6 +223,14 @@ private fun SwipeCard(
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val swipeThresholdPx = with(density) { 120.dp.toPx() }
+
+    // 応募ブロックが解除された (= ダイアログを閉じた) ら位置を戻す
+    LaunchedEffect(applyBlocked) {
+        if (!applyBlocked && offsetX.value != 0f) {
+            offsetX.animateTo(0f, tween(300))
+            offsetY.animateTo(0f, tween(300))
+        }
+    }
 
     val scaleByDepth = 1f - depth * 0.04f
     val yOffsetByDepth = with(density) { (depth * 8).dp.toPx() }
@@ -242,42 +256,40 @@ private fun SwipeCard(
                 .fillMaxSize()
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color.White)
-                .then(
-                    if (isTopCard) Modifier.pointerInput(job.id) {
-                        detectDragGestures(
-                            onDragEnd = {
-                                scope.launch {
-                                    when {
-                                        offsetX.value > swipeThresholdPx -> {
-                                            offsetX.animateTo(1500f, tween(300))
-                                            onSwipedRight()
-                                        }
-                                        offsetX.value < -swipeThresholdPx -> {
-                                            offsetX.animateTo(-1500f, tween(300))
-                                            onSwipedLeft()
-                                        }
-                                        else -> {
-                                            offsetX.animateTo(0f, tween(200))
-                                            offsetY.animateTo(0f, tween(200))
-                                        }
+                .pointerInput(job.id, isTopCard) {
+                    if (!isTopCard) return@pointerInput
+                    detectDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                when {
+                                    offsetX.value > swipeThresholdPx -> {
+                                        offsetX.animateTo(1500f, tween(300))
+                                        onSwipedRight()
+                                    }
+                                    offsetX.value < -swipeThresholdPx -> {
+                                        offsetX.animateTo(-1500f, tween(300))
+                                        onSwipedLeft()
+                                    }
+                                    else -> {
+                                        offsetX.animateTo(0f, tween(200))
+                                        offsetY.animateTo(0f, tween(200))
                                     }
                                 }
-                            },
-                            onDrag = { change, drag ->
-                                change.consume()
-                                scope.launch {
-                                    offsetX.snapTo(offsetX.value + drag.x)
-                                    offsetY.snapTo(offsetY.value + drag.y)
-                                }
-                            },
-                        )
-                    } else Modifier,
-                )
-                .then(
-                    if (isTopCard) Modifier.pointerInput(job.id) {
-                        detectTapGestures(onLongPress = { onLongPress() })
-                    } else Modifier,
-                ),
+                            }
+                        },
+                        onDrag = { change, drag ->
+                            change.consume()
+                            scope.launch {
+                                offsetX.snapTo(offsetX.value + drag.x)
+                                offsetY.snapTo(offsetY.value + drag.y)
+                            }
+                        },
+                    )
+                }
+                .pointerInput(job.id, isTopCard) {
+                    if (!isTopCard) return@pointerInput
+                    detectTapGestures(onLongPress = { onLongPress() })
+                },
         ) {
             CardBody(job)
             // ドラッグ中のYES/NO オーバーレイ (上カードのみ)
@@ -288,26 +300,24 @@ private fun SwipeCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(24.dp)
+                            .padding(28.dp)
                             .graphicsLayer { alpha = alphaRight }
-                            .borderTag(AcceptGreen)
-                            .background(AcceptGreen.copy(alpha = 0.1f))
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                            .background(AcceptGreen, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 24.dp, vertical = 14.dp),
                     ) {
-                        Text("✓ 応募する", color = AcceptGreen, fontWeight = FontWeight.Bold, fontSize = 28.sp)
+                        Text("✓ 応募する", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                     }
                 }
                 if (alphaLeft > 0f) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(24.dp)
+                            .padding(28.dp)
                             .graphicsLayer { alpha = alphaLeft }
-                            .borderTag(RejectGray)
-                            .background(RejectGray.copy(alpha = 0.1f))
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                            .background(SecondaryRed, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 24.dp, vertical = 14.dp),
                     ) {
-                        Text("✕ 見送る", color = RejectGray, fontWeight = FontWeight.Bold, fontSize = 28.sp)
+                        Text("✕ 見送る", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                     }
                 }
             }

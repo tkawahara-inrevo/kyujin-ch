@@ -119,6 +119,7 @@ export async function submitCompanyRequest(formData: {
 <p>求人ちゃんねる 運営事務局</p>
       `.trim(),
       text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\nお申し込みいただいた内容を確認しております。内容確認後、担当者より改めてご連絡いたします。\n\n【ご申請内容】\n${companyInfo}\n\n今しばらくお待ちください。\n\n求人ちゃんねる 運営事務局`,
+      senderTag: "company-request-pending",
     });
 
     await postToSlack(
@@ -197,6 +198,7 @@ export async function submitCompanyRequest(formData: {
 <p>求人ちゃんねる 運営事務局</p>
       `.trim(),
       text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n法人情報が確認できましたので、企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
+      senderTag: "company-request-issued",
     });
   } catch (err) {
     emailError = err instanceof Error ? err.message : String(err);

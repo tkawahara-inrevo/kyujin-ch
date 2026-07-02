@@ -1268,7 +1268,7 @@ export function JobNewForm({ subcategoryMap, companyName }: { subcategoryMap: Re
                   )}
                 </Field>
 
-                <Field label="試用期間中の想定労働時間" required>
+                <Field label="試用期間中の想定労働時間">
                   <div className="flex items-center gap-2">
                     <span className="shrink-0 text-[14px] text-[#555]">1か月あたり</span>
                     <input

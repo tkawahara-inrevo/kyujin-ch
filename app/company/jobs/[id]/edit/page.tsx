@@ -28,6 +28,8 @@ export default async function CompanyJobEditPage({
   const [pendingContent, priceEntries] = await Promise.all([
     Promise.resolve(parsePendingContent(job.pendingContent)),
     prisma.priceEntry.findMany({
+      // アルバイト・インターン / 派遣 は固定料金なので、カテゴリ選択肢は通常のカテゴリのみ表示
+      where: { targetType: { notIn: ["PART_TIME_INTERN", "TEMPORARY"] } },
       orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
     }),
   ]);

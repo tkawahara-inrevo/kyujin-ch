@@ -18,13 +18,28 @@ export function isFreeCampaignPeriod(companyCreatedAt: Date, now: Date) {
   return now < threeMonthsLater;
 }
 
-/** 応募1件あたりの請求額を解決する。3ヶ月以内は0円、それ以外はカテゴリ別単価 or 既定11000円 */
+/**
+ * 応募1件あたりの請求額を解決する。
+ * - 無料期間内は 0 円
+ * - targetType が PART_TIME_INTERN / TEMPORARY なら該当の固定料金
+ * - それ以外はカテゴリ別単価 or 既定 11000 円
+ */
 export async function resolveChargeAmount(
   categoryTag: string | null,
   companyCreatedAt: Date,
   now: Date,
+  targetType?: string | null,
 ): Promise<number> {
   if (isFreeCampaignPeriod(companyCreatedAt, now)) return 0;
+
+  // アルバイト・インターン / 派遣 は固定料金 (categoryTag に関わらず一律)
+  if (targetType === "PART_TIME_INTERN" || targetType === "TEMPORARY") {
+    const fixed = await prisma.priceEntry.findFirst({
+      where: { targetType, subcategory: "固定料金" },
+    });
+    if (fixed) return fixed.experiencedPrice;
+    return 0; // 固定料金未設定なら 0 円で安全側 (無料と同等)
+  }
 
   let chargeAmount = 11000;
   if (categoryTag) {

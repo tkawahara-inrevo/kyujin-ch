@@ -26,7 +26,9 @@ export default async function CompanyJobNewPage() {
     redirect("/company/settings?alert=profile_incomplete#company-settings-edit");
   }
 
+  // アルバイト・インターン / 派遣 は固定料金なので、カテゴリ選択肢は中途/新卒と同じ通常のカテゴリを使う
   const priceEntries = await prisma.priceEntry.findMany({
+    where: { targetType: { notIn: ["PART_TIME_INTERN", "TEMPORARY"] } },
     orderBy: [{ categorySortOrder: "asc" }, { sortOrder: "asc" }],
   });
 

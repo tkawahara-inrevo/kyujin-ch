@@ -41,7 +41,7 @@ export async function submitApplication(jobId: string, motivation: string) {
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { id: true, title: true, categoryTag: true, employmentType: true, location: true, company: { select: { createdAt: true, companyUser: { select: { email: true } } } } },
+    select: { id: true, title: true, categoryTag: true, targetType: true, employmentType: true, location: true, company: { select: { createdAt: true, companyUser: { select: { email: true } } } } },
   });
   if (!job) throw new Error("求人が見つかりません");
 
@@ -49,7 +49,7 @@ export async function submitApplication(jobId: string, motivation: string) {
   const billingMonth = currentBillingMonth(now);
 
   const companyCreatedAt = job.company.createdAt;
-  const chargeAmount = await resolveChargeAmount(job.categoryTag, companyCreatedAt, now);
+  const chargeAmount = await resolveChargeAmount(job.categoryTag, companyCreatedAt, now, job.targetType);
 
   await prisma.$transaction(async (tx) => {
     const application = await tx.application.create({
@@ -146,14 +146,14 @@ export async function submitBulkApplications(jobIds: string[]) {
 
     const job = await prisma.job.findUnique({
       where: { id: jobId },
-      select: { id: true, categoryTag: true, company: { select: { createdAt: true } } },
+      select: { id: true, categoryTag: true, targetType: true, company: { select: { createdAt: true } } },
     });
     if (!job) continue;
 
     const now = new Date();
     const billingMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-    const chargeAmount = await resolveChargeAmount(job.categoryTag, job.company.createdAt, now);
+    const chargeAmount = await resolveChargeAmount(job.categoryTag, job.company.createdAt, now, job.targetType);
 
     await prisma.$transaction(async (tx) => {
       const application = await tx.application.create({

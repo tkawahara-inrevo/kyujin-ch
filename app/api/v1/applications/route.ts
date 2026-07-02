@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
       id: true,
       title: true,
       categoryTag: true,
+      targetType: true,
       company: {
         select: {
           createdAt: true,
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
   if (existing) return conflict("既に応募済みです");
 
   const now = new Date();
-  const chargeAmount = await resolveChargeAmount(job.categoryTag, job.company.createdAt, now);
+  const chargeAmount = await resolveChargeAmount(job.categoryTag, job.company.createdAt, now, job.targetType);
 
   const app = await prisma.$transaction(async (tx) => {
     const created = await tx.application.create({

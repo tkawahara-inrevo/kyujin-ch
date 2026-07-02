@@ -233,7 +233,8 @@ export function JobEditForm({
   const [draftSaved, setDraftSaved] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const ALL_TAG_OPTIONS = [...TAG_OPTIONS, ...HOLIDAY_TAGS, ...LOCATION_TAGS, ...REQUIREMENT_TAGS, ...SELECTION_TAGS];
-  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags.filter((tag) => ALL_TAG_OPTIONS.includes(tag)));
+  // 手入力タグ (プリセットに無いタグ) も保持するため、全タグを初期値にする
+  const [selectedTags, setSelectedTags] = useState<string[]>(job.tags);
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(
     job.benefits.filter((benefit) => benefitOptions.includes(benefit)),
   );

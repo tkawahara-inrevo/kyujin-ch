@@ -42,7 +42,15 @@ export default async function AgentCompanyDetailPage({ params }: { params: Promi
         <Link href="/agent/companies" className="hover:text-[#2f6cff]">← 紹介企業一覧</Link>
       </div>
 
-      <h1 className="mt-3 text-[22px] font-bold text-[#1e293b]">{company.name}</h1>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-[22px] font-bold text-[#1e293b]">{company.name}</h1>
+        <Link
+          href={`/agent/companies/${company.id}/import`}
+          className="rounded-[8px] border-2 border-[#2f6cff] bg-white px-5 py-2 text-[13px] font-bold text-[#2f6cff] hover:bg-[#eff6ff]"
+        >
+          📥 求人 CSV アップロード
+        </Link>
+      </div>
 
       {/* 企業情報 */}
       <section className="mt-6 rounded-[14px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">

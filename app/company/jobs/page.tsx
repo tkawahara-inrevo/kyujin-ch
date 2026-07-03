@@ -122,12 +122,20 @@ export default async function CompanyJobsPage({
     <div className="px-6 py-8 md:px-12 md:py-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-[34px] font-bold tracking-tight text-[#2b2f38]">求人管理</h1>
-        <Link
-          href="/company/jobs/new"
-          className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold !text-white transition hover:opacity-90"
-        >
-          求人を作成する
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/company/jobs/import"
+            className="inline-flex items-center justify-center rounded-[14px] border-2 border-[#2f6cff] bg-white px-5 py-3 text-[14px] font-bold text-[#2f6cff] transition hover:bg-[#eff6ff]"
+          >
+            📥 CSV 一括アップロード
+          </Link>
+          <Link
+            href="/company/jobs/new"
+            className="inline-flex items-center justify-center rounded-[14px] bg-[#2f6cff] px-7 py-4 text-[16px] font-bold !text-white transition hover:opacity-90"
+          >
+            求人を作成する
+          </Link>
+        </div>
       </div>
 
       <CompanyJobsTable

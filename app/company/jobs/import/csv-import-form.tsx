@@ -6,9 +6,7 @@ import Link from "next/link";
 import { importJobsFromCsv, type CsvImportResult } from "@/app/actions/company/jobs-csv-import";
 
 async function readFileAsText(file: File): Promise<string> {
-  // Excel の CSV は Shift_JIS の可能性が高いのでまず UTF-8 で読み、非可読なら Shift_JIS フォールバック
   const utf8 = await file.text();
-  // 文字化け検出: 置換文字 U+FFFD が含まれていたら Shift_JIS で再デコード
   if (utf8.includes("�")) {
     const buffer = await file.arrayBuffer();
     try {
@@ -18,6 +16,24 @@ async function readFileAsText(file: File): Promise<string> {
     }
   }
   return utf8;
+}
+
+async function readFileAsBase64(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize)));
+  }
+  return btoa(binary);
+}
+
+function isXlsx(file: File): boolean {
+  return (
+    file.name.toLowerCase().endsWith(".xlsx") ||
+    file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
 }
 
 type Props = {
@@ -34,17 +50,19 @@ export default function CsvImportForm({ companyId, companyName }: Props) {
 
   async function handleImport() {
     if (!file) {
-      setError("CSV ファイルを選択してください");
+      setError("ファイルを選択してください");
       return;
     }
     setError("");
     setResult(null);
 
-    const text = await readFileAsText(file);
+    const input = isXlsx(file)
+      ? { kind: "xlsx" as const, base64: await readFileAsBase64(file) }
+      : { kind: "csv" as const, text: await readFileAsText(file) };
 
     startTransition(async () => {
       try {
-        const r = await importJobsFromCsv(text, companyId);
+        const r = await importJobsFromCsv(input, companyId);
         setResult(r);
         if (r.successCount > 0) router.refresh();
       } catch (e) {
@@ -59,34 +77,49 @@ export default function CsvImportForm({ companyId, companyName }: Props) {
       <section className="rounded-[14px] border border-[#bfdbfe] bg-[#eff6ff] p-5">
         <h2 className="text-[15px] font-bold text-[#1e40af]">1. テンプレートをダウンロード</h2>
         <p className="mt-2 text-[13px] text-[#1e40af]">
-          まずテンプレート CSV をダウンロードし、Excel などで求人情報を入力してください。
-          2 行目はカラムの説明なので、実データを追加する場合は3行目以降に入力してください。
+          <strong>Excel 版 (XLSX) を推奨</strong>します。対象・カテゴリ・雇用形態などの項目は<strong>ドロップダウンで選択</strong>できるので、入力ミスがありません。
         </p>
-        <a
-          href="/api/v1/jobs/csv-template"
-          className="mt-3 inline-block rounded-[8px] bg-[#1e40af] px-5 py-2 text-[13px] font-bold text-white hover:opacity-90"
-        >
-          📥 テンプレート CSV をダウンロード
-        </a>
+        <p className="mt-1 text-[12px] text-[#1e40af]">
+          2 行目はカラムの説明で自動的にスキップされます。3 行目以降に実データを入力してください。
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a
+            href="/api/v1/jobs/xlsx-template"
+            className="rounded-[8px] bg-[#1e40af] px-5 py-2 text-[13px] font-bold text-white hover:opacity-90"
+          >
+            📊 Excel テンプレート (XLSX) をダウンロード [推奨]
+          </a>
+          <a
+            href="/api/v1/jobs/csv-template"
+            className="rounded-[8px] border border-[#1e40af] bg-white px-5 py-2 text-[13px] font-bold text-[#1e40af] hover:bg-[#f0f5ff]"
+          >
+            📄 CSV テンプレート
+          </a>
+        </div>
       </section>
 
       {/* アップロード */}
       <section className="rounded-[14px] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-        <h2 className="text-[15px] font-bold text-[#1e293b]">2. CSV ファイルをアップロード</h2>
+        <h2 className="text-[15px] font-bold text-[#1e293b]">2. ファイルをアップロード</h2>
         <p className="mt-2 text-[13px] text-[#666]">
           対象企業: <span className="font-bold">{companyName}</span>
         </p>
         <p className="mt-1 text-[12px] text-[#888]">
-          UTF-8 / Shift_JIS どちらも対応。Excel から「CSV UTF-8」または「CSV (コンマ区切り)」で保存してください。
+          Excel (.xlsx) または CSV (.csv, UTF-8/Shift_JIS) をアップロードできます。
         </p>
 
         <div className="mt-4">
           <input
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="block w-full rounded border border-[#dadfe8] px-3 py-2 text-[13px]"
           />
+          {file && (
+            <p className="mt-2 text-[12px] text-[#666]">
+              選択中: <span className="font-bold">{file.name}</span> ({isXlsx(file) ? "Excel" : "CSV"})
+            </p>
+          )}
         </div>
 
         {error && <p className="mt-3 rounded bg-[#fef2f2] px-3 py-2 text-[13px] text-[#dc2626]">{error}</p>}

@@ -3,8 +3,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getAgentSession } from "@/lib/agent-session";
-import { JOB_CSV_COLUMNS, parseJobCsvRow, type ParsedJobRow } from "@/lib/job-csv";
+import { JOB_CSV_COLUMNS, parseJobCsvRow } from "@/lib/job-csv";
 import { parseCsv } from "@/lib/csv";
+import { parseXlsxToRows } from "@/lib/job-xlsx";
 import { revalidatePath } from "next/cache";
 
 export type CsvImportResult = {
@@ -39,15 +40,21 @@ async function resolveCompanyContext(companyId: string): Promise<{ companyId: st
   return null;
 }
 
-/** CSV テキストから求人を一括作成 (DRAFT 状態) */
+/** CSV テキスト or XLSX バッファから求人を一括作成 (DRAFT 状態) */
 export async function importJobsFromCsv(
-  csvText: string,
+  input:
+    | { kind: "csv"; text: string }
+    | { kind: "xlsx"; base64: string },
   companyId: string,
 ): Promise<CsvImportResult> {
   const ctx = await resolveCompanyContext(companyId);
   if (!ctx) throw new Error("この企業に対する権限がありません");
 
-  const rows = parseCsv(csvText);
+  const rows =
+    input.kind === "csv"
+      ? parseCsv(input.text)
+      : await parseXlsxToRows(Buffer.from(input.base64, "base64"));
+
   if (rows.length < 2) {
     return { ok: false, successCount: 0, errorRows: [], createdJobIds: [], totalRows: 0 };
   }

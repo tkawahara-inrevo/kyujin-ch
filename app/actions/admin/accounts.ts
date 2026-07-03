@@ -3,6 +3,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildContactFullName } from "@/lib/company-account";
+import { sendTransactionalEmail } from "@/lib/email";
+import { postToSlack } from "@/lib/slack";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
@@ -88,6 +90,42 @@ export async function issueCompanyAccount(data: {
     await tx.user.update({ where: { id: user.id }, data: { companyId: c.id } });
     return c;
   });
+
+  const loginUrl = `${process.env.NEXTAUTH_URL ?? "https://kyujin-ch.jp"}/company/login`;
+
+  // アカウント発行メール送信
+  let emailError: string | null = null;
+  try {
+    await sendTransactionalEmail({
+      to: email,
+      subject: "【求人ちゃんねる】アカウントが発行されました",
+      html: `
+<p>${lastName} ${firstName} 様</p>
+<p>この度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。</p>
+<p>企業アカウントを発行いたしました。<br>
+以下の情報でログインしてください。</p>
+<br>
+<p>【ログイン情報】</p>
+<p>ログインURL: <a href="${loginUrl}">${loginUrl}</a><br>
+仮パスワード: ${temporaryPassword}</p>
+<br>
+<p>初回ログイン後、パスワードを変更してください。</p>
+<br>
+<p>求人ちゃんねる 運営事務局</p>
+      `.trim(),
+      text: `${lastName} ${firstName} 様\n\nこの度は求人ちゃんねるへの掲載依頼をいただきありがとうございます。\n\n企業アカウントを発行いたしました。以下の情報でログインしてください。\n\n【ログイン情報】\nログインURL: ${loginUrl}\n仮パスワード: ${temporaryPassword}\n\n初回ログイン後、パスワードを変更してください。\n\n求人ちゃんねる 運営事務局`,
+      senderTag: "admin-issue-company",
+    });
+  } catch (err) {
+    emailError = err instanceof Error ? err.message : String(err);
+    console.error("[admin-accounts] メール送信失敗:", emailError, "宛先:", email);
+  }
+
+  await postToSlack(
+    `以下の企業のアカウントを管理者が発行しました\n` +
+      `---\n会社名: ${companyName}\n法人番号: ${corporateNumber}\n担当者: ${fullName}\nメールアドレス: ${email}\n---` +
+      (emailError ? `\n⚠️ メール送信失敗: ${emailError}` : ""),
+  );
 
   revalidatePath("/admin/companies");
 

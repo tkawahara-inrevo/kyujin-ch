@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdminPermission } from "@/lib/auth-helpers";
-import { getDisplayFirstName, getDisplayLastName } from "@/lib/company-account";
+import { buildContactFullName, getDisplayFirstName, getDisplayLastName } from "@/lib/company-account";
 import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { CompanyActiveToggle } from "../company-active-toggle";
 import CompanyEditForm from "./company-edit-form";
@@ -100,8 +100,7 @@ export default async function AdminCompanyDetailPage({
           <InfoRow label="資本金" value={company.capital || "未設定"} />
           <InfoRow label="WEBサイト" value={company.websiteUrl || "未設定"} />
           <InfoRow label="所在地" value={company.location || "未設定"} />
-          <InfoRow label="担当者（姓）" value={contactLastName || "未設定"} />
-          <InfoRow label="担当者（名）" value={contactFirstName || "未設定"} />
+          <InfoRow label="担当者名" value={buildContactFullName(contactLastName, contactFirstName) || "未設定"} />
         </dl>
         {company.businessDescription && (
           <div className="mt-4 rounded-[10px] bg-[#f7f9fd] p-4">

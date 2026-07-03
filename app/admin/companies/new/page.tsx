@@ -200,16 +200,15 @@ export default function AdminCompanyNewPage() {
             />
 
             <Field
-              label="姓（担当者）"
+              label="担当者名"
               required
-              value={form.lastName}
-              onChange={(value) => setForm({ ...form, lastName: value })}
-            />
-            <Field
-              label="名（担当者）"
-              required
-              value={form.firstName}
-              onChange={(value) => setForm({ ...form, firstName: value })}
+              value={[form.lastName, form.firstName].filter(Boolean).join(" ")}
+              onChange={(value) => {
+                const parts = value.trim().split(/\s+/);
+                const lastName = parts[0] ?? "";
+                const firstName = parts.slice(1).join(" ");
+                setForm({ ...form, lastName, firstName });
+              }}
             />
 
             <div className="md:col-span-2">

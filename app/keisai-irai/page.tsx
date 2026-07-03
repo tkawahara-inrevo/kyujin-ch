@@ -93,28 +93,22 @@ export default function KeisaiIraiPage() {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="姓" required>
-              <input
-                type="text"
-                name="lastName"
-                value={fields.lastName}
-                onChange={handleChange}
-                className={inputClass}
-                required
-              />
-            </Field>
-            <Field label="名" required>
-              <input
-                type="text"
-                name="firstName"
-                value={fields.firstName}
-                onChange={handleChange}
-                className={inputClass}
-                required
-              />
-            </Field>
-          </div>
+          <Field label="担当者名" required>
+            <input
+              type="text"
+              name="contactName"
+              value={[fields.lastName, fields.firstName].filter(Boolean).join(" ")}
+              onChange={(e) => {
+                const parts = e.target.value.trim().split(/\s+/);
+                const lastName = parts[0] ?? "";
+                const firstName = parts.slice(1).join(" ");
+                setFields((prev) => ({ ...prev, lastName, firstName }));
+              }}
+              className={inputClass}
+              placeholder="例: 山田 太郎"
+              required
+            />
+          </Field>
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="電話番号" required>

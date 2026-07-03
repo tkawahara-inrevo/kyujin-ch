@@ -217,12 +217,12 @@ export function CompanyJobsTable({
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-[18px] bg-white shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
+      <div className="mt-6 xl:overflow-hidden xl:rounded-[18px] xl:bg-white xl:shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
         <div className="xl:hidden">
           {jobs.length === 0 ? (
-            <div className="px-4 py-12 text-center text-[#9aa3b2]">条件に合う求人はありません</div>
+            <div className="rounded-[14px] bg-white px-4 py-12 text-center text-[#9aa3b2] shadow-[0_2px_10px_rgba(37,56,88,0.04)]">条件に合う求人はありません</div>
           ) : (
-            <div className="divide-y divide-[#edf0f5]">
+            <div className="space-y-3">
               {jobs.map((job) => {
                 const canWithdraw = job.reviewStatus === "PENDING_REVIEW";
                 const visibilityDisabled =
@@ -232,7 +232,7 @@ export function CompanyJobsTable({
                   job.reviewStatus === "WITHDRAWN" ||
                   (job.reviewStatus === "PENDING_REVIEW" && !job.hasPublishedVersion);
                 return (
-                  <div key={job.id} className="px-4 py-4">
+                  <div key={job.id} className="rounded-[14px] border border-[#e8edf5] bg-white px-4 py-4 shadow-[0_2px_10px_rgba(37,56,88,0.04)]">
                     <div className="flex items-start justify-between gap-3">
                       <Link
                         href={`/company/jobs/${job.id}/edit`}
@@ -285,7 +285,9 @@ export function CompanyJobsTable({
                     </div>
 
                     {job.note && (
-                      <p className="mt-3 rounded-[8px] bg-[#fffbeb] px-3 py-2 text-[12px] text-[#92400e] line-clamp-2">{job.note}</p>
+                      <p className="mt-3 rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-[12px] text-[#475569] line-clamp-2">
+                        <span className="mr-1 text-[#94a3b8]">📝</span>{job.note}
+                      </p>
                     )}
 
                     <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">

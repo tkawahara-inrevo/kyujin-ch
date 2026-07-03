@@ -329,20 +329,20 @@ export function CompanyJobsTable({
           )}
         </div>
 
-        <div className="hidden xl:block">
-          <table className="w-full table-fixed text-left text-[14px]">
+        <div className="hidden xl:block overflow-x-auto">
+          <table className="min-w-[1180px] w-full table-fixed text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e8edf5] text-[#7f8795]">
-                <th className="w-[460px] px-4 py-4 font-bold">応募求人</th>
-                <th className="w-[100px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
-                <th className="w-[90px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
+                <th className="w-[380px] px-4 py-4 font-bold">応募求人</th>
+                <th className="w-[90px] whitespace-nowrap px-3 py-4 font-bold">雇用形態</th>
+                <th className="w-[80px] whitespace-nowrap px-3 py-4 font-bold">勤務地</th>
                 <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">応募数</th>
-                <th className="w-[120px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
-                <th className="w-[72px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
+                <th className="w-[110px] whitespace-nowrap px-3 py-4 text-center font-bold">審査状況</th>
+                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">公開</th>
                 <th className="w-[80px] whitespace-nowrap px-3 py-4 text-center font-bold">編集</th>
-                <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">メモ</th>
-                <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
-                <th className="w-[48px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
+                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">メモ</th>
+                <th className="w-[64px] whitespace-nowrap px-3 py-4 text-center font-bold">複製</th>
+                <th className="w-[56px] whitespace-nowrap px-3 py-4 text-center font-bold">削除</th>
               </tr>
             </thead>
             <tbody>

@@ -189,12 +189,37 @@ model Company {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // 代理店 (協業先) 紐付け。1企業に1代理店。
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id])
+
   companyUser     User?            @relation("CompanyUser", fields: [companyUserId], references: [id])
   users           User[]           @relation("CompanyMembers")
   jobs            Job[]
   reviews         Review[]
   invalidRequests InvalidRequest[]
   monthlyBillings MonthlyBilling[]
+
+  @@index([agentId])
+}
+
+/// 代理店 (協業先)
+/// 求人ちゃんねるを企業に紹介する代理店 (例: グラハム)
+/// 自分が紹介した企業の応募状況を代理店専用ダッシュボードで確認できる
+model Agent {
+  id         String   @id @default(cuid())
+  name       String   // 代理店名
+  email      String   @unique
+  password   String
+  contactName String? // 担当者名
+  phone      String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  companies  Company[]
+
+  @@index([email])
 }
 
 model Job {

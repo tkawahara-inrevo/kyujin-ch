@@ -7,6 +7,7 @@ import { JOB_REVIEW_STATUS_BADGE_CLASSES, JOB_REVIEW_STATUS_LABELS } from "@/lib
 import { CompanyActiveToggle } from "../company-active-toggle";
 import CompanyEditForm from "./company-edit-form";
 import PasswordResetForm from "./password-reset-form";
+import AgentAssignSection from "./agent-assign-section";
 
 export default async function AdminCompanyDetailPage({
   params,
@@ -20,6 +21,7 @@ export default async function AdminCompanyDetailPage({
     where: { id },
     include: {
       companyUser: true,
+      agent: { select: { id: true, name: true } },
       jobs: {
         where: { isDeleted: false },
         orderBy: { createdAt: "desc" },
@@ -30,6 +32,12 @@ export default async function AdminCompanyDetailPage({
   });
 
   if (!company) notFound();
+
+  const allAgents = await prisma.agent.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   const totalCharges = await prisma.charge.aggregate({
     where: { isValid: true, application: { job: { companyId: id } } },
@@ -101,7 +109,9 @@ export default async function AdminCompanyDetailPage({
           <InfoRow label="WEBサイト" value={company.websiteUrl || "未設定"} />
           <InfoRow label="所在地" value={company.location || "未設定"} />
           <InfoRow label="担当者名" value={buildContactFullName(contactLastName, contactFirstName) || "未設定"} />
+          <InfoRow label="紐付け代理店" value={company.agent?.name ?? "未紐付"} />
         </dl>
+        <AgentAssignSection companyId={company.id} currentAgentId={company.agentId} allAgents={allAgents} />
         {company.businessDescription && (
           <div className="mt-4 rounded-[10px] bg-[#f7f9fd] p-4">
             <p className="text-[12px] font-semibold text-[#888]">事業内容</p>

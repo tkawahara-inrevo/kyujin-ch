@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/admin/invalid-requests", label: "無効申請", icon: "⚠", key: "invalidRequests" },
   { href: "/admin/inquiries", label: "問い合わせ", icon: "📨", key: "inquiries" },
   { href: "/admin/email-logs", label: "メール送信ログ", icon: "✉", key: "emailLogs" },
+  { href: "/admin/agents", label: "代理店管理", icon: "🤝", key: "agents" },
   { href: "/admin/analytics", label: "分析", icon: "📈", key: "analytics" },
 ] as const;
 

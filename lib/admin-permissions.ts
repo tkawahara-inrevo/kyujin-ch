@@ -10,6 +10,7 @@ export type AdminPermissions = {
   invalidRequests: boolean;
   inquiries: boolean;
   emailLogs: boolean;
+  agents: boolean;
   analytics: boolean;
 };
 
@@ -25,6 +26,7 @@ export const ALL_PERMISSIONS: AdminPermissions = {
   invalidRequests: true,
   inquiries: true,
   emailLogs: true,
+  agents: true,
   analytics: true,
 };
 
@@ -40,6 +42,7 @@ export const EMPTY_PERMISSIONS: AdminPermissions = {
   invalidRequests: false,
   inquiries: false,
   emailLogs: false,
+  agents: false,
   analytics: false,
 };
 
@@ -55,6 +58,7 @@ export const PERMISSION_LABELS: Record<keyof AdminPermissions, string> = {
   invalidRequests: "無効申請",
   inquiries: "問い合わせ",
   emailLogs: "メール送信ログ",
+  agents: "代理店管理",
   analytics: "分析",
 };
 
@@ -73,6 +77,7 @@ export function parsePermissions(raw: unknown): AdminPermissions {
     invalidRequests: obj.invalidRequests === true,
     inquiries: obj.inquiries === true,
     emailLogs: obj.emailLogs === true,
+    agents: obj.agents === true,
     analytics: obj.analytics === true,
   };
 }

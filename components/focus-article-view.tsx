@@ -10,12 +10,31 @@ type Props = {
   thumbnailUrl?: string | null;
   tags: string[];
   publishedAt?: Date | null;
+  updatedAt?: Date | null;
   authorName?: string | null;
   authorBio?: string | null;
   authorImageUrl?: string | null;
   /** プレビューモード（共有ボタン等を無効化、リンクを # に） */
   preview?: boolean;
 };
+
+function fmt(d: Date) {
+  return new Date(d).toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
+function sameDay(a: Date, b: Date) {
+  const aa = new Date(a);
+  const bb = new Date(b);
+  return (
+    aa.getFullYear() === bb.getFullYear() &&
+    aa.getMonth() === bb.getMonth() &&
+    aa.getDate() === bb.getDate()
+  );
+}
 
 export function FocusArticleView({
   slug = "",
@@ -26,24 +45,26 @@ export function FocusArticleView({
   thumbnailUrl,
   tags,
   publishedAt,
+  updatedAt,
   authorName,
   authorBio,
   authorImageUrl,
   preview = false,
 }: Props) {
-  const dateStr = publishedAt
-    ? new Date(publishedAt).toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      })
-    : "";
+  const publishedStr = publishedAt ? fmt(publishedAt) : "";
+  const showUpdated =
+    publishedAt && updatedAt && !sameDay(publishedAt, updatedAt);
 
   const tagHref = (tag: string) => (preview ? "#" : `/focus?tag=${encodeURIComponent(tag)}`);
 
   return (
     <article className="flex-1 min-w-0">
-      <p className="text-[16px] font-bold text-[#333]">{dateStr || "（公開前）"}</p>
+      <p className="text-[16px] font-bold text-[#333]">
+        {publishedStr || "（公開前）"}
+        {showUpdated && (
+          <span className="ml-3 text-[13px] font-normal text-[#666]">(更新: {fmt(updatedAt!)})</span>
+        )}
+      </p>
       <p className="mt-1 text-[16px] font-bold text-[#333]">{companyName}</p>
       <h1 className="mt-3 text-[36px] font-bold leading-[1.3] text-[#333]">{title}</h1>
 

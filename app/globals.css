@@ -152,6 +152,10 @@ input {
 .focus-article-body p {
   margin: 1em 0;
 }
+/* 空の段落 (Enter で作った空行) にも高さを持たせて改行として表示する */
+.focus-article-body p:empty::before {
+  content: "\00a0";
+}
 /* H1: 左縦線 + 大見出し */
 .focus-article-body h1 {
   display: flex;

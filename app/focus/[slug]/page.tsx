@@ -64,6 +64,7 @@ export default async function FocusArticlePage({ params }: { params: Params }) {
           thumbnailUrl={article.thumbnailUrl}
           tags={article.tags}
           publishedAt={article.publishedAt}
+          updatedAt={article.updatedAt}
           authorName={article.authorName}
           authorBio={article.authorBio}
           authorImageUrl={article.authorImageUrl}

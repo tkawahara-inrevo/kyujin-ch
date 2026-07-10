@@ -277,7 +277,8 @@
       "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"export PGPASSWORD='kyujin-admin' && psql -h ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com -U kyujin_admin -d kyujin_ch -c \\\\\"SELECT u.id, u.email, u.name AS user_name, u.\\\\\\\\\\\\\"createdAt\\\\\\\\\\\\\" AS user_created, c.id AS company_id, c.name AS company_name, c.\\\\\\\\\\\\\"corporateNumber\\\\\\\\\\\\\", c.\\\\\\\\\\\\\"createdAt\\\\\\\\\\\\\" AS company_created FROM \\\\\\\\\\\\\"User\\\\\\\\\\\\\" u LEFT JOIN \\\\\\\\\\\\\"Company\\\\\\\\\\\\\" c ON c.\\\\\\\\\\\\\"companyUserId\\\\\\\\\\\\\" = u.id WHERE u.email = 'jinji@takematsu.co.jp' OR c.name LIKE '%武松%';\\\\\"\")",
       "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"export PGPASSWORD='kyujin-admin' && psql -h ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com -U kyujin_admin -d kyujin_ch -c \\\\\"SELECT id, \\\\\\\\\\\\\"toAddresses\\\\\\\\\\\\\", subject, status, \\\\\\\\\\\\\"sentAt\\\\\\\\\\\\\" FROM \\\\\\\\\\\\\"EmailLog\\\\\\\\\\\\\" ORDER BY \\\\\\\\\\\\\"sentAt\\\\\\\\\\\\\" DESC LIMIT 10;\\\\\"\")",
       "Bash(ssh -i e:/tmp/prod_key.pem -o StrictHostKeyChecking=no ubuntu@13.159.236.233 \"export PGPASSWORD='kyujin-admin' && psql -h ls-c1d96afa9802a53566cd6b395adb6cab66969d9a.cfkao8yaa93e.ap-northeast-1.rds.amazonaws.com -U kyujin_admin -d kyujin_ch -c \\\\\"SELECT u.email, u.\\\\\\\\\\\\\"firstName\\\\\\\\\\\\\", u.\\\\\\\\\\\\\"lastName\\\\\\\\\\\\\", u.phone, u.username, u.\\\\\\\\\\\\\"createdAt\\\\\\\\\\\\\" FROM \\\\\\\\\\\\\"User\\\\\\\\\\\\\" u WHERE u.email = 'jinji@takematsu.co.jp';\\\\\"\")",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(curl -s -I \"https://inrevo.co.jp/hitotore-recruit/\")"
     ],
     "additionalDirectories": [
       "\\tmp",

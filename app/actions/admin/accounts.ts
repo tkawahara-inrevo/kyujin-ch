@@ -45,7 +45,10 @@ export async function issueCompanyAccount(data: {
   const email = data.email.trim().toLowerCase();
 
   if (!companyName) throw new Error("会社名を入力してください");
-  if (!/^\d{13}$/.test(corporateNumber)) throw new Error("法人番号は13桁の数字で入力してください");
+  // 法人番号は任意 (個人事業主等で法人番号が無いケース対応)。ただし入力する場合は13桁を要求
+  if (corporateNumber && !/^\d{13}$/.test(corporateNumber)) {
+    throw new Error("法人番号は空欄、または13桁の数字で入力してください");
+  }
   if (!username) throw new Error("ユーザー名を入力してください");
   if (!lastName) throw new Error("姓を入力してください");
   if (!firstName) throw new Error("名を入力してください");
@@ -55,7 +58,9 @@ export async function issueCompanyAccount(data: {
   const [existingUserByEmail, existingUserByUsername, existingCompanyByCorporateNumber] = await Promise.all([
     prisma.user.findUnique({ where: { email }, select: { id: true } }),
     prisma.user.findUnique({ where: { username }, select: { id: true } }),
-    prisma.company.findUnique({ where: { corporateNumber }, select: { id: true } }),
+    corporateNumber
+      ? prisma.company.findUnique({ where: { corporateNumber }, select: { id: true } })
+      : Promise.resolve(null),
   ]);
 
   if (existingUserByEmail) throw new Error("そのメールアドレスは既に使われています");
@@ -83,7 +88,7 @@ export async function issueCompanyAccount(data: {
     const c = await tx.company.create({
       data: {
         name: companyName,
-        corporateNumber,
+        corporateNumber: corporateNumber || null,
         companyUserId: user.id,
       },
     });
@@ -123,7 +128,7 @@ export async function issueCompanyAccount(data: {
 
   await postToSlack(
     `以下の企業のアカウントを管理者が発行しました\n` +
-      `---\n会社名: ${companyName}\n法人番号: ${corporateNumber}\n担当者: ${fullName}\nメールアドレス: ${email}\n---` +
+      `---\n会社名: ${companyName}\n法人番号: ${corporateNumber || "(なし)"}\n担当者: ${fullName}\nメールアドレス: ${email}\n---` +
       (emailError ? `\n⚠️ メール送信失敗: ${emailError}` : ""),
   );
 

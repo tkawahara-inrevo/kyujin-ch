@@ -159,12 +159,11 @@ export default function AdminCompanyNewPage() {
             />
             <div>
               <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">
-                法人番号 <span className="text-[#ff3158]">*</span>
+                法人番号 <span className="text-[12px] font-normal text-[#888]">(任意)</span>
               </label>
               <div className="flex gap-2">
                 <input
                   name="corporateNumber"
-                  required
                   value={form.corporateNumber}
                   onChange={(e) =>
                     setForm({ ...form, corporateNumber: e.target.value.replace(/[^\d]/g, "").slice(0, 13) })
@@ -182,7 +181,10 @@ export default function AdminCompanyNewPage() {
                   {lookupLoading ? "確認中..." : "法人名確認"}
                 </button>
               </div>
-              <p className="mt-1 text-[12px] text-[#888]">13桁の数字で入力。公式APIが設定されていれば存在確認できるよ!</p>
+              <p className="mt-1 text-[12px] text-[#888]">
+                個人事業主等で法人番号が無い場合は空欄でOK。<br />
+                入力する場合は13桁の数字で。公式APIが設定されていれば存在確認できるよ!
+              </p>
               {lookupMessage && <p className="mt-2 text-[12px] font-medium text-[#2f6cff]">{lookupMessage}</p>}
             </div>
 

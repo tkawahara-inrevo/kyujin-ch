@@ -29,6 +29,14 @@ function formatDate(d?: Date | string) {
   });
 }
 
+/** 求人の作成日から 7 日以内なら「新着」扱い */
+function isWithin7Days(d?: Date | string): boolean {
+  if (!d) return false;
+  const date = typeof d === "string" ? new Date(d) : d;
+  const diffMs = Date.now() - date.getTime();
+  return diffMs >= 0 && diffMs <= 7 * 24 * 60 * 60 * 1000;
+}
+
 /**
  * 横並びコンパクトな求人リスト項目（リストビュー用）。
  * 画像左・テキスト右の1行レイアウト。
@@ -61,7 +69,7 @@ export function JobListItem({
             className="object-cover"
             sizes="136px"
           />
-          {badge && (
+          {badge && (badge !== "新着" || isWithin7Days(createdAt)) && (
             <span
               className={`absolute right-1.5 top-1.5 z-10 rounded-[4px] px-1.5 py-[2px] text-[10px] font-bold text-white ${
                 badge === "中途" ? "bg-[#2f6cff]" : "bg-[#ff3158]"

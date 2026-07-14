@@ -29,6 +29,14 @@ function formatDate(d?: Date | string) {
   });
 }
 
+/** 求人の作成日から 7 日以内なら「新着」扱い */
+function isWithin7Days(d?: Date | string): boolean {
+  if (!d) return false;
+  const date = typeof d === "string" ? new Date(d) : d;
+  const diffMs = Date.now() - date.getTime();
+  return diffMs >= 0 && diffMs <= 7 * 24 * 60 * 60 * 1000;
+}
+
 function getSubTagClass() {
   return "bg-[#efefef] text-[#555]";
 }
@@ -70,7 +78,7 @@ export function JobCard({
           className="object-contain transition duration-300 group-hover:scale-[1.03]"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
-        {badge && (
+        {badge && (badge !== "新着" || isWithin7Days(createdAt)) && (
           <span className={`absolute right-3 top-3 z-10 rounded-[4px] px-2 py-[3px] text-[11px] font-bold ${
             badge === "中途"
               ? "bg-[#2f6cff] text-white"

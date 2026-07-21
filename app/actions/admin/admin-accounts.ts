@@ -1,17 +1,10 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import type { AdminPermissions } from "@/lib/admin-permissions";
-
-async function requireSuperAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || session.user.role !== "SUPER_ADMIN") {
-    throw new Error("Unauthorized");
-  }
-}
+import { requireSuperAdmin } from "@/lib/auth-helpers";
 
 export async function getAdminAccounts() {
   await requireSuperAdmin();

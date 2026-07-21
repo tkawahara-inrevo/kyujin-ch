@@ -5,7 +5,7 @@ import { JOB_REVIEW_STATUS_LABELS } from "@/lib/job-review";
 import { prisma } from "@/lib/prisma";
 import { JobsTable, type AdminJobRow } from "./jobs-table";
 
-type SearchParams = Promise<{ q?: string; category?: string; status?: string }>;
+type SearchParams = Promise<{ q?: string; category?: string; status?: string; tag?: string }>;
 const REVIEW_STATUS_FILTERS = new Set<JobReviewStatus>(["PENDING_REVIEW", "PUBLISHED"]);
 
 export default async function AdminJobsPage({
@@ -14,7 +14,7 @@ export default async function AdminJobsPage({
   searchParams: SearchParams;
 }) {
   await requireAdminPermission("jobs");
-  const { q, category, status } = await searchParams;
+  const { q, category, status, tag } = await searchParams;
 
   const where: Prisma.JobWhereInput = {
     isDeleted: false,
@@ -28,16 +28,17 @@ export default async function AdminJobsPage({
         }
       : {}),
     ...(category ? { categoryTag: category } : {}),
+    ...(tag ? { company: { tags: { has: tag } } } : {}),
     ...(status && REVIEW_STATUS_FILTERS.has(status as JobReviewStatus)
       ? { reviewStatus: status as JobReviewStatus }
       : { reviewStatus: { in: ["PENDING_REVIEW", "PUBLISHED"] as JobReviewStatus[] } }),
   };
 
-  const [jobs, categoryTags] = await Promise.all([
+  const [jobs, categoryTags, companyTagRows] = await Promise.all([
     prisma.job.findMany({
       where,
       include: {
-        company: true,
+        company: { select: { id: true, name: true, tags: true } },
         _count: { select: { applications: true } },
       },
       orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
@@ -48,14 +49,20 @@ export default async function AdminJobsPage({
       distinct: ["categoryTag"],
       orderBy: { categoryTag: "asc" },
     }),
+    prisma.company.findMany({
+      where: { tags: { isEmpty: false } },
+      select: { tags: true },
+    }),
   ]);
 
   const categories = categoryTags.map((job) => job.categoryTag!).filter(Boolean);
+  const allTags = Array.from(new Set(companyTagRows.flatMap((c) => c.tags))).sort((a, b) => a.localeCompare(b, "ja"));
   const rows: AdminJobRow[] = jobs.map((job) => ({
     id: job.id,
     title: job.title,
     companyId: job.companyId,
     companyName: job.company.name,
+    companyTags: job.company.tags,
     applicationsCount: job._count.applications,
     viewCount: job.viewCount,
     reviewStatus: job.reviewStatus,
@@ -100,13 +107,25 @@ export default async function AdminJobsPage({
           <option value="PENDING_REVIEW">{JOB_REVIEW_STATUS_LABELS.PENDING_REVIEW}</option>
           <option value="PUBLISHED">{JOB_REVIEW_STATUS_LABELS.PUBLISHED}</option>
         </select>
+        <select
+          name="tag"
+          defaultValue={tag ?? ""}
+          className="rounded-lg border border-[#ddd] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
+        >
+          <option value="">全タグ</option>
+          {allTags.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           className="rounded-lg bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white hover:opacity-90"
         >
           検索
         </button>
-        {q || category || status ? (
+        {q || category || status || tag ? (
           <Link
             href="/admin/jobs"
             className="rounded-lg border border-[#ddd] px-4 py-2 text-[13px] text-[#666] hover:bg-[#f5f5f5]"

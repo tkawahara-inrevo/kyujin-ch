@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireAdminPermission } from "@/lib/auth-helpers";
 import { CompaniesTable, type CompanyRow } from "./companies-table";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; tag?: string }>;
 
 export default async function AdminCompaniesPage({
   searchParams,
@@ -11,28 +11,38 @@ export default async function AdminCompaniesPage({
   searchParams: SearchParams;
 }) {
   await requireAdminPermission("companies");
-  const { q } = await searchParams;
+  const { q, tag } = await searchParams;
 
-  const companies = await prisma.company.findMany({
-    where: q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" } },
-            { corporateNumber: { contains: q, mode: "insensitive" } },
-            { companyUser: { email: { contains: q, mode: "insensitive" } } },
-            { companyUser: { username: { contains: q, mode: "insensitive" } } },
-            { companyUser: { lastName: { contains: q, mode: "insensitive" } } },
-            { companyUser: { firstName: { contains: q, mode: "insensitive" } } },
-          ],
-        }
-      : undefined,
-    include: {
-      _count: { select: { jobs: true } },
-      companyUser: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [companies, tagRows] = await Promise.all([
+    prisma.company.findMany({
+      where: {
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { corporateNumber: { contains: q, mode: "insensitive" } },
+                { companyUser: { email: { contains: q, mode: "insensitive" } } },
+                { companyUser: { username: { contains: q, mode: "insensitive" } } },
+                { companyUser: { lastName: { contains: q, mode: "insensitive" } } },
+                { companyUser: { firstName: { contains: q, mode: "insensitive" } } },
+              ],
+            }
+          : {}),
+        ...(tag ? { tags: { has: tag } } : {}),
+      },
+      include: {
+        _count: { select: { jobs: true } },
+        companyUser: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.company.findMany({
+      where: { tags: { isEmpty: false } },
+      select: { tags: true },
+    }),
+  ]);
 
+  const allTags = Array.from(new Set(tagRows.flatMap((c) => c.tags))).sort((a, b) => a.localeCompare(b, "ja"));
   const rows: CompanyRow[] = companies.map((company) => ({
     id: company.id,
     name: company.name,
@@ -42,6 +52,7 @@ export default async function AdminCompaniesPage({
     jobsCount: company._count.jobs,
     isActive: company.isActive,
     createdAt: company.createdAt.toISOString(),
+    tags: company.tags,
   }));
 
   return (
@@ -63,13 +74,25 @@ export default async function AdminCompaniesPage({
           placeholder="会社名・法人番号・ユーザー名・メールで検索..."
           className="min-w-[220px] flex-1 rounded-lg border border-[#ddd] bg-white px-4 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
         />
+        <select
+          name="tag"
+          defaultValue={tag ?? ""}
+          className="rounded-lg border border-[#ddd] bg-white px-3 py-2 text-[13px] outline-none focus:border-[#2f6cff]"
+        >
+          <option value="">全タグ</option>
+          {allTags.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           className="rounded-lg bg-[#2f6cff] px-4 py-2 text-[13px] font-bold text-white hover:opacity-90"
         >
           検索
         </button>
-        {q && (
+        {(q || tag) && (
           <Link
             href="/admin/companies"
             className="rounded-lg border border-[#ddd] px-4 py-2 text-[13px] text-[#666] hover:bg-[#f5f5f5]"

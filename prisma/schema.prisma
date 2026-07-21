@@ -189,6 +189,9 @@ model Company {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // 管理者が付与するクライアントタグ (例: 「重要」「有料化候補」)。求人にも波及する。
+  tags          String[] @default([])
+
   // 代理店 (協業先) 紐付け。1企業に1代理店。
   agentId       String?
   agent         Agent?   @relation(fields: [agentId], references: [id])

@@ -8,6 +8,8 @@ import { CompanyActiveToggle } from "../company-active-toggle";
 import CompanyEditForm from "./company-edit-form";
 import PasswordResetForm from "./password-reset-form";
 import AgentAssignSection from "./agent-assign-section";
+import CompanyTagsSection from "./company-tags-section";
+import { listAllCompanyTags } from "@/app/actions/admin/company-tags";
 
 export default async function AdminCompanyDetailPage({
   params,
@@ -33,11 +35,14 @@ export default async function AdminCompanyDetailPage({
 
   if (!company) notFound();
 
-  const allAgents = await prisma.agent.findMany({
-    where: { isActive: true },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
+  const [allAgents, allCompanyTags] = await Promise.all([
+    prisma.agent.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+    listAllCompanyTags(),
+  ]);
 
   const totalCharges = await prisma.charge.aggregate({
     where: { isValid: true, application: { job: { companyId: id } } },
@@ -125,6 +130,13 @@ export default async function AdminCompanyDetailPage({
           </div>
         )}
       </div>
+
+      {/* クライアントタグ */}
+      <CompanyTagsSection
+        companyId={company.id}
+        initialTags={company.tags}
+        suggestions={allCompanyTags}
+      />
 
       {/* 編集フォーム */}
       <div className="mt-6">

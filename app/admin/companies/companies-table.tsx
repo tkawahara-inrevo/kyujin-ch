@@ -13,6 +13,7 @@ export type CompanyRow = {
   jobsCount: number;
   isActive: boolean;
   createdAt: string;
+  tags: string[];
 };
 
 export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
@@ -105,6 +106,19 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                       >
                         {company.name}
                       </Link>
+                      {company.tags.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {company.tags.map((tag) => (
+                            <Link
+                              key={tag}
+                              href={`/admin/companies?tag=${encodeURIComponent(tag)}`}
+                              className="rounded-full bg-[#e0e7ff] px-2 py-0.5 text-[10px] font-bold text-[#1e3a8a] hover:bg-[#c7d2fe]"
+                            >
+                              {tag}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-[#555]">{company.corporateNumber}</td>
                     <td className="px-5 py-3 text-[#555]">

@@ -10,6 +10,7 @@ export type AdminJobRow = {
   title: string;
   companyId: string;
   companyName: string;
+  companyTags: string[];
   applicationsCount: number;
   viewCount: number;
   reviewStatus: JobReviewStatus;
@@ -98,6 +99,19 @@ export function JobsTable({ jobs }: { jobs: AdminJobRow[] }) {
                       <Link href={`/admin/companies/${job.companyId}`} className="hover:text-[#2f6cff] hover:underline">
                         {job.companyName}
                       </Link>
+                      {job.companyTags.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {job.companyTags.map((tag) => (
+                            <Link
+                              key={tag}
+                              href={`/admin/jobs?tag=${encodeURIComponent(tag)}`}
+                              className="rounded-full bg-[#e0e7ff] px-2 py-0.5 text-[10px] font-bold text-[#1e3a8a] hover:bg-[#c7d2fe]"
+                            >
+                              {tag}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-[#555]">{job.applicationsCount}</td>
                     <td className="px-5 py-3 text-[#555]">{job.viewCount}</td>

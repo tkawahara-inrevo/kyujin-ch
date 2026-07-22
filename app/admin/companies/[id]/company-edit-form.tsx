@@ -169,18 +169,22 @@ export default function CompanyEditForm(props: Props) {
             />
           </Field>
           <Field label="担当者名">
-            <input
-              type="text"
-              value={[form.lastName, form.firstName].filter(Boolean).join(" ")}
-              onChange={(e) => {
-                const parts = e.target.value.trim().split(/\s+/);
-                const lastName = parts[0] ?? "";
-                const firstName = parts.slice(1).join(" ");
-                setForm({ ...form, lastName, firstName });
-              }}
-              placeholder="例: 山田 太郎"
-              className={inputCls}
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                placeholder="姓"
+                className={inputCls}
+              />
+              <input
+                type="text"
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                placeholder="名"
+                className={inputCls}
+              />
+            </div>
           </Field>
           <Field label="電話番号">
             <input

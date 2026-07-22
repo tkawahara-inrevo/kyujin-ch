@@ -201,17 +201,29 @@ export default function AdminCompanyNewPage() {
               onChange={(value) => setForm({ ...form, phone: value })}
             />
 
-            <Field
-              label="担当者名"
-              required
-              value={[form.lastName, form.firstName].filter(Boolean).join(" ")}
-              onChange={(value) => {
-                const parts = value.trim().split(/\s+/);
-                const lastName = parts[0] ?? "";
-                const firstName = parts.slice(1).join(" ");
-                setForm({ ...form, lastName, firstName });
-              }}
-            />
+            <div>
+              <label className="mb-1.5 block text-[13px] font-semibold text-[#444]">
+                担当者名 <span className="text-[#ff3158]">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  required
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                  placeholder="姓"
+                  className={inputCls}
+                />
+                <input
+                  type="text"
+                  required
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                  placeholder="名"
+                  className={inputCls}
+                />
+              </div>
+            </div>
 
             <div className="md:col-span-2">
               <Field

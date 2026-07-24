@@ -256,8 +256,13 @@ export function JobEditForm({
   const titleRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState(job.description);
   const [selectionProcess, setSelectionProcess] = useState(job.selectionProcess ?? "");
-  const [officeDetail, setOfficeDetail] = useState(job.officeDetail ?? "");
-  const [streetAddrVal, setStreetAddrVal] = useState("");
+  // DBには「市町村 以降の住所」が1つの文字列で入っているため、最初のスペースで分割して各欄に戻す
+  const savedOfficeDetail = job.officeDetail ?? "";
+  const firstSpaceIdx = savedOfficeDetail.indexOf(" ");
+  const initialCity = firstSpaceIdx > 0 ? savedOfficeDetail.slice(0, firstSpaceIdx) : savedOfficeDetail;
+  const initialStreet = firstSpaceIdx > 0 ? savedOfficeDetail.slice(firstSpaceIdx + 1) : "";
+  const [officeDetail, setOfficeDetail] = useState(initialCity);
+  const [streetAddrVal, setStreetAddrVal] = useState(initialStreet);
   const [postalCode, setPostalCode] = useState(job.postalCode ?? "");
   const [postalLoading, setPostalLoading] = useState(false);
   const [companyLocation, setCompanyLocation] = useState(job.companyLocation ?? "");
